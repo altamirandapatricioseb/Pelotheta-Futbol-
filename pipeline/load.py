@@ -151,3 +151,7 @@ def build_extras(
 
 def send_extras(extras: dict[str, Any], url: str, key: str, client: httpx.Client | None = None) -> Any:
     return _rpc("load_extras", {"p_extras": extras}, url, key, client)
+
+
+def send_competition_metrics(rows: list[Any], url: str, key: str, client: httpx.Client | None = None) -> Any:
+    return _rpc("load_competition_metrics", {"p_rows": [_dump(r) for r in rows]}, url, key, client)

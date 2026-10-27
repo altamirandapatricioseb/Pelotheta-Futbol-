@@ -14,7 +14,9 @@ Revisión inicial: 27-oct-2026 (Fase 0). Próxima revisión: al cerrar la etapa 
 | API-Football | solo histórico 2022 a 2024 (plan Free) | no publica 2026; no revender; cuota 100 por día; clave solo en `.env` local y GitHub Secrets | `data/raw/phase0/api_football.json` |
 | TheSportsDB | validación cruzada | uso de desarrollo con clave gratis; atribución si se paga | `data/raw/phase0/thesportsdb.json` |
 | BocaStats | validación manual | revisar términos antes de automatizar; no usar `/api/` | `data/raw/phase0/bocastats.json` |
-| Wikidata / Wikipedia | pendiente de sonda | CC0 (Wikidata), CC BY-SA con cita (Wikipedia); minimizar datos personales (Ley 25.326) | sonda en `scripts/phase0/probe_wikidata_wikipedia.py` |
+| Wikipedia (es) | activa (nacionalidad, peso, club formador, selección) | citar «Wikipedia» con enlace (CC BY-SA); solo artículos (robots.txt cierra páginas especiales y la API); datos mínimos (Ley 25.326) | `sources/wikipedia.py` |
+| Wikidata | sin uso | robots.txt cierra `/sparql`; las fichas JSON están permitidas pero no suman | `docs/source_audit.md`, cuarta ronda |
+| Statshub | descartada | datos por jugador solo por API interna, con origen en SofaScore | `docs/source_audit.md`, cuarta ronda |
 | SportScore | descartada | si se activara: enlace visible «Powered by SportScore» | `data/raw/phase0/sportscore.json` |
 | Open-Meteo | activa (clima a la hora del partido) | sitio no comercial (decisión del dueño, 27-oct-2026); citar «Datos del clima: Open-Meteo.com» (CC BY 4.0) con enlace; una consulta por partido con caché. Su robots.txt dice «Disallow: /» en los dominios de la API: se interpreta dirigido a rastreadores de páginas, no a consultas puntuales a una API publicada para uso programático; se revisa si Open-Meteo indica lo contrario | `sources/openmeteo.py` |
 | Transfermarkt, worldfootball.net | descartadas | términos prohíben automatizar / Cloudflare | no aplica |

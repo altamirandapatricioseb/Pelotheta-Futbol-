@@ -25,7 +25,12 @@ from pathlib import Path
 from typing import Any
 
 from pipeline import enrich, load
-from pipeline.models import PlayerProfileRecord, WeatherRecord
+from pipeline.models import (
+    CompetitionMetricRecord,
+    LeagueResultRecord,
+    PlayerProfileRecord,
+    WeatherRecord,
+)
 from sources import nofluffpicks as nfp
 from sources import openmeteo as om
 from sources import promiedos as pd
@@ -38,6 +43,7 @@ SEASON_YEAR = 2026
 LEAGUE_PATH = "/league/liga-profesional/hc"
 MAX_TEAM_PAGES = 80  # tope de seguridad: nunca más de ~4 minutos de requests de equipos
 MAX_GAME_PAGES = 120
+MAX_LEAGUE_GAME_PAGES = 650  # una temporada completa de liga tiene ~480 partidos
 
 
 def load_dotenv(path: Path = ROOT / ".env") -> None:
@@ -70,10 +76,17 @@ def league_team_paths(league_data: dict[str, object]) -> list[str]:
 
 def crawl(
     client: PoliteClient, season_year: int
-) -> tuple[list[pd.ParsedGame], list, list, list[str], dict[str, Any]]:
-    """Devuelve (partidos, jugadores del plantel, plantel, avisos, datos de la página de liga)."""
+) -> tuple[list[pd.ParsedGame], list, list, list[str], dict[str, Any], list[LeagueResultRecord]]:
+    """Devuelve (partidos de Boca, jugadores, plantel, avisos, página de liga, partidos de la liga).
+
+    Los partidos de toda la liga salen de las mismas páginas de equipo que ya se recorren: cada
+    una lista sus partidos. Se lee cada partido una sola vez (después queda en caché).
+    """
     warnings: list[str] = []
     league: dict[str, Any] = {}
+    league_ids: set[str] = set()
+    league_refs: dict[str, pd.GameRef] = {}
+    league_games: list[LeagueResultRecord] = []
     boca = pd.next_data(client.get(pd.BASE_URL + pd.BOCA_TEAM_PATH, use_cache=False).text())["data"]
     players, squad = pd.parse_squad(boca)
 
@@ -82,6 +95,7 @@ def crawl(
     try:
         league = pd.next_data(client.get(pd.BASE_URL + LEAGUE_PATH, use_cache=False).text())["data"]
         team_queue.extend(league_team_paths(league))
+        league_ids = {path.rsplit("/", 1)[1] for path in league_team_paths(league)} | {pd.BOCA_ID}
     except (FetchError, RetryableFetchError, ValueError, KeyError) as exc:
         warnings.append(f"Tabla de la liga no disponible: {exc}")
 
@@ -108,6 +122,9 @@ def crawl(
                 warnings.append(f"Partido {ref.game_id}: {exc}")
                 continue
             pending.extend(pd.head_to_head_refs(raw, season_year))
+            league_game = pd.parse_league_game(raw, season_year)
+            if league_game is not None:
+                league_games.append(league_game)
             team_queue.extend(p for p in pd.opponent_paths(raw) if p not in seen_teams)
             if parsed is not None:
                 games.append(parsed)
@@ -120,15 +137,29 @@ def crawl(
             try:
                 data = pd.next_data(client.get(pd.BASE_URL + path, use_cache=False).text())["data"]
                 pending.extend(pd.boca_game_refs(data, season_year))
+                league_refs.update({r.game_id: r for r in pd.league_game_refs(data, season_year, league_ids)})
             except (FetchError, RetryableFetchError, ValueError, KeyError) as exc:
                 warnings.append(f"Equipo {path}: {exc}")
+    league_pages = 0
+    for ref in league_refs.values():
+        if ref.game_id in seen_games or league_pages >= MAX_LEAGUE_GAME_PAGES:
+            continue
+        league_pages += 1
+        try:
+            raw = pd.next_data(client.get(pd.BASE_URL + ref.path).text())["initialData"]["game"]
+        except (FetchError, RetryableFetchError, ValueError, KeyError) as exc:
+            warnings.append(f"Partido de liga {ref.game_id}: {exc}")
+            continue
+        league_game = pd.parse_league_game(raw, season_year)
+        if league_game is not None:
+            league_games.append(league_game)
     print(
-        f"Páginas leídas: {team_pages} de equipos, {game_pages} de partidos. "
-        f"Partidos cargables: {len(games)}."
+        f"Páginas leídas: {team_pages} de equipos, {game_pages} de partidos de Boca, "
+        f"{league_pages} de otros partidos. Partidos de Boca: {len(games)}; de la liga: {len(league_games)}."
     )
     games.sort(key=lambda g: g.match.kickoff_at)
     pd.split_league_tournaments(games)
-    return games, players, squad, warnings, league
+    return games, players, squad, warnings, league, league_games
 
 
 def crawl_nofluffpicks(
@@ -182,9 +213,22 @@ def crawl_scoutingstats(client: PoliteClient, warnings: list[str]) -> list[ss.Pa
     return result
 
 
+def crawl_ss_performance(client: PoliteClient, warnings: list[str]) -> list[CompetitionMetricRecord]:
+    """Métricas de Boca por competición (PPDA, Field Tilt, goles evitados...) con promedio y puesto."""
+    rows: list[CompetitionMetricRecord] = []
+    for (season, competition), path in ss.PERFORMANCE_PAGES.items():
+        try:
+            html = client.get(ss.BASE_URL + path, use_cache=False).text()
+        except (FetchError, RetryableFetchError) as exc:
+            warnings.append(f"ScoutingStats rendimiento {competition} {season}: {exc}")
+            continue
+        rows.extend(ss.parse_competition_metrics(html, season, competition))
+    return rows
+
+
 def crawl_strikerapi(
     warnings: list[str],
-) -> tuple[list[st.GameLine], list[st.Shot], dict[str, list[Any]]]:
+) -> tuple[list[st.GameLine], list[st.Shot], dict[str, list[Any]], dict[str, dict[str, dict[str, float]]]]:
     """Tiros ubicados y datos por jugador de la Liga Profesional (StrikerAPI, con clave).
 
     Créditos (500 por mes): la lista de partidos cuesta 2 por corrida; cada partido nuevo 5 una
@@ -194,7 +238,7 @@ def crawl_strikerapi(
     key = os.environ.get("STRIKER_API_KEY", "")
     if not key:
         warnings.append("StrikerAPI sin clave (STRIKER_API_KEY): sin tiros ubicados")
-        return [], [], {}
+        return [], [], {}, {}
     client = st.StrikerClient(api_key=key)
     try:
         listing = client.call(
@@ -217,10 +261,50 @@ def crawl_strikerapi(
             shots.extend(st.parse_shots(payload, boca=not against))
     except st.StrikerError as exc:
         warnings.append(f"StrikerAPI no disponible: {exc}")
-        return [], [], {}
+        return [], [], {}, {}
     league = crawl_striker_league(client, latest, warnings)
-    print(f"StrikerAPI: {len(lines)} partidos, {len(shots)} tiros, {client.credits_used} créditos usados.")
-    return lines, shots, league
+    # Primero los partidos con penales (dan penales cometidos y provocados), después el resto.
+    with_penalty = {shot.game_id for shot in shots if shot.penalty}
+    events = crawl_striker_events(client, sorted(ids, key=lambda g: g not in with_penalty), warnings)
+    print(
+        f"StrikerAPI: {len(lines)} partidos, {len(shots)} tiros, eventos de {len(events)} partidos, "
+        f"{client.credits_used} créditos usados."
+    )
+    return lines, shots, league, events
+
+
+def crawl_striker_events(
+    client: st.StrikerClient, game_ids: list[str], warnings: list[str]
+) -> dict[str, dict[str, dict[str, float]]]:
+    """xA, penales cometidos y provocados de cada partido (10 créditos por partido, una sola vez).
+
+    Los partidos ya bajados salen de la caché. Los nuevos se piden mientras queden más créditos
+    que la reserva del mes; el resto se completa en la corrida siguiente.
+    """
+    events: dict[str, dict[str, dict[str, float]]] = {}
+    pending = 0
+    for game_id in game_ids:
+        cache_key = f"events_{game_id}"
+        cached = (client.cache_dir / f"{cache_key}.json").exists()
+        low = (
+            client.credits_remaining is not None and client.credits_remaining - 10 < st.EVENTS_CREDIT_RESERVE
+        )
+        if not cached and low:
+            pending += 1
+            continue
+        try:
+            payload = client.call(
+                "get_events", {"game_id": game_id, "kind": "all", "limit": 500}, cache_key=cache_key
+            )
+        except st.StrikerError as exc:
+            warnings.append(f"StrikerAPI eventos {game_id}: {exc}")
+            continue
+        events[game_id] = st.boca_event_stats(payload)
+    if pending:
+        print(
+            f"StrikerAPI: eventos de {pending} partidos quedan para la próxima corrida (reserva de créditos)."
+        )
+    return events
 
 
 def crawl_striker_league(client: st.StrikerClient, latest: str, warnings: list[str]) -> dict[str, list[Any]]:
@@ -350,14 +434,15 @@ def main(argv: list[str] | None = None) -> int:
     started = datetime.now()
     try:
         with PoliteClient(source=pd.SOURCE) as client:
-            games, players, squad, warnings, league_page = crawl(client, SEASON_YEAR)
+            games, players, squad, warnings, league_page, promiedos_league = crawl(client, SEASON_YEAR)
         # ScoutingStats va antes que NoFluffPicks: la primera fuente de cada clave gana.
         with PoliteClient(source=ss.SOURCE) as client:
             ss_matches = crawl_scoutingstats(client, warnings)
             with_ss = enrich.attach_scoutingstats(games, ss_matches, warnings)
+            competition_metrics = crawl_ss_performance(client, warnings)
         print(f"Partidos con datos de ScoutingStats: {with_ss}.")
-        striker_lines, striker_shots, striker_league = crawl_strikerapi(warnings)
-        with_st = enrich.attach_strikerapi(games, striker_lines, striker_shots, warnings)
+        striker_lines, striker_shots, striker_league, striker_events = crawl_strikerapi(warnings)
+        with_st = enrich.attach_strikerapi(games, striker_lines, striker_shots, warnings, striker_events)
         print(f"Partidos con datos de StrikerAPI: {with_st}.")
         with PoliteClient(source=nfp.SOURCE) as client:
             with_xg = enrich.attach_nofluffpicks(games, crawl_nofluffpicks(client, warnings), warnings)
@@ -374,7 +459,7 @@ def main(argv: list[str] | None = None) -> int:
             games,
             standings=pd.parse_standings(league_page, SEASON_YEAR) if league_page else [],
             leaders=[*promiedos_leaders, *striker_league.get("leaders", [])],
-            league_results=striker_league.get("league_results", []),
+            league_results=[*promiedos_league, *striker_league.get("league_results", [])],
             ratings=striker_league.get("ratings", []),
             club_stats=striker_league.get("club_stats", []),
             profiles=profiles,
@@ -406,6 +491,8 @@ def main(argv: list[str] | None = None) -> int:
     if weather:
         result["weather"] = load.send_weather(weather, url, key)
     result.update(load.send_extras(extras, url, key) or {})
+    if competition_metrics:
+        result["competition_metrics"] = load.send_competition_metrics(competition_metrics, url, key)
     seconds = (datetime.now() - started).total_seconds()
     print(f"Carga {status} en {seconds:.0f} s: {result}")
     return 0

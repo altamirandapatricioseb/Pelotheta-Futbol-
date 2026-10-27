@@ -20,6 +20,8 @@ from datetime import UTC, date, datetime, timedelta, timezone
 
 from bs4 import BeautifulSoup, Tag
 
+from pipeline.models import CompetitionMetricRecord
+
 SOURCE = "scoutingstats"
 BASE_URL = "https://scoutingstats.ai"
 BOCA_MATCHES_PATH = "/clubs/587/boca-juniors/matches"
@@ -245,3 +247,52 @@ def parse_match(html: str) -> ParsedMatch | None:
         venue=_venue(soup),
         momentum=parse_momentum(html),
     )
+
+
+# --- rendimiento por competición -------------------------------------------------------------
+
+# Páginas de rendimiento del club por competición (league_id, season_id de la fuente) -> código
+# de competición propio. Se agregan a mano cuando Boca juega una competición nueva.
+PERFORMANCE_PAGES = {
+    (2026, "liga_profesional"): "/clubs/587/boca-juniors/performance?league_id=636&season_id=26808",
+    (
+        2026,
+        "conmebol_copa_libertadores",
+    ): "/clubs/587/boca-juniors/performance?league_id=1122&season_id=26784",
+    (
+        2026,
+        "conmebol_copa_sudamericana",
+    ): "/clubs/587/boca-juniors/performance?league_id=1116&season_id=26783",
+    (2025, "liga_profesional"): "/clubs/587/boca-juniors/performance?league_id=636&season_id=24969",
+}
+N_TEAMS_RE = re.compile(r'class="ch2-st-of">of (\d+)<')
+RANK_RE = re.compile(r"(\d+)")
+
+
+def parse_competition_metrics(html: str, season: int, competition: str) -> list[CompetitionMetricRecord]:
+    """Métricas de la página de rendimiento: valor de Boca, promedio y puesto en la competición."""
+    soup = BeautifulSoup(html, "html.parser")
+    n_teams_match = N_TEAMS_RE.search(html)
+    n_teams = int(n_teams_match.group(1)) if n_teams_match else None
+    rows = []
+    for row in soup.select("div.ch2-str[data-k]"):
+        key = re.sub(r"[^a-z0-9_]+", "_", str(row["data-k"]).lower()).strip("_")
+        value_cell, avg_cell, rank_cell = row.select_one(".v"), row.select_one(".a"), row.select_one(".rk")
+        value = _number(value_cell.get_text().replace("+", "")) if value_cell else None
+        if not key or value is None:
+            continue
+        average = _number(avg_cell.get_text().replace("+", "")) if avg_cell else None
+        rank = RANK_RE.search(rank_cell.get_text()) if rank_cell else None
+        rows.append(
+            CompetitionMetricRecord(
+                source=SOURCE,
+                season=season,
+                competition=competition,
+                metric=key,
+                value=value,
+                comp_average=average,
+                rank=int(rank.group(1)) if rank else None,
+                n_teams=n_teams,
+            )
+        )
+    return rows

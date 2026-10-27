@@ -351,3 +351,50 @@ def test_absences_keep_boca_names_and_only_reasons_for_rivals() -> None:
     assert rows == {("igg", "fede lesionado", "lesion"), ("zzz", None, "suspension_roja")}
     # El ausente de Boca queda registrado como jugador para poder enlazarlo.
     assert "fede lesionado" in {p.source_id for p in parsed.players}
+
+
+def test_league_game_keeps_referee_cards_fouls_and_absence_counts() -> None:
+    other = {"name": "Otro FC", "short_name": "Otro", "id": "ooo", "country_id": "ba"}
+    g = rich_game()
+    g["teams"] = [other, RIVAL]
+    g["statistics"].append({"name": "Faltas", "values": ["12", "15"]})
+    row = pd.parse_league_game(g, 2026)
+    assert row is not None
+    assert (row.home_team, row.away_team, row.home_goals, row.away_goals) == ("Otro FC", "Rival FC", 2, 1)
+    assert row.referee == "Juez Uno" and row.source == "promiedos"
+    assert (row.yellow_home, row.red_home, row.yellow_away, row.red_away) == (1, 1, 0, 0)
+    assert (row.fouls_home, row.fouls_away) == (12, 15)
+    assert (row.injured_home, row.suspended_away) == (1, 1)
+
+
+def test_league_game_ignores_other_competitions() -> None:
+    cup = game(league={"name": "Copa Argentina", "id": "gea", "country_id": "ba"})
+    assert pd.parse_league_game(cup, 2026) is None
+
+
+def test_league_game_refs_need_a_final_score_and_two_league_teams() -> None:
+    def row(game_id: str, result: str, teams: list[str], start: str = "10-05-2026 18:00") -> dict[str, Any]:
+        return {
+            "result_status": 3,  # es el resultado para el equipo (derrota), no el estado del partido
+            "values": [{"key": "result", "value": result}],
+            "game": {
+                "id": game_id,
+                "url_name": f"p-{game_id}",
+                "start_time": start,
+                "teams": [{"id": t} for t in teams],
+            },
+        }
+
+    data = {
+        "games": {
+            "last": {
+                "rows": [
+                    row("a", "2-1", ["x", "y"]),
+                    row("b", "-", ["x", "y"]),  # sin jugar
+                    row("c", "0-0", ["x", "copa"]),  # rival que no es de la liga
+                    row("d", "1-1", ["x", "y"], start="10-05-2025 18:00"),  # otra temporada
+                ]
+            }
+        }
+    }
+    assert [r.game_id for r in pd.league_game_refs(data, 2026, {"x", "y"})] == ["a"]

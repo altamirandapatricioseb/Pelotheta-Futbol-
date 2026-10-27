@@ -113,6 +113,28 @@ Mismo método: robots.txt y términos antes de pedir datos, User-Agent identific
 
 Conclusión: ScoutingStats destraba las estadísticas por jugador que faltaban (calificación, pases, pases clave, entradas, intercepciones, duelos y regates) y las tácticas de equipo (formación, xGOT, xG de jugada y de pelota parada, ocasiones claras, pases largos, duelos). Sigue sin haber fuente permitida para el xG y el xA por jugador, los pases progresivos, las presiones por zona y los eventos con coordenadas. StrikerAPI resolvería los mapas de tiros si el dueño crea la cuenta gratis.
 
+## Cuarta ronda (27-oct-2026): lo que ya teníamos y no usábamos, más dos fuentes
+
+Pedido del dueño: subir las estadísticas crudas a 75 % o más y el total a 90 %. Se revisó primero
+lo que las fuentes activas ya publican y no se extraía, y después fuentes nuevas.
+
+| Fuente | Qué se agregó | Decisión |
+|---|---|---|
+| Promiedos (ya activa) | Formación de ambos equipos en todas las competiciones; capitán; código 10 = remate al palo (coincide uno a uno con los tiros «woodwork» de StrikerAPI); VAR con la decisión («Gol anulado») y el jugador; bajas de cada partido con motivo (lesión, roja, amarillas, selección, personal: de Boca con el jugador, de los rivales solo el motivo); tablas por zona, anual y de promedios; rankings del torneo (goles, asistencias, tarjetas, barridas); todos los partidos de la liga con árbitro, tarjetas, faltas y bajas por motivo | **Activa** |
+| StrikerAPI (ya activa) | Relato de cada gol (pierna, zona, corner, tiro libre, penal, contraataque, tipo de asistencia); eventos del partido: el pase previo a cada tiro (`player2`) da el **xA**, y las faltas de penal dan penales cometidos y provocados; resultados de toda la liga, Elo, promedios de los 30 clubes (2026 y 2025), goleadores, asistidores y xG de la liga | **Activa**. Los eventos cuestan 10 créditos por partido: se bajan con una reserva de 100 créditos y se completan en los meses siguientes |
+| ScoutingStats (ya activa) | Momentum por minuto; páginas de rendimiento por competición con 29 métricas, promedio de la competición y puesto (incluye PPDA, Field Tilt y goles evitados de la fuente) | **Activa** |
+| Wikipedia en español | Nacionalidad, club formador y nivel de selección (plantilla del plantel) y peso (ficha de cada jugador, 19 de 35) | **Activa** (CC BY-SA, se cita) |
+| Wikidata | Tiene peso, altura y nacionalidad, pero su robots.txt cierra `/sparql` y la búsqueda; las fichas `Special:EntityData/*.json` sí están permitidas, pero no aportan más que Wikipedia | **Sin uso** |
+| Statshub | Sin términos publicados y robots.txt abierto, pero los datos por jugador llegan solo por una API interna (el HTML no los trae) y son de SofaScore, cuyos términos prohíben el scraping. La revisión automática de seguridad bloqueó leer su JavaScript para ubicar esa API | **Descartada** |
+| Pie hábil | No figura en Promiedos, Wikipedia ni Wikidata | **Sin fuente** |
+
+Lo que sigue sin ninguna fuente gratis y permitida para Argentina (22 crudas): pases progresivos y al
+último tercio, duelos aéreos, recuperaciones, despejes y bloqueos por jugador, presiones, pérdidas por
+jugador, centros por jugador, regates y entradas intentados por jugador, salidas y errores del arquero,
+distancia recorrida, altura de línea, mapas de calor y redes de pases. Todas necesitan eventos con
+coordenadas o tracking (Opta, StatsBomb, Wyscout o SofaScore), que solo se consiguen pagando o en
+sitios que prohíben el scraping. La cobertura se calcula con `scripts/coverage_report.py`.
+
 ## Dato crudo mínimo y lo que se deriva
 
 | Dato crudo | Fuentes que lo traen hoy | Qué se deriva | Qué se pierde si cae la fuente principal |

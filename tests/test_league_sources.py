@@ -208,3 +208,26 @@ def test_wikipedia_infobox_weight() -> None:
     )
     assert wp.parse_weight(html) == 70
     assert wp.parse_weight('<table class="infobox"><tr><th>Altura</th><td>1,75 m</td></tr></table>') is None
+
+
+def metric_row(key: str, value: str, avg: str, rank: str) -> str:
+    return (
+        f'<div class="ch2-str" role="row" data-k="{key}"><span class="m"><b>X</b></span>'
+        f'<span role="cell" class="num v" data-f="vs">{value}</span>'
+        f'<span role="cell" class="num a" data-f="avgs">{avg}</span>'
+        f'<span role="cell" class="rk" data-f="rk"><b class="num">{rank}</b></span></div>'
+    )
+
+
+def test_scoutingstats_competition_metrics() -> None:
+    html = (
+        '<span role="columnheader">Rank <small class="ch2-st-of">of 47</small></span>'
+        + metric_row("ppda", "10.0", "10.6", "19th")
+        + metric_row("save_pct", "60%", "73%", "41st")
+        + metric_row("goals_prevented", "+0.02", "+0.41", "32nd")
+    )
+    rows = ss.parse_competition_metrics(html, season=2026, competition="conmebol_copa_libertadores")
+    by_key = {r.metric: r for r in rows}
+    assert by_key["ppda"].value == 10.0 and by_key["ppda"].comp_average == 10.6 and by_key["ppda"].rank == 19
+    assert by_key["save_pct"].value == 60 and by_key["goals_prevented"].value == 0.02
+    assert all(r.n_teams == 47 for r in rows)

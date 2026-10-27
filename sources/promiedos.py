@@ -29,6 +29,7 @@ from pipeline.models import (
     EventType,
     FormationRecord,
     LeagueLeaderRecord,
+    LeagueResultRecord,
     LineupRecord,
     MatchRecord,
     MomentumRecord,
@@ -639,3 +640,87 @@ def parse_league_leaders(league_data: dict[str, Any], season_year: int) -> list[
                     )
                 )
     return rows
+
+
+LEAGUE_ID = "hc"
+SCORE_RE = re.compile(r"^\d+-\d+$")  # marcador final en la fila del partido («2-1»)
+SUSPENSIONS = {"Tarjeta Roja", "Tarjeta Amarilla"}
+
+
+def league_game_refs(team_data: dict[str, Any], season_year: int, league_team_ids: set[str]) -> list[GameRef]:
+    """Partidos terminados de la temporada entre dos equipos de la liga, listados en una página
+    de equipo. Pueden colarse cruces de Copa Argentina: `parse_league_game` los descarta."""
+    games = team_data.get("games") or {}
+    refs = []
+    for row in (games.get("last") or {}).get("rows", []):
+        g = row.get("game") or {}
+        ids = {t.get("id") for t in g.get("teams") or []}
+        start = str(g.get("start_time", ""))
+        result = next((v.get("value") for v in row.get("values") or [] if v.get("key") == "result"), "")
+        if (
+            SCORE_RE.match(str(result))
+            and ids <= league_team_ids
+            and len(ids) == 2
+            and start[6:10] == str(season_year)
+            and g.get("id")
+            and g.get("url_name")
+        ):
+            refs.append(GameRef(game_id=g["id"], url_name=g["url_name"]))
+    return refs
+
+
+def parse_league_game(game: dict[str, Any], season_year: int) -> LeagueResultRecord | None:
+    """Cualquier partido terminado de la Liga Profesional: resultado, árbitro, tarjetas, faltas y
+    bajas contadas por motivo. Sirve para estadísticas de árbitros y de toda la liga."""
+    if (game.get("status") or {}).get("enum") != 3 or (game.get("league") or {}).get("id") != LEAGUE_ID:
+        return None
+    home, away = game["teams"][0], game["teams"][1]
+    cards = {(side, kind): 0 for side in (1, 2) for kind in ("yellow", "red")}
+    for stage in game.get("events") or []:
+        if stage.get("is_penalties_stage"):
+            continue
+        for row in stage.get("rows") or []:
+            for ev in row.get("events") or []:
+                kind = EVENT_TYPES.get(ev.get("type"))
+                side = ev.get("team")
+                if side in (1, 2) and kind == "amarilla":
+                    cards[(side, "yellow")] += 1
+                elif side in (1, 2) and kind in SENDING_OFF:
+                    cards[(side, "red")] += 1
+    fouls = next((s.get("values") for s in game.get("statistics") or [] if s.get("name") == "Faltas"), None)
+    missing = (game.get("players") or {}).get("missing_players") or []
+
+    def count(side: int, reasons: set[str]) -> int | None:
+        if len(missing) < side:
+            return None
+        return sum(
+            1 for p in missing[side - 1] or [] if (p.get("missing_details") or {}).get("reason") in reasons
+        )
+
+    def foul(side: int) -> int | None:
+        value = _stat_value(str(fouls[side - 1])) if fouls and len(fouls) >= side else None
+        return int(value) if value is not None else None
+
+    kickoff = datetime.strptime(game["start_time"], "%d-%m-%Y %H:%M").replace(tzinfo=AR_TZ)
+    return LeagueResultRecord(
+        source=SOURCE,
+        ext_id=str(game["id"]),
+        season=season_year,
+        stage=game.get("stage_round_name"),
+        match_date=kickoff.date(),
+        home_team=home["name"],
+        away_team=away["name"],
+        home_goals=game["scores"][0],
+        away_goals=game["scores"][1],
+        referee=_info(game, "Árbitro"),
+        yellow_home=cards[(1, "yellow")],
+        yellow_away=cards[(2, "yellow")],
+        red_home=cards[(1, "red")],
+        red_away=cards[(2, "red")],
+        fouls_home=foul(1),
+        fouls_away=foul(2),
+        injured_home=count(1, {"Lesionado"}),
+        injured_away=count(2, {"Lesionado"}),
+        suspended_home=count(1, SUSPENSIONS),
+        suspended_away=count(2, SUSPENSIONS),
+    )

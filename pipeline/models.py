@@ -202,6 +202,19 @@ class LeagueResultRecord(Record):
     away_team: str
     home_goals: int = Field(ge=0)
     away_goals: int = Field(ge=0)
+    # Solo los partidos de Promiedos traen árbitro, tarjetas, faltas y bajas (conteos por motivo;
+    # de los equipos que no son Boca nunca se guardan nombres).
+    referee: str | None = None
+    yellow_home: int | None = Field(default=None, ge=0)
+    yellow_away: int | None = Field(default=None, ge=0)
+    red_home: int | None = Field(default=None, ge=0)
+    red_away: int | None = Field(default=None, ge=0)
+    fouls_home: int | None = Field(default=None, ge=0)
+    fouls_away: int | None = Field(default=None, ge=0)
+    injured_home: int | None = Field(default=None, ge=0)
+    injured_away: int | None = Field(default=None, ge=0)
+    suspended_home: int | None = Field(default=None, ge=0)
+    suspended_away: int | None = Field(default=None, ge=0)
 
 
 class ClubRatingRecord(Record):
@@ -261,3 +274,16 @@ class PlayerProfileRecord(Record):
     academy: bool = False
     national_team: str | None = None
     source: str = Field(pattern=r"^[a-z_]+$")
+
+
+class CompetitionMetricRecord(Record):
+    """Métrica de Boca en una competición con el promedio de la competición y su puesto."""
+
+    source: str = Field(pattern=r"^[a-z_]+$")
+    season: int
+    competition: str = Field(pattern=r"^[a-z0-9_]+$")
+    metric: str = Field(pattern=r"^[a-z0-9_]+$")
+    value: float
+    comp_average: float | None = None
+    rank: int | None = Field(default=None, ge=1)
+    n_teams: int | None = Field(default=None, ge=1)

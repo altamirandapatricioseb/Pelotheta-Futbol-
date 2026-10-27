@@ -180,7 +180,11 @@ def _boca_goal_types(goals: list[st.GoalInfo]) -> dict[str, dict[str, float]]:
 
 
 def attach_strikerapi(
-    games: list[pd.ParsedGame], lines: list[st.GameLine], shots: list[st.Shot], warnings: list[str]
+    games: list[pd.ParsedGame],
+    lines: list[st.GameLine],
+    shots: list[st.Shot],
+    warnings: list[str],
+    event_stats: dict[str, dict[str, dict[str, float]]] | None = None,
 ) -> int:
     """Agrega despejes, entradas ganadas, faltas por jugador y los tiros ubicados. Devuelve cuántos.
 
@@ -200,6 +204,8 @@ def attach_strikerapi(
         _add_team_stats(parsed, line.team_stats, None, st.SOURCE)
         _add_player_stats(parsed, [(p.name, p.stats) for p in line.boca_players], st.SOURCE, label, warnings)
         _add_player_stats(parsed, list(_boca_goal_types(line.goals).items()), st.SOURCE, label, warnings)
+        if event_stats and line.game_id in event_stats:
+            _add_player_stats(parsed, list(event_stats[line.game_id].items()), st.SOURCE, label, warnings)
         by_game_id[line.game_id] = parsed
     for shot in shots:
         parsed = by_game_id.get(shot.game_id)

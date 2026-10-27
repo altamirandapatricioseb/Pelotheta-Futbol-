@@ -181,3 +181,116 @@ def test_goal_type_counts_per_side() -> None:
     assert counts["goals_from_cross"] == (1, 0)
     assert counts["goals_penalty"] == (0, 1)
     assert counts["goals_fast_break"] == (0, 0)  # se sabe que no hubo: es un cero real
+
+
+def events_payload() -> dict[str, object]:
+    def shot(
+        seq: int, team: str, player: str, assister: str | None, xg: float, penalty: bool = False
+    ) -> dict:
+        return {
+            "seq": seq,
+            "type": "shot-off-target",
+            "team_id": team,
+            "player": player,
+            "player2": assister,
+            "shot": {"xg": xg, "penalty": penalty, "outcome": "missed"},
+        }
+
+    return {
+        "data": {
+            "events": [
+                shot(1, "5", "Carlos Nueve", "Beto Volante", 0.2),
+                shot(2, "5", "Carlos Nueve", "Beto Volante", 0.1),
+                shot(3, "5", "Beto Volante", None, 0.3),
+                shot(4, "5", "Carlos Nueve", "Ana Arquera", 0.7, penalty=True),  # el penal no suma xA
+                shot(5, "11", "Rival Uno", "Rival Dos", 0.4),
+                {
+                    "seq": 6,
+                    "type": "foul",
+                    "team_id": "5",
+                    "player": "Ana Arquera",
+                    "player2": "Rival Uno",
+                    "text": "Penalty conceded by Ana Arquera (Boca Juniors) after a foul in the penalty "
+                    "area.",
+                },
+                {
+                    "seq": 7,
+                    "type": "foul",
+                    "team_id": "11",
+                    "player": "Rival Dos",
+                    "player2": "Carlos Nueve",
+                    "text": "Penalty conceded by Rival Dos (Rival) after a foul in the penalty area.",
+                },
+                {
+                    "seq": 8,
+                    "type": "handball",
+                    "team_id": "5",
+                    "player": "Beto Volante",
+                    "text": "Hand ball by Beto Volante.",
+                },
+            ]
+        }
+    }
+
+
+def test_event_stats_for_boca_players() -> None:
+    stats = st.boca_event_stats(events_payload())
+    assert stats["Beto Volante"]["xa"] == 0.3 and stats["Beto Volante"]["shot_assists"] == 2
+    assert stats["Beto Volante"]["handballs"] == 1
+    assert "xa" not in stats.get("Ana Arquera", {})  # asistió un penal: no cuenta
+    assert stats["Ana Arquera"]["penalties_conceded"] == 1
+    assert stats["Carlos Nueve"]["penalties_won"] == 1
+    assert "Rival Dos" not in stats
+
+
+def test_penalty_fouls_in_both_wordings_are_counted_once() -> None:
+    def foul(seq: int, team: str, fouler: str, fouled: str, text: str) -> dict[str, object]:
+        return {
+            "seq": seq,
+            "minute": 30,
+            "type": "foul",
+            "team_id": team,
+            "player": fouler,
+            "player2": fouled,
+            "text": text,
+        }
+
+    payload = {
+        "data": {
+            "events": [
+                foul(
+                    1,
+                    "11",
+                    "Rival Uno",
+                    "Carlos Nueve",
+                    "Penalty Boca Juniors. Carlos Nueve draws a foul in the penalty area.",
+                ),
+                foul(
+                    2,
+                    "11",
+                    "Rival Uno",
+                    "Carlos Nueve",
+                    "Penalty conceded by Rival Uno (Rival) after a foul in the penalty area.",
+                ),
+                foul(
+                    3,
+                    "5",
+                    "Ana Arquera",
+                    "Rival Dos",
+                    "Penalty Rival. Rival Dos draws a foul in the penalty area.",
+                ),
+                {
+                    "seq": 4,
+                    "minute": 70,
+                    "type": "var---referee-decision-cancelled",
+                    "team_id": "5",
+                    "player": "Beto Volante",
+                    "text": "VAR Decision: Penalty Boca Juniors.",
+                },
+            ]
+        }
+    }
+    stats = st.boca_event_stats(payload)
+    assert stats["Carlos Nueve"]["penalties_won"] == 1  # dos relatos de la misma falta
+    assert stats["Ana Arquera"]["penalties_conceded"] == 1
+    assert stats["Beto Volante"]["penalties_won"] == 1  # penal dado por el VAR sin falta relatada

@@ -24,11 +24,11 @@ j22,jugador,ataque,Regates intentados,falta,,
 j23,jugador,pase,Pases intentados,cargado,scoutingstats,
 j24,jugador,pase,Pases completados,cargado,scoutingstats,desde el % de acierto
 j25,jugador,pase,Pases clave,cargado,scoutingstats,
-j26,jugador,pase,xA,falta,,
+j26,jugador,pase,xA,parcial,strikerapi,xG de los tiros que habilitó; solo liga; se completa con la cuota de créditos
 j27,jugador,pase,Pases progresivos,falta,,
 j28,jugador,pase,Pases al ultimo tercio,falta,,
 j29,jugador,pase,Centros intentados y completados,falta,,
-j30,jugador,pase,Perdidas de posesion,falta,,
+j30,jugador,pase,Perdidas de posesion,parcial,scoutingstats,pases fallados (pases y % de acierto); faltan regates fallados y desposesiones
 j31,jugador,defensa,Entradas ganadas,cargado,scoutingstats,
 j32,jugador,defensa,Entradas intentadas,falta,,StrikerAPI solo por equipo
 j33,jugador,defensa,Intercepciones,cargado,scoutingstats,
@@ -45,7 +45,7 @@ j43,jugador,arquero,Penales atajados,cargado,strikerapi,penales en contra atajad
 j44,jugador,arquero,Centros atrapados y salidas,falta,,
 j45,jugador,arquero,Errores que terminan en tiro o gol,falta,,
 j46,jugador,disciplina,Amarillas y rojas,cargado,promiedos,
-j47,jugador,disciplina,Penales cometidos,falta,,
+j47,jugador,disciplina,Penales cometidos,cargado,strikerapi,relato de la falta («Penalty conceded by»); solo liga
 j48,jugador,disciplina,Sanciones y fechas de suspension,cargado,promiedos,bajas por roja o acumulación de amarillas por partido
 j49,jugador,fisico,Distancia y sprints,falta,,ninguna fuente publica tracking
 j50,jugador,disponibilidad,Lesiones,cargado,promiedos,bajas por lesión por partido (sin detalle médico)
@@ -77,7 +77,7 @@ e25,equipo,posesion,Posesion,cargado,promiedos,
 e26,equipo,posesion,Pases y pases completados,cargado,scoutingstats,
 e27,equipo,posesion,Pases largos y completados,cargado,scoutingstats,
 e28,equipo,posesion,Pases progresivos y al ultimo tercio,falta,,
-e29,equipo,posesion,Perdidas,falta,,
+e29,equipo,posesion,Perdidas,parcial,scoutingstats,pases y regates fallados; faltan desposesiones y malos controles
 e30,equipo,balon_parado,Corners y tiros libres,cargado,promiedos,
 e31,equipo,balon_parado,Goles tras corner o tiro libre,cargado,strikerapi,relato de cada gol; solo liga
 e32,equipo,tactica,Formacion,cargado,promiedos,todas las competiciones; ScoutingStats completa huecos
@@ -92,8 +92,8 @@ c01,competicion,liga,Resultados de todos los partidos de la liga,cargado,striker
 c02,competicion,liga,Tabla de posiciones,cargado,promiedos,Apertura y Clausura por zona
 c03,competicion,liga,Goleadores y asistidores de la liga,cargado,promiedos,goles y asistencias del torneo (Opta) y de la temporada (StrikerAPI)
 c04,competicion,liga,Estadisticas de los demas equipos,cargado,strikerapi,"promedios por partido de los 30 clubes, a favor y en contra"
-c05,competicion,liga,Arbitros de todos los partidos,en_fuente,promiedos,
-c06,competicion,liga,Suspendidos,parcial,promiedos,bajas por suspensión en los partidos de Boca (propias y del rival)
+c05,competicion,liga,Arbitros de todos los partidos,parcial,promiedos,"árbitro, tarjetas y faltas de 313 de ~465 partidos de la liga (las páginas de equipo listan solo los últimos ~38)"
+c06,competicion,liga,Suspendidos,parcial,promiedos,suspendidos por equipo en 313 de ~465 partidos (conteos) y de Boca con nombre en todos
 p01,partido,eventos,Goles cambios y tarjetas con minuto,cargado,promiedos,
 p02,partido,eventos,Tiempo agregado,cargado,promiedos,
 p03,partido,eventos,Estadio y arbitro,cargado,promiedos,
@@ -117,3 +117,9 @@ n14,competicion,liga,Tabla anual y de promedios (descenso),cargado,promiedos,
 n15,competicion,liga,Rankings de tarjetas y barridas de la liga,cargado,promiedos,datos de Opta
 n16,competicion,liga,Temporada anterior (resultados de Boca y promedios de los clubes),cargado,strikerapi,2025
 n17,equipo,ataque,Goles por pierna y por zona (a favor y en contra),cargado,strikerapi,solo liga
+n18,competicion,tactica,PPDA de la fuente por competición,cargado,scoutingstats,con promedio y puesto
+n19,competicion,tactica,Field Tilt de la fuente por competición,cargado,scoutingstats,porción de ataques peligrosos
+n20,competicion,comparacion,Puesto de Boca en cada métrica de la competición,cargado,scoutingstats,29 métricas
+n21,competicion,comparacion,Promedio de la competición por métrica,cargado,scoutingstats,
+n22,jugador,ataque,Penales provocados,cargado,strikerapi,solo liga
+n23,jugador,disciplina,Manos sancionadas,cargado,strikerapi,solo liga; se completa con la cuota

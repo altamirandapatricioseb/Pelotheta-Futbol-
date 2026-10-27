@@ -7,7 +7,7 @@ d05,5.6,Precisión de tiro,calculable,remates y remates al arco,
 d06,5.6,Goles por tiro y por tiro al arco,calculable,goles y remates,
 d07,5.6,xG por tiro,calculable,xG y remates,
 d08,5.6,Rendimiento sobre lo esperado (goles − xG),calculable,goles y xG,
-d09,5.6,"Precisión de pase, % de entradas ganadas y % de duelos aéreos",parcial,pases y entradas,falta el total de duelos aéreos
+d09,5.6,"Precisión de pase, % de entradas ganadas y % de duelos aéreos",parcial,pases y entradas,% de entradas ganadas ya calculable (StrikerAPI); falta el total de duelos aéreos
 d10,5.6,% de atajadas,calculable,atajadas y remates al arco recibidos,
 d11,5.6,Goles evitados del arquero,calculable,xGOT del rival y goles recibidos,
 d12,5.6,Puntos por partido y % de victorias,calculable,resultados,
@@ -62,3 +62,15 @@ d60,nueva,Boca frente a la liga (percentiles por estadística de club),calculabl
 d61,nueva,Elo propio frente al de la fuente,calculable,Elo propio y de StrikerAPI,
 d62,nueva,Aporte de los canteranos (minutos y G+A),calculable,club formador y minutos,
 d63,nueva,Promedio para el descenso proyectado,calculable,tabla de promedios y resultados,
+d64,6,Net Rating (NR),calculable,goles con el jugador en cancha,
+d65,6,NR relativo al reemplazo,calculable,NR de los suplentes de la posición,
+d66,6,NR con xG,calculable,xG de los tiros con minuto,solo liga
+d67,6,Expected Wins Added (EWA),calculable,NR y minutos,
+d68,6,Expected Losses Added (ELA),calculable,NR y minutos,
+d69,6,Índice de rendimiento,parcial,estadísticas por posición,"faltan pases progresivos, duelos aéreos, despejes y recuperaciones: los pesos se reescalan"
+d70,6,Mejoría α,calculable,índice de rendimiento en el tiempo,estimado
+d71,6,Mejoría β,calculable,índice de rendimiento en el tiempo,estimado
+d72,6,Potencial α,calculable,"índice, edad y minutos",estimado
+d73,6,Potencial β,calculable,"índice, edad y minutos",estimado
+d74,5.5,npxG + xA por 90,parcial,npxG y xA,xA solo liga
+d75,nueva,Árbitros: tarjetas y faltas por partido y sesgo de localía,calculable,partidos de toda la liga,

@@ -273,6 +273,7 @@ class StrikerClient:
     cache_dir: Path = CACHE_DIR / SOURCE
     _last: float = 0.0
     credits_used: int = 0
+    credits_remaining: int | None = None
 
     def call(self, tool: str, payload: dict[str, Any], cache_key: str | None = None) -> dict[str, Any]:
         cache_file = self.cache_dir / f"{cache_key}.json" if cache_key else None
@@ -295,6 +296,9 @@ class StrikerClient:
         if response.status_code != 200:
             raise StrikerError(f"{tool}: HTTP {response.status_code}")
         self.credits_used += int(response.headers.get("x-credits-used", "0") or 0)
+        remaining = response.headers.get("x-credits-remaining")
+        if remaining and remaining.isdigit():
+            self.credits_remaining = int(remaining)
         data: dict[str, Any] = response.json()
         if cache_file is not None:
             cache_file.parent.mkdir(parents=True, exist_ok=True)
@@ -380,3 +384,62 @@ def parse_leaders(payload: dict[str, Any]) -> list[LeagueLeaderRecord]:
         for r in data.get("leaders") or []
         if r.get("name") and _float(r.get("value")) is not None
     ]
+
+
+# --- eventos de un partido -------------------------------------------------------------------
+
+PENALTY_FOUL_RE = re.compile(r"^Penalty (conceded by|[^.]+\. .+ draws a foul)")
+VAR_PENALTY_RE = re.compile(r"^VAR Decision: Penalty ")
+EVENTS_CREDIT_RESERVE = 100  # créditos que se dejan libres para las corridas del resto del mes
+
+
+def boca_event_stats(payload: dict[str, Any]) -> dict[str, dict[str, float]]:
+    """Estadísticas por jugador de Boca a partir de los eventos del partido.
+
+    - xa y shot_assists: xG y cantidad de los tiros que habilitó (el pase previo al tiro,
+      `player2`). Los penales no cuentan como asistencia esperada.
+    - penalties_conceded y penalties_won: quién cometió y quién recibió cada falta de penal (la
+      fuente la relata de dos formas; se cuenta una vez). Un penal a favor que solo figura como
+      decisión del VAR se acredita al jugador que nombra el VAR.
+    - handballs: manos sancionadas.
+    """
+    stats: dict[str, dict[str, float]] = {}
+
+    def add(name: str | None, key: str, value: float = 1) -> None:
+        if name:
+            row = stats.setdefault(name, {})
+            row[key] = round(row.get(key, 0) + value, 3)
+
+    seen_penalty_fouls: set[tuple[object, object]] = set()
+    penalty_minutes: set[object] = set()
+    var_penalties: list[dict[str, Any]] = []
+    for ev in (payload.get("data") or {}).get("events") or []:
+        is_boca = str(ev.get("team_id")) == BOCA_ID
+        shot = ev.get("shot") or {}
+        xg = _float(shot.get("xg"))
+        if shot and is_boca and ev.get("player2") and xg is not None and not shot.get("penalty"):
+            add(ev["player2"], "xa", xg)
+            add(ev["player2"], "shot_assists")
+        text = str(ev.get("text") or "")
+        if ev.get("type") == "foul" and PENALTY_FOUL_RE.match(text):
+            # La misma falta puede venir relatada dos veces («conceded by» y «draws a foul»).
+            pair = (ev.get("player"), ev.get("player2"))
+            if pair not in seen_penalty_fouls:
+                seen_penalty_fouls.add(pair)
+                penalty_minutes.add(ev.get("minute"))
+                if is_boca:
+                    add(ev.get("player"), "penalties_conceded")
+                else:
+                    add(ev.get("player2"), "penalties_won")
+        if is_boca and VAR_PENALTY_RE.match(text) and "Boca Juniors" in text:
+            var_penalties.append(ev)
+        if ev.get("type") == "handball" and is_boca:
+            add(ev.get("player"), "handballs")
+    # Penal a favor dado por el VAR sin falta relatada: se acredita al jugador que nombra el VAR.
+    for ev in var_penalties:
+        minute = ev.get("minute")
+        if not any(
+            isinstance(m, int) and isinstance(minute, int) and abs(m - minute) <= 3 for m in penalty_minutes
+        ):
+            add(ev.get("player"), "penalties_won")
+    return stats

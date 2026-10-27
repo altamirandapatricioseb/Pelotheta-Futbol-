@@ -66,7 +66,15 @@ def test_anon_no_ve_el_detalle_del_log(client: httpx.Client) -> None:
 
 
 @pytest.mark.parametrize(
-    "function", ["load_batch", "log_failure", "internal_id", "load_weather", "load_extras"]
+    "function",
+    [
+        "load_batch",
+        "log_failure",
+        "internal_id",
+        "load_weather",
+        "load_extras",
+        "load_competition_metrics",
+    ],
 )
 def test_anon_no_ejecuta_la_carga(client: httpx.Client, function: str) -> None:
     # El esquema `ingest` está expuesto solo para que el pipeline cargue con la clave secreta.
@@ -99,6 +107,10 @@ def test_anon_lee_el_resumen_sin_fecha_de_nacimiento(client: httpx.Client) -> No
         "league_leader",
         "league_standing",
         "player_profile",
+        "boca_penalty",
+        "boca_competition_metric",
+        "referee_stats",
+        "league_absences",
     ],
 )
 def test_anon_lee_las_vistas_avanzadas(client: httpx.Client, view: str) -> None:

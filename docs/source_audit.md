@@ -72,6 +72,24 @@ Términos revisados (URLs) y detalle de cada respuesta: ver `data/raw/phase0/<fu
 ### Descartadas o en pausa
 FBref, ESPN, FotMob, Sofascore, SportScore y football-data.org: los motivos están en la tabla de resumen. FootyStats y FBref quedan como referencia manual de una persona en el navegador. Open-Meteo queda desactivada.
 
+## Segunda ronda de fuentes (27-oct-2026, pedido del dueño)
+
+Fuentes propuestas por el dueño para estadísticas avanzadas. Para cada una se leyó robots.txt y los términos de uso antes de pedir datos.
+
+| Fuente | robots.txt | Términos de uso | Datos de Boca 2026 | Decisión |
+|---|---|---|---|---|
+| NoFluffPicks (`nofluffpicks.com`) | permite todo (`Content-Signal: ai-input=yes`) | permiten navegar y citar con atribución; prohíben republicar partes sustanciales, quitar atribución y saltear controles. No prohíben el acceso automatizado | xG y xGA por partido de ambos equipos, remates, posesión, ataques peligrosos, córners y faltas de los 31 partidos de liga (datos de FootyStats) | **Activa**: xG y ataques peligrosos por partido; remates como validación cruzada |
+| SporLens (`sporlens.com`) | permite | cláusula 9: los datos «no pueden recopilarse con herramientas automatizadas (scraping, etc.)» sin permiso escrito | xG, xA, pases, regates por jugador | **Descartada por términos** |
+| PlayerStats (`playerstats.football`) | permite | sección 3 prohíbe «automated scraping tools»; sección 13 anuncia acciones legales | xG por jugador y partido | **Descartada por términos** |
+| Fichajes.com | permite | aviso legal prohíbe extraer material por procedimientos distintos de los previstos y la reutilización; los datos son de Stats Perform con distribución prohibida | remates por zona, duelos | **Descartada por términos** |
+| SofaScore, FotMob, WhoScored | FotMob y WhoScored permiten páginas; SofaScore responde 403 | prohíben el scraping (Fase 0; WhoScored según la documentación de socceraction) | rating, xG, xA, mapas de calor | **Descartadas por términos** |
+| FBref | 403 de Cloudflare hasta en robots.txt | — | desde enero de 2026 sin métricas avanzadas | **Descartada**: no se evaden bloqueos |
+| FootballNation | — | — | el dominio está a la venta, no hay sitio | **No existe** |
+| StatsBomb Open Data | — | licencia abierta | no incluye a Boca 2026 | **No aplica** |
+| understat / worldfootballR | — | — | understat no cubre Argentina; worldfootballR raspa FBref y Transfermarkt (mismas restricciones) | **No aplica** |
+
+Conclusión: con NoFluffPicks entran el xG y el xGA por partido de equipo (y todo lo que se deriva: goles − xG, xG por remate, xPts con Poisson, probabilidad pre-partido). Las métricas avanzadas **por jugador** (xG, xA, pases, entradas, duelos, regates, calificación) solo existen en sitios cuyos términos prohíben el acceso automatizado: quedan nivel C hasta tener una fuente con permiso o licencia.
+
 ## Dato crudo mínimo y lo que se deriva
 
 | Dato crudo | Fuentes que lo traen hoy | Qué se deriva | Qué se pierde si cae la fuente principal |
@@ -82,7 +100,8 @@ FBref, ESPN, FotMob, Sofascore, SportScore y football-data.org: los motivos est�
 | Alineaciones con minutos de entrada y salida | API-Football (titulares + eventos de cambio) | Minutos en cancha, `v_on_court`, NR, EWA, ELA, carga 7/14/28 días, rotación, estabilidad del once (Jaccard), eficiencia de suplentes, con/sin jugador | Métricas propias de 6 y todo lo que depende de minutos |
 | Box score por equipo (tiros, posesión, pases, córners, faltas) | API-Football, TheSportsDB (parcial) | Precisión de tiro, goles por tiro, situaciones de tiros, posesión, córners y disciplina | Familias C, D, E y F de situaciones |
 | Box score por jugador (minutos, tiros, pases, entradas, calificación) | API-Football | Todo «por 90», porcentajes, percentiles, índice de rendimiento, Mejoría α y β, Potencial α y β, comparación | Interfaces 3 y 5 casi completas |
-| xG | ninguna verificada (API-Football solo en algunas ligas) | xPts, goles − xG, npxG, xG por tiro | Quedan `n/d` |
+| xG por partido y equipo | NoFluffPicks | xPts, goles − xG, xG por remate, probabilidad pre-partido con Poisson | Quedan `n/d` |
+| xG por jugador | ninguna permitida | npxG, xG/90, xA por jugador | Quedan `n/d` |
 | Plantel con fecha de nacimiento y posición | Wikidata (pendiente), API-Football, BocaStats | Edad a la fecha del partido, tramos de edad, Potencial, referencias por posición y zona | Potenciales y edades |
 
 ## Decisión de arquitectura de fuentes

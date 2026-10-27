@@ -111,3 +111,6 @@ class TeamStatRecord(Record):
     team_source_id: str
     stat_key: str = Field(pattern=r"^[a-z_]+$")
     value: float
+    # Fuente del número si no es la del lote (por ejemplo, el xG de NoFluffPicks dentro del
+    # lote de Promiedos). Se guarda por fila para citar bien cada dato.
+    source: str | None = Field(default=None, pattern=r"^[a-z_]+$")

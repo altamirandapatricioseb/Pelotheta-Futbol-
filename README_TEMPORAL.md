@@ -5,6 +5,7 @@
 - URL pública: https://pelotheta-futbol.vercel.app/ — header con las 6 interfaces, `/jugadores` con la tabla «Resumen» real (44 jugadores, 48 partidos oficiales 2026: Liga Profesional 31, Sudamericana 8, Libertadores 6, Copa Argentina 3).
 - Pipeline: `uv run python -m pipeline.run` (Promiedos -> validación pydantic -> `ingest.load_batch` en Supabase por HTTPS con la clave secreta). Encuentra los partidos de enero a abril leyendo las páginas de los rivales. Amistosos excluidos.
 - Base: esquema `ingest` expuesto solo para `service_role`; `anon` recibe 401 (probado en `tests/test_rls.py`). La edad sale de `core.player_age` sin exponer la fecha de nacimiento.
+- Fuentes activas: Promiedos (partidos, alineaciones, eventos, estadísticas por equipo) y NoFluffPicks (xG y xGA por partido de liga, 31 de 31). Revisión de las fuentes propuestas por el dueño en `docs/source_audit.md` (segunda ronda).
 - Diseño: `PRODUCT.md` (contexto de diseño), tokens en `web/styles/tokens.css`.
 - Verificado en producción: datos reales, consola sin errores, escritorio 1440 px y celular 375 px sin scroll horizontal. Detector de Impeccable: solo la transición de altura del header (intencional, 9.10). Supabase Security Advisor: sin errores ni avisos.
 

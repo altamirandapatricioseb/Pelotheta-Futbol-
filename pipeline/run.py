@@ -23,7 +23,8 @@ from collections import deque
 from datetime import datetime
 from pathlib import Path
 
-from pipeline import load
+from pipeline import enrich, load
+from sources import nofluffpicks as nfp
 from sources import promiedos as pd
 from sources.http_client import ROOT, FetchError, PoliteClient, RetryableFetchError
 
@@ -120,6 +121,30 @@ def crawl(client: PoliteClient, season_year: int) -> tuple[list[pd.ParsedGame], 
     return games, players, squad, warnings
 
 
+def crawl_nofluffpicks(
+    client: PoliteClient, warnings: list[str]
+) -> list[tuple[nfp.Fixture, dict[str, tuple[float, float]]]]:
+    """xG y estadísticas de los partidos de Boca en la Liga Profesional (NoFluffPicks).
+
+    Una página con el calendario completo y una página por partido jugado de Boca. Si la fuente
+    falla, se sigue sin xG: el resto de la carga no depende de ella.
+    """
+    try:
+        league_html = client.get(nfp.BASE_URL + nfp.LEAGUE_PATH, use_cache=False).text()
+    except (FetchError, RetryableFetchError) as exc:
+        warnings.append(f"NoFluffPicks no disponible: {exc}")
+        return []
+    result = []
+    for fixture in nfp.boca_fixtures(nfp.parse_fixtures(league_html)):
+        try:
+            stats = nfp.parse_game_stats(client.get(nfp.BASE_URL + fixture.path).text())
+        except (FetchError, RetryableFetchError) as exc:
+            warnings.append(f"NoFluffPicks {fixture.slug}: {exc}")
+            continue
+        result.append((fixture, stats))
+    return result
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Pipeline de Pelotheta: Promiedos -> Supabase")
     parser.add_argument("--dry-run", action="store_true", help="no carga en Supabase")
@@ -131,6 +156,9 @@ def main(argv: list[str] | None = None) -> int:
     try:
         with PoliteClient(source=pd.SOURCE) as client:
             games, players, squad, warnings = crawl(client, SEASON_YEAR)
+        with PoliteClient(source=nfp.SOURCE) as client:
+            with_xg = enrich.attach_nofluffpicks(games, crawl_nofluffpicks(client, warnings), warnings)
+        print(f"Partidos con xG de NoFluffPicks: {with_xg}.")
     except (FetchError, RetryableFetchError, ValueError, KeyError) as exc:
         message = f"Fallo del scraping: {exc}"
         print(message, file=sys.stderr)

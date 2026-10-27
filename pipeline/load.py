@@ -167,6 +167,16 @@ def send_player_stats(
     rows: list[dict[str, Any]], url: str, key: str, client: httpx.Client | None = None, chunk: int = 5000
 ) -> int:
     """Estadísticas por jugador en bloques (después de `load_batch`, que borra las del partido)."""
+    # Primero se borran solo los pares (partido, fuente) que llegan: una fuente que falló en esta
+    # corrida conserva sus datos anteriores.
+    pairs = sorted({(r.get("match_source_id"), r.get("source")) for r in rows})
+    _rpc(
+        "clear_player_stats",
+        {"p_pairs": [{"match_source_id": m, "source": s} for m, s in pairs]},
+        url,
+        key,
+        client,
+    )
     total = 0
     for start in range(0, len(rows), chunk):
         total += int(

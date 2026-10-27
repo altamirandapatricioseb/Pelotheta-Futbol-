@@ -1,4 +1,17 @@
+import { existsSync } from 'node:fs';
+import path from 'node:path';
+
 import type { NextConfig } from 'next';
+
+// Imágenes de marca opcionales (las suelta el dueño en public/brand/). Se buscan en el build y
+// la ruta encontrada queda como variable pública; si no hay ninguna, la variable queda vacía.
+function findBrandAsset(baseName: string): string {
+  for (const ext of ['svg', 'webp', 'png']) {
+    if (existsSync(path.join(process.cwd(), 'public', 'brand', `${baseName}.${ext}`)))
+      return `/brand/${baseName}.${ext}`;
+  }
+  return '';
+}
 
 // Cabeceras de seguridad fijas para todas las rutas (sección 14.3). La CSP no va acá porque
 // lleva un nonce distinto en cada request: la arma `proxy.ts`. Estas se definen en la
@@ -23,6 +36,10 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  env: {
+    NEXT_PUBLIC_TEAM_PHOTO: findBrandAsset('team'),
+    NEXT_PUBLIC_SYSTEM_LOGO: findBrandAsset('system-logo'),
+  },
   poweredByHeader: false,
   reactStrictMode: true,
   // Sin mapas de código en producción: no regalamos el código fuente legible.

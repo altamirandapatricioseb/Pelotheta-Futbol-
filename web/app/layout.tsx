@@ -1,6 +1,9 @@
 import type { Metadata } from 'next';
 import { Montserrat, Noto_Sans } from 'next/font/google';
 
+import { SystemMark, TeamMark } from '@/components/header/brand-marks';
+import { FreshnessStrip } from '@/components/header/freshness-strip';
+import { SiteHeader } from '@/components/header/site-header';
 import { SITE_DESCRIPTION, SYSTEM_NAME } from '@/config/brand';
 
 import './globals.css';
@@ -35,7 +38,19 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="es-AR" className={`${montserrat.variable} ${greek.variable}`}>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        <a href="#contenido" className="skip-link">
+          Saltar al contenido
+        </a>
+        <SiteHeader teamMark={<TeamMark />} systemMark={<SystemMark />} freshness={<FreshnessStrip />} />
+        <main id="contenido" className="page" tabIndex={-1}>
+          {children}
+        </main>
+        <footer className="page pt-0 pb-10 text-sm text-muted">
+          Proyecto de portfolio sin fines comerciales. Datos de partidos: Promiedos (estadísticas de Opta). Las
+          interfaces se publican por etapas.
+        </footer>
+      </body>
     </html>
   );
 }

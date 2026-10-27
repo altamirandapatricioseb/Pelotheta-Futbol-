@@ -63,3 +63,24 @@ def test_anon_no_ve_el_detalle_del_log(client: httpx.Client) -> None:
     # La vista pública expone estado por fuente, nunca los mensajes internos del log.
     response = client.get("/source_status", params={"select": "message"})
     assert response.status_code == 400
+
+
+@pytest.mark.parametrize("function", ["load_batch", "log_failure", "internal_id"])
+def test_anon_no_ejecuta_la_carga(client: httpx.Client, function: str) -> None:
+    # El esquema `ingest` está expuesto solo para que el pipeline cargue con la clave secreta.
+    response = client.post(f"/rpc/{function}", headers={"Content-Profile": "ingest"}, json={})
+    assert response.status_code in (401, 403, 404)
+
+
+def test_anon_lee_el_resumen_sin_fecha_de_nacimiento(client: httpx.Client) -> None:
+    response = client.get("/player_summary", params={"select": "*", "limit": "1"})
+    assert response.status_code == 200
+    rows = response.json()
+    assert rows, "la vista debería tener datos después de la primera carga"
+    assert "birth_date" not in rows[0]
+    assert "age" in rows[0]
+
+
+def test_anon_no_lee_fecha_de_nacimiento_aunque_la_pida(client: httpx.Client) -> None:
+    response = client.get("/player_summary", params={"select": "birth_date"})
+    assert response.status_code == 400

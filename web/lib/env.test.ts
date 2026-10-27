@@ -46,10 +46,16 @@ describe('readPublicEnv', () => {
   it('rechaza URLs sin HTTPS o de otro dominio', () => {
     const key = 'sb_publishable_abcdefghijklmnop';
     expect(() =>
-      readPublicEnv({ NEXT_PUBLIC_SUPABASE_URL: 'http://proyecto.supabase.co', NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: key }),
+      readPublicEnv({
+        NEXT_PUBLIC_SUPABASE_URL: 'http://proyecto.supabase.co',
+        NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: key,
+      }),
     ).toThrow();
     expect(() =>
-      readPublicEnv({ NEXT_PUBLIC_SUPABASE_URL: 'https://evil.example.com', NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: key }),
+      readPublicEnv({
+        NEXT_PUBLIC_SUPABASE_URL: 'https://evil.example.com',
+        NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: key,
+      }),
     ).toThrow();
   });
 

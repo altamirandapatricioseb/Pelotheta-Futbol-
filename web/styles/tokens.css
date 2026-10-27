@@ -24,6 +24,30 @@
   --color-link: #1f7a20;
   --color-border: #d9e2d9;
   --color-accent-motion: #1f7a20;
+  --color-surface-2: #eef2ed;
+  --color-row-hover: #f1f8f0;
+  --color-row-selected: #e6f9e6;
+  --color-header-bg: rgb(255 255 255 / 0.86);
+  --color-warn: #8a5a00;
+  --color-loss: #b3261e;
+  --glow-neon: 0 0 0 transparent;
+
+  /* Movimiento: curvas de salida exponenciales (sin rebote) y duraciones de 9.10 */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --dur-fast: 180ms;
+  --dur-base: 260ms;
+  --dur-slow: 520ms;
+
+  /* Capas: escala semántica en vez de números sueltos */
+  --z-sticky: 20;
+  --z-header: 40;
+  --z-menu: 50;
+  --z-tooltip: 70;
+
+  --header-bar-h: 64px;
+  --header-bar-h-compact: 52px;
+  --header-strip-h: 34px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -35,6 +59,13 @@
     --color-link: #6fd870;
     --color-border: #1e261e;
     --color-accent-motion: #39ff14;
+    --color-surface-2: #121212;
+    --color-row-hover: #0f160f;
+    --color-row-selected: #0d1f0d;
+    --color-header-bg: rgb(0 0 0 / 0.82);
+    --color-warn: #f2b33d;
+    --color-loss: #ff6b5f;
+    --glow-neon: 0 0 18px rgb(57 255 20 / 0.35);
   }
 }
 
@@ -46,4 +77,11 @@
   --color-link: #6fd870;
   --color-border: #1e261e;
   --color-accent-motion: #39ff14;
+  --color-surface-2: #121212;
+  --color-row-hover: #0f160f;
+  --color-row-selected: #0d1f0d;
+  --color-header-bg: rgb(0 0 0 / 0.82);
+  --color-warn: #f2b33d;
+  --color-loss: #ff6b5f;
+  --glow-neon: 0 0 18px rgb(57 255 20 / 0.35);
 }

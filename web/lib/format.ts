@@ -22,3 +22,21 @@ export function formatDateTime(iso: string | null | undefined): string {
   if (Number.isNaN(date.getTime())) return NOT_AVAILABLE;
   return dateTimeFormatter.format(date);
 }
+
+const integerFormatter = new Intl.NumberFormat('es-AR', { maximumFractionDigits: 0 });
+const decimalFormatter = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+
+/** Números con separador argentino (1.234) y `n/d` para los ausentes. */
+export function formatNumber(value: number | null | undefined, decimals: 0 | 1 = 0): string {
+  if (value === null || value === undefined || Number.isNaN(value)) return NOT_AVAILABLE;
+  return (decimals === 0 ? integerFormatter : decimalFormatter).format(value);
+}
+
+/** «hoy», «hace 1 día», «hace 12 días»: indicador de frescura de los datos (9.10). */
+export function formatRelativeDays(iso: string, now: Date = new Date()): string {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return NOT_AVAILABLE;
+  const days = Math.floor((now.getTime() - date.getTime()) / 86_400_000);
+  if (days <= 0) return 'hoy';
+  return days === 1 ? 'hace 1 día' : `hace ${String(days)} días`;
+}

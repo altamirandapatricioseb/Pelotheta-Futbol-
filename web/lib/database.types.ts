@@ -17,6 +17,55 @@ export type Database = {
       [_ in never]: never;
     };
     Views: {
+      boca_match: {
+        Row: {
+          boca_home: boolean | null;
+          competition_code: string | null;
+          competition_name: string | null;
+          goals_against: number | null;
+          goals_for: number | null;
+          kickoff_at: string | null;
+          match_date: string | null;
+          match_id: number | null;
+          opponent: string | null;
+          round_label: string | null;
+          season_year: number | null;
+          status: string | null;
+          venue: string | null;
+        };
+        Relationships: [];
+      };
+      player_summary: {
+        Row: {
+          age: number | null;
+          assists: number | null;
+          competition_code: string | null;
+          competition_name: string | null;
+          full_name: string | null;
+          goal_contributions: number | null;
+          goals: number | null;
+          height_cm: number | null;
+          known_as: string | null;
+          matches: number | null;
+          minutes: number | null;
+          player_id: number | null;
+          position_group: string | null;
+          red_cards: number | null;
+          shirt_number: number | null;
+          starts: number | null;
+          yellow_cards: number | null;
+        };
+        Relationships: [];
+      };
+      competition_filter: {
+        Row: {
+          code: string | null;
+          matches: number | null;
+          name_es: string | null;
+          sort_order: number | null;
+        };
+        Relationships: [];
+      };
       system_status: {
         Row: {
           key: string | null;

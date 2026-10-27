@@ -24,19 +24,19 @@ j22,jugador,ataque,Regates intentados,falta,,
 j23,jugador,pase,Pases intentados,cargado,scoutingstats,
 j24,jugador,pase,Pases completados,cargado,scoutingstats,desde el % de acierto
 j25,jugador,pase,Pases clave,cargado,scoutingstats,
-j26,jugador,pase,xA,parcial,strikerapi,xG de los tiros que habilitó; solo liga; se completa con la cuota de créditos
+j26,jugador,pase,xA,cargado,statshub,todas las competiciones
 j27,jugador,pase,Pases progresivos,falta,,
 j28,jugador,pase,Pases al ultimo tercio,falta,,
-j29,jugador,pase,Centros intentados y completados,falta,,
-j30,jugador,pase,Perdidas de posesion,parcial,scoutingstats,pases fallados (pases y % de acierto); faltan regates fallados y desposesiones
+j29,jugador,pase,Centros intentados y completados,cargado,statshub,
+j30,jugador,pase,Perdidas de posesion,cargado,statshub,pérdidas y desposesiones
 j31,jugador,defensa,Entradas ganadas,cargado,scoutingstats,
 j32,jugador,defensa,Entradas intentadas,falta,,StrikerAPI solo por equipo
 j33,jugador,defensa,Intercepciones,cargado,scoutingstats,
-j34,jugador,defensa,Despejes,falta,,
+j34,jugador,defensa,Despejes,cargado,statshub,
 j35,jugador,defensa,Bloqueos,falta,,
 j36,jugador,defensa,Recuperaciones,falta,,
 j37,jugador,defensa,Duelos ganados,cargado,scoutingstats,
-j38,jugador,defensa,Duelos aereos ganados,falta,,
+j38,jugador,defensa,Duelos aereos ganados,cargado,statshub,solo ganados
 j39,jugador,defensa,Faltas cometidas,cargado,strikerapi,solo liga
 j40,jugador,defensa,Presiones,falta,,
 j41,jugador,arquero,Atajadas,cargado,scoutingstats,las del equipo cuando ataja un solo arquero
@@ -68,7 +68,7 @@ e16,equipo,defensa,Entradas,cargado,scoutingstats,
 e17,equipo,defensa,Intercepciones,cargado,scoutingstats,
 e18,equipo,defensa,Duelos ganados,cargado,scoutingstats,
 e19,equipo,defensa,Despejes,cargado,strikerapi,solo liga
-e20,equipo,defensa,Duelos aereos,falta,,
+e20,equipo,defensa,Duelos aereos,parcial,statshub,"solo Boca, ganados"
 e21,equipo,defensa,Recuperaciones,falta,,
 e22,equipo,defensa,Presiones,falta,,
 e23,equipo,defensa,Atajadas,cargado,scoutingstats,
@@ -77,7 +77,7 @@ e25,equipo,posesion,Posesion,cargado,promiedos,
 e26,equipo,posesion,Pases y pases completados,cargado,scoutingstats,
 e27,equipo,posesion,Pases largos y completados,cargado,scoutingstats,
 e28,equipo,posesion,Pases progresivos y al ultimo tercio,falta,,
-e29,equipo,posesion,Perdidas,parcial,scoutingstats,pases y regates fallados; faltan desposesiones y malos controles
+e29,equipo,posesion,Perdidas,cargado,statshub,Boca: suma de jugadores
 e30,equipo,balon_parado,Corners y tiros libres,cargado,promiedos,
 e31,equipo,balon_parado,Goles tras corner o tiro libre,cargado,strikerapi,relato de cada gol; solo liga
 e32,equipo,tactica,Formacion,cargado,promiedos,todas las competiciones; ScoutingStats completa huecos
@@ -123,3 +123,7 @@ n20,competicion,comparacion,Puesto de Boca en cada métrica de la competición,c
 n21,competicion,comparacion,Promedio de la competición por métrica,cargado,scoutingstats,
 n22,jugador,ataque,Penales provocados,cargado,strikerapi,solo liga
 n23,jugador,disciplina,Manos sancionadas,cargado,strikerapi,solo liga; se completa con la cuota
+n24,jugador,participacion,Toques,cargado,statshub,todas las competiciones
+n25,jugador,pase,Ocasiones claras creadas,cargado,statshub,todas las competiciones
+n26,jugador,defensa,Veces regateado,cargado,statshub,todas las competiciones
+n27,jugador,defensa,Duelos perdidos,cargado,statshub,todas las competiciones

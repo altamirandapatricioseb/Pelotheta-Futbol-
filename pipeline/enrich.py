@@ -26,6 +26,7 @@ from pipeline.models import (
 from sources import nofluffpicks as nfp
 from sources import promiedos as pd
 from sources import scoutingstats as ss
+from sources import statshub as sh
 from sources import strikerapi as st
 
 # Solo estas claves se toman de NoFluffPicks; el resto lo trae Promiedos o ScoutingStats.
@@ -177,6 +178,20 @@ def _boca_goal_types(goals: list[st.GoalInfo]) -> dict[str, dict[str, float]]:
             key = f"assists_{goal.assist_type}"
             stats[key] = stats.get(key, 0) + 1
     return by_player
+
+
+def attach_statshub(games: list[pd.ParsedGame], matches: list[sh.MatchLines], warnings: list[str]) -> int:
+    """Estadísticas por jugador de Boca de Statshub (todas las competiciones). Cruce por fecha UTC."""
+    by_utc_date = {g.match.kickoff_at.astimezone(UTC).date(): g for g in games}
+    attached = 0
+    for found in matches:
+        parsed = by_utc_date.get(found.kickoff_utc.date())
+        if parsed is None:
+            continue
+        label = f"Statshub {found.kickoff_utc.date().isoformat()}"
+        _add_player_stats(parsed, found.players, sh.SOURCE, label, warnings)
+        attached += 1
+    return attached
 
 
 def attach_strikerapi(

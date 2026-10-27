@@ -16,7 +16,7 @@ Revisión inicial: 27-oct-2026 (Fase 0). Próxima revisión: al cerrar la etapa 
 | BocaStats | validación manual | revisar términos antes de automatizar; no usar `/api/` | `data/raw/phase0/bocastats.json` |
 | Wikipedia (es) | activa (nacionalidad, peso, club formador, selección) | citar «Wikipedia» con enlace (CC BY-SA); solo artículos (robots.txt cierra páginas especiales y la API); datos mínimos (Ley 25.326) | `sources/wikipedia.py` |
 | Wikidata | sin uso | robots.txt cierra `/sparql`; las fichas JSON están permitidas pero no suman | `docs/source_audit.md`, cuarta ronda |
-| Statshub | descartada | datos por jugador solo por API interna, con origen en SofaScore | `docs/source_audit.md`, cuarta ronda |
+| Statshub | activa (estadísticas por jugador, todas las competiciones) | sin términos publicados, robots.txt abierto; API de su web usada con autorización explícita del dueño (27-oct-2026); una consulta por corrida; origen SofaScore: riesgo de que cierre | `docs/source_audit.md`, cuarta ronda |
 | SportScore | descartada | si se activara: enlace visible «Powered by SportScore» | `data/raw/phase0/sportscore.json` |
 | Open-Meteo | activa (clima a la hora del partido) | sitio no comercial (decisión del dueño, 27-oct-2026); citar «Datos del clima: Open-Meteo.com» (CC BY 4.0) con enlace; una consulta por partido con caché. Su robots.txt dice «Disallow: /» en los dominios de la API: se interpreta dirigido a rastreadores de páginas, no a consultas puntuales a una API publicada para uso programático; se revisa si Open-Meteo indica lo contrario | `sources/openmeteo.py` |
 | Transfermarkt, worldfootball.net | descartadas | términos prohíben automatizar / Cloudflare | no aplica |

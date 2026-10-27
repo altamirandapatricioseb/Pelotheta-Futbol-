@@ -16,6 +16,7 @@ Todo con el mismo cliente respetuoso (3 s entre requests, caché y User-Agent id
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import sys
 import uuid
@@ -35,6 +36,7 @@ from sources import nofluffpicks as nfp
 from sources import openmeteo as om
 from sources import promiedos as pd
 from sources import scoutingstats as ss
+from sources import statshub as sh
 from sources import strikerapi as st
 from sources import wikipedia as wp
 from sources.http_client import ROOT, FetchError, PoliteClient, RetryableFetchError
@@ -211,6 +213,18 @@ def crawl_scoutingstats(client: PoliteClient, warnings: list[str]) -> list[ss.Pa
         if parsed is not None:
             result.append(parsed)
     return result
+
+
+def crawl_statshub(client: PoliteClient, warnings: list[str]) -> list[sh.MatchLines]:
+    """Una consulta: rendimiento por partido de todo el plantel de Boca en la temporada."""
+    try:
+        payload = json.loads(
+            client.get(sh.BASE_URL + sh.performance_path(SEASON_YEAR), use_cache=False).text()
+        )
+    except (FetchError, RetryableFetchError, ValueError) as exc:
+        warnings.append(f"Statshub no disponible: {exc}")
+        return []
+    return sh.parse_performance(payload)
 
 
 def crawl_ss_performance(client: PoliteClient, warnings: list[str]) -> list[CompetitionMetricRecord]:
@@ -441,6 +455,10 @@ def main(argv: list[str] | None = None) -> int:
             with_ss = enrich.attach_scoutingstats(games, ss_matches, warnings)
             competition_metrics = crawl_ss_performance(client, warnings)
         print(f"Partidos con datos de ScoutingStats: {with_ss}.")
+        # Statshub va antes que StrikerAPI: su xA cubre todas las competiciones con un solo modelo.
+        with PoliteClient(source=sh.SOURCE) as client:
+            with_sh = enrich.attach_statshub(games, crawl_statshub(client, warnings), warnings)
+        print(f"Partidos con datos de Statshub: {with_sh}.")
         striker_lines, striker_shots, striker_league, striker_events = crawl_strikerapi(warnings)
         with_st = enrich.attach_strikerapi(games, striker_lines, striker_shots, warnings, striker_events)
         print(f"Partidos con datos de StrikerAPI: {with_st}.")

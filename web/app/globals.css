@@ -1,0 +1,30 @@
+@import 'tailwindcss';
+@import '../styles/tokens.css';
+
+@theme inline {
+  --color-brand: var(--color-brand);
+  --color-brand-800: var(--color-brand-800);
+  --color-bg: var(--color-bg);
+  --color-surface: var(--color-surface);
+  --color-fg: var(--color-text);
+  --color-muted: var(--color-text-muted);
+  --color-line: var(--color-border);
+  --color-link: var(--color-link);
+  /* Montserrat para todo; la fuente griega solo dibuja Θ, α, β y λ (Montserrat no las tiene). */
+  --font-sans: var(--font-montserrat), var(--font-greek), system-ui, sans-serif;
+}
+
+html {
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+body {
+  font-family: var(--font-montserrat), var(--font-greek), system-ui, sans-serif;
+  min-height: 100dvh;
+}
+
+/* Números tabulares para marcadores y tablas: los dígitos no bailan al cambiar. */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}

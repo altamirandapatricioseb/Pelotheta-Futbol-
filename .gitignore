@@ -1,0 +1,47 @@
+# Secretos: nunca al repositorio
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+age-key.txt
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Datos crudos de terceros: se guardan en caché local, no se republican (regla 4)
+data/raw/cache/
+data/quarantine/*
+!data/quarantine/.gitkeep
+
+# Node / Next.js
+node_modules/
+web/.next/
+web/out/
+web/.vercel/
+.vercel/
+*.tsbuildinfo
+web/next-env.d.ts
+web/playwright-report/
+web/test-results/
+
+# Supabase local
+supabase/.branches/
+supabase/.temp/
+
+# Sistema operativo y editores
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# Copia local del prompt del dueño (no se publica)
+PROMPT-1-BOCA-FUTBOL.md

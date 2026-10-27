@@ -1,0 +1,861 @@
+{
+  "source": "bocastats",
+  "generado": "2026-10-27T03:05:55+00:00",
+  "user_agent": "PelothetaBot/0.1 (+https://github.com/altamirandapatricioseb/Pelotheta-Futbol-; proyecto de portfolio sin fines comerciales)",
+  "min_delay_s": 5.0,
+  "tope_requests_datos": 4,
+  "terminos_revisados": [
+    {
+      "url": "https://bocastats.com/robots.txt",
+      "resumen": "Leído también por la sonda. Permite buscadores y bots de búsqueda/citación de IA; bloquea bots de entrenamiento (GPTBot, Claude-Web, anthropic-ai, CCBot, etc.). Para '*' solo prohíbe /admin/, /api/ y /preview/. Declara sitemap_index.xml."
+    },
+    {
+      "url": "https://bocastats.com/privacidad/",
+      "resumen": "Política de privacidad (actualizada 2026-10-25): solo trata cookies, navegación y publicidad. No menciona reutilización, scraping, descarga masiva ni atribución. Operado por 'el equipo de BocaStats'; sin relación oficial con el club. Pie: '© BocaStats - Todos los derechos reservados'."
+    },
+    {
+      "url": "https://bocastats.com/metodologia/",
+      "resumen": "Base propia de historial 'verificada partido a partido' desde 1905; no nombra fuentes externas ni licencia; pide consultar boca.com.ar o AFA para lo oficial."
+    },
+    {
+      "url": "https://bocastats.com/changelog/",
+      "resumen": "v1.0 (ene-2026) con 'scrapers' de fixture, historial y plantel; cruce de 'dos fuentes de datos' sin nombrarlas; fichas /partido/ del archivo histórico desde jul-2026, con publicación gradual. No menciona API ni términos."
+    },
+    {
+      "url": "https://bocastats.com/terminos/ , /aviso-legal/ , /terminos-y-condiciones/",
+      "resumen": "HTTP 404 en las tres: no hay términos de uso publicados."
+    }
+  ],
+  "requests": [
+    {
+      "url_masked": "https://bocastats.com/robots.txt",
+      "status": 200,
+      "content_type": "text/plain",
+      "bytes": 1715,
+      "sha256": "710f555efd68c7831fa8cf0b5f16a43fffd164f6f6ee955edd7b1b32d9773d3e",
+      "desde_cache": true,
+      "fecha": "2026-10-27T03:02:10+00:00",
+      "nota": "robots.txt"
+    },
+    {
+      "url_masked": "https://bocastats.com/temporada/2026/",
+      "status": 200,
+      "content_type": "text/html",
+      "bytes": 53840,
+      "sha256": "012ebf3c487ee4daf02e352541efac9fd5a91ef8468bba26a74ca7f1fd0656d4",
+      "desde_cache": true,
+      "fecha": "2026-10-27T03:02:15+00:00",
+      "nota": "temporada_2026"
+    },
+    {
+      "url_masked": "https://bocastats.com/plantel/",
+      "status": 200,
+      "content_type": "text/html",
+      "bytes": 79140,
+      "sha256": "97b7e585b655a7544f73327a67c2881cc983136df89bd16ceb64d5226b502f42",
+      "desde_cache": true,
+      "fecha": "2026-10-27T03:02:20+00:00",
+      "nota": "plantel"
+    },
+    {
+      "url_masked": "https://bocastats.com/tabla-posiciones/",
+      "status": 200,
+      "content_type": "text/html",
+      "bytes": 97241,
+      "sha256": "c19e56d1de71c6ec31c1348c475a3ee22ab7e95abba5d048c03e04b3eddd720b",
+      "desde_cache": true,
+      "fecha": "2026-10-27T03:02:25+00:00",
+      "nota": "tabla_posiciones"
+    },
+    {
+      "url_masked": "https://bocastats.com/plantel/jugador/miguel-merentiel/",
+      "status": 200,
+      "content_type": "text/html",
+      "bytes": 67015,
+      "sha256": "636f61431d4f400e8e9d3820d5445c23274b2b550a3b7b2aa1d953e51a740937",
+      "desde_cache": false,
+      "fecha": "2026-10-27T03:05:58+00:00",
+      "nota": "ficha_jugador"
+    }
+  ],
+  "paginas": {
+    "temporada_2026": {
+      "url": "https://bocastats.com/temporada/2026/",
+      "titulo_pagina": "Boca 2026: resultados, goleadores y estadísticas | BocaStats",
+      "h1": "Boca Juniors 2026 - resultados, goleadores y estadísticas",
+      "next_js": false,
+      "json_embebido": 0,
+      "subtitulos": [
+        "Récord y posición",
+        "Estadísticas avanzadas",
+        "Goleadores del plantel",
+        "Resultados del año",
+        "Copa Sudamericana (8)",
+        "Liga Profesional (19)",
+        "Copa Argentina (3)",
+        "Copa Libertadores (6)"
+      ],
+      "tablas": [],
+      "json_ld": [
+        {
+          "tipos": [
+            "BreadcrumbList",
+            "SportsTeam",
+            "WebPage"
+          ],
+          "campos": [
+            "[].@context",
+            "[].@id",
+            "[].@type",
+            "[].additionalProperty",
+            "[].additionalProperty[].@type",
+            "[].additionalProperty[].name",
+            "[].additionalProperty[].value",
+            "[].description",
+            "[].isPartOf",
+            "[].isPartOf.@id",
+            "[].itemListElement",
+            "[].itemListElement[].@type",
+            "[].itemListElement[].item",
+            "[].itemListElement[].name",
+            "[].itemListElement[].position",
+            "[].name",
+            "[].sport",
+            "[].url"
+          ]
+        }
+      ],
+      "enlaces_internos_por_seccion": {
+        "historial": 33,
+        "plantel": 11,
+        "(inicio)": 6,
+        "temporada": 4,
+        "fixture": 4,
+        "proximo-partido": 4,
+        "goleadores": 4,
+        "efemerides": 3,
+        "tabla-posiciones": 2,
+        "arbitros": 2,
+        "entrenadores": 2,
+        "records": 2,
+        "copas": 2,
+        "copa-sudamericana": 2,
+        "copa-argentina": 2,
+        "copa-libertadores": 2,
+        "copa-intercontinental": 2,
+        "recopa-sudamericana": 2,
+        "metodologia": 1,
+        "contacto": 1,
+        "privacidad": 1,
+        "changelog": 1
+      },
+      "patrones_de_ruta": {
+        "/historial/<slug>/": 30,
+        "//": 6,
+        "/plantel/jugador/<slug>/": 5,
+        "/temporada/<slug>/": 4,
+        "/plantel/": 4,
+        "/fixture/": 4,
+        "/proximo-partido/": 4,
+        "/goleadores/": 4,
+        "/historial/": 3,
+        "/efemerides/": 3,
+        "/tabla-posiciones/": 2,
+        "/arbitros/": 2,
+        "/entrenadores/": 2,
+        "/records/": 2,
+        "/plantel/<slug>/": 2,
+        "/copas/": 2,
+        "/copa-sudamericana/": 2,
+        "/copa-argentina/": 2,
+        "/copa-libertadores/": 2,
+        "/copa-intercontinental/": 2,
+        "/recopa-sudamericana/": 2,
+        "/metodologia/": 1,
+        "/contacto/": 1,
+        "/privacidad/": 1,
+        "/changelog/": 1
+      },
+      "enlaza_fichas_de_partido": false,
+      "palabras_clave": {
+        "gol": 5,
+        "posesión": 2,
+        "remates": 1,
+        "tiros": 2,
+        "pases": 3,
+        "córner": 1,
+        "posición": 1
+      },
+      "minutos_detectados": 0,
+      "caracteres_texto_principal": 2868,
+      "especifico": {
+        "partidos_declarados": "36 partidos",
+        "competiciones": [
+          {
+            "competicion": "Copa Sudamericana",
+            "partidos_listados": 8,
+            "partidos_por_mes": {
+              "octubre": 2,
+              "septiembre": 2,
+              "agosto": 2,
+              "julio": 2
+            },
+            "filas_con_enlace": 2,
+            "destino_de_los_enlaces": {
+              "/historial/<slug>/": 2
+            },
+            "fechas_con_anio_explicito": 0
+          },
+          {
+            "competicion": "Liga Profesional",
+            "partidos_listados": 19,
+            "partidos_por_mes": {
+              "octubre": 3,
+              "septiembre": 3,
+              "agosto": 6,
+              "julio": 1,
+              "mayo": 2,
+              "abril": 4
+            },
+            "filas_con_enlace": 19,
+            "destino_de_los_enlaces": {
+              "/historial/<slug>/": 19
+            },
+            "fechas_con_anio_explicito": 0
+          },
+          {
+            "competicion": "Copa Argentina",
+            "partidos_listados": 3,
+            "partidos_por_mes": {
+              "septiembre": 2,
+              "julio": 1
+            },
+            "filas_con_enlace": 3,
+            "destino_de_los_enlaces": {
+              "/historial/<slug>/": 3
+            },
+            "fechas_con_anio_explicito": 0
+          },
+          {
+            "competicion": "Copa Libertadores",
+            "partidos_listados": 6,
+            "partidos_por_mes": {
+              "mayo": 3,
+              "abril": 3
+            },
+            "filas_con_enlace": 6,
+            "destino_de_los_enlaces": {
+              "/historial/<slug>/": 6
+            },
+            "fechas_con_anio_explicito": 0
+          }
+        ],
+        "clases_de_cada_fila_de_partido": {
+          "tmp-res-badge v": 19,
+          "tmp-res-mid": 36,
+          "tmp-res-rival": 36,
+          "tmp-res-cond": 36,
+          "tmp-res-score": 36,
+          "tmp-res-badge d": 7,
+          "tmp-res-badge e": 10
+        },
+        "interpretacion_de_campos_por_partido": {
+          "tmp-res-badge": "resultado V/E/D",
+          "tmp-res-rival": "rival",
+          "tmp-res-cond": "localía + día y mes, sin año ni hora",
+          "tmp-res-score": "marcador (goles de Boca primero)"
+        },
+        "etiquetas_de_agregados_del_equipo": [
+          "PJ",
+          "Ganados",
+          "Empatados",
+          "Perdidos",
+          "GF",
+          "GC",
+          "Dif.",
+          "Posesión",
+          "Precisión pases",
+          "Tiros/partido",
+          "Al arco/partido",
+          "Precisión tiro",
+          "Tackles/partido",
+          "Córners/partido",
+          "Pases/partido"
+        ],
+        "goleadores_listados": 5,
+        "pj_liga_segun_tabla_anual": 29,
+        "pj_liga_listados": 19,
+        "liga_listado_incompleto": true,
+        "proximo_partido_mostrado": "Domingo 25 octubre · Liga Profesional · Visitante",
+        "muestra_confirmacion": {
+          "competicion": "Liga Profesional",
+          "rival": "Talleres",
+          "condicion_y_fecha": "Local · Viernes 16 octubre",
+          "marcador": "2-1"
+        }
+      }
+    },
+    "plantel": {
+      "url": "https://bocastats.com/plantel/",
+      "titulo_pagina": "Plantel de Boca Juniors 2026 - Jugadores | BocaStats",
+      "h1": "Plantel de Boca Juniors",
+      "next_js": false,
+      "json_embebido": 0,
+      "subtitulos": [
+        "Arqueros 4",
+        "Defensores 10",
+        "Mediocampistas 15",
+        "Delanteros 4"
+      ],
+      "tablas": [],
+      "json_ld": [
+        {
+          "tipos": [
+            "ItemList",
+            "SportsTeam"
+          ],
+          "campos": [
+            "[].@context",
+            "[].@type",
+            "[].alternateName",
+            "[].coach",
+            "[].coach.@type",
+            "[].coach.jobTitle",
+            "[].coach.name",
+            "[].itemListElement",
+            "[].itemListElement[].@type",
+            "[].itemListElement[].item",
+            "[].itemListElement[].item.@type",
+            "[].itemListElement[].item.image",
+            "[].itemListElement[].item.jobTitle",
+            "[].itemListElement[].item.memberOf",
+            "[].itemListElement[].item.name",
+            "[].itemListElement[].item.nationality",
+            "[].itemListElement[].item.url",
+            "[].itemListElement[].position",
+            "[].name",
+            "[].numberOfAthletes",
+            "[].numberOfItems",
+            "[].sport",
+            "[].url"
+          ]
+        }
+      ],
+      "enlaces_internos_por_seccion": {
+        "plantel": 40,
+        "(inicio)": 6,
+        "fixture": 4,
+        "proximo-partido": 3,
+        "historial": 3,
+        "temporada": 3,
+        "goleadores": 3,
+        "efemerides": 3,
+        "tabla-posiciones": 2,
+        "arbitros": 2,
+        "entrenadores": 2,
+        "records": 2,
+        "copas": 2,
+        "copa-sudamericana": 2,
+        "copa-argentina": 2,
+        "copa-libertadores": 2,
+        "copa-intercontinental": 2,
+        "recopa-sudamericana": 2,
+        "metodologia": 1,
+        "contacto": 1,
+        "privacidad": 1,
+        "changelog": 1
+      },
+      "patrones_de_ruta": {
+        "/plantel/jugador/<slug>/": 33,
+        "//": 6,
+        "/plantel/": 5,
+        "/fixture/": 4,
+        "/proximo-partido/": 3,
+        "/historial/": 3,
+        "/temporada/<slug>/": 3,
+        "/goleadores/": 3,
+        "/efemerides/": 3,
+        "/tabla-posiciones/": 2,
+        "/arbitros/": 2,
+        "/entrenadores/": 2,
+        "/records/": 2,
+        "/plantel/<slug>/": 2,
+        "/copas/": 2,
+        "/copa-sudamericana/": 2,
+        "/copa-argentina/": 2,
+        "/copa-libertadores/": 2,
+        "/copa-intercontinental/": 2,
+        "/recopa-sudamericana/": 2,
+        "/metodologia/": 1,
+        "/contacto/": 1,
+        "/privacidad/": 1,
+        "/changelog/": 1
+      },
+      "enlaza_fichas_de_partido": false,
+      "palabras_clave": {
+        "gol": 29
+      },
+      "minutos_detectados": 0,
+      "caracteres_texto_principal": 1769,
+      "especifico": {
+        "jugadores": 33,
+        "por_posicion": {
+          "Arquero": 4,
+          "Defensor": 10,
+          "Mediocampista": 15,
+          "Delantero": 4
+        },
+        "sin_dorsal": 10,
+        "campos_de_tarjeta": [
+          "pc-apellido",
+          "pc-bar",
+          "pc-dorsal",
+          "pc-name",
+          "pc-nombre",
+          "pc-photo",
+          "pc-pos",
+          "pc-stat",
+          "pc-stats"
+        ],
+        "etiquetas_de_estadisticas": {
+          "PJ": 33,
+          "Vallas": 4,
+          "Goles": 29,
+          "Asist.": 29
+        },
+        "patron_enlace_jugador": [
+          "/plantel/jugador/<slug>/"
+        ],
+        "trae_nacimiento_o_altura_en_listado": false
+      }
+    },
+    "tabla_posiciones": {
+      "url": "https://bocastats.com/tabla-posiciones/",
+      "titulo_pagina": "Tabla de Posiciones Liga Profesional 2026 | BocaStats",
+      "h1": "Tabla de Posiciones - Boca Juniors",
+      "next_js": false,
+      "json_embebido": 0,
+      "subtitulos": [
+        "¿En qué puesto está Boca Juniors y cuántos puntos tiene en 2026?",
+        "Tabla de Posiciones"
+      ],
+      "tablas": [
+        {
+          "id": "",
+          "encabezados": [
+            "#",
+            "Equipo",
+            "PJ",
+            "+/-",
+            "PTS"
+          ],
+          "filas": 15,
+          "columnas_por_fila": {
+            "5": 15
+          }
+        },
+        {
+          "id": "",
+          "encabezados": [
+            "#",
+            "Equipo",
+            "PJ",
+            "+/-",
+            "PTS"
+          ],
+          "filas": 15,
+          "columnas_por_fila": {
+            "5": 15
+          }
+        },
+        {
+          "id": "tabla-single-table",
+          "encabezados": [
+            "#",
+            "Equipo",
+            "PJ",
+            "G",
+            "E",
+            "P",
+            "+/-",
+            "PTS"
+          ],
+          "filas": 15,
+          "columnas_por_fila": {
+            "8": 15
+          }
+        }
+      ],
+      "json_ld": [
+        {
+          "tipos": [
+            "BreadcrumbList",
+            "WebPage"
+          ],
+          "campos": [
+            "[].@context",
+            "[].@type",
+            "[].about",
+            "[].about.@type",
+            "[].about.name",
+            "[].about.sport",
+            "[].dateModified",
+            "[].datePublished",
+            "[].description",
+            "[].itemListElement",
+            "[].itemListElement[].@type",
+            "[].itemListElement[].item",
+            "[].itemListElement[].name",
+            "[].itemListElement[].position",
+            "[].name",
+            "[].publisher",
+            "[].publisher.@type",
+            "[].publisher.name",
+            "[].publisher.url",
+            "[].url"
+          ]
+        }
+      ],
+      "enlaces_internos_por_seccion": {
+        "historial": 8,
+        "(inicio)": 6,
+        "plantel": 6,
+        "fixture": 5,
+        "proximo-partido": 4,
+        "tabla-posiciones": 3,
+        "temporada": 3,
+        "goleadores": 3,
+        "efemerides": 3,
+        "arbitros": 2,
+        "entrenadores": 2,
+        "records": 2,
+        "copas": 2,
+        "copa-sudamericana": 2,
+        "copa-argentina": 2,
+        "copa-libertadores": 2,
+        "copa-intercontinental": 2,
+        "recopa-sudamericana": 2,
+        "metodologia": 1,
+        "contacto": 1,
+        "privacidad": 1,
+        "changelog": 1
+      },
+      "patrones_de_ruta": {
+        "//": 6,
+        "/fixture/": 5,
+        "/plantel/": 4,
+        "/proximo-partido/": 4,
+        "/historial/": 4,
+        "/historial/<slug>/": 4,
+        "/tabla-posiciones/": 3,
+        "/temporada/<slug>/": 3,
+        "/goleadores/": 3,
+        "/efemerides/": 3,
+        "/arbitros/": 2,
+        "/entrenadores/": 2,
+        "/records/": 2,
+        "/plantel/<slug>/": 2,
+        "/copas/": 2,
+        "/copa-sudamericana/": 2,
+        "/copa-argentina/": 2,
+        "/copa-libertadores/": 2,
+        "/copa-intercontinental/": 2,
+        "/recopa-sudamericana/": 2,
+        "/metodologia/": 1,
+        "/contacto/": 1,
+        "/privacidad/": 1,
+        "/changelog/": 1
+      },
+      "enlaza_fichas_de_partido": false,
+      "palabras_clave": {
+        "posición": 1
+      },
+      "minutos_detectados": 0,
+      "caracteres_texto_principal": 2522,
+      "especifico": {
+        "tablas": [
+          {
+            "id": "",
+            "grupo": "Grupo A - Temporada 2026",
+            "actualizada": "2026-10-13",
+            "columnas": [
+              "#",
+              "Equipo",
+              "PJ",
+              "+/-",
+              "PTS"
+            ],
+            "equipos": 15,
+            "incluye_boca": true
+          },
+          {
+            "id": "",
+            "grupo": "Grupo B - Temporada 2026",
+            "actualizada": "2026-10-13",
+            "columnas": [
+              "#",
+              "Equipo",
+              "PJ",
+              "+/-",
+              "PTS"
+            ],
+            "equipos": 15,
+            "incluye_boca": false
+          },
+          {
+            "id": "tabla-single-table",
+            "grupo": "Grupo A - Temporada 2026",
+            "actualizada": "2026-10-13",
+            "columnas": [
+              "#",
+              "Equipo",
+              "PJ",
+              "G",
+              "E",
+              "P",
+              "+/-",
+              "PTS"
+            ],
+            "equipos": 15,
+            "incluye_boca": true
+          }
+        ],
+        "equipos_distintos_en_total": 30
+      }
+    },
+    "ficha_jugador": {
+      "url": "https://bocastats.com/plantel/jugador/miguel-merentiel/",
+      "titulo_pagina": "Miguel Merentiel - Estadísticas Boca 2026 | BocaStats",
+      "h1": "Miguel Merentiel",
+      "next_js": false,
+      "json_embebido": 0,
+      "subtitulos": [],
+      "tablas": [
+        {
+          "id": "",
+          "encabezados": [
+            "T/S",
+            "Partido",
+            "Gol.",
+            "Asis.",
+            "Ama."
+          ],
+          "filas": 12,
+          "columnas_por_fila": {
+            "5": 12
+          }
+        },
+        {
+          "id": "",
+          "encabezados": [],
+          "filas": 9,
+          "columnas_por_fila": {
+            "2": 9
+          }
+        },
+        {
+          "id": "",
+          "encabezados": [],
+          "filas": 2,
+          "columnas_por_fila": {
+            "2": 2
+          }
+        }
+      ],
+      "json_ld": [
+        {
+          "tipos": [
+            "BreadcrumbList",
+            "ProfilePage"
+          ],
+          "campos": [
+            "[].@context",
+            "[].@type",
+            "[].dateModified",
+            "[].itemListElement",
+            "[].itemListElement[].@type",
+            "[].itemListElement[].item",
+            "[].itemListElement[].name",
+            "[].itemListElement[].position",
+            "[].mainEntity",
+            "[].mainEntity.@type",
+            "[].mainEntity.additionalType",
+            "[].mainEntity.birthDate",
+            "[].mainEntity.birthPlace",
+            "[].mainEntity.birthPlace.@type",
+            "[].mainEntity.birthPlace.name",
+            "[].mainEntity.description",
+            "[].mainEntity.height",
+            "[].mainEntity.height.@type",
+            "[].mainEntity.height.unitCode",
+            "[].mainEntity.height.value",
+            "[].mainEntity.image",
+            "[].mainEntity.jobTitle",
+            "[].mainEntity.memberOf",
+            "[].mainEntity.memberOf.@type",
+            "[].mainEntity.memberOf.name",
+            "[].mainEntity.name",
+            "[].mainEntity.nationality",
+            "[].mainEntity.sport",
+            "[].mainEntity.url",
+            "[].name",
+            "[].publisher",
+            "[].publisher.@type",
+            "[].publisher.name",
+            "[].publisher.url",
+            "[].url"
+          ]
+        }
+      ],
+      "enlaces_internos_por_seccion": {
+        "plantel": 12,
+        "(inicio)": 6,
+        "partido": 6,
+        "fixture": 4,
+        "proximo-partido": 4,
+        "historial": 3,
+        "temporada": 3,
+        "goleadores": 3,
+        "efemerides": 3,
+        "tabla-posiciones": 2,
+        "arbitros": 2,
+        "entrenadores": 2,
+        "records": 2,
+        "copas": 2,
+        "copa-sudamericana": 2,
+        "copa-argentina": 2,
+        "copa-libertadores": 2,
+        "copa-intercontinental": 2,
+        "recopa-sudamericana": 2,
+        "metodologia": 1,
+        "contacto": 1,
+        "privacidad": 1,
+        "changelog": 1
+      },
+      "patrones_de_ruta": {
+        "//": 6,
+        "/plantel/": 6,
+        "/partido/<slug>/": 6,
+        "/fixture/": 4,
+        "/proximo-partido/": 4,
+        "/plantel/jugador/<slug>/": 3,
+        "/historial/": 3,
+        "/temporada/<slug>/": 3,
+        "/goleadores/": 3,
+        "/plantel/<slug>/": 3,
+        "/efemerides/": 3,
+        "/tabla-posiciones/": 2,
+        "/arbitros/": 2,
+        "/entrenadores/": 2,
+        "/records/": 2,
+        "/copas/": 2,
+        "/copa-sudamericana/": 2,
+        "/copa-argentina/": 2,
+        "/copa-libertadores/": 2,
+        "/copa-intercontinental/": 2,
+        "/recopa-sudamericana/": 2,
+        "/metodologia/": 1,
+        "/contacto/": 1,
+        "/privacidad/": 1,
+        "/changelog/": 1
+      },
+      "enlaza_fichas_de_partido": true,
+      "palabras_clave": {
+        "titular": 1,
+        "suplente": 1,
+        "minutos": 3,
+        "minuto": 3,
+        "gol": 6,
+        "asistencia": 2,
+        "amarilla": 1,
+        "roja": 1,
+        "remates": 2,
+        "pases": 4,
+        "xg": 5,
+        "nacimiento": 1,
+        "edad": 2,
+        "años": 2,
+        "altura": 1,
+        "pie": 1,
+        "posición": 1,
+        "nacionalidad": 1,
+        "dorsal": 3,
+        "contrato": 1,
+        "valor": 3
+      },
+      "minutos_detectados": 1,
+      "caracteres_texto_principal": 2210,
+      "especifico": {
+        "etiquetas": {
+          "Goles": 3,
+          "Amarillas": 2,
+          "Rojas": 2,
+          "xG": 2,
+          "PJ liga": 1,
+          "Asist. liga": 1,
+          "Min. liga": 1,
+          "Valor mercado": 1,
+          "Altura (cm)": 1,
+          "Partidos": 1,
+          "Asistencias": 1,
+          "Minutos": 1,
+          "Remates": 1,
+          "En el área": 1,
+          "Pases": 1,
+          "Duelos": 1,
+          "Asist.": 1,
+          "Pases %": 1,
+          "Defensa": 1,
+          "Duelos %": 1,
+          "T/S": 1,
+          "Partido": 1,
+          "Gol.": 1,
+          "Asis.": 1,
+          "Ama.": 1,
+          "Anterior": 1,
+          "Siguiente": 1
+        }
+      }
+    }
+  },
+  "access_status": "funciona",
+  "robots": {
+    "reglas_para_asterisco": [
+      "disallow: /admin/",
+      "disallow: /api/",
+      "disallow: /preview/"
+    ],
+    "agentes_con_grupo_propio": [
+      "Bingbot",
+      "Bytespider",
+      "CCBot",
+      "Claude-Web",
+      "ClaudeBot",
+      "Diffbot",
+      "DuckDuckBot",
+      "FacebookBot",
+      "GPTBot",
+      "Google-Extended",
+      "Googlebot",
+      "ImagesiftBot",
+      "OAI-SearchBot",
+      "PerplexityBot",
+      "Slurp",
+      "anthropic-ai",
+      "cohere-ai"
+    ],
+    "nombra_a_nuestro_bot": false,
+    "sitemaps": [
+      "https://bocastats.com/sitemap_index.xml"
+    ],
+    "permite": {
+      "temporada": true,
+      "plantel": true,
+      "tabla": true,
+      "ficha_jugador": true,
+      "ficha_partido": true,
+      "api": false
+    }
+  },
+  "requests_reales_en_manifiesto": 5
+}

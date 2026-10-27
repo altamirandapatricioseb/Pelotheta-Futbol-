@@ -1,0 +1,76 @@
+{
+  "source": "footystats",
+  "probed_at": "2026-10-27T02:56:51+00:00",
+  "owner_link": "https://footystats.org/clubs/ca-boca-juniors-705",
+  "api_docs": "https://footystats.org/api/documentations/",
+  "scope_note": "Solo se intentó la API con la clave pública de demo. La web de footystats.org no se pidió desde código (sus términos prohíben el acceso automatizado a la web); términos y robots.txt de la web se leyeron a mano.",
+  "network_requests_this_run": 0,
+  "network_requests_total_in_manifest": 1,
+  "requests": [
+    {
+      "url_masked": "https://api.football-data-api.com/robots.txt",
+      "status": 200,
+      "content_type": "text/plain; charset=utf-8",
+      "bytes": 25,
+      "sha256": "efdb5938a9736727f5cce2b60355588e4fa541d19d022d222d8a09b8efd5dcce",
+      "from_cache": true,
+      "fetched_at": "2026-10-27T02:55:06+00:00",
+      "note": "robots.txt del host de la API"
+    }
+  ],
+  "api_robots_txt": {
+    "url": "https://api.football-data-api.com/robots.txt",
+    "status": 200,
+    "content_type": "text/plain; charset=utf-8",
+    "directive_count": 2,
+    "directives_sample": [
+      "User-agent: *",
+      "Disallow: /"
+    ],
+    "looks_like_html": false
+  },
+  "web_robots_txt": {
+    "url": "https://footystats.org/robots.txt",
+    "summary": "Grupo 'User-agent: *' sin Disallow total, pero bloquea /api/club*, /api/team*, /api/match*, /c-dl.php (por el nombre, quizás la descarga de CSV: no verificado), /*.php, /matches?*, /players?*, /team-stats?* y /*?*hardknock=json*. /clubs/... no figura bloqueado, pero los términos de la web prohíben igual el acceso automatizado, así que la web no se pide desde código."
+  },
+  "league_list": {
+    "url_masked": "https://api.football-data-api.com/league-list?key=***",
+    "status": "no_pedido_robots_txt",
+    "analysis": null
+  },
+  "terms_reviewed": [
+    {
+      "url": "https://footystats.org/terms-and-conditions",
+      "summary": "Términos de la web (Over-Under Digital Inc., Canadá; ley y tribunales de Canadá). Licencia limitada para ver y descargar/imprimir contenido solo para uso personal y no comercial. Prohíbe acceder, consultar, scrapear, indexar o descargar la web por medios automatizados (bots, scripts, IA) salvo autorización escrita; aclara que eso no incluye la API. Prohíbe recuperar datos sistemáticamente para armar bases o colecciones y republicar contenido sin permiso escrito. CSV: 1 crédito por descarga, tope de 100 CSV por mes para usuarios Premium. No exige atribución."
+    },
+    {
+      "url": "https://footystats.org/api/documentations/terms-of-use-and-legal",
+      "summary": "Términos de la API: se permite usar los datos en webs y apps públicas y en modelos; prohíbe revender o redistribuir la API o sus datos crudos a terceros y crear sitios que copien o compitan con footystats.org. Cuentas individuales. Datos 'as is'."
+    },
+    {
+      "url": "https://footystats.org/api/documentations/faq",
+      "summary": "FAQ de la API: se pueden guardar los datos en base propia y conservarlos tras cancelar; no exige atribución; prohíbe redistribuir datos crudos de la API."
+    },
+    {
+      "url": "https://footystats.org/api/documentations/try-all-endpoints",
+      "summary": "La clave 'example' es de prueba y no requiere cuenta; los ejemplos usan Premier League (season_id 12325 = 2024/25). No dice que cubra otras ligas."
+    },
+    {
+      "url": "https://footystats.org/api/",
+      "summary": "Planes: Free (solo Premier League, 180 req/h), Hobby £29,99/mes (50 ligas), Serious £69,99/mes (150 ligas), Everything £389,99/mes (todas). Lista Argentina Primera División entre las ligas disponibles."
+    },
+    {
+      "url": "https://footystats.org/download-stats-csv",
+      "summary": "Descarga de CSV requiere login; gratis solo la muestra Premier League 2018/19. El resto requiere Premium (página /premium: £19,99/mes con promo para Argentina). Pide usar la API, no los CSV, para descargas automatizadas."
+    }
+  ],
+  "permissions": {
+    "consult": "Sí, consulta manual en el navegador para uso personal y no comercial.",
+    "bulk_download": "Web: no (prohíbe recuperación sistemática). CSV: solo con Premium, 100 por mes, y la licencia de la web es personal y no comercial. API: guardar datos permitido (FAQ).",
+    "automated_queries": "Web: prohibido salvo autorización escrita. API: permitido con plan pago, pero el robots.txt del host de la API es 'Disallow: /' para todos.",
+    "public_app_reuse": "API paga: sí (webs y apps públicas), sin redistribuir datos crudos. Web y CSV: no especificado de forma explícita; la licencia de la web es solo personal y no comercial y prohíbe republicar sin permiso escrito, así que mostrar CSV en el sitio público no está cubierto.",
+    "attribution": "No exigida (FAQ de la API). Web: no borrar avisos de copyright."
+  },
+  "conclusion": "La API no se pudo probar: el robots.txt de api.football-data-api.com dice 'Disallow: /' para todos y el cliente compartido no lo fuerza. Para Boca 2026 la API exige plan pago (la clave demo solo cubre Premier League según la documentación, no verificado con respuesta real) y la web prohíbe el acceso automatizado. Uso recomendado: referencia manual; CSV subidos a mano a data/manual/ solo con Premium y para análisis personal, sin publicarlos en el sitio.",
+  "errors": []
+}

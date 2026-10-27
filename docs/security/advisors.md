@@ -1,0 +1,11 @@
+# Supabase Advisors
+
+## 27-oct-2026 (etapa 1)
+
+Security Advisor: 0 ERROR, 0 WARN.
+
+| Nivel | Hallazgo | Justificación |
+|---|---|---|
+| INFO | `rls_enabled_no_policy` en `core.audit_log` y `core.source_id_map` | Intencional: RLS activo sin políticas niega todo a anon y authenticated. Solo los usa el pipeline con la clave secreta. |
+
+Performance Advisor: se agregaron índices a las 4 claves foráneas señaladas (migración `fk_indexes`). Los avisos `unused_index` son esperables con la base vacía.

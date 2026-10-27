@@ -1,0 +1,100 @@
+{
+  "fuente": "espn",
+  "generado_en": "2026-10-27T02:58:36+00:00",
+  "user_agent": "PelothetaBot/0.1 (+https://github.com/altamirandapatricioseb/Pelotheta-Futbol-; proyecto de portfolio sin fines comerciales)",
+  "ids": {
+    "boca_team_id": "5",
+    "liga_slug": "arg.1",
+    "temporada": "2026"
+  },
+  "terminos_revisados": [
+    {
+      "url": "https://disneytermsofuse.com/spanish-latin-american/",
+      "resumen": "Versión latinoamericana enlazada desde el pie de www.espn.com ('Condiciones para el uso'), actualizada en mayo de 2024. Sección 2: licencia limitada solo para uso personal y no comercial, sin derecho a reproducir, distribuir ni comunicar al público. Restricciones adicionales: prohíbe acceder, vigilar, copiar o extraer contenido con robots, arañas, scripts u otros medios automatizados para minería de datos, web scraping, bases de datos o herramientas de IA sin autorización expresa por escrito. Única excepción: arañas de buscadores públicos para crear índices, si robots.txt no lo impide. No menciona API, RSS ni feeds. Ley aplicable: Nueva York, salvo norma local."
+    },
+    {
+      "url": "https://disneytermsofuse.com/english/",
+      "resumen": "Texto general en inglés (última actualización 24/05/2024). Nombra a ESPN entre las marcas cubiertas. 2.A: licencia personal y no comercial. 2.B(ii): no copiar salvo permiso expreso. 2.B(vi): no quitar avisos de propiedad ni hacer framing/mirroring. 2.B(vii) y 3.H: no usar los productos ni las marcas de modo que sugiera asociación o con fines comerciales. 2.B(x): prohíbe acceso o extracción automatizada (robots, spiders, scripts) para data mining, scraping o armar datasets, sin excepción para uso personal o investigación; solo se exceptúan buscadores públicos."
+    },
+    {
+      "url": "https://disneytermsofuse.com/",
+      "resumen": "Página índice: solo títulos de secciones; remite al texto completo."
+    }
+  ],
+  "robots_revisados_a_mano": [
+    {
+      "url": "https://www.espn.com/robots.txt",
+      "resumen": "Para User-agent * no menciona /apis/ ni JSON, pero prohíbe /soccer/matchstats, /soccer/lineups, /soccer/commentary y /soccer/video (justo las páginas de estadísticas, alineaciones y relato de partido). Bloquea por completo a GPTBot, CCBot, anthropic-ai, Google-Extended y otros bots de IA."
+    },
+    {
+      "url": "https://espndeportes.espn.com/robots.txt",
+      "resumen": "Para User-agent * prohíbe /soccer/*, /futbol/alineacion, /futbol/numeritos, /futbol/comentario, /futbol/video, fichas de jugador (bio, stats, splits, game logs) y bloquea GPTBot y Google-Extended. No menciona /apis/."
+    },
+    {
+      "url": "https://site.api.espn.com/robots.txt",
+      "resumen": "Con WebFetch respondió HTTP 403 y con el cliente compartido también (página 'Access Denied' del CDN): no hay reglas legibles, así que el cliente trata todo el host como prohibido."
+    }
+  ],
+  "pedidos_de_datos_planeados": {
+    "equipo": "https://site.api.espn.com/apis/site/v2/sports/soccer/arg.1/teams/5",
+    "plantel": "https://site.api.espn.com/apis/site/v2/sports/soccer/arg.1/teams/5/roster",
+    "calendario_2026": "https://site.api.espn.com/apis/site/v2/sports/soccer/arg.1/teams/5/schedule?season=2026",
+    "tabla": "https://site.api.espn.com/apis/v2/sports/soccer/arg.1/standings?season=2026",
+    "summary_partido": "https://site.api.espn.com/apis/site/v2/sports/soccer/arg.1/summary?event=0"
+  },
+  "robots_con_cliente_compartido": {
+    "https://www.espn.com/robots.txt": {
+      "http": 200,
+      "content_type": "text/plain",
+      "bytes": 3223,
+      "sha256": "69e57dadcb6f535e960fcc201f1f8fcd998bc4423f0261186408274b1d8b86a6",
+      "desde_cache": true,
+      "pedido_a_la_red_en": "2026-10-27T02:57:08+00:00",
+      "legible_para_el_cliente": true
+    },
+    "https://espndeportes.espn.com/robots.txt": {
+      "http": 200,
+      "content_type": "text/plain",
+      "bytes": 3279,
+      "sha256": "de09b3debe0a03cdadf1eb51344439ee58c2f86a742f7489cbc3724c66c02abe",
+      "desde_cache": true,
+      "pedido_a_la_red_en": "2026-10-27T02:57:08+00:00",
+      "legible_para_el_cliente": true
+    },
+    "https://site.api.espn.com/robots.txt": {
+      "http": 403,
+      "content_type": "text/html",
+      "bytes": 387,
+      "sha256": "ec41aef402d73fb02b36b3233b0b0e5482db4a03b39d8f28b98762319c831b84",
+      "desde_cache": true,
+      "pedido_a_la_red_en": "2026-10-27T02:57:08+00:00",
+      "legible_para_el_cliente": false
+    }
+  },
+  "decisiones_robots": {
+    "https://www.espn.com/soccer/team/_/id/5": "permitido",
+    "https://www.espn.com/soccer/lineups/_/gameId/0": "prohibido",
+    "https://www.espn.com/soccer/matchstats/_/gameId/0": "prohibido",
+    "https://www.espn.com/soccer/commentary/_/gameId/0": "prohibido",
+    "https://espndeportes.espn.com/futbol/equipo/_/id/5": "permitido",
+    "https://espndeportes.espn.com/futbol/alineacion/_/juegoId/0": "prohibido",
+    "https://espndeportes.espn.com/futbol/numeritos/_/juegoId/0": "prohibido",
+    "https://site.api.espn.com/apis/site/v2/sports/soccer/arg.1/teams/5": "prohibido (robots.txt ilegible: el cliente no pide datos)",
+    "https://site.api.espn.com/apis/site/v2/sports/soccer/arg.1/teams/5/roster": "prohibido (robots.txt ilegible: el cliente no pide datos)",
+    "https://site.api.espn.com/apis/site/v2/sports/soccer/arg.1/teams/5/schedule?season=2026": "prohibido (robots.txt ilegible: el cliente no pide datos)",
+    "https://site.api.espn.com/apis/v2/sports/soccer/arg.1/standings?season=2026": "prohibido (robots.txt ilegible: el cliente no pide datos)",
+    "https://site.api.espn.com/apis/site/v2/sports/soccer/arg.1/summary?event=0": "prohibido (robots.txt ilegible: el cliente no pide datos)"
+  },
+  "advertencia_robotparser": "urllib.robotparser (usado por el cliente compartido) no interpreta comodines '*' dentro de las rutas; las decisiones calculadas pueden ser más permisivas que el robots.txt real.",
+  "pedidos_de_datos_a_la_red": 0,
+  "estado_acceso": "no_probado_por_terminos",
+  "motivo": "Los Términos de Uso de Disney (cubren ESPN) prohíben en la sección 2.B(x) el acceso o la extracción con scripts o medios automatizados para scraping, minería de datos o bases de datos sin autorización expresa por escrito. Además, el robots.txt de site.api.espn.com no es legible para nuestro User-Agent, así que el cliente compartido no pediría datos a ese host. Con permiso escrito, correr con PELOTHETA_ESPN_PERMISO_ESCRITO=si.",
+  "no_verificado": [
+    "Forma real de los JSON de equipo, plantel, calendario 2026, tabla y summary de partido.",
+    "Si el summary trae alineaciones con minutos de entrada y salida, eventos con minuto y estadísticas por jugador y por equipo (xG incluido).",
+    "Slugs de competiciones que aparecen en el calendario de Boca 2026 (se suponen arg.1, arg.copa, conmebol.libertadores o conmebol.sudamericana, pero nada de eso se vio).",
+    "Límites de uso (rate limit) de site.api.espn.com.",
+    "Robots.txt de otros hosts de la API (site.web.api.espn.com, sports.core.api.espn.com): no se revisaron porque los términos ya prohíben el acceso automatizado."
+  ],
+  "pedidos_robots_a_la_red_en_esta_ejecucion": 0
+}

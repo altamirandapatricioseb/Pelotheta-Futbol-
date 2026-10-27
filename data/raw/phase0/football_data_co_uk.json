@@ -1,0 +1,263 @@
+{
+  "source": "football_data_co_uk",
+  "generated_at": "2026-10-27T03:02:01+00:00",
+  "terms_reviewed": [
+    {
+      "url": "https://www.football-data.co.uk/robots.txt",
+      "summary": "Grupo 'User-agent: *' con 'Disallow:' vacío: todo el sitio permitido para cualquier robot no nombrado. Bloquea con 'Disallow: /' a bots de IA y de recolección por nombre: GPTBot, ChatGPT-User, Google-Extended, Anthropic-AI, Claude-Web, ClaudeBot, PerplexityBot, Applebot-Extended, CCBot, Meta-ExternalAgent, Diffbot, Omgilibot. Sin Crawl-delay ni Sitemap."
+    },
+    {
+      "url": "https://www.football-data.co.uk/notes.txt",
+      "summary": "Clave de columnas de los CSV de las ligas principales (Div, Date, HomeTeam, FTHG, FTR, estadísticas HS/HST/HC/HY/HR, y cuotas por casa de apuestas con sufijo H/D/A; 'C' = cuota de cierre). No define las columnas propias de las 'ligas nuevas' (Country, League, Season, Home, Away, HG, AG). Incluye agradecimientos a las fuentes de origen (resultados: XScores; cuotas: Betbrain, Oddsportal y casas de apuestas). Sin licencia, copyright ni condiciones de reutilización."
+    },
+    {
+      "url": "https://www.football-data.co.uk/all_new_data.php",
+      "summary": "Índice de 'ligas nuevas' (16 países, Argentina incluida). Dice 'My data is free'. Ofrece una API paga de un socio (TheStatsAPI). Pide avisar errores u omisiones. No dice nada de redistribución, uso comercial, atribución ni descarga automatizada."
+    },
+    {
+      "url": "https://www.football-data.co.uk/argentina.php",
+      "summary": "Página de Argentina: enlaces a new/ARG.csv y new/ARG.xlsx, 'Last updated' de octubre de 2026, enlace a Notes.txt y a disclaimer.php. No lista temporadas ni describe columnas. Sin condiciones de uso."
+    },
+    {
+      "url": "https://www.football-data.co.uk/disclaimer.php",
+      "summary": "Solo descargo de responsabilidad: no garantiza la exactitud de los datos, no se responsabiliza por pérdidas de apuestas, el contenido no es consejo para apostar y el sitio se financia con publicidad de casas de apuestas. No trae licencia, copyright, permisos de reutilización, límites de descarga ni pedido de atribución."
+    }
+  ],
+  "nota_cuotas": "El CSV trae cuotas de apuestas (Pinnacle, Betfair Exchange, máximo y promedio del mercado). Pelotheta NO muestra cuotas: esas columnas se descartan al ingerir.",
+  "robots_txt": {
+    "url": "https://football-data.co.uk/robots.txt",
+    "status": 200,
+    "content_type": "text/plain",
+    "bytes": 732,
+    "sha256": "2dbd3891735d090f6a577d1281efeba5be6280e17bb1e4a8fd936cdc69c2d236",
+    "from_cache": false,
+    "fetched_at": "2026-10-27T03:02:03+00:00",
+    "csv_permitido_para_nuestro_ua": true,
+    "crawl_delay": null,
+    "agentes_bloqueados_por_nombre": [
+      "Anthropic-AI",
+      "Applebot-Extended",
+      "CCBot",
+      "ChatGPT-User",
+      "Claude-Web",
+      "ClaudeBot",
+      "Diffbot",
+      "GPTBot",
+      "Google-Extended",
+      "Meta-ExternalAgent",
+      "Omgilibot",
+      "PerplexityBot"
+    ]
+  },
+  "arg_csv": {
+    "codificacion": "utf-8",
+    "filas_totales": 6430,
+    "columnas": [
+      "Country",
+      "League",
+      "Season",
+      "Date",
+      "Time",
+      "Home",
+      "Away",
+      "HG",
+      "AG",
+      "Res",
+      "PSCH",
+      "PSCD",
+      "PSCA",
+      "MaxCH",
+      "MaxCD",
+      "MaxCA",
+      "AvgCH",
+      "AvgCD",
+      "AvgCA",
+      "BFECH",
+      "BFECD",
+      "BFECA",
+      "B365CH",
+      "B365CD",
+      "B365CA"
+    ],
+    "columnas_por_tipo": {
+      "partido_y_resultado": [
+        "Country",
+        "League",
+        "Season",
+        "Date",
+        "Time",
+        "Home",
+        "Away",
+        "HG",
+        "AG",
+        "Res"
+      ],
+      "cuotas_apuestas": [
+        "PSCH",
+        "PSCD",
+        "PSCA",
+        "MaxCH",
+        "MaxCD",
+        "MaxCA",
+        "AvgCH",
+        "AvgCD",
+        "AvgCA",
+        "BFECH",
+        "BFECD",
+        "BFECA",
+        "B365CH",
+        "B365CD",
+        "B365CA"
+      ],
+      "otras": []
+    },
+    "completitud_2026_columnas_resultado": {
+      "Country": "449/449",
+      "League": "449/449",
+      "Season": "449/449",
+      "Date": "449/449",
+      "Time": "449/449",
+      "Home": "449/449",
+      "Away": "449/449",
+      "HG": "449/449",
+      "AG": "449/449",
+      "Res": "449/449"
+    },
+    "temporadas": {
+      "2012/2013": {
+        "partidos": 381,
+        "equipos": 20
+      },
+      "2013/2014": {
+        "partidos": 383,
+        "equipos": 20
+      },
+      "2014": {
+        "partidos": 190,
+        "equipos": 20
+      },
+      "2015": {
+        "partidos": 468,
+        "equipos": 30
+      },
+      "2016": {
+        "partidos": 242,
+        "equipos": 30
+      },
+      "2016/2017": {
+        "partidos": 450,
+        "equipos": 30
+      },
+      "2017/2018": {
+        "partidos": 378,
+        "equipos": 28
+      },
+      "2018/2019": {
+        "partidos": 324,
+        "equipos": 26
+      },
+      "2019/2020": {
+        "partidos": 276,
+        "equipos": 24
+      },
+      "2020": {
+        "partidos": 134,
+        "equipos": 24
+      },
+      "2021": {
+        "partidos": 501,
+        "equipos": 26
+      },
+      "2022": {
+        "partidos": 581,
+        "equipos": 29
+      },
+      "2023": {
+        "partidos": 582,
+        "equipos": 28
+      },
+      "2024": {
+        "partidos": 581,
+        "equipos": 28
+      },
+      "2025": {
+        "partidos": 510,
+        "equipos": 30
+      },
+      "2026": {
+        "partidos": 449,
+        "equipos": 30
+      }
+    },
+    "tiene_temporada_2026": true,
+    "temporada_2026": {
+      "partidos": 449,
+      "con_resultado": 449,
+      "sin_resultado": 0,
+      "fecha_min": "2026-01-22",
+      "fecha_max": "2026-10-20",
+      "equipos_distintos": 30,
+      "partidos_por_equipo_min": 29,
+      "partidos_por_equipo_max": 33,
+      "valores_League": [
+        "Liga Profesional"
+      ],
+      "valores_Country": [
+        "Argentina"
+      ],
+      "valores_Res": {
+        "D": 136,
+        "A": 124,
+        "H": 189
+      },
+      "partidos_ene_jun": 254,
+      "partidos_jul_dic": 195,
+      "formato_Time_ejemplo_largo": [
+        5
+      ]
+    },
+    "boca_2026": {
+      "nombres_de_boca_en_el_archivo": [
+        "Boca Juniors"
+      ],
+      "partidos": 30,
+      "de_local": 15,
+      "de_visitante": 15,
+      "fecha_min": "2026-01-25",
+      "fecha_max": "2026-10-17",
+      "partidos_ene_jun": 17,
+      "partidos_jul_dic": 13,
+      "rivales_distintos": 17,
+      "resultado_agregado": {
+        "ganados": 14,
+        "perdidos": 3,
+        "empates": 13
+      },
+      "ejemplo": {
+        "Date": "25/01/2026",
+        "Home": "Boca Juniors",
+        "Away": "Dep. Riestra"
+      }
+    }
+  },
+  "requests": [
+    {
+      "recurso": "new/ARG.csv",
+      "url": "https://football-data.co.uk/new/ARG.csv",
+      "status": 200,
+      "content_type": "text/csv",
+      "bytes": 881271,
+      "sha256": "080a6b0b26473f1729a302df261d391bf92efa9b0e0b2cfe1b6833c51196ca3d",
+      "from_cache": false,
+      "fetched_at": "2026-10-27T03:02:07+00:00",
+      "estado": "con_datos"
+    }
+  ],
+  "presupuesto": {
+    "max_requests_datos": 3,
+    "requests_datos_planificadas": 1,
+    "desde_red_en_esta_corrida": 1,
+    "desde_cache_en_esta_corrida": 0,
+    "total_en_manifiesto_incluye_robots": 2
+  }
+}

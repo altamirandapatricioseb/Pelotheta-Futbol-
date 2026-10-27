@@ -1,0 +1,55 @@
+{
+  "source": "fbref",
+  "generado": "2026-10-27T02:58:07+00:00",
+  "user_agent": "PelothetaBot/0.1 (+https://github.com/altamirandapatricioseb/Pelotheta-Futbol-; proyecto de portfolio sin fines comerciales)",
+  "min_delay_s": 6.0,
+  "tope_requests_datos": 2,
+  "terminos_revisados": [
+    {
+      "url": "https://fbref.com/robots.txt",
+      "resumen": "Leído por la sonda con el cliente compartido (ver sección robots)."
+    },
+    {
+      "url": "https://www.sports-reference.com/bot-traffic.html",
+      "resumen": "WebFetch devolvió 403; contenido conocido por buscador: FBref y Stathead limitan a 10 requests/minuto (otros sitios SR a 20), sin importar el tipo de bot; quien se pasa queda bloqueado hasta un día. No ofrecen descarga ni API porque los datos son licenciados a terceros."
+    },
+    {
+      "url": "https://www.sports-reference.com/termsofuse.html",
+      "resumen": "WebFetch devolvió 403; leído vía copia de tostracker.app (captura 2026-04-17, pie 'Last Updated: May 19, 2023'). Sección 5: prohibido usar medios automatizados sin permiso escrito 'in a manner that adversely impacts site performance or access'; prohibido crear bases que compitan o sustituyan a SRL; prohibido usar el material para entrenar, ajustar, hacer prompting o instruir modelos de IA; se permite compartir/reusar datos de páginas individuales (comercial o no) acreditando a SRL como fuente 'to the maximum extent possible'."
+    },
+    {
+      "url": "https://www.sports-reference.com/data_use.html",
+      "resumen": "WebFetch devolvió 403; no verificado."
+    },
+    {
+      "url": "https://faq.sports-reference.com/portal/en/kb/articles/sports-r",
+      "resumen": "FAQ 'Sports Reference and Data Use': solo enlaza data_use.html, bot-traffic.html y termsofuse.html; menciona venta de datasets a medida."
+    }
+  ],
+  "requests": [
+    {
+      "url_masked": "https://fbref.com/robots.txt",
+      "status": 403,
+      "content_type": "text/html; charset=UTF-8",
+      "bytes": 5764,
+      "sha256": "b508ce7011f9cacf7af721e6d69ba378c04d1fcf6fab7d5d6dc38647d05c3260",
+      "desde_cache": true,
+      "fecha": "2026-10-27T02:56:59+00:00",
+      "nota": "robots.txt"
+    }
+  ],
+  "access_status": "bloqueado",
+  "robots": {
+    "status": 403,
+    "content_type": "text/html; charset=UTF-8",
+    "titulo": "Just a moment...",
+    "menciona_cloudflare": true,
+    "pide_javascript_y_cookies": true,
+    "bloqueo": "HTTP 403 desafío anti-bots ('just a moment')",
+    "permite_url_plantel": false,
+    "permite_match_reports": false
+  },
+  "motivo": "robots.txt respondió HTTP 403 desafío anti-bots ('just a moment'); no se insiste",
+  "no_verificado": "Ids de tablas y columnas actuales de la página de Boca 2026 y de los Match Reports: no se pidió ningún dato porque el sitio bloqueó el primer request.",
+  "requests_reales_en_manifiesto": 1
+}

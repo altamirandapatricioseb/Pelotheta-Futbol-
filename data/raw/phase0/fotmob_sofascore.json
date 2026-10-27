@@ -1,0 +1,254 @@
+{
+  "source": "fotmob_sofascore",
+  "generated_at": "2026-10-27T02:57:40+00:00",
+  "mode": "solo_revision_documental: no se pidió ningún endpoint de datos",
+  "user_agent": "PelothetaBot/0.1 (+https://github.com/altamirandapatricioseb/Pelotheta-Futbol-; proyecto de portfolio sin fines comerciales)",
+  "network_requests_this_run": 0,
+  "network_requests_total_manifest": 2,
+  "robots": {
+    "www.fotmob.com": {
+      "robots_url": "https://www.fotmob.com/robots.txt",
+      "status": 200,
+      "content_type": "text/plain",
+      "bytes": 16091,
+      "sha256": "69448e6ebfbd7add06c93cfd900ed552438bb29c9b83b3c9aadf819eb6d1cab7",
+      "from_cache": true,
+      "fetched_at": "2026-10-27T02:55:59+00:00",
+      "access_status": "funciona",
+      "groups_count": 5,
+      "user_agents_named": [
+        "*",
+        "amazonadbot",
+        "bingbot",
+        "googlebot",
+        "qwantbot"
+      ],
+      "agents_fully_blocked": [],
+      "sitemaps_count": 286,
+      "comment_lines": 2,
+      "crawl_delays": {},
+      "generic_bot_rules": [
+        "allow: /",
+        "disallow: /api/*",
+        "disallow: /auth/*",
+        "disallow: /info",
+        "disallow: /health",
+        "disallow: /contact_us"
+      ],
+      "our_ua_group": "*",
+      "our_ua_has_own_group": false,
+      "api_root_checked": "/api/",
+      "api_root_allowed_by_agent": {
+        "*": false,
+        "amazonadbot": true,
+        "bingbot": true,
+        "googlebot": true,
+        "qwantbot": true
+      },
+      "path_checks": [
+        {
+          "path": "/api/",
+          "description": "raíz de la API interna",
+          "generic_bot_allowed": false,
+          "generic_bot_rule": "disallow: /api/*",
+          "our_ua_allowed": false,
+          "our_ua_rule": "disallow: /api/*",
+          "shared_client_allows": false
+        },
+        {
+          "path": "/api/teams?id=10077",
+          "description": "API: equipo Boca (ruta histórica)",
+          "generic_bot_allowed": false,
+          "generic_bot_rule": "disallow: /api/*",
+          "our_ua_allowed": false,
+          "our_ua_rule": "disallow: /api/*",
+          "shared_client_allows": false
+        },
+        {
+          "path": "/api/data/teams?id=10077",
+          "description": "API: equipo Boca (ruta más reciente según terceros)",
+          "generic_bot_allowed": false,
+          "generic_bot_rule": "disallow: /api/*",
+          "our_ua_allowed": false,
+          "our_ua_rule": "disallow: /api/*",
+          "shared_client_allows": false
+        },
+        {
+          "path": "/api/matchDetails?matchId=1",
+          "description": "API: detalle de partido (ruta histórica)",
+          "generic_bot_allowed": false,
+          "generic_bot_rule": "disallow: /api/*",
+          "our_ua_allowed": false,
+          "our_ua_rule": "disallow: /api/*",
+          "shared_client_allows": false
+        },
+        {
+          "path": "/api/data/matchDetails?matchId=1",
+          "description": "API: detalle de partido (ruta más reciente)",
+          "generic_bot_allowed": false,
+          "generic_bot_rule": "disallow: /api/*",
+          "our_ua_allowed": false,
+          "our_ua_rule": "disallow: /api/*",
+          "shared_client_allows": false
+        },
+        {
+          "path": "/api/leagues?id=112",
+          "description": "API: Liga Profesional (ruta histórica)",
+          "generic_bot_allowed": false,
+          "generic_bot_rule": "disallow: /api/*",
+          "our_ua_allowed": false,
+          "our_ua_rule": "disallow: /api/*",
+          "shared_client_allows": false
+        },
+        {
+          "path": "/api/data/leagues?id=112",
+          "description": "API: Liga Profesional (ruta más reciente)",
+          "generic_bot_allowed": false,
+          "generic_bot_rule": "disallow: /api/*",
+          "our_ua_allowed": false,
+          "our_ua_rule": "disallow: /api/*",
+          "shared_client_allows": false
+        },
+        {
+          "path": "/api/playerData?id=1",
+          "description": "API: jugador",
+          "generic_bot_allowed": false,
+          "generic_bot_rule": "disallow: /api/*",
+          "our_ua_allowed": false,
+          "our_ua_rule": "disallow: /api/*",
+          "shared_client_allows": false
+        },
+        {
+          "path": "/api/data/tltable?leagueId=112",
+          "description": "API: tabla de la liga",
+          "generic_bot_allowed": false,
+          "generic_bot_rule": "disallow: /api/*",
+          "our_ua_allowed": false,
+          "our_ua_rule": "disallow: /api/*",
+          "shared_client_allows": false
+        },
+        {
+          "path": "/_next/data/x/en/teams/10077/overview/boca-juniors.json",
+          "description": "datos Next.js de páginas",
+          "generic_bot_allowed": true,
+          "generic_bot_rule": "allow: /",
+          "our_ua_allowed": true,
+          "our_ua_rule": "allow: /",
+          "shared_client_allows": true
+        },
+        {
+          "path": "/teams/10077/overview/boca-juniors",
+          "description": "página HTML del equipo",
+          "generic_bot_allowed": true,
+          "generic_bot_rule": "allow: /",
+          "our_ua_allowed": true,
+          "our_ua_rule": "allow: /",
+          "shared_client_allows": true
+        },
+        {
+          "path": "/leagues/112/overview/liga-profesional",
+          "description": "página HTML de la liga",
+          "generic_bot_allowed": true,
+          "generic_bot_rule": "allow: /",
+          "our_ua_allowed": true,
+          "our_ua_rule": "allow: /",
+          "shared_client_allows": true
+        },
+        {
+          "path": "/match/1/matchfacts/x",
+          "description": "página HTML de un partido",
+          "generic_bot_allowed": true,
+          "generic_bot_rule": "allow: /",
+          "our_ua_allowed": true,
+          "our_ua_rule": "allow: /",
+          "shared_client_allows": true
+        },
+        {
+          "path": "/tos.txt",
+          "description": "términos de uso en texto plano",
+          "generic_bot_allowed": true,
+          "generic_bot_rule": "allow: /",
+          "our_ua_allowed": true,
+          "our_ua_rule": "allow: /",
+          "shared_client_allows": true
+        }
+      ]
+    },
+    "www.sofascore.com": {
+      "robots_url": "https://www.sofascore.com/robots.txt",
+      "status": 403,
+      "content_type": "application/json",
+      "bytes": 48,
+      "sha256": "6b771bca0fe4271cc0baf29954f10c68be99102048e4df524b6d7d6bf38dad5d",
+      "from_cache": true,
+      "fetched_at": "2026-10-27T02:55:59+00:00",
+      "access_status": "bloqueado",
+      "implication": "robots.txt ilegible para nuestro User-Agent: el cliente compartido asume que NADA del sitio está permitido (ante la duda, no scrapeamos). Reglas reales: no verificado."
+    }
+  },
+  "robots_not_checked": [
+    "https://api.sofascore.com/robots.txt (host real de la API de Sofascore)",
+    "otros subdominios de FotMob (por ejemplo, de imágenes o datos)"
+  ],
+  "terms_reviewed": [
+    {
+      "url": "https://www.fotmob.com/tos.txt",
+      "summary": "FotMob Terms of Use, fechados 'October 22, 2026' (FotMob AS, Bergen, Noruega). Sección 'Data Usage & Scraping': usar datos, contenido o información mostrada en FotMob para cualquier fin, incluido scraping, reproducción, redistribución o uso comercial, sin consentimiento escrito expreso está 'strictly prohibited'. Prohíbe robots, spiders y la recuperación sistemática, regular o masiva de datos. Excepción: buscadores y asistentes de IA pueden indexar páginas públicas según su robots.txt si no reproducen datos en bloque. La licencia de uso es personal, no transferible y 'for your own personal, non-commercial use'. No menciona API ni atribución. Ley aplicable: Noruega, tribunal de distrito de Bergen."
+    },
+    {
+      "url": "https://www.sofascore.com/terms-and-conditions",
+      "summary": "La página existe (título 'Sofascore - Terms & Conditions') pero el texto se carga con JavaScript y no se pudo leer con un lector de documentos: contenido de los términos NO VERIFICADO. Operador: Sofascore (Zagreb, Croacia; el nombre legal 'Sofascore Ltd' es una inferencia, no verificado)."
+    },
+    {
+      "url": "https://www.sofascore.com/news/terms-of-service/",
+      "summary": "URL vieja de términos citada por terceros: solo muestra navegación, sin texto."
+    },
+    {
+      "url": "https://sofascore.helpscoutdocs.com/article/129-sports-data-api-availability",
+      "summary": "FAQ oficial de Sofascore (actualizada 2025-11-06): por acuerdos con sus proveedores de datos no puede compartir sus fuentes como endpoints de API; los datos deben usarse según los términos de esos proveedores (propiedad intelectual de terceros). Para medios ofrece widgets vía su equipo de media partnerships."
+    },
+    {
+      "url": "https://torneo.com/terms-of-service (redirige desde torneo.sofascore.com)",
+      "summary": "Términos de Torneo, otro producto de Sofascore: no se leyeron (redirección a otro dominio). Según un buscador prohíben data mining, robots y extracción, y exigen licencia para reproducir contenido con fines comerciales. No aplica directamente a sofascore.com: no verificado."
+    }
+  ],
+  "permissions": {
+    "consult": "FotMob: sí, como usuario humano con licencia personal no comercial. Sofascore: se asume consulta humana en la web/app; términos no verificados.",
+    "bulk_download": "FotMob: prohibido (recuperación sistemática, regular o masiva). Sofascore: no verificado; su FAQ dice que no ofrece sus datos como API por acuerdos con proveedores.",
+    "automated_queries": "FotMob: prohibido sin consentimiento escrito (robots, spiders, scraping). Sofascore: no verificado en términos; robots.txt y la FAQ apuntan a no permitirlo.",
+    "public_app_reuse": "FotMob: prohibida la reproducción o redistribución de su contenido sin consentimiento escrito, aun sin fines comerciales. Sofascore: no verificado; la vía oficial para mostrar sus datos en un sitio son sus widgets (acuerdo con su equipo de medios).",
+    "attribution": "FotMob: no especificado (no hay cláusula de atribución porque no autoriza reutilizar). Sofascore: no especificado / no verificado."
+  },
+  "data_offered_unverified": {
+    "fotmob": {
+      "proveedor_de_datos": "Opta (según las propias páginas de partido de FotMob)",
+      "partido": "fecha, rival, localía, resultado, competición, ronda",
+      "alineaciones": "formación, titulares, suplentes, DT; minuto de cambio en los eventos",
+      "eventos": "goles (con asistente), tarjetas, cambios, penales, con minuto",
+      "stats_equipo_partido": "posesión, tiros, a puerta, big chances, xG, xGOT, pases, córners, momentum, shotmap",
+      "stats_jugador_partido": "calificación FotMob, minutos, xG, xA, pases precisos, tiros",
+      "stats_jugador_temporada": "rankings de xG, goles, asistencias, calificación por liga",
+      "tabla": "tabla de la Liga Profesional (league id 112) con todos los equipos",
+      "cobertura_liga_profesional_2026": "páginas indexadas de FotMob muestran xG por equipo del Apertura 2026: no verificado"
+    },
+    "sofascore": {
+      "partido": "fecha, rival, localía, resultado, competición, ronda",
+      "alineaciones": "titulares, suplentes, formación, calificación por jugador",
+      "eventos": "goles, asistencias, tarjetas, cambios, penales, con minuto",
+      "stats_equipo_partido": "posesión, tiros, a puerta, pases, duelos, xG en algunas ligas",
+      "stats_jugador_partido": "calificación Sofascore, minutos, mapas de calor, pases, duelos",
+      "tabla": "tabla de la Liga Profesional (unique tournament 155) con todos los equipos",
+      "cobertura_liga_profesional_2026": "páginas indexadas de partidos de Boca 2026 en la Liga Profesional: no verificado"
+    }
+  },
+  "ids_unverified": {
+    "fotmob": {
+      "boca_team_id": 10077,
+      "liga_profesional_league_id": 112
+    },
+    "sofascore": {
+      "boca_team_id": 3202,
+      "liga_profesional_unique_tournament_id": 155
+    }
+  }
+}

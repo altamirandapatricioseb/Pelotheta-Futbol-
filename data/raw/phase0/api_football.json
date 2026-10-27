@@ -1,0 +1,140 @@
+{
+  "source": "api_football",
+  "generated_at": "2026-10-27T02:58:14+00:00",
+  "base_url": "https://v3.football.api-sports.io",
+  "auth": "header x-apisports-key leído de la variable de entorno API_FOOTBALL_KEY",
+  "season": 2026,
+  "ids_supuestos": {
+    "league_liga_profesional": 128,
+    "team_boca_juniors": 451
+  },
+  "request_plan": [
+    {
+      "name": "status",
+      "url": "https://v3.football.api-sports.io/status",
+      "purpose": "Plan de la cuenta y cuota usada (solo se guardan plan y contadores, nunca la cuenta)."
+    },
+    {
+      "name": "leagues",
+      "url": "https://v3.football.api-sports.io/leagues?id=128&season=2026",
+      "purpose": "Confirmar id de la Liga Profesional y leer el objeto coverage de la temporada 2026."
+    },
+    {
+      "name": "teams",
+      "url": "https://v3.football.api-sports.io/teams?search=Boca",
+      "purpose": "Confirmar el id de Boca Juniors (Argentina)."
+    },
+    {
+      "name": "fixtures",
+      "url": "https://v3.football.api-sports.io/fixtures?team=451&season=2026",
+      "purpose": "Todos los partidos de Boca 2026 (todas las competiciones) y elegir uno jugado."
+    },
+    {
+      "name": "lineups",
+      "url": "https://v3.football.api-sports.io/fixtures/lineups?fixture=<fixture_id de un partido jugado de Boca 2026>",
+      "purpose": "Alineaciones: titulares, suplentes, formación y DT."
+    },
+    {
+      "name": "events",
+      "url": "https://v3.football.api-sports.io/fixtures/events?fixture=<fixture_id de un partido jugado de Boca 2026>",
+      "purpose": "Eventos con minuto: goles (tipo y asistente), cambios, tarjetas, VAR."
+    },
+    {
+      "name": "statistics",
+      "url": "https://v3.football.api-sports.io/fixtures/statistics?fixture=<fixture_id de un partido jugado de Boca 2026>",
+      "purpose": "Box score por equipo (tiros, posesión, pases, xG si existe)."
+    },
+    {
+      "name": "players",
+      "url": "https://v3.football.api-sports.io/fixtures/players?fixture=<fixture_id de un partido jugado de Boca 2026>",
+      "purpose": "Box score por jugador (minutos, rating, tiros, pases, duelos, etc.)."
+    }
+  ],
+  "doc_research": {
+    "robots_txt": [
+      {
+        "url": "https://www.api-football.com/robots.txt",
+        "resumen": "User-agent * con Allow: / ; solo prohíbe directorios internos de /news/. Incluye Content-Signal search=yes, ai-input=yes, ai-train=yes."
+      },
+      {
+        "url": "https://api-sports.io/robots.txt",
+        "resumen": "User-agent * con Allow: / y sin Disallow."
+      },
+      {
+        "url": "https://v3.football.api-sports.io/robots.txt",
+        "resumen": "Devolvió HTTP 403 a WebFetch (no verificado con nuestro User-Agent). Si sigue sin poder leerse, PoliteClient trata el host como NO permitido y la sonda se detiene: la decisión de omitir robots.txt en una API autenticada es del dueño del proyecto, no de la sonda."
+      }
+    ],
+    "terminos": [
+      {
+        "url": "https://www.api-football.com/terms",
+        "resumen": "403 a WebFetch; contenido leído por extractos de buscador (página con ~584 días de antigüedad según el índice). Los datos vienen de socios; se prohíbe revenderlos a terceros; se ofrecen para construir apps, sitios y juegos fantasy; es responsabilidad del usuario obtener autorizaciones o licencias para usar o publicar los datos en sus productos; apuestas, TV, fantasy o medios masivos pueden requerir licencias de los titulares de derechos; cuentas bloqueables por incumplimiento; ley francesa."
+      },
+      {
+        "url": "https://api-sports.io/terms",
+        "resumen": "403 a WebFetch; extracto de buscador: no otorgan licencia para publicar los datos en apps o sitios; el permiso debe pedirse a las autoridades competentes."
+      }
+    ],
+    "precios_y_plan_gratuito": [
+      {
+        "url": "https://www.api-football.com/pricing",
+        "resumen": "403 a WebFetch; según buscador: todos los planes incluyen todas las competiciones y endpoints, con nota de que el plan gratuito está limitado en temporadas disponibles. Free: 100 requests/día (reinicio 00:00 UTC) y 10/min según guías de terceros. Rango exacto de temporadas: no publicado / no verificado."
+      },
+      {
+        "url": "https://github.com/MinhHai12345/MMO/pull/38",
+        "resumen": "Reporte de un desarrollador (2026-10-20): el plan Free responde errors.plan para temporadas fuera de su rango, con 2025/2026 como ejemplo. Indica que la temporada en curso NO está en el plan gratuito (no oficial)."
+      }
+    ],
+    "documentacion": [
+      {
+        "url": "https://www.api-football.com/documentation-v3",
+        "resumen": "403 a WebFetch. Forma de respuestas tomada de un cliente Go público (pkg.go.dev/github.com/badkaktus/go-api-football) y guías: coverage.fixtures {events, lineups, statistics_fixtures, statistics_players}, standings, players, top_scorers, top_assists, top_cards, injuries, predictions, odds."
+      },
+      {
+        "url": "https://www.api-football.com/news/post/how-to-optimize-api-sports-calls-and-quota-usage",
+        "resumen": "Según extracto: /fixtures?ids= acepta hasta 20 fixture ids separados por guion y devuelve events, lineups, statistics y players embebidos 'cuando el plan lo permite' (no verificado para Free)."
+      }
+    ]
+  },
+  "entidades_segun_documentacion": {
+    "partido": "/fixtures: fixture.{id,date,timestamp,referee,venue,status}, league.{id,name,season,round}, teams.{home,away}, goals, score.{halftime,fulltime,extratime,penalty}. Filtros team/league/season; incluye todas las competiciones.",
+    "alineacion": "/fixtures/lineups: formation, startXI[].player.{id,name,number,pos,grid}, substitutes[], coach. Sin minutos de entrada/salida.",
+    "evento": "/fixtures/events: time.{elapsed,extra}, team, player, assist, type (Goal, Card, subst, Var), detail (Normal Goal, Penalty, Own Goal, Yellow/Red Card, Substitution N), comments.",
+    "stats_equipo_partido": "/fixtures/statistics: statistics[].{type,value} por equipo (tiros, a puerta, posesión, pases, córners, faltas; expected_goals en algunas ligas).",
+    "stats_jugador_partido": "/fixtures/players: games.{minutes,number,position,rating,captain,substitute}, offsides, shots, goals, passes, tackles, duels, dribbles, fouls, cards, penalty.",
+    "plantel": "/players/squads (sin fecha de nacimiento) y /players?team&season (player.birth.date, height, weight, nationality + stats de temporada).",
+    "tabla": "/standings?league&season: rank, team, points, goalsDiff, form, all/home/away para todos los equipos de la liga."
+  },
+  "riesgos_operativos": [
+    "PoliteClient reintenta hasta 3 veces ante 429/5xx: cada reintento consume cuota.",
+    "Las respuestas con errors (HTTP 200) quedan en caché; para reintentar con otro plan hay que invalidar esa entrada de caché a mano.",
+    "Si /status descuenta o no de la cuota diaria: no verificado."
+  ],
+  "requests_made": 0,
+  "http_results": [],
+  "endpoints": {},
+  "backfill_estimate": {
+    "partidos_boca_considerados": 54,
+    "fuente_del_numero": "estimación",
+    "requests_fijas": {
+      "status": 1,
+      "leagues_128_130_y_copas": 4,
+      "fixtures_boca_2026": 1,
+      "fixtures_liga_128_2026_completa": 1,
+      "standings_128_2026": 1,
+      "squads_boca": 1,
+      "players_boca_2026_paginado": 3
+    },
+    "boca_4_endpoints_por_partido": 228,
+    "boca_dias_a_90_por_dia": 3,
+    "boca_con_fixtures_ids_batch_20": 15,
+    "boca_con_batch_dias": 1,
+    "liga_completa_partidos_aprox": 510,
+    "liga_completa_4_endpoints": 2040,
+    "liga_completa_dias_a_90_por_dia": 23,
+    "liga_completa_con_batch_20": 26,
+    "notas": "El batch /fixtures?ids= depende del plan (no verificado para Free). Con el plan Free la temporada 2026 probablemente responde errors.plan, así que el backfill real requiere un plan pago o aceptar temporadas anteriores."
+  },
+  "access_status": "requiere_clave",
+  "note": "No se encontró API_FOOTBALL_KEY en el entorno; no se hizo ninguna request de datos. El plan de requests queda listo para ejecutarse cuando haya clave."
+}

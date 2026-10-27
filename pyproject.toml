@@ -1,0 +1,45 @@
+[project]
+name = "pelotheta"
+version = "0.1.0"
+description = "Pelotheta: sistema de análisis de datos de Boca Juniors (pipeline de datos)"
+readme = "README.md"
+requires-python = ">=3.13,<3.14"
+license = { text = "MIT" }
+dependencies = [
+    "httpx>=0.28",
+    "tenacity>=9.0",
+    "pydantic>=2.9",
+    "beautifulsoup4>=4.12",
+    "defusedxml>=0.7",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "hypothesis>=6.112",
+    "ruff>=0.8",
+    "mypy>=1.13",
+]
+
+[tool.uv]
+package = false
+
+[tool.ruff]
+line-length = 110
+target-version = "py313"
+
+[tool.ruff.lint]
+# S = reglas de seguridad (bandit). B = bugs comunes. UP = sintaxis moderna.
+select = ["E", "F", "W", "I", "B", "UP", "S", "N", "SIM", "RUF"]
+ignore = ["RUF001", "RUF002", "RUF003"]  # permitimos letras griegas (α, β, Θ) en textos y comentarios
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101"]  # assert es la forma normal de escribir tests con pytest
+
+[tool.mypy]
+strict = true
+python_version = "3.13"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"

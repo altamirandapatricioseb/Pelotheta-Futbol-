@@ -1,0 +1,49 @@
+/*
+ * Tokens de diseño (sección 9.10). Fuente única de color y tipografía: se reusan en los
+ * gráficos, en los PNG exportados, en los estilos de Excel y en powerbi/theme.json.
+ * Prohibido el violeta (matices entre 255° y 335°): lo verifica un test.
+ */
+:root {
+  /* Verde de la marca y variantes */
+  --color-brand: #32b531;
+  --color-brand-700: #2a9a29;
+  --color-brand-800: #1f7a20;
+  --color-brand-900: #145214;
+  --color-brand-300: #6fd870;
+  --color-brand-200: #b7f0b8;
+  --color-brand-100: #e6f9e6;
+  /* Neón: solo acentos y animaciones */
+  --color-neon: #39ff14;
+  --color-neon-soft: #7cff6b;
+
+  /* Modo diurno: #32B531 sobre blanco no llega a AA, así que el texto usa el verde oscuro */
+  --color-bg: #ffffff;
+  --color-surface: #f7f8f6;
+  --color-text: #101410;
+  --color-text-muted: #4a554a;
+  --color-link: #1f7a20;
+  --color-border: #d9e2d9;
+  --color-accent-motion: #1f7a20;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --color-bg: #000000;
+    --color-surface: #0a0a0a;
+    --color-text: #f2f5f2;
+    --color-text-muted: #a9b5a9;
+    --color-link: #6fd870;
+    --color-border: #1e261e;
+    --color-accent-motion: #39ff14;
+  }
+}
+
+:root[data-theme='dark'] {
+  --color-bg: #000000;
+  --color-surface: #0a0a0a;
+  --color-text: #f2f5f2;
+  --color-text-muted: #a9b5a9;
+  --color-link: #6fd870;
+  --color-border: #1e261e;
+  --color-accent-motion: #39ff14;
+}

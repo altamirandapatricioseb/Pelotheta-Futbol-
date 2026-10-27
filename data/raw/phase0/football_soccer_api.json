@@ -1,0 +1,390 @@
+{
+  "source": "football_soccer_api",
+  "probed_at": "2026-10-27T03:04:08+00:00",
+  "service_identified": {
+    "name": "Football Soccer API",
+    "site": "https://footballsoccerapi.com/",
+    "operator": "New Tabs (según /terms; ley aplicable: Tailandia)",
+    "api_base": "https://api.footballsoccerapi.com/v1",
+    "auth": "header X-API-Key o Authorization: Bearer; clave en la URL -> 400",
+    "key_signup": "Solo inicio de sesión con Google; plan gratuito sin tarjeta",
+    "docs": "https://footballsoccerapi.com/documentation",
+    "manual": "https://footballsoccerapi.com/documentation/manual.md"
+  },
+  "key_present": false,
+  "network_requests_this_run": 2,
+  "network_requests_total_in_manifest": 2,
+  "requests": [
+    {
+      "url_masked": "https://api.footballsoccerapi.com/robots.txt",
+      "status": 404,
+      "content_type": "application/json; charset=utf-8",
+      "bytes": 242,
+      "sha256": "ea23cee41d97c3aaad7351021c2257d2403f4884d804ce66814306eb836690cd",
+      "from_cache": false,
+      "fetched_at": "2026-10-27T03:04:05+00:00",
+      "note": "robots.txt del host de la API"
+    },
+    {
+      "url_masked": "https://api.footballsoccerapi.com/v1/openapi.json",
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "bytes": 215292,
+      "sha256": "3f3b4585cc90b598ba4dd87f91236ff7f84102ced9cb9319d7ff9db2646b0746",
+      "from_cache": false,
+      "fetched_at": "2026-10-27T03:04:08+00:00",
+      "note": "openapi.json sin clave"
+    }
+  ],
+  "api_robots_txt": {
+    "url": "https://api.footballsoccerapi.com/robots.txt",
+    "status": 404,
+    "content_type": "application/json; charset=utf-8",
+    "directives": [],
+    "looks_like_html": false
+  },
+  "openapi": {
+    "url": "https://api.footballsoccerapi.com/v1/openapi.json",
+    "status": "http_200",
+    "analysis": {
+      "openapi_version": "3.1.0",
+      "info_title": "Football Soccer API",
+      "info_version": "1.0.0",
+      "servers": [
+        "https://api.footballsoccerapi.com"
+      ],
+      "security_schemes": {
+        "ApiKeyAuth": {
+          "type": "apiKey",
+          "in": "header",
+          "name": "X-API-Key"
+        }
+      },
+      "global_security_declared": true,
+      "keyless_operations": [],
+      "path_count": 72,
+      "operation_extensions": [],
+      "paths_of_interest_missing": [
+        "/v1/matches/{id}",
+        "/v1/matches/{id}/lineups",
+        "/v1/matches/{id}/events",
+        "/v1/matches/{id}/statistics",
+        "/v1/matches/{id}/players",
+        "/v1/players/{id}",
+        "/v1/leagues/{id}/seasons/{season}/players",
+        "/v1/standings/{league}/{season}"
+      ],
+      "paths_of_interest": {
+        "/v1/leagues": {
+          "summary": "Competitions",
+          "tags": [
+            "Reference & discovery"
+          ],
+          "plan_extension": null,
+          "parameters": [
+            "country",
+            "limit",
+            "page",
+            "cursor"
+          ],
+          "response_field_count": 10,
+          "response_fields": [
+            "data",
+            "meta",
+            "meta.count",
+            "meta.data_as_of",
+            "meta.next_cursor",
+            "meta.page",
+            "meta.per_page",
+            "meta.request_id",
+            "meta.total",
+            "meta.total_pages"
+          ]
+        },
+        "/v1/coverage": {
+          "summary": "Coverage",
+          "tags": [
+            "Reference & discovery"
+          ],
+          "plan_extension": null,
+          "parameters": [
+            "league_id",
+            "country",
+            "season",
+            "min_matches",
+            "page",
+            "limit"
+          ],
+          "response_field_count": 10,
+          "response_fields": [
+            "data",
+            "meta",
+            "meta.count",
+            "meta.data_as_of",
+            "meta.next_cursor",
+            "meta.page",
+            "meta.per_page",
+            "meta.request_id",
+            "meta.total",
+            "meta.total_pages"
+          ]
+        },
+        "/v1/teams": {
+          "summary": "Search clubs",
+          "tags": [
+            "Reference & discovery"
+          ],
+          "plan_extension": null,
+          "parameters": [
+            "country",
+            "league_id",
+            "limit",
+            "page",
+            "cursor"
+          ],
+          "response_field_count": 10,
+          "response_fields": [
+            "data",
+            "meta",
+            "meta.count",
+            "meta.data_as_of",
+            "meta.next_cursor",
+            "meta.page",
+            "meta.per_page",
+            "meta.request_id",
+            "meta.total",
+            "meta.total_pages"
+          ]
+        },
+        "/v1/matches": {
+          "summary": "Search matches",
+          "tags": [
+            "Matches & results"
+          ],
+          "plan_extension": null,
+          "parameters": [
+            "ids",
+            "league_id",
+            "country",
+            "season",
+            "team_id",
+            "date_from",
+            "date_to",
+            "status",
+            "result",
+            "has_prices",
+            "surface",
+            "venue",
+            "limit",
+            "page",
+            "cursor",
+            "sort"
+          ],
+          "response_field_count": 10,
+          "response_fields": [
+            "data",
+            "meta",
+            "meta.count",
+            "meta.data_as_of",
+            "meta.next_cursor",
+            "meta.page",
+            "meta.per_page",
+            "meta.request_id",
+            "meta.total",
+            "meta.total_pages"
+          ]
+        },
+        "/v1/results/yesterday": {
+          "summary": "Yesterday's results",
+          "tags": [
+            "Matches & results"
+          ],
+          "plan_extension": null,
+          "parameters": [
+            "country",
+            "league_id",
+            "limit"
+          ],
+          "response_field_count": 10,
+          "response_fields": [
+            "data",
+            "meta",
+            "meta.count",
+            "meta.data_as_of",
+            "meta.next_cursor",
+            "meta.page",
+            "meta.per_page",
+            "meta.request_id",
+            "meta.total",
+            "meta.total_pages"
+          ]
+        }
+      },
+      "keyword_field_hits": {
+        "minute": [],
+        "assist": [],
+        "xg": [],
+        "birth": [],
+        "height": [],
+        "position": [],
+        "possession": [],
+        "shots": [],
+        "passes": [],
+        "start": [],
+        "substitut": [],
+        "penalt": [],
+        "card": []
+      },
+      "top_level_keys": [
+        "components",
+        "info",
+        "openapi",
+        "paths",
+        "security",
+        "servers",
+        "tags",
+        "x-plans"
+      ],
+      "spec_shape": [
+        "components",
+        "components.responses",
+        "components.schemas",
+        "components.securitySchemes",
+        "info",
+        "info.contact",
+        "info.description",
+        "info.license",
+        "info.summary",
+        "info.title",
+        "info.version",
+        "openapi",
+        "paths",
+        "paths./mcp",
+        "paths./v1/backtest",
+        "paths./v1/betfair/events/{match_id}",
+        "paths./v1/betfair/markets/{match_id}",
+        "paths./v1/countries",
+        "paths./v1/coverage",
+        "paths./v1/export/{league_id}/{season}",
+        "paths./v1/fixtures/rescheduled",
+        "paths./v1/fixtures/today",
+        "paths./v1/fixtures/upcoming",
+        "paths./v1/grounds",
+        "paths./v1/grounds/{venue_id}",
+        "paths./v1/leagues",
+        "paths./v1/leagues/{league_id}",
+        "paths./v1/leagues/{league_id}/seasons/{season}",
+        "paths./v1/leagues/{league_id}/seasons/{season}/players",
+        "paths./v1/leagues/{league_id}/seasons/{season}/stats",
+        "paths./v1/leagues/{league_id}/teams",
+        "paths./v1/live",
+        "paths./v1/live/odds",
+        "paths./v1/live/{match_id}",
+        "paths./v1/matches",
+        "paths./v1/matches/{match_id}",
+        "paths./v1/matches/{match_id}/absences",
+        "paths./v1/matches/{match_id}/events",
+        "paths./v1/matches/{match_id}/lineups",
+        "paths./v1/matches/{match_id}/odds",
+        "paths./v1/matches/{match_id}/players",
+        "paths./v1/matches/{match_id}/preview",
+        "paths./v1/matches/{match_id}/statistics",
+        "paths./v1/odds/bands",
+        "paths./v1/odds/favourites",
+        "paths./v1/odds/half-time",
+        "paths./v1/odds/kickoff",
+        "paths./v1/odds/overround",
+        "paths./v1/odds/volume",
+        "paths./v1/players/{player_id}",
+        "paths./v1/rankings",
+        "paths./v1/referees",
+        "paths./v1/referees/{match_id}",
+        "paths./v1/reference",
+        "paths./v1/results",
+        "paths./v1/results/latest",
+        "paths./v1/results/today",
+        "paths./v1/results/yesterday",
+        "paths./v1/seasons/{league_id}/{season}",
+        "paths./v1/standings/{league_id}/{season}",
+        "paths./v1/standings/{league_id}/{season}/positions",
+        "paths./v1/stats/goals",
+        "paths./v1/stats/half-time",
+        "paths./v1/stats/home-advantage",
+        "paths./v1/stats/kickoff",
+        "paths./v1/stats/positions",
+        "paths./v1/stats/referees",
+        "paths./v1/stats/scorelines",
+        "paths./v1/status",
+        "paths./v1/teams",
+        "paths./v1/teams/compare",
+        "paths./v1/teams/{team_id}",
+        "paths./v1/teams/{team_id}/distance/{opponent_id}",
+        "paths./v1/teams/{team_id}/form",
+        "paths./v1/teams/{team_id}/head-to-head/{opponent_id}",
+        "paths./v1/teams/{team_id}/market",
+        "paths./v1/teams/{team_id}/match-stats",
+        "paths./v1/teams/{team_id}/matches",
+        "paths./v1/teams/{team_id}/rating",
+        "paths./v1/teams/{team_id}/stats",
+        "paths./v1/teams/{team_id}/streaks",
+        "paths./v1/teams/{team_id}/travel",
+        "paths./v1/usage",
+        "paths./v1/venues",
+        "paths./webhooks",
+        "security",
+        "servers",
+        "tags",
+        "x-plans",
+        "x-plans.archive",
+        "x-plans.free",
+        "x-plans.live"
+      ]
+    }
+  },
+  "planned_requests_with_key": [
+    {
+      "name": "usage",
+      "url": "https://api.footballsoccerapi.com/v1/usage",
+      "purpose": "Plan de la clave y cuota restante (solo se guardan plan y contadores)."
+    },
+    {
+      "name": "leagues_argentina",
+      "url": "https://api.footballsoccerapi.com/v1/leagues?country=Argentina",
+      "purpose": "Confirmar el id de la Liga Profesional y ver qué copas argentinas existen."
+    },
+    {
+      "name": "teams_liga",
+      "url": "https://api.footballsoccerapi.com/v1/teams?league_id=lg_22EEYKR",
+      "purpose": "Encontrar el id de Boca Juniors (tm_...) y contar equipos de la liga."
+    },
+    {
+      "name": "matches_yesterday",
+      "url": "https://api.footballsoccerapi.com/v1/matches?date=2026-10-26&league_id=lg_22EEYKR",
+      "purpose": "Partidos de ayer de la Liga Profesional: lo único que ve la clave gratuita."
+    },
+    {
+      "name": "match_detail",
+      "url": "https://api.footballsoccerapi.com/v1/matches/<match_id>",
+      "purpose": "Detalle de un partido de ayer (plan gratuito)."
+    },
+    {
+      "name": "match_lineups",
+      "url": "https://api.footballsoccerapi.com/v1/matches/<match_id>/lineups",
+      "purpose": "Alineaciones con minutos (plan Archive: se espera 403 plan_required)."
+    },
+    {
+      "name": "match_events",
+      "url": "https://api.footballsoccerapi.com/v1/matches/<match_id>/events",
+      "purpose": "Eventos con minuto (plan Archive: se espera 403 plan_required)."
+    },
+    {
+      "name": "standings_2026",
+      "url": "https://api.footballsoccerapi.com/v1/standings/lg_22EEYKR/2026",
+      "purpose": "Tabla 2026 (plan Archive: se espera 403 plan_required)."
+    }
+  ],
+  "keyed_results": null,
+  "access_status": "requiere_clave",
+  "errors": [],
+  "today_utc": "2026-10-27"
+}

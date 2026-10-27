@@ -1,0 +1,272 @@
+{
+  "source": "football_data_org",
+  "generated_at": "2026-10-27T03:02:35+00:00",
+  "base_url": "https://api.football-data.org/v4/",
+  "auth": "sin clave (FOOTBALL_DATA_ORG_KEY ausente): request anónima, permitida por la documentación",
+  "doc_research": {
+    "robots_txt": [
+      {
+        "url": "https://www.football-data.org/robots.txt",
+        "resumen": "Solo bloquea al User-agent 'dotbot' (Disallow: /). Para cualquier otro agente no hay restricciones."
+      },
+      {
+        "url": "https://api.football-data.org/robots.txt",
+        "resumen": "HTTP 404 a WebFetch: sin robots.txt en el host de la API. Por RFC 9309 eso equivale a todo permitido; la sonda lo vuelve a comprobar con PoliteClient."
+      }
+    ],
+    "terminos": [
+      {
+        "url": "https://www.football-data.org/client/register",
+        "resumen": "Los 'General Terms and Conditions' (actualizados 2018-06-01) solo están en la página de registro y se aceptan al registrarse. 2.3: una clave por aplicación (un dominio para web). 3.1/3.3: política de uso justo, cancelación sin aviso por uso excesivo. 6.1: las claves no pueden guardarse en repos de código abierto. 7.1: atribución obligatoria con el texto 'Football data provided by the Football-Data.org API' visible (pie o 'acerca de'). 9.1: al terminar la suscripción no se puede seguir referenciando los datos en el sitio propio. 9.2: escudos y fotos son de sus dueños, hay que pedir permiso. 10.1: ley de Países Bajos. No hay /terms (404)."
+      },
+      {
+        "url": "https://www.football-data.org/about",
+        "resumen": "Remite a los mismos términos; datos de 'distintas fuentes' no nombradas, con chequeo manual diario. Sin garantías de exactitud ni disponibilidad."
+      }
+    ],
+    "precios_y_cobertura": [
+      {
+        "url": "https://www.football-data.org/pricing",
+        "resumen": "Free: 12 competiciones, 10 requests/min, resultados y calendario con demora y tablas. Alineaciones, cambios, goleadores, tarjetas y planteles desde 'Free + Deep Data' (29 EUR/mes). Estadísticas de partido (tiros, posesión, etc.) solo con el add-on Statistics (15 EUR/mes) sobre un plan pago."
+      },
+      {
+        "url": "https://www.football-data.org/coverage",
+        "resumen": "Lista 'Liga Profesional' (Argentina, LEAGUE) y 'Copa Libertadores' entre las competiciones, pero no en la lista de las 12 gratuitas. El texto de la página no muestra en qué tier pago está cada una."
+      }
+    ],
+    "documentacion": [
+      {
+        "url": "https://docs.football-data.org/general/v4/policies.html",
+        "resumen": "Autenticación con header X-Auth-Token. Anónimo: 100 requests por 24 h, solo recursos de áreas y lista de competiciones. Registrado Free: 10/min."
+      },
+      {
+        "url": "https://docs.football-data.org/general/v4/lookup_tables.html",
+        "resumen": "Tabla de competiciones: ASL = 2024 = Liga Profesional (Argentina); CLI = 2152 = Copa Libertadores. No figuran Copa Argentina ni Sudamericana. Headers de respuesta: X-RequestsAvailable, X-RequestCounter-Reset, X-Authenticated-Client."
+      },
+      {
+        "url": "https://docs.football-data.org/general/v4/competition.html",
+        "resumen": "Sin token la lista trae todas las competiciones; con token, filtrada para el cliente. Subrecursos: /standings, /scorers, /matches, /teams."
+      },
+      {
+        "url": "https://docs.football-data.org/general/v4/match.html",
+        "resumen": "Match: score (fullTime, halfTime), homeTeam/awayTeam con lineup, bench, formation, coach; goals[] (minute, injuryTime, type, scorer, assist); bookings[] (minute, player, card); substitutions[] (minute, playerOut, playerIn); statistics por equipo (shots, shots_on_goal, ball_possession, fouls, corner_kicks, ...); referees; odds. Sin xG ni estadísticas por jugador."
+      },
+      {
+        "url": "https://docs.football-data.org/general/v4/errors.html",
+        "resumen": "403 = recurso restringido (requiere autenticación o plan pago); 429 = límite por minuto o por día superado."
+      }
+    ]
+  },
+  "entidades_segun_documentacion": {
+    "partido": "/v4/teams/{id}/matches y /v4/competitions/{code}/matches: utcDate, status, matchday, stage, homeTeam, awayTeam, score.fullTime/halfTime, competition.",
+    "alineacion": "match.homeTeam/awayTeam.lineup[] y bench[] (id, name, position, shirtNumber), formation, coach. Minutos de entrada y salida solo vía substitutions.",
+    "evento": "goals[] (minute, injuryTime, type, scorer, assist), bookings[] (minute, card), substitutions[] (minute, playerOut, playerIn). Plan 'Deep Data' o superior.",
+    "stats_equipo_partido": "statistics por equipo (shots, shots_on_goal, possession, fouls, corners, saves, offsides...). Solo con add-on Statistics. Sin xG.",
+    "stats_jugador_partido": "No existe en la API.",
+    "plantel": "/v4/teams/{id}: squad[] (id, name, position, dateOfBirth, nationality). Sin altura. Plan 'Deep Data' o superior según la página de precios.",
+    "tabla": "/v4/competitions/{code}/standings: todos los equipos de la liga."
+  },
+  "requests_made": 2,
+  "http_results": [
+    {
+      "url_masked": "https://api.football-data.org/robots.txt",
+      "status": 404,
+      "from_cache": false,
+      "note": "robots.txt del host de la API (404 = sin robots.txt, todo permitido)"
+    },
+    {
+      "url_masked": "https://api.football-data.org/v4/competitions",
+      "status": 200,
+      "from_cache": false,
+      "note": "lista de competiciones"
+    }
+  ],
+  "endpoints": {
+    "competitions": {
+      "url_masked": "https://api.football-data.org/v4/competitions",
+      "status": 200,
+      "content_type": "application/json;charset=UTF-8",
+      "sha256": "d9758e65bbfe88ebaadf06f5438e4a9c81cec998843851144f33d8e5320f5ef8",
+      "from_cache": false,
+      "field_paths": [
+        "competitions",
+        "competitions[].area",
+        "competitions[].area.code",
+        "competitions[].area.flag",
+        "competitions[].area.id",
+        "competitions[].area.name",
+        "competitions[].code",
+        "competitions[].currentSeason",
+        "competitions[].currentSeason.currentMatchday",
+        "competitions[].currentSeason.endDate",
+        "competitions[].currentSeason.id",
+        "competitions[].currentSeason.startDate",
+        "competitions[].currentSeason.winner",
+        "competitions[].emblem",
+        "competitions[].id",
+        "competitions[].lastUpdated",
+        "competitions[].name",
+        "competitions[].numberOfAvailableSeasons",
+        "competitions[].plan",
+        "competitions[].type",
+        "count",
+        "filters"
+      ],
+      "summary": {
+        "count": 190,
+        "filters": {},
+        "competiciones_listadas": 190,
+        "competiciones_por_plan": {
+          "TIER_FOUR": 133,
+          "TIER_TWO": 20,
+          "TIER_THREE": 25,
+          "TIER_ONE": 12
+        },
+        "tier_one_codigos": [
+          "BL1",
+          "BSA",
+          "CL",
+          "DED",
+          "EC",
+          "ELC",
+          "FL1",
+          "PD",
+          "PL",
+          "PPL",
+          "SA",
+          "WC"
+        ],
+        "tier_one_coincide_con_plan_gratis_de_cobertura": true,
+        "argentina_competiciones": [
+          {
+            "id": 2023,
+            "code": "PBN",
+            "name": "Primera B Nacional",
+            "area": "Argentina",
+            "type": "LEAGUE",
+            "plan": "TIER_FOUR",
+            "currentSeason_inicio_fin": [
+              "2026-06-17",
+              "2026-10-24"
+            ],
+            "currentSeason_currentMatchday": 35,
+            "numberOfAvailableSeasons": 6,
+            "lastUpdated": "2026-09-10T12:50:01Z"
+          },
+          {
+            "id": 2024,
+            "code": "ASL",
+            "name": "Liga Profesional",
+            "area": "Argentina",
+            "type": "LEAGUE",
+            "plan": "TIER_TWO",
+            "currentSeason_inicio_fin": [
+              "2026-01-22",
+              "2026-11-08"
+            ],
+            "currentSeason_currentMatchday": 16,
+            "numberOfAvailableSeasons": 10,
+            "lastUpdated": "2026-05-13T22:31:03Z"
+          },
+          {
+            "id": 2192,
+            "code": "CAR",
+            "name": "Copa Argentina",
+            "area": "Argentina",
+            "type": "CUP",
+            "plan": "TIER_THREE",
+            "currentSeason_inicio_fin": [
+              "2026-08-30",
+              "2027-07-18"
+            ],
+            "currentSeason_currentMatchday": 1,
+            "numberOfAvailableSeasons": 1,
+            "lastUpdated": "2026-07-07T10:39:10Z"
+          },
+          {
+            "id": 2149,
+            "code": "CDLP",
+            "name": "Copa Liga Profesional",
+            "area": "Argentina",
+            "type": "LEAGUE",
+            "plan": "TIER_FOUR",
+            "currentSeason_inicio_fin": [
+              "2021-02-12",
+              "2021-05-30"
+            ],
+            "currentSeason_currentMatchday": 13,
+            "numberOfAvailableSeasons": 2,
+            "lastUpdated": "2025-08-12T08:58:54Z"
+          },
+          {
+            "id": 2025,
+            "code": "SCA",
+            "name": "Supercopa Argentina",
+            "area": "Argentina",
+            "type": "SUPER_CUP",
+            "plan": "TIER_FOUR",
+            "currentSeason_inicio_fin": [
+              "2026-07-21",
+              "2026-07-21"
+            ],
+            "currentSeason_currentMatchday": 1,
+            "numberOfAvailableSeasons": 3,
+            "lastUpdated": "2026-07-21T19:40:37Z"
+          }
+        ],
+        "asl_presente": true,
+        "asl_id_coincide_con_2024": true,
+        "asl_en_plan_gratis": false,
+        "otras_competiciones_de_boca": {
+          "Copa Libertadores": {
+            "id": 2152,
+            "code": "CLI",
+            "name": "Copa Libertadores",
+            "area": "South America",
+            "type": "CUP",
+            "plan": "TIER_FOUR",
+            "currentSeason_inicio_fin": [
+              "2026-02-04",
+              "2026-11-28"
+            ],
+            "currentSeason_currentMatchday": 6,
+            "numberOfAvailableSeasons": 6,
+            "lastUpdated": "2026-05-20T00:07:05Z"
+          },
+          "Sudamericana": {
+            "id": 2081,
+            "code": "CS",
+            "name": "Copa Sudamericana",
+            "area": "South America",
+            "type": "CUP",
+            "plan": "TIER_FOUR",
+            "currentSeason_inicio_fin": [
+              "2026-03-03",
+              "2026-11-21"
+            ],
+            "currentSeason_currentMatchday": 6,
+            "numberOfAvailableSeasons": 7,
+            "lastUpdated": "2026-05-20T16:31:24Z"
+          },
+          "Copa Argentina": {
+            "id": 2192,
+            "code": "CAR",
+            "name": "Copa Argentina",
+            "area": "Argentina",
+            "type": "CUP",
+            "plan": "TIER_THREE",
+            "currentSeason_inicio_fin": [
+              "2026-08-30",
+              "2027-07-18"
+            ],
+            "currentSeason_currentMatchday": 1,
+            "numberOfAvailableSeasons": 1,
+            "lastUpdated": "2026-07-07T10:39:10Z"
+          }
+        }
+      }
+    }
+  },
+  "access_status": "sin_cobertura",
+  "conclusion": "Descartar: la Liga Profesional Argentina no está en el plan gratis."
+}

@@ -1,0 +1,237 @@
+{
+  "source": "sportscore",
+  "generated_at": "2026-10-27T03:06:01+00:00",
+  "api_base": "https://sportscore.com",
+  "api_base_nota": "Confirmado por el cliente oficial (api_base por defecto) y la documentación: https://sportscore.com con rutas /api/widget/... y alias /api/v1/.... 'api.sportscore.com/v1/sports' no aparece en la documentación oficial (parece confundirse con 'sportscore1' de RapidAPI, otro producto con clave de RapidAPI).",
+  "nota_clave": "Sin clave: la API gratuita no la pide. No se usó ninguna clave.",
+  "nota_cliente_oficial": "No se usó sportscore-py: manda telemetría al instanciarse.",
+  "terms_reviewed": [
+    {
+      "url": "https://sportscore.com/robots.txt",
+      "resumen": "Leído (200). 'User-agent: *' tiene 'Disallow: /api/' (además /admin/, /auth/, /cdn-cgi/, /voting/, /favourites/, /other/settings/ y parámetros ?page=, ?season_id=, ?round=, ?date=, etc.). Permite /static/, /media/, imágenes, CSS y JS. Permite a buscadores de IA (Claude-User, ChatGPT-User...) y bloquea CCBot, Bytespider y otros. Ningún comentario exceptúa la API para desarrolladores."
+    },
+    {
+      "url": "https://sportscore.com/developers/",
+      "resumen": "WebFetch: 403 (muro anti-bots). Contenido visto solo por resúmenes de buscador: API gratis, CORS abierto, sin clave para proyectos open source y con atribución; ~10.000 requests/24 h por IP; caché de 60 s en el borde; parámetro opcional src= para identificar la app."
+    },
+    {
+      "url": "https://sportscore.com/developers/terms/",
+      "resumen": "WebFetch: 403. PoliteClient (2026-10-27): 403 con desafío de Cloudflare ('Just a moment...'); no se insistió. Texto de los términos NO verificado."
+    },
+    {
+      "url": "https://sportscore.com/developers/api/",
+      "resumen": "WebFetch: 403. No verificado."
+    },
+    {
+      "url": "https://sportscore.com/developers/openapi.yaml",
+      "resumen": "WebFetch: 403. PoliteClient (2026-10-27): 403 con desafío de Cloudflare. Esquema de respuestas NO verificado."
+    },
+    {
+      "url": "https://sportscore.com/terms/",
+      "resumen": "Términos generales del sitio. WebFetch: 403. No verificado."
+    },
+    {
+      "url": "https://pypi.org/project/sportscore/ y github.com/Backspace-me/sportscore-py",
+      "resumen": "Cliente oficial 0.2.0 (MIT solo para el código). api_base https://sportscore.com; rutas /api/widget/{matches,match,team,standings,topscorers,player,bracket,tracker}/ con sport, slug, limit, stat, id. Telemetría: POST a /api/mcp/ping/ al instanciarse (opt-out SPORTSCORE_NO_TELEMETRY=1). Gratis ~10.000 req/24 h por IP; exige enlace visible dofollow 'Powered by SportScore'; sin atribución solo con acuerdo comercial (api@sportscore.com)."
+    },
+    {
+      "url": "https://github.com/Backspace-me/sportscore-mcp (README)",
+      "resumen": "Mismos 8 endpoints. Indica ~1.000 requests/24 h por IP en el plan gratis y caché de 60 s; uso en bloque, producción o alto volumen: contactar api@sportscore.com. La atribución debe quedar visible en todo lo que vea el usuario final."
+    }
+  ],
+  "hallazgos_web_no_verificados": {
+    "boca_pagina_publica": "/football/team/boca-juniors/z8yomo4hj31q0j6/",
+    "boca_id_en_url": "z8yomo4hj31q0j6",
+    "libertadores_id_en_url": "v2y8m4zhe6ql074 (/football/competition/world/conmebol-copa-libertadores/)",
+    "liga_rotulo": "Argentine Division 1 (con etapa Clausura 2026 en páginas de partidos)",
+    "liga_url_competicion": "no encontrada",
+    "nota": "Snippets de un buscador muestran a Boca en la tabla de 'Argentine Division 1' y páginas de partido con alineaciones y H2H. No es una verificación de la API."
+  },
+  "robots_txt": {
+    "url": "https://sportscore.com/robots.txt",
+    "status": 200,
+    "content_type": "text/plain",
+    "bytes": 3937,
+    "sha256": "d5647c5ca547013352e06b2a7dd2ba99b4abef139b5f38283757e38b5516a06d",
+    "from_cache": true,
+    "fetched_at": "2026-10-27T03:04:56+00:00",
+    "grupo_que_nos_aplica": "*",
+    "reglas_user_agent_asterisco": [
+      "Disallow: /admin/",
+      "Disallow: /api/",
+      "Disallow: /cdn-cgi/",
+      "Disallow: /auth/",
+      "Disallow: /voting/",
+      "Disallow: /favourites/",
+      "Disallow: /other/settings/",
+      "Disallow: /*?page=",
+      "Disallow: /*&page=",
+      "Disallow: /*?season_id=",
+      "Disallow: /*&season_id=",
+      "Disallow: /*?round=",
+      "Disallow: /*&round=",
+      "Disallow: /*?group=",
+      "Disallow: /*&group=",
+      "Disallow: /*?stat_name=",
+      "Disallow: /*&stat_name=",
+      "Disallow: /*?display_type=",
+      "Disallow: /*&display_type=",
+      "Disallow: /*?scope=",
+      "Disallow: /*&scope=",
+      "Disallow: /*?match_type=",
+      "Disallow: /*&match_type=",
+      "Disallow: /*?date=",
+      "Disallow: /*&date=",
+      "Disallow: /*?filter=",
+      "Disallow: /*&filter=",
+      "Allow: /static/",
+      "Allow: /media/",
+      "Allow: /css/",
+      "Allow: /js/",
+      "Allow: /images/",
+      "Allow: /fonts/",
+      "Allow: /*.jpg$",
+      "Allow: /*.jpeg$",
+      "Allow: /*.png$",
+      "Allow: /*.webp$",
+      "Allow: /*.gif$",
+      "Allow: /*.svg$",
+      "Allow: /*.css$",
+      "Allow: /*.js$"
+    ],
+    "agentes_con_grupo_propio": [
+      "Amazonbot",
+      "Applebot-Extended",
+      "Bingbot",
+      "Bytespider",
+      "CCBot",
+      "ChatGPT-User",
+      "Claude-SearchBot",
+      "Claude-User",
+      "ClaudeBot",
+      "DotBot",
+      "DuckAssistBot",
+      "GPTBot",
+      "Google-Extended",
+      "Googlebot",
+      "MJ12bot",
+      "Meta-ExternalFetcher",
+      "OAI-SearchBot",
+      "PerplexityBot",
+      "Yandex",
+      "YandexBot",
+      "anthropic-ai",
+      "meta-externalagent"
+    ],
+    "crawl_delay_para_nuestro_ua": null,
+    "permitido_para_nuestro_ua": {
+      "api_widget_team": false,
+      "api_v1_standings": false,
+      "pagina_publica_equipo": true,
+      "terminos_desarrolladores": true,
+      "openapi": true
+    }
+  },
+  "documentacion": {
+    "terminos_desarrolladores": {
+      "url": "https://sportscore.com/developers/terms/",
+      "status": 403,
+      "content_type": "text/html; charset=UTF-8",
+      "bytes": 5786,
+      "sha256": "de1a500a39fe4286b797f98203a8e97f9b165697d91077dd242902d647c5dc08",
+      "from_cache": true,
+      "fetched_at": "2026-10-27T03:04:59+00:00",
+      "parece_desafio_antibots": true,
+      "estado": "bloqueado"
+    },
+    "openapi": {
+      "url": "https://sportscore.com/developers/openapi.yaml",
+      "status": 403,
+      "content_type": "text/html; charset=UTF-8",
+      "bytes": 5825,
+      "sha256": "bc210f48a6bb594b18f4d92984d5cdfde9e298caa281dbd0276acb738536c70f",
+      "from_cache": true,
+      "fetched_at": "2026-10-27T03:05:02+00:00",
+      "parece_desafio_antibots": true,
+      "estado": "bloqueado"
+    }
+  },
+  "requests_datos": [
+    {
+      "nombre": "partidos_boca",
+      "ruta": "/api/widget/team/",
+      "params": {
+        "sport": "football",
+        "slug": "boca-juniors",
+        "limit": "30"
+      },
+      "estado": "omitido_por_robots"
+    },
+    {
+      "nombre": "tabla_liga",
+      "ruta": "/api/widget/standings/",
+      "params": {
+        "sport": "football",
+        "slug": "argentine-division-1"
+      },
+      "estado": "omitido_por_robots"
+    },
+    {
+      "nombre": "goleadores_liga",
+      "ruta": "/api/widget/topscorers/",
+      "params": {
+        "sport": "football",
+        "slug": "argentine-division-1",
+        "limit": "20",
+        "stat": "goals"
+      },
+      "estado": "omitido_por_robots"
+    },
+    {
+      "nombre": "detalle_partido",
+      "ruta": "/api/widget/match/",
+      "params": {
+        "sport": "football",
+        "slug": "SIN_DATO_PREVIO"
+      },
+      "estado": "omitido_por_robots"
+    },
+    {
+      "nombre": "tracker_partido",
+      "ruta": "/api/widget/tracker/",
+      "params": {
+        "sport": "football",
+        "id": "SIN_DATO_PREVIO"
+      },
+      "estado": "omitido_por_robots"
+    },
+    {
+      "nombre": "jugador",
+      "ruta": "/api/widget/player/",
+      "params": {
+        "sport": "football",
+        "slug": "SIN_DATO_PREVIO"
+      },
+      "estado": "omitido_por_robots"
+    }
+  ],
+  "conclusion_automatica": {
+    "access_status": "no_probado_por_terminos",
+    "texto": "robots.txt de sportscore.com prohíbe /api/ para 'User-agent: *' (nuestro grupo). No se pidió ningún dato. Usar la API exige permiso explícito de SportScore o una decisión del dueño del proyecto; la sonda no saltea robots.txt.",
+    "estados_requests_datos": {
+      "omitido_por_robots": 6
+    },
+    "robots_status": 200,
+    "documentacion_bloqueada_por_desafio": [
+      "terminos_desarrolladores",
+      "openapi"
+    ]
+  },
+  "presupuesto": {
+    "max_requests_datos": 7,
+    "requests_datos_planificadas": 0,
+    "requests_datos_omitidas_por_robots": 6,
+    "desde_red_en_esta_corrida": 0,
+    "total_en_manifiesto_incluye_robots_y_docs": 3
+  }
+}

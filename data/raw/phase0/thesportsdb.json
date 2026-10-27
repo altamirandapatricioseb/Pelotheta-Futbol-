@@ -1,0 +1,951 @@
+{
+  "source": "thesportsdb",
+  "generated_at": "2026-10-27T02:57:39+00:00",
+  "api_base": "https://www.thesportsdb.com/api/v1/json/123/",
+  "nota_clave": "Clave gratuita pública '123' (documentada). No se usó ninguna clave paga.",
+  "terms_reviewed": [
+    {
+      "url": "https://www.thesportsdb.com/robots.txt",
+      "resumen": "User-agent * puede todo salvo /nfo/ y /nfo.php; /api/ no está bloqueado. Bloquea por nombre a GPTBot, Slurp, AhrefsBot, Amazonbot, Semrush y SemrushBot. Sin Crawl-delay. Declara Content-Signal ai-train=no, search=yes, ai-input=no."
+    },
+    {
+      "url": "https://www.thesportsdb.com/documentation",
+      "resumen": "Clave gratuita '123' en la ruta. Plan gratis: 30 requests/min (429 si se excede). Cada endpoint tiene límite de resultados gratis/premium, p. ej. searchteams 1 (solo 'Arsenal'), eventsseason 15, eventslast 1 (solo partidos de local), lookupevent 1, lookuplineup/lookuptimeline/lookupeventstats/lookuptable 5, lookup_all_players 10. La v2 (header X-API-KEY) es solo premium (USD 9/mes)."
+    },
+    {
+      "url": "https://www.thesportsdb.com/docs_terms_of_use.php",
+      "resumen": "Uso gratis: consultar datos y arte 'para tus proyectos de desarrollo'. Publicar apps en tiendas exige suscripción paga. Usuarios pagos pueden hacer apps y servicios dentro del límite y deben mencionar a TheSportsDB como fuente. Se permite copiar y modificar el contenido devuelto por los endpoints oficiales; no scrapear el sitio web; no revender la API. Imágenes según el campo strCreativeCommons. No dice nada de caché, descarga masiva ni sitios web públicos con la clave gratis."
+    },
+    {
+      "url": "https://www.thesportsdb.com/free_sports_api",
+      "resumen": "Presenta la API gratis y el plan premium (clave de producción dedicada, v2, livescores). No agrega condiciones de uso."
+    }
+  ],
+  "robots_txt": {
+    "url": "https://www.thesportsdb.com/robots.txt",
+    "status": 200,
+    "content_type": "text/plain",
+    "bytes": 388,
+    "sha256": "8364717c24c562314f2bb1dd96d8a0aabd76f8b5fd3b1f3f802ebd6a22549b59",
+    "from_cache": true,
+    "fetched_at": "2026-10-27T02:56:05+00:00",
+    "api_permitida_para_nuestro_ua": true,
+    "crawl_delay": null,
+    "content_signal": [
+      "Content-Signal: ai-train=no, search=yes, ai-input=no"
+    ],
+    "reglas_por_user_agent": {
+      "*": [
+        "/nfo/",
+        "/nfo.php"
+      ],
+      "GPTBot": [
+        "/"
+      ],
+      "Slurp": [
+        "/"
+      ],
+      "AhrefsBot": [
+        "/"
+      ],
+      "Amazonbot": [
+        "/"
+      ],
+      "Semrush": [
+        "/"
+      ],
+      "SemrushBot": [
+        "/"
+      ]
+    }
+  },
+  "ids": {
+    "boca_idTeam": "135156",
+    "liga_idLeague": "4406",
+    "partido_elegido_idEvent": "2398134",
+    "partido_elegido_ejemplo": {
+      "strEvent": "Boca Juniors vs Talleres de Córdoba",
+      "dateEvent": "2026-10-17",
+      "strLeague": "Argentinian Primera Division"
+    }
+  },
+  "requests": [
+    {
+      "endpoint": "searchteams.php",
+      "params": {
+        "t": "Boca Juniors"
+      },
+      "url": "https://www.thesportsdb.com/api/v1/json/123/searchteams.php?t=Boca+Juniors",
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "bytes": 10410,
+      "sha256": "40bd10bff5ead86a486d0e8c0b825b190e2f66a5dc1599b60b4cf5ae4ffd15de",
+      "from_cache": true,
+      "fetched_at": "2026-10-27T02:56:08+00:00",
+      "json": true,
+      "claves_raiz": [
+        "teams"
+      ],
+      "forma": [
+        "teams",
+        "teams[].idAPIfootball",
+        "teams[].idESPN",
+        "teams[].idLeague",
+        "teams[].idLeague2",
+        "teams[].idLeague3",
+        "teams[].idLeague4",
+        "teams[].idLeague5",
+        "teams[].idLeague6",
+        "teams[].idLeague7",
+        "teams[].idTeam",
+        "teams[].idVenue",
+        "teams[].intFormedYear",
+        "teams[].intLoved",
+        "teams[].strBadge",
+        "teams[].strBanner",
+        "teams[].strColour1",
+        "teams[].strColour2",
+        "teams[].strColour3",
+        "teams[].strCountry",
+        "teams[].strDescriptionCN",
+        "teams[].strDescriptionDE",
+        "teams[].strDescriptionEN",
+        "teams[].strDescriptionES",
+        "teams[].strDescriptionFR",
+        "teams[].strDescriptionHU",
+        "teams[].strDescriptionIL",
+        "teams[].strDescriptionIT",
+        "teams[].strDescriptionJP",
+        "teams[].strDescriptionNL",
+        "teams[].strDescriptionNO",
+        "teams[].strDescriptionPL",
+        "teams[].strDescriptionPT",
+        "teams[].strDescriptionRU",
+        "teams[].strDescriptionSE",
+        "teams[].strDivision",
+        "teams[].strEquipment",
+        "teams[].strFacebook",
+        "teams[].strFanart1",
+        "teams[].strFanart2",
+        "teams[].strFanart3",
+        "teams[].strFanart4",
+        "teams[].strGender",
+        "teams[].strInstagram",
+        "teams[].strKeywords",
+        "teams[].strLeague",
+        "teams[].strLeague2",
+        "teams[].strLeague3",
+        "teams[].strLeague4",
+        "teams[].strLeague5",
+        "teams[].strLeague6",
+        "teams[].strLeague7",
+        "teams[].strLocation",
+        "teams[].strLocked",
+        "teams[].strLogo",
+        "teams[].strRSS",
+        "teams[].strSport",
+        "teams[].strStadium",
+        "teams[].strTeam",
+        "teams[].strTeamAlternate",
+        "teams[].strTeamShort",
+        "teams[].strTwitter",
+        "teams[].strWebsite",
+        "teams[].strYoutube"
+      ],
+      "lista": "teams",
+      "n_items": 1,
+      "lista_null": false,
+      "campos_con_valor": [
+        "idAPIfootball",
+        "idESPN",
+        "idLeague",
+        "idLeague2",
+        "idLeague3",
+        "idLeague4",
+        "idTeam",
+        "idVenue",
+        "intFormedYear",
+        "intLoved",
+        "strBadge",
+        "strBanner",
+        "strColour1",
+        "strColour2",
+        "strCountry",
+        "strDescriptionEN",
+        "strDescriptionES",
+        "strDescriptionIT",
+        "strEquipment",
+        "strFacebook",
+        "strFanart1",
+        "strFanart2",
+        "strFanart3",
+        "strFanart4",
+        "strGender",
+        "strInstagram",
+        "strKeywords",
+        "strLeague",
+        "strLeague2",
+        "strLeague3",
+        "strLeague4",
+        "strLocation",
+        "strLocked",
+        "strLogo",
+        "strRSS",
+        "strSport",
+        "strStadium",
+        "strTeam",
+        "strTeamAlternate",
+        "strTwitter",
+        "strWebsite",
+        "strYoutube"
+      ],
+      "campos_siempre_vacios": [
+        "idLeague5",
+        "idLeague6",
+        "idLeague7",
+        "strColour3",
+        "strDescriptionCN",
+        "strDescriptionDE",
+        "strDescriptionFR",
+        "strDescriptionHU",
+        "strDescriptionIL",
+        "strDescriptionJP",
+        "strDescriptionNL",
+        "strDescriptionNO",
+        "strDescriptionPL",
+        "strDescriptionPT",
+        "strDescriptionRU",
+        "strDescriptionSE",
+        "strDivision",
+        "strLeague5",
+        "strLeague6",
+        "strLeague7",
+        "strTeamShort"
+      ],
+      "estado": "con_datos"
+    },
+    {
+      "endpoint": "eventsseason.php",
+      "params": {
+        "id": "4406",
+        "s": "2026"
+      },
+      "url": "https://www.thesportsdb.com/api/v1/json/123/eventsseason.php?id=4406&s=2026",
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "bytes": 17864,
+      "sha256": "547f37241bf189d55318afc9e6ee882138d7213bf095bed9198d120285ed51ae",
+      "from_cache": true,
+      "fetched_at": "2026-10-27T02:56:11+00:00",
+      "json": true,
+      "claves_raiz": [
+        "events"
+      ],
+      "forma": [
+        "events",
+        "events[].dateEvent",
+        "events[].dateEventLocal",
+        "events[].idAwayTeam",
+        "events[].idEvent",
+        "events[].idHomeTeam",
+        "events[].idLeague",
+        "events[].intAwayScore",
+        "events[].intHomeScore",
+        "events[].intRound",
+        "events[].strAwayTeam",
+        "events[].strAwayTeamBadge",
+        "events[].strCountry",
+        "events[].strEvent",
+        "events[].strEventAlternate",
+        "events[].strFilename",
+        "events[].strHomeTeam",
+        "events[].strHomeTeamBadge",
+        "events[].strLeague",
+        "events[].strLeagueBadge",
+        "events[].strPoster",
+        "events[].strPostponed",
+        "events[].strSeason",
+        "events[].strSport",
+        "events[].strStatus",
+        "events[].strThumb",
+        "events[].strTime",
+        "events[].strTimeLocal",
+        "events[].strTimestamp",
+        "events[].strVenue",
+        "events[].strVideo"
+      ],
+      "lista": "events",
+      "n_items": 15,
+      "lista_null": false,
+      "campos_con_valor": [
+        "dateEvent",
+        "dateEventLocal",
+        "idAwayTeam",
+        "idEvent",
+        "idHomeTeam",
+        "idLeague",
+        "intAwayScore",
+        "intHomeScore",
+        "intRound",
+        "strAwayTeam",
+        "strAwayTeamBadge",
+        "strCountry",
+        "strEvent",
+        "strEventAlternate",
+        "strFilename",
+        "strHomeTeam",
+        "strHomeTeamBadge",
+        "strLeague",
+        "strLeagueBadge",
+        "strPostponed",
+        "strSeason",
+        "strSport",
+        "strStatus",
+        "strThumb",
+        "strTime",
+        "strTimeLocal",
+        "strTimestamp",
+        "strVenue",
+        "strVideo"
+      ],
+      "campos_siempre_vacios": [
+        "strPoster"
+      ],
+      "estado": "con_datos"
+    },
+    {
+      "endpoint": "eventslast.php",
+      "params": {
+        "id": "135156"
+      },
+      "url": "https://www.thesportsdb.com/api/v1/json/123/eventslast.php?id=135156",
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "bytes": 1585,
+      "sha256": "fab6c79b4f41285c3b783767f0a1e12c16881528d5397d39479a695ab211de52",
+      "from_cache": true,
+      "fetched_at": "2026-10-27T02:56:14+00:00",
+      "json": true,
+      "claves_raiz": [
+        "results"
+      ],
+      "forma": [
+        "results",
+        "results[].dateEvent",
+        "results[].dateEventLocal",
+        "results[].idAPIfootball",
+        "results[].idAwayTeam",
+        "results[].idEvent",
+        "results[].idHomeTeam",
+        "results[].idLeague",
+        "results[].idVenue",
+        "results[].intAwayScore",
+        "results[].intAwayScoreExtra",
+        "results[].intHomeScore",
+        "results[].intHomeScoreExtra",
+        "results[].intRound",
+        "results[].intScore",
+        "results[].intScoreVotes",
+        "results[].intSpectators",
+        "results[].strAwayTeam",
+        "results[].strAwayTeamBadge",
+        "results[].strBanner",
+        "results[].strCity",
+        "results[].strCountry",
+        "results[].strDescriptionEN",
+        "results[].strEvent",
+        "results[].strEventAlternate",
+        "results[].strFanart",
+        "results[].strFilename",
+        "results[].strGroup",
+        "results[].strHomeTeam",
+        "results[].strHomeTeamBadge",
+        "results[].strLeague",
+        "results[].strLeagueBadge",
+        "results[].strLocked",
+        "results[].strMap",
+        "results[].strOfficial",
+        "results[].strPoster",
+        "results[].strPostponed",
+        "results[].strResult",
+        "results[].strSeason",
+        "results[].strSport",
+        "results[].strSquare",
+        "results[].strStatus",
+        "results[].strThumb",
+        "results[].strThumbAlternate",
+        "results[].strTime",
+        "results[].strTimeLocal",
+        "results[].strTimestamp",
+        "results[].strTweet1",
+        "results[].strVenue",
+        "results[].strVideo",
+        "results[].strWeather"
+      ],
+      "lista": "results",
+      "n_items": 1,
+      "lista_null": false,
+      "campos_con_valor": [
+        "dateEvent",
+        "dateEventLocal",
+        "idAPIfootball",
+        "idAwayTeam",
+        "idEvent",
+        "idHomeTeam",
+        "idLeague",
+        "idVenue",
+        "intAwayScore",
+        "intHomeScore",
+        "intRound",
+        "strAwayTeam",
+        "strAwayTeamBadge",
+        "strCountry",
+        "strEvent",
+        "strEventAlternate",
+        "strFilename",
+        "strHomeTeam",
+        "strHomeTeamBadge",
+        "strLeague",
+        "strLeagueBadge",
+        "strLocked",
+        "strPostponed",
+        "strSeason",
+        "strSport",
+        "strStatus",
+        "strThumb",
+        "strTime",
+        "strTimeLocal",
+        "strTimestamp",
+        "strVenue",
+        "strVideo"
+      ],
+      "campos_siempre_vacios": [
+        "intAwayScoreExtra",
+        "intHomeScoreExtra",
+        "intScore",
+        "intScoreVotes",
+        "intSpectators",
+        "strBanner",
+        "strCity",
+        "strDescriptionEN",
+        "strFanart",
+        "strGroup",
+        "strMap",
+        "strOfficial",
+        "strPoster",
+        "strResult",
+        "strSquare",
+        "strThumbAlternate",
+        "strTweet1",
+        "strWeather"
+      ],
+      "estado": "con_datos"
+    },
+    {
+      "endpoint": "lookupevent.php",
+      "params": {
+        "id": "2398134"
+      },
+      "url": "https://www.thesportsdb.com/api/v1/json/123/lookupevent.php?id=2398134",
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "bytes": 1584,
+      "sha256": "3fb4b84cb934dc420bfa8a2c9fb43635e49203b8652c299ae4533c0eeb4044a3",
+      "from_cache": true,
+      "fetched_at": "2026-10-27T02:56:17+00:00",
+      "json": true,
+      "claves_raiz": [
+        "events"
+      ],
+      "forma": [
+        "events",
+        "events[].dateEvent",
+        "events[].dateEventLocal",
+        "events[].idAPIfootball",
+        "events[].idAwayTeam",
+        "events[].idEvent",
+        "events[].idHomeTeam",
+        "events[].idLeague",
+        "events[].idVenue",
+        "events[].intAwayScore",
+        "events[].intAwayScoreExtra",
+        "events[].intHomeScore",
+        "events[].intHomeScoreExtra",
+        "events[].intRound",
+        "events[].intScore",
+        "events[].intScoreVotes",
+        "events[].intSpectators",
+        "events[].strAwayTeam",
+        "events[].strAwayTeamBadge",
+        "events[].strBanner",
+        "events[].strCity",
+        "events[].strCountry",
+        "events[].strDescriptionEN",
+        "events[].strEvent",
+        "events[].strEventAlternate",
+        "events[].strFanart",
+        "events[].strFilename",
+        "events[].strGroup",
+        "events[].strHomeTeam",
+        "events[].strHomeTeamBadge",
+        "events[].strLeague",
+        "events[].strLeagueBadge",
+        "events[].strLocked",
+        "events[].strMap",
+        "events[].strOfficial",
+        "events[].strPoster",
+        "events[].strPostponed",
+        "events[].strResult",
+        "events[].strSeason",
+        "events[].strSport",
+        "events[].strSquare",
+        "events[].strStatus",
+        "events[].strThumb",
+        "events[].strThumbAlternate",
+        "events[].strTime",
+        "events[].strTimeLocal",
+        "events[].strTimestamp",
+        "events[].strTweet1",
+        "events[].strVenue",
+        "events[].strVideo",
+        "events[].strWeather"
+      ],
+      "lista": "events",
+      "n_items": 1,
+      "lista_null": false,
+      "campos_con_valor": [
+        "dateEvent",
+        "dateEventLocal",
+        "idAPIfootball",
+        "idAwayTeam",
+        "idEvent",
+        "idHomeTeam",
+        "idLeague",
+        "idVenue",
+        "intAwayScore",
+        "intHomeScore",
+        "intRound",
+        "strAwayTeam",
+        "strAwayTeamBadge",
+        "strCountry",
+        "strEvent",
+        "strEventAlternate",
+        "strFilename",
+        "strHomeTeam",
+        "strHomeTeamBadge",
+        "strLeague",
+        "strLeagueBadge",
+        "strLocked",
+        "strPostponed",
+        "strSeason",
+        "strSport",
+        "strStatus",
+        "strThumb",
+        "strTime",
+        "strTimeLocal",
+        "strTimestamp",
+        "strVenue",
+        "strVideo"
+      ],
+      "campos_siempre_vacios": [
+        "intAwayScoreExtra",
+        "intHomeScoreExtra",
+        "intScore",
+        "intScoreVotes",
+        "intSpectators",
+        "strBanner",
+        "strCity",
+        "strDescriptionEN",
+        "strFanart",
+        "strGroup",
+        "strMap",
+        "strOfficial",
+        "strPoster",
+        "strResult",
+        "strSquare",
+        "strThumbAlternate",
+        "strTweet1",
+        "strWeather"
+      ],
+      "estado": "con_datos"
+    },
+    {
+      "endpoint": "lookuplineup.php",
+      "params": {
+        "id": "2398134"
+      },
+      "url": "https://www.thesportsdb.com/api/v1/json/123/lookuplineup.php?id=2398134",
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "bytes": 2503,
+      "sha256": "1f7ff27dd7aafba071571c1098eaa2b6db5f9d1dd000811fe622292573a57bac",
+      "from_cache": true,
+      "fetched_at": "2026-10-27T02:56:20+00:00",
+      "json": true,
+      "claves_raiz": [
+        "lineup"
+      ],
+      "forma": [
+        "lineup",
+        "lineup[].idEvent",
+        "lineup[].idLineup",
+        "lineup[].idPlayer",
+        "lineup[].idTeam",
+        "lineup[].intSquadNumber",
+        "lineup[].strCutout",
+        "lineup[].strHome",
+        "lineup[].strPlayer",
+        "lineup[].strPosition",
+        "lineup[].strRender",
+        "lineup[].strSubstitute",
+        "lineup[].strTeam",
+        "lineup[].strThumb"
+      ],
+      "lista": "lineup",
+      "n_items": 5,
+      "lista_null": false,
+      "campos_con_valor": [
+        "idEvent",
+        "idLineup",
+        "idPlayer",
+        "idTeam",
+        "intSquadNumber",
+        "strCutout",
+        "strHome",
+        "strPlayer",
+        "strPosition",
+        "strRender",
+        "strSubstitute",
+        "strTeam",
+        "strThumb"
+      ],
+      "campos_siempre_vacios": [],
+      "estado": "con_datos"
+    },
+    {
+      "endpoint": "lookuptimeline.php",
+      "params": {
+        "id": "2398134"
+      },
+      "url": "https://www.thesportsdb.com/api/v1/json/123/lookuptimeline.php?id=2398134",
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "bytes": 2510,
+      "sha256": "9ff76fa097f337f579c53e29c583be98d57a8ddf37c2914a0c502e7927826ab0",
+      "from_cache": true,
+      "fetched_at": "2026-10-27T02:56:23+00:00",
+      "json": true,
+      "claves_raiz": [
+        "timeline"
+      ],
+      "forma": [
+        "timeline",
+        "timeline[].dateEvent",
+        "timeline[].idAPIfootball",
+        "timeline[].idAssist",
+        "timeline[].idEvent",
+        "timeline[].idPlayer",
+        "timeline[].idTeam",
+        "timeline[].idTimeline",
+        "timeline[].intTime",
+        "timeline[].strAssist",
+        "timeline[].strComment",
+        "timeline[].strCutout",
+        "timeline[].strEvent",
+        "timeline[].strHome",
+        "timeline[].strPeriod",
+        "timeline[].strPlayer",
+        "timeline[].strSeason",
+        "timeline[].strTeam",
+        "timeline[].strTimeline",
+        "timeline[].strTimelineDetail"
+      ],
+      "lista": "timeline",
+      "n_items": 5,
+      "lista_null": false,
+      "campos_con_valor": [
+        "dateEvent",
+        "idAPIfootball",
+        "idAssist",
+        "idEvent",
+        "idPlayer",
+        "idTeam",
+        "idTimeline",
+        "intTime",
+        "strAssist",
+        "strComment",
+        "strCutout",
+        "strEvent",
+        "strHome",
+        "strPlayer",
+        "strSeason",
+        "strTeam",
+        "strTimeline",
+        "strTimelineDetail"
+      ],
+      "campos_siempre_vacios": [
+        "strPeriod"
+      ],
+      "estado": "con_datos"
+    },
+    {
+      "endpoint": "lookupeventstats.php",
+      "params": {
+        "id": "2398134"
+      },
+      "url": "https://www.thesportsdb.com/api/v1/json/123/lookupeventstats.php?id=2398134",
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "bytes": 910,
+      "sha256": "ad31d6be6b982d7ffd7268e82108fb2ddc7971be0a06c5dbc185343c22a0dae7",
+      "from_cache": true,
+      "fetched_at": "2026-10-27T02:56:26+00:00",
+      "json": true,
+      "claves_raiz": [
+        "eventstats"
+      ],
+      "forma": [
+        "eventstats",
+        "eventstats[].idApiFootball",
+        "eventstats[].idEvent",
+        "eventstats[].idStatistic",
+        "eventstats[].intAway",
+        "eventstats[].intHome",
+        "eventstats[].strEvent",
+        "eventstats[].strStat"
+      ],
+      "lista": "eventstats",
+      "n_items": 5,
+      "lista_null": false,
+      "campos_con_valor": [
+        "idApiFootball",
+        "idEvent",
+        "idStatistic",
+        "intAway",
+        "intHome",
+        "strEvent",
+        "strStat"
+      ],
+      "campos_siempre_vacios": [],
+      "estado": "con_datos"
+    },
+    {
+      "endpoint": "lookuptable.php",
+      "params": {
+        "l": "4406",
+        "s": "2026"
+      },
+      "url": "https://www.thesportsdb.com/api/v1/json/123/lookuptable.php?l=4406&s=2026",
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "bytes": 2649,
+      "sha256": "7033268dcdf78a0a3955ee7c39c2f474e1a42522dffa085631e6a0e787e5415d",
+      "from_cache": true,
+      "fetched_at": "2026-10-27T02:56:29+00:00",
+      "json": true,
+      "claves_raiz": [
+        "table"
+      ],
+      "forma": [
+        "table",
+        "table[].dateUpdated",
+        "table[].idLeague",
+        "table[].idStanding",
+        "table[].idTeam",
+        "table[].intDraw",
+        "table[].intGoalDifference",
+        "table[].intGoalsAgainst",
+        "table[].intGoalsFor",
+        "table[].intLoss",
+        "table[].intPlayed",
+        "table[].intPoints",
+        "table[].intRank",
+        "table[].intWin",
+        "table[].strBadge",
+        "table[].strDescription",
+        "table[].strForm",
+        "table[].strGroup",
+        "table[].strLeague",
+        "table[].strSeason",
+        "table[].strTeam"
+      ],
+      "lista": "table",
+      "n_items": 5,
+      "lista_null": false,
+      "campos_con_valor": [
+        "dateUpdated",
+        "idLeague",
+        "idStanding",
+        "idTeam",
+        "intDraw",
+        "intGoalDifference",
+        "intGoalsAgainst",
+        "intGoalsFor",
+        "intLoss",
+        "intPlayed",
+        "intPoints",
+        "intRank",
+        "intWin",
+        "strBadge",
+        "strDescription",
+        "strForm",
+        "strGroup",
+        "strLeague",
+        "strSeason",
+        "strTeam"
+      ],
+      "campos_siempre_vacios": [],
+      "estado": "con_datos"
+    }
+  ],
+  "resumenes": {
+    "searchteams_equipos_devueltos": [
+      "Boca Juniors (Soccer, Argentina)"
+    ],
+    "equipo": {
+      "idTeam": "135156",
+      "strTeam": "Boca Juniors",
+      "strSport": "Soccer",
+      "strCountry": "Argentina",
+      "competiciones_asociadas": [
+        "4406 Argentinian Primera Division",
+        "5428 Argentinian Copa de la Liga Profesional",
+        "4500 Copa Argentina",
+        "4724 Copa Sudamericana"
+      ]
+    },
+    "eventsseason_2026": {
+      "n_partidos": 15,
+      "temporadas": [
+        "2026"
+      ],
+      "competiciones": [
+        "4406 Argentinian Primera Division"
+      ],
+      "fecha_min": "2026-01-22",
+      "fecha_max": "2026-01-26",
+      "equipos_distintos": 30,
+      "partidos_de_boca": 1,
+      "con_resultado": 15,
+      "estados": {
+        "FT": 15
+      },
+      "rondas": [
+        "1"
+      ]
+    },
+    "eventslast": {
+      "n_partidos": 1,
+      "temporadas": [
+        "2026"
+      ],
+      "competiciones": [
+        "4406 Argentinian Primera Division"
+      ],
+      "fecha_min": "2026-10-17",
+      "fecha_max": "2026-10-17",
+      "equipos_distintos": 2,
+      "partidos_de_boca": 1,
+      "con_resultado": 1,
+      "estados": {
+        "FT": 1
+      },
+      "rondas": [
+        "13"
+      ]
+    },
+    "lookupevent": {
+      "n_partidos": 1,
+      "temporadas": [
+        "2026"
+      ],
+      "competiciones": [
+        "4406 Argentinian Primera Division"
+      ],
+      "fecha_min": "2026-10-17",
+      "fecha_max": "2026-10-17",
+      "equipos_distintos": 2,
+      "partidos_de_boca": 1,
+      "con_resultado": 1,
+      "estados": {
+        "FT": 1
+      },
+      "rondas": [
+        "13"
+      ]
+    },
+    "lookuplineup": {
+      "n_filas": 5,
+      "por_localia_strHome": {
+        "Yes": 4,
+        "No": 1
+      },
+      "por_strSubstitute": {
+        "No": 5
+      },
+      "posiciones_distintas": [
+        "Defensive Midfield",
+        "Forward",
+        "Goalkeeper",
+        "Left Wing"
+      ],
+      "campos_que_parecen_minutos": [],
+      "con_idPlayer": 5
+    },
+    "lookuptimeline": {
+      "n_filas": 5,
+      "tipos_strTimeline": {
+        "Goal": 3,
+        "Card": 1,
+        "subst": 1
+      },
+      "detalles_strTimelineDetail": {
+        "Normal Goal": 3,
+        "Yellow Card": 1,
+        "Substitution 1": 1
+      },
+      "con_minuto_intTime": 5,
+      "minuto_min": 11,
+      "minuto_max": 49,
+      "con_strAssist": 4,
+      "con_idPlayer": 5,
+      "strComment_texto_NULL": 4,
+      "strPeriod_con_valor": 0
+    },
+    "lookupeventstats": {
+      "n_filas": 5,
+      "estadisticas_strStat": [
+        "expected_goals",
+        "Passes accurate",
+        "Shots insidebox",
+        "Shots outsidebox",
+        "Blocked Shots"
+      ]
+    },
+    "lookuptable_2026": {
+      "n_filas": 5,
+      "temporadas": [
+        "2026"
+      ],
+      "ligas": [
+        "4406 Argentinian Primera Division"
+      ],
+      "boca_en_la_tabla": true,
+      "grupos_strGroup": [
+        "Apertura - Group A",
+        "Apertura - Group B"
+      ],
+      "descripciones_strDescription": [
+        "Knockout Phase"
+      ],
+      "dateUpdated_max": "2026-10-27 00:17:07"
+    }
+  },
+  "presupuesto": {
+    "max_requests_datos": 8,
+    "requests_datos_planificadas": 8,
+    "desde_red_en_esta_corrida": 0,
+    "desde_cache_en_esta_corrida": 8,
+    "total_en_manifiesto_incluye_robots": 9
+  }
+}

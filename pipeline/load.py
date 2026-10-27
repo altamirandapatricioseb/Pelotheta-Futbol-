@@ -123,3 +123,31 @@ def log_failure(source: str, message: str, url: str, key: str, client: httpx.Cli
 def send_weather(rows: list[WeatherRecord], url: str, key: str, client: httpx.Client | None = None) -> Any:
     """Clima por partido, en una función aparte de `load_batch` (se carga después del lote)."""
     return _rpc("load_weather", {"p_rows": [_dump(r) for r in rows]}, url, key, client)
+
+
+def build_extras(
+    games: list[ParsedGame],
+    *,
+    standings: list[Any],
+    leaders: list[Any],
+    league_results: list[Any],
+    ratings: list[Any],
+    club_stats: list[Any],
+    profiles: list[Any],
+) -> dict[str, Any]:
+    """Lote de `ingest.load_extras`: bajas y momentum de los partidos, y datos de liga y perfiles."""
+    return {
+        "match_ids": [g.match.source_id for g in games],
+        "absences": [_dump(a) for g in games for a in g.absences],
+        "momentum": [_dump(m) for g in games for m in g.momentum],
+        "standings": [_dump(r) for r in standings],
+        "leaders": [_dump(r) for r in leaders],
+        "league_results": [_dump(r) for r in league_results],
+        "ratings": [_dump(r) for r in ratings],
+        "club_stats": [_dump(r) for r in club_stats],
+        "profiles": [_dump(r) for r in profiles],
+    }
+
+
+def send_extras(extras: dict[str, Any], url: str, key: str, client: httpx.Client | None = None) -> Any:
+    return _rpc("load_extras", {"p_extras": extras}, url, key, client)

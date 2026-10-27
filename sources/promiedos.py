@@ -23,16 +23,20 @@ from datetime import date, datetime, timedelta, timezone
 from typing import Any
 
 from pipeline.models import (
+    AbsenceRecord,
     CompetitionRecord,
     EventRecord,
     EventType,
     FormationRecord,
+    LeagueLeaderRecord,
     LineupRecord,
     MatchRecord,
+    MomentumRecord,
     PlayerRecord,
     PlayerStatRecord,
     ShotRecord,
     SquadRecord,
+    StandingRecord,
     TeamRecord,
     TeamStatRecord,
 )
@@ -48,7 +52,8 @@ MINUTE_RE = re.compile(r"^(\d{1,3})'(?:\+(\d{1,2}))?$")
 
 # Códigos de evento de Promiedos. Se dedujeron conciliando eventos con el marcador final de
 # 34 partidos (Fase 0): 1 y 3 suman goles; 5 y 6 sacan al jugador; 17 solo aparece en tandas.
-# Los códigos que no se pudieron identificar (7 y 10) se guardan como 'otro' con el código.
+# El 10 es el remate al palo (coincide uno a uno con los tiros «woodwork» de StrikerAPI) y se
+# guarda como 'otro' con detalle 'palo'. El 7 no se pudo identificar: 'otro' con el código.
 EVENT_TYPES: dict[int, EventType] = {
     1: "gol",
     3: "penal_convertido",
@@ -60,6 +65,16 @@ EVENT_TYPES: dict[int, EventType] = {
     17: "penal_fallado",
 }
 SENDING_OFF = {"segunda_amarilla", "roja"}
+WOODWORK = 10
+# Motivo de baja en Promiedos -> motivo interno.
+ABSENCE_REASONS = {
+    "Lesionado": "lesion",
+    "Tarjeta Roja": "suspension_roja",
+    "Tarjeta Amarilla": "suspension_amarillas",
+    "En la Selección": "seleccion",
+    "Motivo personal": "personal",
+}
+FORMATION_RE = re.compile(r"^\d(-\d){2,4}$")
 
 # Estadísticas por equipo que se cargan (nombre en Promiedos -> clave interna).
 STAT_KEYS = {
@@ -107,10 +122,13 @@ class ParsedGame:
     lineups: list[LineupRecord] = field(default_factory=list)
     events: list[EventRecord] = field(default_factory=list)
     team_stats: list[TeamStatRecord] = field(default_factory=list)
-    # Los completan otras fuentes en pipeline/enrich.py (Promiedos no los publica).
+    # Las estadísticas por jugador y las formaciones las completan también otras fuentes
+    # (pipeline/enrich.py); los tiros llegan solo de StrikerAPI.
     player_stats: list[PlayerStatRecord] = field(default_factory=list)
     formations: list[FormationRecord] = field(default_factory=list)
     shots: list[ShotRecord] = field(default_factory=list)
+    absences: list[AbsenceRecord] = field(default_factory=list)
+    momentum: list[MomentumRecord] = field(default_factory=list)
 
 
 # --- utilidades -------------------------------------------------------------------------
@@ -290,8 +308,16 @@ def parse_game(game: dict[str, Any]) -> ParsedGame | None:
                 minute, added = parse_minute(ev["time"])
                 ev_type = EVENT_TYPES.get(ev["type"], "otro")
                 is_boca = ev["team"] == boca_side
-                texts = [player_key(t) for t in ev.get("texts") or []]
-                main = texts[0] if texts and is_boca and ev_type != "var" else None
+                raw_texts = ev.get("texts") or []
+                detail = None if ev["type"] in EVENT_TYPES else f"promiedos_tipo_{ev['type']}"
+                if ev_type == "var" and raw_texts:
+                    # VAR: el primer texto es la decisión («Gol anulado») y el segundo, el jugador.
+                    detail = re.sub(r"[^a-z]+", "_", player_key(raw_texts[0])).strip("_") or None
+                    raw_texts = raw_texts[1:]
+                elif ev["type"] == WOODWORK:
+                    detail = "palo"
+                texts = [player_key(t) for t in raw_texts]
+                main = texts[0] if texts and is_boca else None
                 related = texts[1] if len(texts) > 1 and is_boca and ev_type in ("gol", "cambio") else None
                 if is_boca and ev_type == "cambio" and main and related:
                     sub_in[main] = minute
@@ -308,7 +334,7 @@ def parse_game(game: dict[str, Any]) -> ParsedGame | None:
                         team_source_id=side_id[ev["team"]],
                         player_source_id=main,
                         related_player_source_id=related,
-                        detail=None if ev["type"] in EVENT_TYPES else f"promiedos_tipo_{ev['type']}",
+                        detail=detail,
                     )
                 )
     for stage in shootout:
@@ -372,6 +398,53 @@ def parse_game(game: dict[str, Any]) -> ParsedGame | None:
                     )
                 )
 
+    player_stats = [
+        PlayerStatRecord(
+            match_source_id=match_id,
+            player_source_id=player_key(p["name"]),
+            stat_key="captain",
+            value=1,
+            source=SOURCE,
+        )
+        for p in (boca_lineup or {}).get("starting") or []
+        if p.get("is_captain") is True
+    ]
+    formations = [
+        FormationRecord(
+            match_source_id=match_id,
+            team_source_id=side_id[t["team_num"]],
+            formation=t["formation"],
+            source=SOURCE,
+        )
+        for t in lineup_teams
+        if t.get("team_num") in side_id and FORMATION_RE.match(str(t.get("formation") or ""))
+    ]
+    absences: list[AbsenceRecord] = []
+    missing = (game.get("players") or {}).get("missing_players") or []
+    for side, group in enumerate(missing[:2], start=1):
+        for p in group or []:
+            reason = ABSENCE_REASONS.get((p.get("missing_details") or {}).get("reason", ""), "otro")
+            key = player_key(p["name"]) if side == boca_side and p.get("name") else None
+            if key is not None:
+                players.append(
+                    PlayerRecord(
+                        source_id=key,
+                        full_name=p["name"],
+                        known_as=p.get("player_short_name"),
+                        position_raw=position_group(p.get("position")),
+                        height_cm=parse_height(p.get("height")),
+                    )
+                )
+            absences.append(
+                AbsenceRecord(
+                    match_source_id=match_id,
+                    team_source_id=side_id[side],
+                    player_source_id=key,
+                    reason=reason,  # type: ignore[arg-type]
+                    source=SOURCE,
+                )
+            )
+
     team_stats: list[TeamStatRecord] = []
     for stat in game.get("statistics") or []:
         key = STAT_KEYS.get(stat.get("name", ""))
@@ -394,6 +467,9 @@ def parse_game(game: dict[str, Any]) -> ParsedGame | None:
         lineups=lineups,
         events=events,
         team_stats=team_stats,
+        player_stats=player_stats,
+        formations=formations,
+        absences=absences,
     )
 
 
@@ -491,3 +567,75 @@ def split_league_tournaments(games: list[ParsedGame]) -> None:
         )
         parsed.competition = competition
         parsed.match = parsed.match.model_copy(update={"competition_source_id": competition.source_id})
+
+
+# --- liga -------------------------------------------------------------------------------
+
+
+def _int(text: object) -> int | None:
+    try:
+        return int(str(text).strip())
+    except ValueError:
+        return None
+
+
+def parse_standings(league_data: dict[str, Any], season_year: int) -> list[StandingRecord]:
+    """Tablas de la página de la liga: cada torneo por grupo, la anual y la de promedios."""
+    rows: list[StandingRecord] = []
+    for group in league_data.get("tables_groups") or []:
+        for table in group.get("tables") or []:
+            name = " - ".join(n for n in (group.get("name"), table.get("name")) if n)
+            columns = {c.get("key") for c in (table.get("table") or {}).get("columns") or []}
+            # En la tabla de promedios las columnas de G/E/P traen los puntos de cada temporada.
+            averages = "Pct" in columns
+            for row in (table.get("table") or {}).get("rows") or []:
+                values = {v.get("key"): v.get("value") for v in row.get("values") or []}
+                team = ((row.get("entity") or {}).get("object") or {}).get("name")
+                rank = _int(row.get("num"))
+                if not team or rank is None or rank < 1:
+                    continue
+                goals = str(values.get("Goals") or "")
+                gf, _, ga = goals.partition(":")
+                average = values.get("Pct") if averages else None
+                rows.append(
+                    StandingRecord(
+                        source=SOURCE,
+                        season=season_year,
+                        table_name=name,
+                        rank=rank,
+                        team_name=team,
+                        played=_int(values.get("GamePlayed")),
+                        won=None if averages else _int(values.get("GamesWon")),
+                        drawn=None if averages else _int(values.get("GamesEven")),
+                        lost=None if averages else _int(values.get("GamesLost")),
+                        goals_for=_int(gf),
+                        goals_against=_int(ga),
+                        points=_int(values.get("Points")),
+                        average=float(average) if average not in (None, "") else None,
+                    )
+                )
+    return rows
+
+
+def parse_league_leaders(league_data: dict[str, Any], season_year: int) -> list[LeagueLeaderRecord]:
+    """Goleadores y demás rankings de jugadores del torneo en curso (datos de Opta)."""
+    rows: list[LeagueLeaderRecord] = []
+    for table in (league_data.get("players_statistics") or {}).get("tables") or []:
+        stat = re.sub(r"[^a-z]+", "_", player_key(str(table.get("name") or ""))).strip("_")
+        for row in table.get("rows") or []:
+            obj = (row.get("entity") or {}).get("object") or {}
+            value = _stat_value(str((row.get("values") or [{}])[0].get("value", "")))
+            rank = _int(row.get("num"))
+            if stat and obj.get("name") and value is not None and rank:
+                rows.append(
+                    LeagueLeaderRecord(
+                        source=SOURCE,
+                        season=season_year,
+                        stat=stat,
+                        rank=rank,
+                        player_name=obj["name"],
+                        team_name=obj.get("team_id"),
+                        value=value,
+                    )
+                )
+    return rows

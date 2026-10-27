@@ -165,3 +165,99 @@ class WeatherRecord(Record):
     longitude: float = Field(ge=-180, le=180)
     place: str
     source: str = Field(pattern=r"^[a-z_]+$")
+
+
+AbsenceReason = Literal["lesion", "suspension_roja", "suspension_amarillas", "seleccion", "personal", "otro"]
+
+
+class AbsenceRecord(Record):
+    """Baja de un partido. De los rivales se guarda solo el motivo, nunca el nombre."""
+
+    match_source_id: str
+    team_source_id: str
+    player_source_id: str | None = None
+    reason: AbsenceReason
+    source: str = Field(pattern=r"^[a-z_]+$")
+
+
+class MomentumRecord(Record):
+    """Barra del gráfico de momentum: qué equipo dominó ese minuto y con qué intensidad (0 a 1)."""
+
+    match_source_id: str
+    minute: int = Field(ge=1, le=130)
+    side: Literal["home", "away"]
+    value: float = Field(ge=0, le=1)
+    source: str = Field(pattern=r"^[a-z_]+$")
+
+
+class LeagueResultRecord(Record):
+    """Resultado de cualquier partido de la liga (para Elo, calendario y tablas)."""
+
+    source: str = Field(pattern=r"^[a-z_]+$")
+    ext_id: str
+    season: int
+    stage: str | None = None
+    match_date: date
+    home_team: str
+    away_team: str
+    home_goals: int = Field(ge=0)
+    away_goals: int = Field(ge=0)
+
+
+class ClubRatingRecord(Record):
+    source: str = Field(pattern=r"^[a-z_]+$")
+    team_name: str
+    rank: int = Field(ge=1)
+    elo: float
+    as_of: date
+
+
+class ClubSeasonStatRecord(Record):
+    """Promedio por partido de un club en la temporada (a favor y en contra)."""
+
+    source: str = Field(pattern=r"^[a-z_]+$")
+    season: int
+    team_name: str
+    stat_key: str = Field(pattern=r"^[a-z_0-9]+$")
+    value: float
+
+
+class LeagueLeaderRecord(Record):
+    source: str = Field(pattern=r"^[a-z_]+$")
+    season: int
+    stat: str = Field(pattern=r"^[a-z_]+$")
+    rank: int = Field(ge=1)
+    player_name: str
+    team_name: str | None = None
+    games: int | None = None
+    minutes: int | None = None
+    value: float
+    per90: float | None = None
+
+
+class StandingRecord(Record):
+    source: str = Field(pattern=r"^[a-z_]+$")
+    season: int
+    table_name: str
+    rank: int = Field(ge=1)
+    team_name: str
+    played: int | None = None
+    won: int | None = None
+    drawn: int | None = None
+    lost: int | None = None
+    goals_for: int | None = None
+    goals_against: int | None = None
+    points: int | None = None
+    average: float | None = None  # solo en la tabla de promedios (descenso)
+
+
+class PlayerProfileRecord(Record):
+    """Datos públicos del jugador que no trae Promiedos (Wikipedia, CC BY-SA)."""
+
+    player_source_id: str
+    nationality: str | None = Field(default=None, pattern=r"^[A-Z]{3}$")
+    weight_kg: float | None = Field(default=None, ge=40, le=130)
+    youth_club: str | None = None
+    academy: bool = False
+    national_team: str | None = None
+    source: str = Field(pattern=r"^[a-z_]+$")

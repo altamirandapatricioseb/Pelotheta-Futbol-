@@ -298,3 +298,56 @@ def test_league_is_split_into_apertura_and_clausura() -> None:
     assert games[0].competition.name_es == "Liga Profesional: Torneo Apertura"
     assert games[0].match.competition_source_id == games[0].competition.source_id == "hc-apertura"
     assert cup.competition.code == "copa_argentina"  # las copas no se tocan
+
+
+def rich_game() -> dict[str, Any]:
+    """Partido con formación, capitán, bajas, remate al palo y gol anulado por el VAR."""
+    g = game()
+    boca, rival = g["players"]["lineups"]["teams"]
+    boca["formation"], rival["formation"] = "4-3-3", "4-4-2"
+    boca["starting"][1]["is_captain"] = True
+    missing = {"type": 1, "reason": "Lesionado", "will_play_status": 2, "will_play": "No jugarán"}
+    red = {"type": 2, "reason": "Tarjeta Roja", "will_play_status": 2, "will_play": "No jugarán"}
+    g["players"]["missing_players"] = [
+        [player("Fede Lesionado", 7, missing_details=missing)],
+        [player("Rival Expulsado", 4, missing_details=red)],
+    ]
+    rows = g["events"][1]["rows"]
+    rows.append({"events": [{"type": 10, "time": "50'", "team": 1, "texts": ["Carlos Nueve"]}]})
+    rows.append({"events": [{"type": 9, "time": "55'", "team": 1, "texts": ["Gol anulado", "Beto Volante"]}]})
+    return g
+
+
+def test_woodwork_and_var_events_are_identified() -> None:
+    parsed = pd.parse_game(rich_game())
+    assert parsed is not None
+    palo = next(e for e in parsed.events if e.detail == "palo")
+    assert palo.type == "otro" and palo.player_source_id == "carlos nueve"
+    var = next(e for e in parsed.events if e.type == "var")
+    assert var.detail == "gol_anulado" and var.player_source_id == "beto volante"
+
+
+def test_formations_of_both_teams() -> None:
+    parsed = pd.parse_game(rich_game())
+    assert parsed is not None
+    assert {(f.team_source_id, f.formation, f.source) for f in parsed.formations} == {
+        ("igg", "4-3-3", "promiedos"),
+        ("zzz", "4-4-2", "promiedos"),
+    }
+
+
+def test_captain_is_a_player_stat() -> None:
+    parsed = pd.parse_game(rich_game())
+    assert parsed is not None
+    assert [(s.player_source_id, s.stat_key, s.value) for s in parsed.player_stats] == [
+        ("beto volante", "captain", 1)
+    ]
+
+
+def test_absences_keep_boca_names_and_only_reasons_for_rivals() -> None:
+    parsed = pd.parse_game(rich_game())
+    assert parsed is not None
+    rows = {(a.team_source_id, a.player_source_id, a.reason) for a in parsed.absences}
+    assert rows == {("igg", "fede lesionado", "lesion"), ("zzz", None, "suspension_roja")}
+    # El ausente de Boca queda registrado como jugador para poder enlazarlo.
+    assert "fede lesionado" in {p.source_id for p in parsed.players}

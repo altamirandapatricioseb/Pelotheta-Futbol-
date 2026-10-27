@@ -119,3 +119,65 @@ def test_unfinished_game_returns_none() -> None:
 def test_boca_away_detected() -> None:
     line = st.parse_game(game_payload(boca_home=False))
     assert line is not None and line.boca_home is False
+
+
+def test_goal_text_header_from_corner_with_assist() -> None:
+    goal = st.parse_goal_text(
+        "Goal! Rival 0, Boca Juniors 1. Carlos Nueve (Boca Juniors) header from very close range to "
+        "the centre of the goal. Assisted by Beto Volante following a corner.",
+        team_id="5",
+    )
+    assert goal == st.GoalInfo(
+        team_id="5",
+        scorer="Carlos Nueve",
+        assister="Beto Volante",
+        body="header",
+        zone="six_yard_box",
+        situation="corner",
+        assist_type="pass",
+    )
+
+
+def test_goal_text_outside_box_fast_break_and_cross() -> None:
+    g1 = st.parse_goal_text(
+        "Goal! A 3, B 0. Alexander Díaz (A) right footed shot from outside the box to the bottom right "
+        "corner following a fast break.",
+        team_id="1",
+    )
+    assert (g1.body, g1.zone, g1.situation, g1.assister) == ("right_foot", "outside_box", "fast_break", None)
+    g2 = st.parse_goal_text(
+        "Goal! A 0, B 1. Santiago Uno (B) header from very close range to the centre of the goal. "
+        "Assisted by Seba Dos with a cross.",
+        team_id="2",
+    )
+    assert (g2.assister, g2.assist_type) == ("Seba Dos", "cross")
+
+
+def test_goal_text_direct_free_kick_and_penalty() -> None:
+    fk = st.parse_goal_text(
+        "Goal! A 0, B 1. Diego Tres (B) from a free kick with a right footed shot to the "
+        "bottom right corner.",
+        team_id="2",
+    )
+    assert (fk.situation, fk.body) == ("free_kick", "right_foot")
+    pen = st.parse_goal_text(
+        "Goal! A 1, B 0. Pedro Cuatro (A) converts the penalty with a left footed shot to the "
+        "bottom left corner.",
+        team_id="1",
+    )
+    assert (pen.situation, pen.body) == ("penalty", "left_foot")
+
+
+def test_goal_type_counts_per_side() -> None:
+    goals = [
+        st.GoalInfo("5", "X", None, "header", "box", "corner", None),
+        st.GoalInfo("5", "Y", "Z", "left_foot", "outside_box", None, "cross"),
+        st.GoalInfo("11", "R", None, "right_foot", "box", "penalty", None),
+    ]
+    counts = st.goal_type_counts(goals, home_id="5", away_id="11")
+    assert counts["goals_header"] == (1, 0)
+    assert counts["goals_corner"] == (1, 0)
+    assert counts["goals_outside_box"] == (1, 0)
+    assert counts["goals_from_cross"] == (1, 0)
+    assert counts["goals_penalty"] == (0, 1)
+    assert counts["goals_fast_break"] == (0, 0)  # se sabe que no hubo: es un cero real

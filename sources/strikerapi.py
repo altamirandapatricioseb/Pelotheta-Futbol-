@@ -21,7 +21,14 @@ from pathlib import Path
 from typing import Any
 
 import httpx
+from pydantic import ValidationError
 
+from pipeline.models import (
+    ClubRatingRecord,
+    ClubSeasonStatRecord,
+    LeagueLeaderRecord,
+    LeagueResultRecord,
+)
 from sources.http_client import CACHE_DIR, USER_AGENT
 
 SOURCE = "strikerapi"
@@ -64,6 +71,87 @@ class Shot:
 
 
 @dataclass(frozen=True)
+class GoalInfo:
+    """Un gol descrito por el relato de la fuente (en inglés, con frases fijas)."""
+
+    team_id: str
+    scorer: str | None
+    assister: str | None
+    body: str | None  # header, left_foot, right_foot
+    zone: str | None  # six_yard_box, box, outside_box
+    situation: str | None  # corner, set_piece, free_kick, penalty, fast_break
+    assist_type: str | None  # cross, through_ball, headed_pass, pass
+
+
+SCORER_RE = re.compile(r"^Goal! [^.]*\. (.+?) \(")
+ASSIST_RE = re.compile(r"Assisted by (.+?)(?: with a| following|\.$)")
+BODY_TEXTS = (("header", "header"), ("left footed", "left_foot"), ("right footed", "right_foot"))
+ZONE_TEXTS = (
+    ("outside the box", "outside_box"),
+    ("six yard box", "six_yard_box"),
+    ("very close range", "six_yard_box"),
+    ("of the box", "box"),
+)
+SITUATION_TEXTS = (
+    ("following a corner", "corner"),
+    ("following a set piece situation", "set_piece"),
+    ("from a free kick", "free_kick"),
+    ("penalty", "penalty"),
+    ("following a fast break", "fast_break"),
+)
+ASSIST_TEXTS = (
+    ("with a cross", "cross"),
+    ("with a through ball", "through_ball"),
+    ("with a headed pass", "headed_pass"),
+)
+# Claves de equipo que se cuentan por partido a partir de los goles.
+GOAL_TYPE_KEYS = {
+    "goals_header": lambda g: g.body == "header",
+    "goals_left_foot": lambda g: g.body == "left_foot",
+    "goals_right_foot": lambda g: g.body == "right_foot",
+    "goals_outside_box": lambda g: g.zone == "outside_box",
+    "goals_six_yard_box": lambda g: g.zone == "six_yard_box",
+    "goals_corner": lambda g: g.situation == "corner",
+    "goals_set_piece": lambda g: g.situation == "set_piece",
+    "goals_free_kick": lambda g: g.situation == "free_kick",
+    "goals_penalty": lambda g: g.situation == "penalty",
+    "goals_fast_break": lambda g: g.situation == "fast_break",
+    "goals_from_cross": lambda g: g.assist_type == "cross",
+}
+
+
+def _first(text: str, options: tuple[tuple[str, str], ...]) -> str | None:
+    lowered = text.lower()
+    return next((value for phrase, value in options if phrase in lowered), None)
+
+
+def parse_goal_text(text: str, team_id: str) -> GoalInfo:
+    scorer = SCORER_RE.search(text)
+    assister = ASSIST_RE.search(text)
+    assist_type = _first(text, ASSIST_TEXTS) or ("pass" if assister else None)
+    return GoalInfo(
+        team_id=team_id,
+        scorer=scorer.group(1) if scorer else None,
+        assister=assister.group(1) if assister else None,
+        body=_first(text, BODY_TEXTS),
+        zone=_first(text, ZONE_TEXTS),
+        situation=_first(text, SITUATION_TEXTS),
+        assist_type=assist_type,
+    )
+
+
+def goal_type_counts(goals: list[GoalInfo], home_id: str, away_id: str) -> dict[str, tuple[float, float]]:
+    """Goles de cada tipo por equipo en el partido. Con el relato completo, cero es un dato."""
+    return {
+        key: (
+            float(sum(1 for g in goals if g.team_id == home_id and test(g))),
+            float(sum(1 for g in goals if g.team_id == away_id and test(g))),
+        )
+        for key, test in GOAL_TYPE_KEYS.items()
+    }
+
+
+@dataclass(frozen=True)
 class PlayerLine:
     name: str
     stats: dict[str, float]
@@ -76,6 +164,7 @@ class GameLine:
     boca_home: bool
     team_stats: dict[str, tuple[float, float]]
     boca_players: list[PlayerLine] = field(default_factory=list)
+    goals: list[GoalInfo] = field(default_factory=list)
 
     @property
     def utc_date(self) -> date:
@@ -157,6 +246,14 @@ def parse_game(payload: dict[str, Any]) -> GameLine | None:
             continue  # suplente que no entró: sin datos que aportar (y Promiedos puede no listarlo)
         stats = {k: v for k in PLAYER_KEYS if (v := _float(raw.get(k))) is not None and v >= 0}
         players.append(PlayerLine(name=raw["name"], stats=stats))
+    goals = [
+        parse_goal_text(str(ev.get("text") or ""), str(ev.get("team_id")))
+        for ev in data.get("key_events") or []
+        if str(ev.get("type") or "").startswith(("goal", "penalty---scored"))
+        and not ev.get("own_goal")
+        and not ev.get("shootout")
+    ]
+    team_stats.update(goal_type_counts(goals, home_id, away_id))
     kickoff = datetime.fromisoformat(str(game["starts_at"]).replace("Z", "+00:00")).astimezone(UTC)
     return GameLine(
         game_id=str(game.get("game_id")),
@@ -164,6 +261,7 @@ def parse_game(payload: dict[str, Any]) -> GameLine | None:
         boca_home=home_id == BOCA_ID,
         team_stats=team_stats,
         boca_players=players,
+        goals=goals,
     )
 
 
@@ -202,3 +300,83 @@ class StrikerClient:
             cache_file.parent.mkdir(parents=True, exist_ok=True)
             cache_file.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
         return data
+
+
+# --- liga -------------------------------------------------------------------------------
+
+
+def parse_results(payload: dict[str, Any]) -> list[LeagueResultRecord]:
+    """Resultados terminados de `list_games` (toda la liga o un equipo)."""
+    rows = []
+    for g in (payload.get("data") or {}).get("games") or []:
+        home, away = g.get("home") or {}, g.get("away") or {}
+        if g.get("status") != "final" or home.get("score") is None or away.get("score") is None:
+            continue
+        try:
+            rows.append(
+                LeagueResultRecord(
+                    source=SOURCE,
+                    ext_id=str(g["game_id"]),
+                    season=int(g.get("season") or 0),
+                    stage=g.get("stage"),
+                    match_date=date.fromisoformat(str(g["date"])),
+                    home_team=str(home["name"]),
+                    away_team=str(away["name"]),
+                    home_goals=int(home["score"]),
+                    away_goals=int(away["score"]),
+                )
+            )
+        except (KeyError, ValueError, ValidationError):
+            continue
+    return rows
+
+
+def parse_ratings(payload: dict[str, Any]) -> list[ClubRatingRecord]:
+    data = payload.get("data") or {}
+    as_of = date.fromisoformat(str(data.get("as_of")))
+    return [
+        ClubRatingRecord(
+            source=SOURCE, team_name=str(r["name"]), rank=int(r["rank"]), elo=float(r["elo"]), as_of=as_of
+        )
+        for r in data.get("ratings") or []
+        if r.get("name") and _float(r.get("elo")) is not None
+    ]
+
+
+def parse_team_stats(payload: dict[str, Any]) -> list[ClubSeasonStatRecord]:
+    """Promedios por partido de cada club. Un valor nulo no se guarda (no es cero)."""
+    data = payload.get("data") or {}
+    season = int(data.get("season") or 0)
+    rows = []
+    for team in data.get("teams") or []:
+        name = team.get("display_name") or team.get("name")
+        for key, value in team.items():
+            number = _float(value)
+            if name and number is not None and key not in ("team_id",) and re.fullmatch(r"[a-z_0-9]+", key):
+                rows.append(
+                    ClubSeasonStatRecord(
+                        source=SOURCE, season=season, team_name=str(name), stat_key=key, value=number
+                    )
+                )
+    return rows
+
+
+def parse_leaders(payload: dict[str, Any]) -> list[LeagueLeaderRecord]:
+    data = payload.get("data") or {}
+    stat, season = str(data.get("stat")), int(data.get("season") or 0)
+    return [
+        LeagueLeaderRecord(
+            source=SOURCE,
+            season=season,
+            stat=stat,
+            rank=int(r["rank"]),
+            player_name=str(r["name"]),
+            team_name=r.get("team"),
+            games=r.get("games"),
+            minutes=r.get("minutes"),
+            value=float(r["value"]),
+            per90=_float(r.get("per90")),
+        )
+        for r in data.get("leaders") or []
+        if r.get("name") and _float(r.get("value")) is not None
+    ]

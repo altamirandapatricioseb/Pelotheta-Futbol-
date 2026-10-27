@@ -29,6 +29,9 @@ AR_TZ = timezone(timedelta(hours=-3))
 MATCH_LINK_RE = re.compile(r'href="/match/(\d+)\?from=club-hub"')
 CREST_ID_RE = re.compile(r"/teams/\d+/(\d+)\.png")
 FORMATION_RE = re.compile(r"\d(?:-\d){2,4}")
+# Barras del gráfico de momentum: una por minuto, del lado del equipo que dominó (local hacia
+# arriba, visitante hacia abajo). El eje vertical va de 0 a 100 con la mitad en 50.
+MOMENTUM_RE = re.compile(r'<rect class="b([ha])" x="([\d.]+)" y="[\d.]+" width="[\d.]+" height="([\d.]+)"')
 # Estados de un partido terminado: en 90 minutos, con alargue o definido por penales.
 FINISHED_RE = re.compile(r"(Full time|After extra time|Penalties\b)")
 
@@ -102,6 +105,7 @@ class ParsedMatch:
     formations: tuple[str, str] | None
     boca_players: list[PlayerLine] = field(default_factory=list)
     venue: str | None = None  # «Estadio, Ciudad»: sirve para ubicar el clima del partido
+    momentum: list[tuple[int, str, float]] = field(default_factory=list)
 
     @property
     def local_date(self) -> date:
@@ -176,6 +180,21 @@ def _player_line(row: Tag) -> PlayerLine:
     )
 
 
+def parse_momentum(html: str) -> list[tuple[int, str, float]]:
+    """(minuto, 'home' o 'away', intensidad de 0 a 1) de cada barra del gráfico."""
+    start = html.find('class="mr8-mo-plot"')
+    if start < 0:
+        return []
+    segment = html[start : html.find("</svg>", start)]
+    bars = []
+    for side, x, height in MOMENTUM_RE.findall(segment):
+        minute = int(float(x)) + 1
+        value = round(min(float(height), 50) / 50, 3)
+        if 1 <= minute <= 130:
+            bars.append((minute, "home" if side == "h" else "away", value))
+    return bars
+
+
 def _venue(soup: BeautifulSoup) -> str | None:
     meta = soup.select_one("p.mr8-meta")
     if meta is None:
@@ -224,4 +243,5 @@ def parse_match(html: str) -> ParsedMatch | None:
         formations=_formations(soup),
         boca_players=players,
         venue=_venue(soup),
+        momentum=parse_momentum(html),
     )

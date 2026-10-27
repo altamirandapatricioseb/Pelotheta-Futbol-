@@ -16,7 +16,13 @@ from datetime import UTC
 
 from pydantic import ValidationError
 
-from pipeline.models import FormationRecord, PlayerStatRecord, ShotRecord, TeamStatRecord
+from pipeline.models import (
+    FormationRecord,
+    MomentumRecord,
+    PlayerStatRecord,
+    ShotRecord,
+    TeamStatRecord,
+)
 from sources import nofluffpicks as nfp
 from sources import promiedos as pd
 from sources import scoutingstats as ss
@@ -103,6 +109,7 @@ def attach_scoutingstats(
         _check_shots(parsed, found.team_stats, label, warnings)
         if found.formations:
             sides = (parsed.match.home_source_id, parsed.match.away_source_id)
+            have = {f.team_source_id for f in parsed.formations}  # Promiedos va primero
             parsed.formations.extend(
                 FormationRecord(
                     match_source_id=parsed.match.source_id,
@@ -111,8 +118,19 @@ def attach_scoutingstats(
                     source=ss.SOURCE,
                 )
                 for team, formation in zip(sides, found.formations, strict=True)
+                if team not in have
             )
         _add_player_stats(parsed, [(p.name, p.stats) for p in found.boca_players], ss.SOURCE, label, warnings)
+        parsed.momentum.extend(
+            MomentumRecord(
+                match_source_id=parsed.match.source_id,
+                minute=minute,
+                side=side,
+                value=value,
+                source=ss.SOURCE,
+            )
+            for minute, side, value in found.momentum
+        )
         attached += 1
     return attached
 
@@ -144,6 +162,23 @@ def _add_player_stats(
         )
 
 
+def _boca_goal_types(goals: list[st.GoalInfo]) -> dict[str, dict[str, float]]:
+    """Goles por situación de cada goleador de Boca y asistencias por tipo de cada asistidor."""
+    by_player: dict[str, dict[str, float]] = {}
+    for goal in goals:
+        if goal.team_id != st.BOCA_ID:
+            continue
+        if goal.scorer and goal.situation:
+            stats = by_player.setdefault(goal.scorer, {})
+            key = f"goals_{goal.situation}"
+            stats[key] = stats.get(key, 0) + 1
+        if goal.assister and goal.assist_type:
+            stats = by_player.setdefault(goal.assister, {})
+            key = f"assists_{goal.assist_type}"
+            stats[key] = stats.get(key, 0) + 1
+    return by_player
+
+
 def attach_strikerapi(
     games: list[pd.ParsedGame], lines: list[st.GameLine], shots: list[st.Shot], warnings: list[str]
 ) -> int:
@@ -164,6 +199,7 @@ def attach_strikerapi(
             continue
         _add_team_stats(parsed, line.team_stats, None, st.SOURCE)
         _add_player_stats(parsed, [(p.name, p.stats) for p in line.boca_players], st.SOURCE, label, warnings)
+        _add_player_stats(parsed, list(_boca_goal_types(line.goals).items()), st.SOURCE, label, warnings)
         by_game_id[line.game_id] = parsed
     for shot in shots:
         parsed = by_game_id.get(shot.game_id)

@@ -3,14 +3,14 @@ j01,jugador,participacion,Partidos titular suplente y minutos,cargado,promiedos,
 j02,jugador,participacion,Goles,cargado,promiedos,
 j03,jugador,participacion,Asistencias,cargado,promiedos,
 j04,jugador,participacion,Goles de penal,cargado,promiedos,
-j05,jugador,participacion,Penales fallados en juego,falta,,Promiedos solo marca los de la tanda
+j05,jugador,participacion,Penales fallados en juego,cargado,strikerapi,tiros de penal no convertidos; solo liga
 j06,jugador,participacion,Calificacion,cargado,scoutingstats,
 j07,jugador,perfil,Posicion,cargado,promiedos,
 j08,jugador,perfil,Fecha de nacimiento,cargado,promiedos,
 j09,jugador,perfil,Altura,cargado,promiedos,
-j10,jugador,perfil,Peso,falta,,
+j10,jugador,perfil,Peso,parcial,wikipedia,ficha de Wikipedia: 19 de 35 jugadores
 j11,jugador,perfil,Pie preferido,falta,,
-j12,jugador,perfil,Nacionalidad,falta,,Wikidata pendiente
+j12,jugador,perfil,Nacionalidad,cargado,wikipedia,plantilla del plantel (código FIFA)
 j13,jugador,ataque,Goles de cabeza,cargado,strikerapi,solo liga
 j14,jugador,ataque,Goles desde fuera del area,cargado,strikerapi,solo liga
 j15,jugador,ataque,Remates,cargado,scoutingstats,
@@ -41,14 +41,14 @@ j39,jugador,defensa,Faltas cometidas,cargado,strikerapi,solo liga
 j40,jugador,defensa,Presiones,falta,,
 j41,jugador,arquero,Atajadas,cargado,scoutingstats,las del equipo cuando ataja un solo arquero
 j42,jugador,arquero,xG al arco enfrentado (para goles evitados),cargado,scoutingstats,xGOT del rival
-j43,jugador,arquero,Penales atajados,falta,,
+j43,jugador,arquero,Penales atajados,cargado,strikerapi,penales en contra atajados con el arquero en cancha; solo liga
 j44,jugador,arquero,Centros atrapados y salidas,falta,,
 j45,jugador,arquero,Errores que terminan en tiro o gol,falta,,
 j46,jugador,disciplina,Amarillas y rojas,cargado,promiedos,
 j47,jugador,disciplina,Penales cometidos,falta,,
-j48,jugador,disciplina,Sanciones y fechas de suspension,falta,,
+j48,jugador,disciplina,Sanciones y fechas de suspension,cargado,promiedos,bajas por roja o acumulación de amarillas por partido
 j49,jugador,fisico,Distancia y sprints,falta,,ninguna fuente publica tracking
-j50,jugador,disponibilidad,Lesiones,en_fuente,scoutingstats,pagina del club; falta extraerlas
+j50,jugador,disponibilidad,Lesiones,cargado,promiedos,bajas por lesión por partido (sin detalle médico)
 e01,equipo,resultados,Resultado final y al descanso,cargado,promiedos,
 e02,equipo,ataque,Remates y remates al arco,cargado,promiedos,
 e03,equipo,ataque,xG a favor y en contra,cargado,scoutingstats,44 de 48 partidos; sin Copa Argentina
@@ -79,24 +79,41 @@ e27,equipo,posesion,Pases largos y completados,cargado,scoutingstats,
 e28,equipo,posesion,Pases progresivos y al ultimo tercio,falta,,
 e29,equipo,posesion,Perdidas,falta,,
 e30,equipo,balon_parado,Corners y tiros libres,cargado,promiedos,
-e31,equipo,balon_parado,Goles tras corner o tiro libre,falta,,
-e32,equipo,tactica,Formacion,cargado,scoutingstats,falta en partidos sin bloque de alineaciones
+e31,equipo,balon_parado,Goles tras corner o tiro libre,cargado,strikerapi,relato de cada gol; solo liga
+e32,equipo,tactica,Formacion,cargado,promiedos,todas las competiciones; ScoutingStats completa huecos
 e33,equipo,tactica,Puntos esperados de la fuente,cargado,scoutingstats,
-e34,equipo,tactica,Momentum por minuto,en_fuente,scoutingstats,esta en el grafico del partido; falta extraerlo
+e34,equipo,tactica,Momentum por minuto,cargado,scoutingstats,barra por minuto del gráfico del partido
 e35,equipo,tactica,Mapa de tiros (coordenadas),cargado,strikerapi,solo liga
-e36,equipo,tactica,Transiciones y contraataques,falta,,
+e36,equipo,tactica,Transiciones y contraataques,parcial,strikerapi,solo goles de contraataque (relato); sin transiciones completas
 e37,equipo,tactica,Altura de linea y compactacion,falta,,
 e38,equipo,tactica,Mapas de calor y posiciones medias,falta,,
 e39,equipo,tactica,Red de pases,falta,,
-c01,competicion,liga,Resultados de todos los partidos de la liga,en_fuente,promiedos,hoy solo se cargan los de Boca
-c02,competicion,liga,Tabla de posiciones,en_fuente,promiedos,
-c03,competicion,liga,Goleadores y asistidores de la liga,en_fuente,promiedos,
-c04,competicion,liga,Estadisticas de los demas equipos,en_fuente,scoutingstats,paginas de partidos de otros equipos
+c01,competicion,liga,Resultados de todos los partidos de la liga,cargado,strikerapi,todos los partidos de la liga 2026
+c02,competicion,liga,Tabla de posiciones,cargado,promiedos,Apertura y Clausura por zona
+c03,competicion,liga,Goleadores y asistidores de la liga,cargado,promiedos,goles y asistencias del torneo (Opta) y de la temporada (StrikerAPI)
+c04,competicion,liga,Estadisticas de los demas equipos,cargado,strikerapi,"promedios por partido de los 30 clubes, a favor y en contra"
 c05,competicion,liga,Arbitros de todos los partidos,en_fuente,promiedos,
-c06,competicion,liga,Suspendidos,falta,,
+c06,competicion,liga,Suspendidos,parcial,promiedos,bajas por suspensión en los partidos de Boca (propias y del rival)
 p01,partido,eventos,Goles cambios y tarjetas con minuto,cargado,promiedos,
 p02,partido,eventos,Tiempo agregado,cargado,promiedos,
 p03,partido,eventos,Estadio y arbitro,cargado,promiedos,
 p04,partido,eventos,Penales de la tanda,cargado,promiedos,
 e40,equipo,defensa,Entradas intentadas y ganadas,cargado,strikerapi,solo liga
 p05,partido,contexto,Clima a la hora del partido,cargado,openmeteo,temperatura lluvia viento y humedad; sin Copa Argentina
+n01,jugador,ataque,Remates al palo,cargado,promiedos,todas las competiciones
+n02,equipo,ataque,Remates al palo,cargado,promiedos,todas las competiciones
+n03,jugador,ataque,Goles anulados por el VAR,cargado,promiedos,
+n04,equipo,partido,Goles anulados por el VAR,cargado,promiedos,a favor y en contra
+n05,jugador,participacion,Partidos como capitán,cargado,promiedos,
+n06,jugador,perfil,Club formador (canterano),cargado,wikipedia,
+n07,jugador,perfil,Nivel de selección,cargado,wikipedia,absoluta o juvenil
+n08,jugador,disponibilidad,Ausencias por convocatoria a la selección,cargado,promiedos,
+n09,equipo,contexto,Bajas del rival por lesión o suspensión,cargado,promiedos,solo el motivo
+n10,jugador,pase,"Asistencias por tipo (centro, pase filtrado, de cabeza)",cargado,strikerapi,solo liga
+n11,jugador,participacion,Posición exacta en el once,cargado,promiedos,
+n12,jugador,participacion,Autogoles,cargado,promiedos,
+n13,competicion,liga,Elo de los clubes (fuente),cargado,strikerapi,validación del Elo propio
+n14,competicion,liga,Tabla anual y de promedios (descenso),cargado,promiedos,
+n15,competicion,liga,Rankings de tarjetas y barridas de la liga,cargado,promiedos,datos de Opta
+n16,competicion,liga,Temporada anterior (resultados de Boca y promedios de los clubes),cargado,strikerapi,2025
+n17,equipo,ataque,Goles por pierna y por zona (a favor y en contra),cargado,strikerapi,solo liga

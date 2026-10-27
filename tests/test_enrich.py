@@ -196,3 +196,14 @@ def test_strikerapi_side_mismatch_is_skipped() -> None:
         == 0
     )
     assert not parsed.shots and warnings
+
+
+def test_strikerapi_goal_types_for_boca_players() -> None:
+    parsed = pd.parse_game(game())
+    assert parsed is not None
+    line = striker_line()
+    line.goals.append(st.GoalInfo("5", "Carlos Nueve", "Beto Volante", "header", "box", "corner", "cross"))
+    enrich.attach_strikerapi([parsed], [line], [], [])
+    rows = {(p.player_source_id, p.stat_key): p.value for p in parsed.player_stats}
+    assert rows[("carlos nueve", "goals_corner")] == 1
+    assert rows[("beto volante", "assists_cross")] == 1

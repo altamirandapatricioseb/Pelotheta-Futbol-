@@ -53,7 +53,8 @@ def match_html(state: str = "Full time", boca_home: bool = False) -> str:
     return (
         "<html><body>"
         f'<div class="mr8-state">{state}</div>'
-        '<time datetime="2026-10-25T23:30:00Z" data-when>2026-10-25</time>'
+        '<p class="mr8-meta"><time datetime="2026-10-25T23:30:00Z" data-when>2026-10-25</time>'
+        " · Estadio Libertadores de América, Avellaneda</p>"
         + stat_row("1.82", "Expected goals (xG)", "1.43")
         + stat_row("1.57", "xG on target", "0.76")
         + stat_row("1", "Big chances", "5")
@@ -144,3 +145,9 @@ def test_odd_formation_is_ignored() -> None:
     html = match_html().replace("<i>4-3-3</i>", "<i>raro</i>")
     parsed = ss.parse_match(html)
     assert parsed is not None and parsed.formations is None
+
+
+def test_venue_text_is_kept() -> None:
+    parsed = ss.parse_match(match_html())
+    assert parsed is not None
+    assert parsed.venue == "Estadio Libertadores de América, Avellaneda"

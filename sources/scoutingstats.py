@@ -101,6 +101,7 @@ class ParsedMatch:
     team_stats: dict[str, tuple[float, float]]
     formations: tuple[str, str] | None
     boca_players: list[PlayerLine] = field(default_factory=list)
+    venue: str | None = None  # «Estadio, Ciudad»: sirve para ubicar el clima del partido
 
     @property
     def local_date(self) -> date:
@@ -175,6 +176,14 @@ def _player_line(row: Tag) -> PlayerLine:
     )
 
 
+def _venue(soup: BeautifulSoup) -> str | None:
+    meta = soup.select_one("p.mr8-meta")
+    if meta is None:
+        return None
+    text = meta.get_text(" ", strip=True)
+    return text.split("·", 1)[1].strip() if "·" in text else None
+
+
 def _boca_side(soup: BeautifulSoup) -> str | None:
     """'h' o 'a' según el lado de Boca, por el escudo. None si Boca no jugó el partido.
 
@@ -214,4 +223,5 @@ def parse_match(html: str) -> ParsedMatch | None:
         team_stats=_team_stats(soup),
         formations=_formations(soup),
         boca_players=players,
+        venue=_venue(soup),
     )

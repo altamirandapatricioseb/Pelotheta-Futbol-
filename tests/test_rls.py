@@ -65,7 +65,7 @@ def test_anon_no_ve_el_detalle_del_log(client: httpx.Client) -> None:
     assert response.status_code == 400
 
 
-@pytest.mark.parametrize("function", ["load_batch", "log_failure", "internal_id"])
+@pytest.mark.parametrize("function", ["load_batch", "log_failure", "internal_id", "load_weather"])
 def test_anon_no_ejecuta_la_carga(client: httpx.Client, function: str) -> None:
     # El esquema `ingest` está expuesto solo para que el pipeline cargue con la clave secreta.
     response = client.post(f"/rpc/{function}", headers={"Content-Profile": "ingest"}, json={})
@@ -81,7 +81,9 @@ def test_anon_lee_el_resumen_sin_fecha_de_nacimiento(client: httpx.Client) -> No
     assert "age" in rows[0]
 
 
-@pytest.mark.parametrize("view", ["player_stat_totals", "boca_formation"])
+@pytest.mark.parametrize(
+    "view", ["player_stat_totals", "boca_formation", "boca_shot", "player_shot_totals", "boca_weather"]
+)
 def test_anon_lee_las_vistas_avanzadas(client: httpx.Client, view: str) -> None:
     response = client.get(f"/{view}", params={"select": "*", "limit": "1"})
     assert response.status_code == 200

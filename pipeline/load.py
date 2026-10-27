@@ -15,7 +15,7 @@ from typing import Any
 
 import httpx
 
-from pipeline.models import PlayerRecord, Record, SquadRecord
+from pipeline.models import PlayerRecord, Record, SquadRecord, WeatherRecord
 from sources.promiedos import SOURCE, ParsedGame
 
 SUPABASE_URL_RE = re.compile(r"^https://[a-z0-9]{1,40}\.supabase\.co/?$")
@@ -118,3 +118,8 @@ def send_batch(batch: dict[str, Any], url: str, key: str, client: httpx.Client |
 
 def log_failure(source: str, message: str, url: str, key: str, client: httpx.Client | None = None) -> None:
     _rpc("log_failure", {"p_source": source, "p_message": message[:500]}, url, key, client)
+
+
+def send_weather(rows: list[WeatherRecord], url: str, key: str, client: httpx.Client | None = None) -> Any:
+    """Clima por partido, en una función aparte de `load_batch` (se carga después del lote)."""
+    return _rpc("load_weather", {"p_rows": [_dump(r) for r in rows]}, url, key, client)

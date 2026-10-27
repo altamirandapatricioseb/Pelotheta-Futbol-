@@ -151,3 +151,17 @@ class FormationRecord(Record):
     team_source_id: str
     formation: str = Field(pattern=r"^\d(-\d){2,4}$")
     source: str = Field(pattern=r"^[a-z_]+$")
+
+
+class WeatherRecord(Record):
+    """Clima a la hora del inicio del partido (Open-Meteo)."""
+
+    match_source_id: str
+    temperature_c: float | None = Field(default=None, ge=-30, le=50)
+    precipitation_mm: float | None = Field(default=None, ge=0, le=200)
+    wind_kmh: float | None = Field(default=None, ge=0, le=200)
+    humidity_pct: float | None = Field(default=None, ge=0, le=100)
+    latitude: float = Field(ge=-90, le=90)
+    longitude: float = Field(ge=-180, le=180)
+    place: str
+    source: str = Field(pattern=r"^[a-z_]+$")

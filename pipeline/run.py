@@ -24,7 +24,9 @@ from datetime import datetime
 from pathlib import Path
 
 from pipeline import enrich, load
+from pipeline.models import WeatherRecord
 from sources import nofluffpicks as nfp
+from sources import openmeteo as om
 from sources import promiedos as pd
 from sources import scoutingstats as ss
 from sources import strikerapi as st
@@ -213,6 +215,44 @@ def crawl_strikerapi(warnings: list[str]) -> tuple[list[st.GameLine], list[st.Sh
     return lines, shots
 
 
+def crawl_weather(
+    games: list[pd.ParsedGame], ss_matches: list[ss.ParsedMatch], warnings: list[str]
+) -> list[WeatherRecord]:
+    """Clima a la hora de cada partido (Open-Meteo), ubicado por la ciudad del estadio.
+
+    La ciudad sale de ScoutingStats; los partidos sin ella (Copa Argentina) quedan sin clima.
+    Las respuestas quedan en caché: solo los partidos nuevos generan consultas.
+    """
+    by_date = {g.match.match_date: g for g in games}
+    client = om.OpenMeteoClient()
+    rows: list[WeatherRecord] = []
+    for found in ss_matches:
+        parsed, city = by_date.get(found.local_date), om.city_from_venue(found.venue)
+        if parsed is None or city is None:
+            continue
+        try:
+            place = client.place(city)
+            if place is None:
+                warnings.append(f"Open-Meteo: no se ubicó «{city}»")
+                continue
+            weather = client.weather(*place, parsed.match.kickoff_at)
+        except om.OpenMeteoError as exc:
+            warnings.append(f"Open-Meteo no disponible: {exc}")
+            break
+        if weather:
+            rows.append(
+                WeatherRecord(
+                    match_source_id=parsed.match.source_id,
+                    latitude=place[0],
+                    longitude=place[1],
+                    place=city,
+                    source=om.SOURCE,
+                    **weather,
+                )
+            )
+    return rows
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Pipeline de Pelotheta: Promiedos -> Supabase")
     parser.add_argument("--dry-run", action="store_true", help="no carga en Supabase")
@@ -226,7 +266,8 @@ def main(argv: list[str] | None = None) -> int:
             games, players, squad, warnings = crawl(client, SEASON_YEAR)
         # ScoutingStats va antes que NoFluffPicks: la primera fuente de cada clave gana.
         with PoliteClient(source=ss.SOURCE) as client:
-            with_ss = enrich.attach_scoutingstats(games, crawl_scoutingstats(client, warnings), warnings)
+            ss_matches = crawl_scoutingstats(client, warnings)
+            with_ss = enrich.attach_scoutingstats(games, ss_matches, warnings)
         print(f"Partidos con datos de ScoutingStats: {with_ss}.")
         striker_lines, striker_shots = crawl_strikerapi(warnings)
         with_st = enrich.attach_strikerapi(games, striker_lines, striker_shots, warnings)
@@ -234,6 +275,8 @@ def main(argv: list[str] | None = None) -> int:
         with PoliteClient(source=nfp.SOURCE) as client:
             with_xg = enrich.attach_nofluffpicks(games, crawl_nofluffpicks(client, warnings), warnings)
         print(f"Partidos con datos de NoFluffPicks: {with_xg}.")
+        weather = crawl_weather(games, ss_matches, warnings)
+        print(f"Partidos con clima de Open-Meteo: {len(weather)}.")
     except (FetchError, RetryableFetchError, ValueError, KeyError) as exc:
         message = f"Fallo del scraping: {exc}"
         print(message, file=sys.stderr)
@@ -258,6 +301,8 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 0
     result = load.send_batch(batch, url, key)
+    if weather:
+        result["weather"] = load.send_weather(weather, url, key)
     seconds = (datetime.now() - started).total_seconds()
     print(f"Carga {status} en {seconds:.0f} s: {result}")
     return 0

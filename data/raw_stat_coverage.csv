@@ -99,3 +99,4 @@ p02,partido,eventos,Tiempo agregado,cargado,promiedos,
 p03,partido,eventos,Estadio y arbitro,cargado,promiedos,
 p04,partido,eventos,Penales de la tanda,cargado,promiedos,
 e40,equipo,defensa,Entradas intentadas y ganadas,cargado,strikerapi,solo liga
+p05,partido,contexto,Clima a la hora del partido,cargado,openmeteo,temperatura lluvia viento y humedad; sin Copa Argentina

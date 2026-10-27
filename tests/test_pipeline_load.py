@@ -9,7 +9,7 @@ import httpx
 import pytest
 
 from pipeline import load
-from pipeline.models import FormationRecord, PlayerRecord, PlayerStatRecord, SquadRecord
+from pipeline.models import FormationRecord, PlayerRecord, PlayerStatRecord, SquadRecord, WeatherRecord
 from sources import promiedos as pd
 from tests.test_promiedos import game
 
@@ -108,3 +108,25 @@ def test_rejects_publishable_key() -> None:
 def test_rejects_non_supabase_url() -> None:
     with pytest.raises(load.LoadError):
         load.send_batch({}, url="https://evil.example.com", key="sb_secret_abc")
+
+
+def test_weather_goes_to_its_own_function() -> None:
+    seen: dict[str, object] = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen["path"] = request.url.path
+        seen["body"] = json.loads(request.content)
+        return httpx.Response(200, json=1)
+
+    row = WeatherRecord(
+        match_source_id="g1",
+        temperature_c=15.2,
+        latitude=-34.66,
+        longitude=-58.37,
+        place="Avellaneda",
+        source="openmeteo",
+    )
+    with httpx.Client(transport=httpx.MockTransport(handler)) as client:
+        load.send_weather([row], "https://abc.supabase.co", "sb_secret_x", client)
+    assert seen["path"] == "/rest/v1/rpc/load_weather"
+    assert seen["body"]["p_rows"][0]["temperature_c"] == 15.2  # type: ignore[index]

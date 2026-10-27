@@ -26,6 +26,7 @@ from pathlib import Path
 from pipeline import enrich, load
 from sources import nofluffpicks as nfp
 from sources import promiedos as pd
+from sources import scoutingstats as ss
 from sources.http_client import ROOT, FetchError, PoliteClient, RetryableFetchError
 
 SEASON_YEAR = 2026
@@ -145,6 +146,33 @@ def crawl_nofluffpicks(
     return result
 
 
+def crawl_scoutingstats(client: PoliteClient, warnings: list[str]) -> list[ss.ParsedMatch]:
+    """Estadísticas avanzadas de equipo y jugador de cada partido jugado de Boca (ScoutingStats).
+
+    Una página con la lista de partidos del club y una por partido. Si la fuente falla, se sigue
+    sin estos datos: el resto de la carga no depende de ella.
+    """
+    try:
+        club_html = client.get(ss.BASE_URL + ss.BOCA_MATCHES_PATH, use_cache=False).text()
+    except (FetchError, RetryableFetchError) as exc:
+        warnings.append(f"ScoutingStats no disponible: {exc}")
+        return []
+    result = []
+    for match_id in ss.match_ids(club_html):
+        url = f"{ss.BASE_URL}/match/{match_id}"
+        try:
+            parsed = ss.parse_match(client.get(url).text())
+            if parsed is None:
+                # Puede estar en caché de antes de jugarse: se pide de nuevo.
+                parsed = ss.parse_match(client.get(url, use_cache=False).text())
+        except (FetchError, RetryableFetchError) as exc:
+            warnings.append(f"ScoutingStats partido {match_id}: {exc}")
+            continue
+        if parsed is not None:
+            result.append(parsed)
+    return result
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Pipeline de Pelotheta: Promiedos -> Supabase")
     parser.add_argument("--dry-run", action="store_true", help="no carga en Supabase")
@@ -156,9 +184,13 @@ def main(argv: list[str] | None = None) -> int:
     try:
         with PoliteClient(source=pd.SOURCE) as client:
             games, players, squad, warnings = crawl(client, SEASON_YEAR)
+        # ScoutingStats va antes que NoFluffPicks: la primera fuente de cada clave gana.
+        with PoliteClient(source=ss.SOURCE) as client:
+            with_ss = enrich.attach_scoutingstats(games, crawl_scoutingstats(client, warnings), warnings)
+        print(f"Partidos con datos de ScoutingStats: {with_ss}.")
         with PoliteClient(source=nfp.SOURCE) as client:
             with_xg = enrich.attach_nofluffpicks(games, crawl_nofluffpicks(client, warnings), warnings)
-        print(f"Partidos con xG de NoFluffPicks: {with_xg}.")
+        print(f"Partidos con datos de NoFluffPicks: {with_xg}.")
     except (FetchError, RetryableFetchError, ValueError, KeyError) as exc:
         message = f"Fallo del scraping: {exc}"
         print(message, file=sys.stderr)
@@ -178,7 +210,8 @@ def main(argv: list[str] | None = None) -> int:
     if args.dry_run:
         print(
             f"Dry run: {len(batch['matches'])} partidos, {len(batch['lineups'])} alineaciones, "
-            f"{len(batch['events'])} eventos. No se cargó nada."
+            f"{len(batch['events'])} eventos, {len(batch['player_stats'])} estadísticas de "
+            f"jugador. No se cargó nada."
         )
         return 0
     result = load.send_batch(batch, url, key)

@@ -81,6 +81,13 @@ def test_anon_lee_el_resumen_sin_fecha_de_nacimiento(client: httpx.Client) -> No
     assert "age" in rows[0]
 
 
+@pytest.mark.parametrize("view", ["player_stat_totals", "boca_formation"])
+def test_anon_lee_las_vistas_avanzadas(client: httpx.Client, view: str) -> None:
+    response = client.get(f"/{view}", params={"select": "*", "limit": "1"})
+    assert response.status_code == 200
+    assert response.json(), "la vista debería tener datos después de la carga de ScoutingStats"
+
+
 def test_anon_no_lee_fecha_de_nacimiento_aunque_la_pida(client: httpx.Client) -> None:
     response = client.get("/player_summary", params={"select": "birth_date"})
     assert response.status_code == 400

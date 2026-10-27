@@ -9,7 +9,7 @@ import httpx
 import pytest
 
 from pipeline import load
-from pipeline.models import PlayerRecord, SquadRecord
+from pipeline.models import FormationRecord, PlayerRecord, PlayerStatRecord, SquadRecord
 from sources import promiedos as pd
 from tests.test_promiedos import game
 
@@ -39,6 +39,31 @@ def test_squad_data_wins_over_lineup_data() -> None:
     merged = next(p for p in batch["players"] if p["source_id"] == key)
     assert merged["birth_date"] == "2000-07-20"
     assert merged["height_cm"] == 180  # dato que solo traía la alineación, se conserva
+
+
+def test_batch_carries_player_stats_and_formations() -> None:
+    g1 = pd.parse_game(game())
+    assert g1 is not None
+    g1.player_stats.append(
+        PlayerStatRecord(
+            match_source_id=g1.match.source_id,
+            player_source_id="ana arquera",
+            stat_key="rating",
+            value=7.5,
+            source="scoutingstats",
+        )
+    )
+    g1.formations.append(
+        FormationRecord(
+            match_source_id=g1.match.source_id,
+            team_source_id="igg",
+            formation="4-2-3-1",
+            source="scoutingstats",
+        )
+    )
+    batch = load.build_batch([g1], players=[], squad=[], season_year=2026)
+    assert batch["player_stats"][0]["stat_key"] == "rating"
+    assert batch["formations"][0]["formation"] == "4-2-3-1"
 
 
 def test_batch_is_json_serializable() -> None:

@@ -90,6 +90,29 @@ Fuentes propuestas por el dueño para estadísticas avanzadas. Para cada una se 
 
 Conclusión: con NoFluffPicks entran el xG y el xGA por partido de equipo (y todo lo que se deriva: goles − xG, xG por remate, xPts con Poisson, probabilidad pre-partido). Las métricas avanzadas **por jugador** (xG, xA, pases, entradas, duelos, regates, calificación) solo existen en sitios cuyos términos prohíben el acceso automatizado: quedan nivel C hasta tener una fuente con permiso o licencia.
 
+## Tercera ronda de fuentes (27-oct-2026, pedido del dueño: sin pagar, más nicho)
+
+Mismo método: robots.txt y términos antes de pedir datos, User-Agent identificable, 3 s entre requests y nada de evadir desafíos de Cloudflare.
+
+| Fuente | robots.txt | Términos de uso | Datos de Boca 2026 | Decisión |
+|---|---|---|---|---|
+| **ScoutingStats** (`scoutingstats.ai`) | permite páginas; bloquea `/api/` salvo algunas rutas de jugador | no prohíben el acceso automatizado (uso lícito, propiedad intelectual del contenido). Datos de Sportmonks | Páginas de partido terminadas, en HTML y sin login: xG, xGOT, npxG, xG de jugada y de pelota parada, puntos esperados, ocasiones claras, tiros dentro y fuera del área, pases y pases largos, centros, regates, entradas, intercepciones, duelos, atajadas y formaciones. **Por jugador de Boca:** calificación, pases y %, pases clave, remates y al arco, entradas, intercepciones, duelos ganados y regates. 45 partidos jugados (liga, Libertadores y Sudamericana), xG en 37. Sin Copa Argentina | **Activa** (`sources/scoutingstats.py`). Las páginas de jugador tienen desafío de Cloudflare: no se piden |
+| StrikerAPI (`strikerapi.com`) | `/api/` cerrado al rastreo web; la API es el canal previsto | permiten uso personal y comercial, guardar y mostrar los datos; prohíben scrapear la web y revender. 500 créditos gratis por mes | Argentina desde 2000; **tiros con coordenadas y xG propio desde 2014**, eventos y alineaciones. Frescura de 2026 sin verificar | **Pendiente del dueño**: hace falta crear una cuenta gratis (no la puedo crear yo) y guardar la clave en GitHub Secrets. Con 500 créditos por mes alcanza para los mapas de tiros de unos 50 partidos (10 créditos cada uno) |
+| OpenFootAPI (`openfootapi.com`) | permite | permiten guardar respuestas y uso analítico; exigen citar `meta.sources`. 5000 requests gratis por mes | Liga Profesional, Libertadores y Sudamericana 2026: fixture, tablas y alineaciones. xG solo en el plan pago | **Reserva** (validación cruzada; no suma estadísticas nuevas) |
+| OpenScores (`openscores.ai`) | permite | uso libre con límites | solo las 5 grandes ligas de Europa y el Mundial | **No aplica** |
+| SportAPI (`sportapi.ai`) | permite | uso en proyectos propios; cobertura por competición sin confirmar | sin verificar | **Sin probar** (requiere cuenta) |
+| PitchMath | permite | «Do not scrape the site» | percentiles de equipo | **Descartada por términos** |
+| GoalPulz | permite (bloquea bots de IA) | «Do not scrape it in bulk, automate requests» | percentiles por área | **Descartada por términos** |
+| MatchPulseStats | permite | prohíbe «Scraping, crawling or automated data extraction» | xG local y visitante | **Descartada por términos** |
+| ESPN | — | términos de Disney prohíben robots, scripts y scraping | xG por jugador y partido | **Descartada por términos** |
+| Tifolab, SoccerSTATS, Club Elo | desafío de Cloudflare hasta en robots.txt | — | xG y xA de Boca (Tifolab) | **Descartadas**: no se evaden bloqueos. Club Elo no lista equipos sudamericanos |
+| Statshub, MakeYourStats, APWin | permiten | no se encontraron términos publicados | estadísticas de partido | **Sin uso**: ScoutingStats ya cubre lo que traen |
+| FootyStats | permite páginas, cierra `/api/club*` | — | xG local/visitante | **Indirecta**: sus datos ya llegan por NoFluffPicks |
+| openfootball, el-ega/data, dataset de Kaggle 2014-2025 | — | CC0 / CC BY-SA | resultados históricos (el de Kaggle copia FBref, cuyos términos no permiten redistribuir) | **Histórico, opcional**: solo resultados, sin estadísticas avanzadas |
+| Goal Labs, Touchline, JLA Tactics Board, SportsLabTools | — | — | herramientas de video y pizarra, no publican datos | **No son fuentes** |
+
+Conclusión: ScoutingStats destraba las estadísticas por jugador que faltaban (calificación, pases, pases clave, entradas, intercepciones, duelos y regates) y las tácticas de equipo (formación, xGOT, xG de jugada y de pelota parada, ocasiones claras, pases largos, duelos). Sigue sin haber fuente permitida para el xG y el xA por jugador, los pases progresivos, las presiones por zona y los eventos con coordenadas. StrikerAPI resolvería los mapas de tiros si el dueño crea la cuenta gratis.
+
 ## Dato crudo mínimo y lo que se deriva
 
 | Dato crudo | Fuentes que lo traen hoy | Qué se deriva | Qué se pierde si cae la fuente principal |
@@ -99,8 +122,9 @@ Conclusión: con NoFluffPicks entran el xG y el xGA por partido de equipo (y tod
 | Eventos con minuto (goles con tipo y asistente, tarjetas, cambios, penales) | API-Football (con clave), TheSportsDB (5 filas), BocaStats (por verificar) | Goles por tramo, minutos con ventaja/empate/desventaja, puntos desde atrás, primer gol, goles tardíos, tarjetas por tramo, asistencias | Tramos de minutos, situaciones por minuto, NR/EWA/ELA |
 | Alineaciones con minutos de entrada y salida | API-Football (titulares + eventos de cambio) | Minutos en cancha, `v_on_court`, NR, EWA, ELA, carga 7/14/28 días, rotación, estabilidad del once (Jaccard), eficiencia de suplentes, con/sin jugador | Métricas propias de 6 y todo lo que depende de minutos |
 | Box score por equipo (tiros, posesión, pases, córners, faltas) | API-Football, TheSportsDB (parcial) | Precisión de tiro, goles por tiro, situaciones de tiros, posesión, córners y disciplina | Familias C, D, E y F de situaciones |
-| Box score por jugador (minutos, tiros, pases, entradas, calificación) | API-Football | Todo «por 90», porcentajes, percentiles, índice de rendimiento, Mejoría α y β, Potencial α y β, comparación | Interfaces 3 y 5 casi completas |
-| xG por partido y equipo | NoFluffPicks | xPts, goles − xG, xG por remate, probabilidad pre-partido con Poisson | Quedan `n/d` |
+| Box score por jugador (minutos, tiros, pases, entradas, calificación) | ScoutingStats (45 partidos de 2026), API-Football (histórico) | Todo «por 90», porcentajes, percentiles, índice de rendimiento, Mejoría α y β, Potencial α y β, comparación | Interfaces 3 y 5 casi completas |
+| xG por partido y equipo | ScoutingStats (37 partidos, incluye copas), NoFluffPicks (31 de liga, respaldo) | xPts, goles − xG, xG por remate, probabilidad pre-partido con Poisson | Si caen las dos, quedan `n/d` |
+| xGOT, xG de jugada y de pelota parada, ocasiones claras, formación | ScoutingStats | Goles evitados del arquero, calidad de definición, % de xG de pelota parada, rendimiento por formación | Quedan `n/d` |
 | xG por jugador | ninguna permitida | npxG, xG/90, xA por jugador | Quedan `n/d` |
 | Plantel con fecha de nacimiento y posición | Wikidata (pendiente), API-Football, BocaStats | Edad a la fecha del partido, tramos de edad, Potencial, referencias por posición y zona | Potenciales y edades |
 

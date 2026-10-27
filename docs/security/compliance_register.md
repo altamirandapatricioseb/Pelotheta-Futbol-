@@ -6,6 +6,9 @@ Revisión inicial: 27-oct-2026 (Fase 0). Próxima revisión: al cerrar la etapa 
 |---|---|---|---|
 | Promiedos | activa (principal) | citar «Promiedos» y «Opta»; solo páginas HTML públicas; no mostrar cuotas ni datos crudos; 3 s entre requests | `data/raw/phase0/promiedos.json`, ADR 0004 |
 | NoFluffPicks | activa (xG por partido) | citar «NoFluffPicks (datos de FootyStats)» con enlace; no republicar partes sustanciales ni textos; 3 s entre requests | `docs/source_audit.md`, segunda ronda |
+| ScoutingStats | activa (estadísticas avanzadas de equipo y jugador, formaciones) | citar «ScoutingStats (datos de Sportmonks)» con enlace; solo páginas de partido; no pedir `/api/` ni páginas de jugador (Cloudflare); no republicar textos, previas ni predicciones; 3 s entre requests | `docs/source_audit.md`, tercera ronda |
+| StrikerAPI | pendiente (cuenta del dueño) | clave solo en GitHub Secrets; no revender ni redistribuir como dataset; 500 créditos por mes | `docs/source_audit.md`, tercera ronda |
+| PitchMath, GoalPulz, MatchPulseStats, ESPN | descartadas | términos prohíben scraping | `docs/source_audit.md`, tercera ronda |
 | SporLens, PlayerStats, Fichajes.com, WhoScored | descartadas | términos prohíben scraping o reutilización | `docs/source_audit.md`, segunda ronda |
 | football-data.co.uk | activa (validación y resultados) | citar la fuente; no mostrar cuotas | `data/raw/phase0/football_data_co_uk.json` |
 | API-Football | solo histórico 2022 a 2024 (plan Free) | no publica 2026; no revender; cuota 100 por día; clave solo en `.env` local y GitHub Secrets | `data/raw/phase0/api_football.json` |

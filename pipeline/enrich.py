@@ -1,20 +1,131 @@
 """Cruce de fuentes: agrega a los partidos de Promiedos los datos que solo trae otra fuente.
 
-NoFluffPicks aporta el xG y los ataques peligrosos por partido. El cruce es por fecha (Boca
-juega como mucho un partido por día) y se verifica que Boca sea local en las dos fuentes: si no
-coincide, el dato no se usa y queda un aviso. Los remates, que traen ambas, sirven de control
-de calidad entre fuentes (validación cruzada, regla 8b).
+Orden y prioridad: Promiedos, después ScoutingStats y al final NoFluffPicks. Una clave que ya
+cargó una fuente para ese equipo y partido no se pisa con la siguiente; así cada número tiene
+una sola fuente y el xG sale del mismo modelo en todos los partidos donde se pueda.
+
+El cruce es por fecha (Boca juega como mucho un partido por día) y se verifica que Boca sea
+local en las dos fuentes: si no coincide, el dato no se usa y queda un aviso. Los remates, que
+traen todas, sirven de control de calidad entre fuentes (validación cruzada, regla 8b).
 """
 
 from __future__ import annotations
 
-from pipeline.models import TeamStatRecord
+import difflib
+
+from pipeline.models import FormationRecord, PlayerStatRecord, TeamStatRecord
 from sources import nofluffpicks as nfp
 from sources import promiedos as pd
+from sources import scoutingstats as ss
 
-# Solo estas claves se toman de NoFluffPicks; el resto lo trae Promiedos.
+# Solo estas claves se toman de NoFluffPicks; el resto lo trae Promiedos o ScoutingStats.
 NFP_KEYS = ("xg", "dangerous_attacks")
 MAX_SHOT_GAP = 3  # diferencia de remates entre fuentes que se informa como aviso
+NAME_CUTOFF = 0.85  # parecido mínimo de nombres para emparejar un jugador entre fuentes
+
+
+def _add_team_stats(
+    parsed: pd.ParsedGame, stats: dict[str, tuple[float, float]], keys: tuple[str, ...] | None, source: str
+) -> None:
+    home, away = parsed.match.home_source_id, parsed.match.away_source_id
+    present = {(s.team_source_id, s.stat_key) for s in parsed.team_stats}
+    for key, (home_value, away_value) in stats.items():
+        if keys is not None and key not in keys:
+            continue
+        for team, value in ((home, home_value), (away, away_value)):
+            if (team, key) not in present:
+                parsed.team_stats.append(
+                    TeamStatRecord(
+                        match_source_id=parsed.match.source_id,
+                        team_source_id=team,
+                        stat_key=key,
+                        value=value,
+                        source=source,
+                    )
+                )
+
+
+def _check_shots(
+    parsed: pd.ParsedGame, stats: dict[str, tuple[float, float]], label: str, warnings: list[str]
+) -> None:
+    promiedos_shots = {
+        s.team_source_id: s.value
+        for s in parsed.team_stats
+        if s.stat_key == "shots_total" and s.source is None
+    }
+    home = parsed.match.home_source_id
+    if "shots_total" in stats and home in promiedos_shots:
+        gap = abs(promiedos_shots[home] - stats["shots_total"][0])
+        if gap > MAX_SHOT_GAP:
+            warnings.append(f"{label}: los remates difieren en {gap:.0f} con Promiedos")
+
+
+def _boca_lineup_ids(parsed: pd.ParsedGame) -> list[str]:
+    return [lu.player_source_id for lu in parsed.lineups if lu.team_source_id == pd.BOCA_ID]
+
+
+def match_player(name: str, candidates: list[str]) -> str | None:
+    """Id de Promiedos del jugador con ese nombre en la alineación de Boca, o None.
+
+    Primero el nombre normalizado exacto; después el apellido si es único en la alineación
+    («C. Nueve» -> «carlos nueve»); por último el nombre más parecido por encima del umbral.
+    """
+    key = pd.player_key(name)
+    if key in candidates:
+        return key
+    last = key.split()[-1] if key else ""
+    by_last = [c for c in candidates if c.split()[-1] == last]
+    if len(by_last) == 1:
+        return by_last[0]
+    close = difflib.get_close_matches(key, candidates, n=1, cutoff=NAME_CUTOFF)
+    return close[0] if close else None
+
+
+def attach_scoutingstats(
+    games: list[pd.ParsedGame], matches: list[ss.ParsedMatch], warnings: list[str]
+) -> int:
+    """Agrega estadísticas de equipo, formaciones y estadísticas por jugador. Devuelve cuántos."""
+    by_date = {g.match.match_date: g for g in games}
+    attached = 0
+    for found in matches:
+        parsed = by_date.get(found.local_date)
+        if parsed is None:
+            continue
+        label = f"ScoutingStats {found.local_date.isoformat()}"
+        if (parsed.match.home_source_id == pd.BOCA_ID) != found.boca_home:
+            warnings.append(f"{label}: local y visitante no coinciden con Promiedos")
+            continue
+        _add_team_stats(parsed, found.team_stats, None, ss.SOURCE)
+        _check_shots(parsed, found.team_stats, label, warnings)
+        if found.formations:
+            sides = (parsed.match.home_source_id, parsed.match.away_source_id)
+            parsed.formations.extend(
+                FormationRecord(
+                    match_source_id=parsed.match.source_id,
+                    team_source_id=team,
+                    formation=formation,
+                    source=ss.SOURCE,
+                )
+                for team, formation in zip(sides, found.formations, strict=True)
+            )
+        candidates = _boca_lineup_ids(parsed)
+        for line in found.boca_players:
+            player_id = match_player(line.name, candidates)
+            if player_id is None:
+                warnings.append(f"{label}: jugador sin pareja en Promiedos: {line.name}")
+                continue
+            parsed.player_stats.extend(
+                PlayerStatRecord(
+                    match_source_id=parsed.match.source_id,
+                    player_source_id=player_id,
+                    stat_key=key,
+                    value=value,
+                    source=ss.SOURCE,
+                )
+                for key, value in line.stats.items()
+            )
+        attached += 1
+    return attached
 
 
 def attach_nofluffpicks(
@@ -34,27 +145,7 @@ def attach_nofluffpicks(
         if boca_home_pd != boca_home_nfp:
             warnings.append(f"NoFluffPicks {fixture.slug}: local y visitante no coinciden con Promiedos")
             continue
-        home, away = parsed.match.home_source_id, parsed.match.away_source_id
-        for key in NFP_KEYS:
-            if key in stats:
-                for team, value in ((home, stats[key][0]), (away, stats[key][1])):
-                    parsed.team_stats.append(
-                        TeamStatRecord(
-                            match_source_id=parsed.match.source_id,
-                            team_source_id=team,
-                            stat_key=key,
-                            value=value,
-                            source=nfp.SOURCE,
-                        )
-                    )
-        promiedos_shots = {
-            s.team_source_id: s.value for s in parsed.team_stats if s.stat_key == "shots_total"
-        }
-        if "shots_total" in stats and home in promiedos_shots:
-            gap = abs(promiedos_shots[home] - stats["shots_total"][0])
-            if gap > MAX_SHOT_GAP:
-                warnings.append(
-                    f"{fixture.slug}: los remates difieren en {gap:.0f} entre Promiedos y NoFluffPicks"
-                )
+        _add_team_stats(parsed, stats, NFP_KEYS, nfp.SOURCE)
+        _check_shots(parsed, stats, f"NoFluffPicks {fixture.slug}", warnings)
         attached += 1
     return attached

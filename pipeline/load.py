@@ -78,6 +78,8 @@ def build_batch(
         "lineups": [_dump(lu) for g in games for lu in g.lineups],
         "events": [_dump(e) for g in games for e in g.events],
         "team_stats": [_dump(s) for g in games for s in g.team_stats],
+        "player_stats": [_dump(s) for g in games for s in g.player_stats],
+        "formations": [_dump(f) for g in games for f in g.formations],
     }
 
 

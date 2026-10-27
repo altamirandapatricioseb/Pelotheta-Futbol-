@@ -1,0 +1,40 @@
+# Actualización de datos: scraping de todas las fuentes -> validación -> carga en Supabase.
+# Corre el día 1 de cada mes y cuando se aprieta el botón de la Interfaz 6 (workflow_dispatch
+# desde el route handler de la web). Las claves viven solo en GitHub Secrets.
+name: Actualizar datos
+
+on:
+  schedule:
+    - cron: "0 9 1 * *" # día 1 de cada mes, 06:00 en Argentina
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Nunca dos corridas a la vez: la segunda espera (no se cancela la que está cargando).
+concurrency:
+  group: update-data
+  cancel-in-progress: false
+
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
+      - run: uv sync --locked
+      # Caché de páginas y respuestas ya bajadas: los partidos terminados no se vuelven a pedir
+      # (menos carga para las fuentes y menos créditos de StrikerAPI).
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: data/raw/cache
+          key: raw-cache-${{ github.run_id }}
+          restore-keys: raw-cache-
+      - name: Pipeline
+        run: uv run python -m pipeline.run
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY || secrets.API_SUPABASE_SECRET_KEY }}
+          STRIKER_API_KEY: ${{ secrets.STRIKER_API_KEY }}
+          BZZOIRO_API_KEY: ${{ secrets.BZZOIRO_API_KEY }}

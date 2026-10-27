@@ -126,6 +126,26 @@ class PlayerStatRecord(Record):
     source: str = Field(pattern=r"^[a-z_]+$")
 
 
+class ShotRecord(Record):
+    """Un tiro con su ubicación (x = distancia a la línea de gol como fracción de media cancha,
+    y = ancho, 0,5 es el centro). De los rivales se guarda el tiro sin el jugador."""
+
+    match_source_id: str
+    team_source_id: str
+    player_source_id: str | None = None
+    minute: int | None = Field(default=None, ge=0, le=130)
+    outcome: str = Field(pattern=r"^[a-z_]+$")
+    body_part: str | None = Field(default=None, pattern=r"^[a-z_]+$")
+    penalty: bool = False
+    zone: str | None = Field(default=None, pattern=r"^[a-z_]+$")
+    xg: float = Field(ge=0, le=1)
+    x: float | None = Field(default=None, ge=0, le=2)  # más de 1 = tiro desde campo propio
+    y: float | None = Field(default=None, ge=0, le=1)
+    end_x: float | None = Field(default=None, ge=0, le=2)
+    end_y: float | None = Field(default=None, ge=0, le=1)
+    source: str = Field(pattern=r"^[a-z_]+$")
+
+
 class FormationRecord(Record):
     match_source_id: str
     team_source_id: str

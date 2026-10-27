@@ -11,14 +11,14 @@ j09,jugador,perfil,Altura,cargado,promiedos,
 j10,jugador,perfil,Peso,falta,,
 j11,jugador,perfil,Pie preferido,falta,,
 j12,jugador,perfil,Nacionalidad,falta,,Wikidata pendiente
-j13,jugador,ataque,Goles de cabeza,falta,,Promiedos no trae el tipo de gol
-j14,jugador,ataque,Goles desde fuera del area,falta,,
+j13,jugador,ataque,Goles de cabeza,cargado,strikerapi,solo liga
+j14,jugador,ataque,Goles desde fuera del area,cargado,strikerapi,solo liga
 j15,jugador,ataque,Remates,cargado,scoutingstats,
 j16,jugador,ataque,Remates al arco,cargado,scoutingstats,
-j17,jugador,ataque,Remates bloqueados,falta,,
-j18,jugador,ataque,xG,falta,,StrikerAPI lo daria (xG por tiro)
-j19,jugador,ataque,Fueras de juego,falta,,
-j20,jugador,ataque,Faltas recibidas,falta,,
+j17,jugador,ataque,Remates bloqueados,cargado,strikerapi,solo liga
+j18,jugador,ataque,xG,cargado,strikerapi,suma del xG de cada tiro; solo liga
+j19,jugador,ataque,Fueras de juego,cargado,strikerapi,solo liga
+j20,jugador,ataque,Faltas recibidas,cargado,strikerapi,solo liga
 j21,jugador,ataque,Regates exitosos,cargado,scoutingstats,
 j22,jugador,ataque,Regates intentados,falta,,
 j23,jugador,pase,Pases intentados,cargado,scoutingstats,
@@ -30,14 +30,14 @@ j28,jugador,pase,Pases al ultimo tercio,falta,,
 j29,jugador,pase,Centros intentados y completados,falta,,
 j30,jugador,pase,Perdidas de posesion,falta,,
 j31,jugador,defensa,Entradas ganadas,cargado,scoutingstats,
-j32,jugador,defensa,Entradas intentadas,falta,,
+j32,jugador,defensa,Entradas intentadas,falta,,StrikerAPI solo por equipo
 j33,jugador,defensa,Intercepciones,cargado,scoutingstats,
 j34,jugador,defensa,Despejes,falta,,
 j35,jugador,defensa,Bloqueos,falta,,
 j36,jugador,defensa,Recuperaciones,falta,,
 j37,jugador,defensa,Duelos ganados,cargado,scoutingstats,
 j38,jugador,defensa,Duelos aereos ganados,falta,,
-j39,jugador,defensa,Faltas cometidas,falta,,
+j39,jugador,defensa,Faltas cometidas,cargado,strikerapi,solo liga
 j40,jugador,defensa,Presiones,falta,,
 j41,jugador,arquero,Atajadas,cargado,scoutingstats,las del equipo cuando ataja un solo arquero
 j42,jugador,arquero,xG al arco enfrentado (para goles evitados),cargado,scoutingstats,xGOT del rival
@@ -58,7 +58,7 @@ e06,equipo,ataque,xG de jugada y de pelota parada,cargado,scoutingstats,
 e07,equipo,ataque,Ocasiones claras creadas y falladas,cargado,scoutingstats,
 e08,equipo,ataque,Remates dentro y fuera del area,cargado,scoutingstats,
 e09,equipo,ataque,Remates bloqueados,cargado,scoutingstats,
-e10,equipo,ataque,Goles por tipo (cabeza afuera tiro libre corner contraataque),falta,,solo se sabe cuales fueron de penal
+e10,equipo,ataque,Goles por tipo (cabeza afuera tiro libre corner contraataque),cargado,strikerapi,cabeza y afuera en liga; tiro libre corner y contraataque siguen sin dato
 e11,equipo,ataque,Centros y centros exitosos,cargado,scoutingstats,
 e12,equipo,ataque,Regates y regates exitosos,cargado,scoutingstats,
 e13,equipo,ataque,Pases clave,cargado,scoutingstats,
@@ -67,7 +67,7 @@ e15,equipo,ataque,Fueras de juego,cargado,promiedos,
 e16,equipo,defensa,Entradas,cargado,scoutingstats,
 e17,equipo,defensa,Intercepciones,cargado,scoutingstats,
 e18,equipo,defensa,Duelos ganados,cargado,scoutingstats,
-e19,equipo,defensa,Despejes,falta,,
+e19,equipo,defensa,Despejes,cargado,strikerapi,solo liga
 e20,equipo,defensa,Duelos aereos,falta,,
 e21,equipo,defensa,Recuperaciones,falta,,
 e22,equipo,defensa,Presiones,falta,,
@@ -83,7 +83,7 @@ e31,equipo,balon_parado,Goles tras corner o tiro libre,falta,,
 e32,equipo,tactica,Formacion,cargado,scoutingstats,falta en partidos sin bloque de alineaciones
 e33,equipo,tactica,Puntos esperados de la fuente,cargado,scoutingstats,
 e34,equipo,tactica,Momentum por minuto,en_fuente,scoutingstats,esta en el grafico del partido; falta extraerlo
-e35,equipo,tactica,Mapa de tiros (coordenadas),en_fuente,strikerapi,necesita la cuenta gratis del duenio
+e35,equipo,tactica,Mapa de tiros (coordenadas),cargado,strikerapi,solo liga
 e36,equipo,tactica,Transiciones y contraataques,falta,,
 e37,equipo,tactica,Altura de linea y compactacion,falta,,
 e38,equipo,tactica,Mapas de calor y posiciones medias,falta,,
@@ -98,3 +98,4 @@ p01,partido,eventos,Goles cambios y tarjetas con minuto,cargado,promiedos,
 p02,partido,eventos,Tiempo agregado,cargado,promiedos,
 p03,partido,eventos,Estadio y arbitro,cargado,promiedos,
 p04,partido,eventos,Penales de la tanda,cargado,promiedos,
+e40,equipo,defensa,Entradas intentadas y ganadas,cargado,strikerapi,solo liga

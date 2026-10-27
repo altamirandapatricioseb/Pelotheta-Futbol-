@@ -27,6 +27,7 @@ from pipeline import enrich, load
 from sources import nofluffpicks as nfp
 from sources import promiedos as pd
 from sources import scoutingstats as ss
+from sources import strikerapi as st
 from sources.http_client import ROOT, FetchError, PoliteClient, RetryableFetchError
 
 SEASON_YEAR = 2026
@@ -174,6 +175,44 @@ def crawl_scoutingstats(client: PoliteClient, warnings: list[str]) -> list[ss.Pa
     return result
 
 
+def crawl_strikerapi(warnings: list[str]) -> tuple[list[st.GameLine], list[st.Shot]]:
+    """Tiros ubicados y datos por jugador de la Liga Profesional (StrikerAPI, con clave).
+
+    Créditos (500 por mes): la lista de partidos cuesta 2 por corrida; cada partido nuevo 5 una
+    sola vez (queda en caché); los dos mapas de tiros 10 cada uno, solo si hubo un partido nuevo.
+    Sin clave o si la API falla, se sigue sin estos datos.
+    """
+    key = os.environ.get("STRIKER_API_KEY", "")
+    if not key:
+        warnings.append("StrikerAPI sin clave (STRIKER_API_KEY): sin tiros ubicados")
+        return [], []
+    client = st.StrikerClient(api_key=key)
+    try:
+        listing = client.call(
+            "list_games", {"season": SEASON_YEAR, "team": st.BOCA_ID, "status": "final", "limit": 200}
+        )
+        ids = st.final_game_ids(listing)
+        lines = []
+        for game_id in ids:
+            line = st.parse_game(client.call("get_game", {"game_id": game_id}, cache_key=f"game_{game_id}"))
+            if line is not None:
+                lines.append(line)
+        latest = ids[0] if ids else "none"
+        shots = []
+        for against in (False, True):
+            payload = client.call(
+                "get_shot_map",
+                {"season": SEASON_YEAR, "team": st.BOCA_ID, "against": against, "include_shots": True},
+                cache_key=f"shots_{SEASON_YEAR}_{'against' if against else 'for'}_{latest}",
+            )
+            shots.extend(st.parse_shots(payload, boca=not against))
+    except st.StrikerError as exc:
+        warnings.append(f"StrikerAPI no disponible: {exc}")
+        return [], []
+    print(f"StrikerAPI: {len(lines)} partidos, {len(shots)} tiros, {client.credits_used} créditos usados.")
+    return lines, shots
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Pipeline de Pelotheta: Promiedos -> Supabase")
     parser.add_argument("--dry-run", action="store_true", help="no carga en Supabase")
@@ -189,6 +228,9 @@ def main(argv: list[str] | None = None) -> int:
         with PoliteClient(source=ss.SOURCE) as client:
             with_ss = enrich.attach_scoutingstats(games, crawl_scoutingstats(client, warnings), warnings)
         print(f"Partidos con datos de ScoutingStats: {with_ss}.")
+        striker_lines, striker_shots = crawl_strikerapi(warnings)
+        with_st = enrich.attach_strikerapi(games, striker_lines, striker_shots, warnings)
+        print(f"Partidos con datos de StrikerAPI: {with_st}.")
         with PoliteClient(source=nfp.SOURCE) as client:
             with_xg = enrich.attach_nofluffpicks(games, crawl_nofluffpicks(client, warnings), warnings)
         print(f"Partidos con datos de NoFluffPicks: {with_xg}.")

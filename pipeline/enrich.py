@@ -12,11 +12,15 @@ traen todas, sirven de control de calidad entre fuentes (validación cruzada, re
 from __future__ import annotations
 
 import difflib
+from datetime import UTC
 
-from pipeline.models import FormationRecord, PlayerStatRecord, TeamStatRecord
+from pydantic import ValidationError
+
+from pipeline.models import FormationRecord, PlayerStatRecord, ShotRecord, TeamStatRecord
 from sources import nofluffpicks as nfp
 from sources import promiedos as pd
 from sources import scoutingstats as ss
+from sources import strikerapi as st
 
 # Solo estas claves se toman de NoFluffPicks; el resto lo trae Promiedos o ScoutingStats.
 NFP_KEYS = ("xg", "dangerous_attacks")
@@ -108,24 +112,92 @@ def attach_scoutingstats(
                 )
                 for team, formation in zip(sides, found.formations, strict=True)
             )
-        candidates = _boca_lineup_ids(parsed)
-        for line in found.boca_players:
-            player_id = match_player(line.name, candidates)
-            if player_id is None:
-                warnings.append(f"{label}: jugador sin pareja en Promiedos: {line.name}")
-                continue
-            parsed.player_stats.extend(
-                PlayerStatRecord(
-                    match_source_id=parsed.match.source_id,
-                    player_source_id=player_id,
-                    stat_key=key,
-                    value=value,
-                    source=ss.SOURCE,
-                )
-                for key, value in line.stats.items()
-            )
+        _add_player_stats(parsed, [(p.name, p.stats) for p in found.boca_players], ss.SOURCE, label, warnings)
         attached += 1
     return attached
+
+
+def _add_player_stats(
+    parsed: pd.ParsedGame,
+    lines: list[tuple[str, dict[str, float]]],
+    source: str,
+    label: str,
+    warnings: list[str],
+) -> None:
+    candidates = _boca_lineup_ids(parsed)
+    present = {(s.player_source_id, s.stat_key) for s in parsed.player_stats}
+    for name, stats in lines:
+        player_id = match_player(name, candidates)
+        if player_id is None:
+            warnings.append(f"{label}: jugador sin pareja en Promiedos: {name}")
+            continue
+        parsed.player_stats.extend(
+            PlayerStatRecord(
+                match_source_id=parsed.match.source_id,
+                player_source_id=player_id,
+                stat_key=key,
+                value=value,
+                source=source,
+            )
+            for key, value in stats.items()
+            if (player_id, key) not in present
+        )
+
+
+def attach_strikerapi(
+    games: list[pd.ParsedGame], lines: list[st.GameLine], shots: list[st.Shot], warnings: list[str]
+) -> int:
+    """Agrega despejes, entradas ganadas, faltas por jugador y los tiros ubicados. Devuelve cuántos.
+
+    El cruce es por fecha UTC del inicio (la API publica la fecha en UTC) y se verifica el lado
+    de Boca. Los tiros se asignan por el id de partido de la API.
+    """
+    by_utc_date = {g.match.kickoff_at.astimezone(UTC).date(): g for g in games}
+    by_game_id: dict[str, pd.ParsedGame] = {}
+    for line in lines:
+        parsed = by_utc_date.get(line.utc_date)
+        if parsed is None:
+            continue
+        label = f"StrikerAPI {line.utc_date.isoformat()}"
+        if (parsed.match.home_source_id == pd.BOCA_ID) != line.boca_home:
+            warnings.append(f"{label}: local y visitante no coinciden con Promiedos")
+            continue
+        _add_team_stats(parsed, line.team_stats, None, st.SOURCE)
+        _add_player_stats(parsed, [(p.name, p.stats) for p in line.boca_players], st.SOURCE, label, warnings)
+        by_game_id[line.game_id] = parsed
+    for shot in shots:
+        parsed = by_game_id.get(shot.game_id)
+        if parsed is None:
+            continue
+        boca_team = pd.BOCA_ID
+        rival_team = (
+            parsed.match.away_source_id
+            if parsed.match.home_source_id == boca_team
+            else parsed.match.home_source_id
+        )
+        player_id = match_player(shot.player, _boca_lineup_ids(parsed)) if shot.boca and shot.player else None
+        try:
+            record = ShotRecord(
+                match_source_id=parsed.match.source_id,
+                team_source_id=boca_team if shot.boca else rival_team,
+                player_source_id=player_id,
+                minute=shot.minute,
+                outcome=shot.outcome,
+                body_part=shot.body_part,
+                penalty=shot.penalty,
+                zone=shot.zone,
+                xg=shot.xg,
+                x=shot.x,
+                y=shot.y,
+                end_x=shot.end_x,
+                end_y=shot.end_y,
+                source=st.SOURCE,
+            )
+        except ValidationError:
+            warnings.append(f"StrikerAPI {shot.game_id}: tiro con valores fuera de rango, omitido")
+            continue
+        parsed.shots.append(record)
+    return len(by_game_id)
 
 
 def attach_nofluffpicks(

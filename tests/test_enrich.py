@@ -8,6 +8,7 @@ from pipeline import enrich
 from sources import nofluffpicks as nfp
 from sources import promiedos as pd
 from sources import scoutingstats as ss
+from sources import strikerapi as st
 from tests.test_promiedos import game
 
 
@@ -136,3 +137,62 @@ def test_unmatched_fixture_does_nothing() -> None:
     assert parsed is not None
     enrich.attach_nofluffpicks([parsed], [(nfp_fixture(iso="2026-06-01T20:00:00"), {"xg": (1.0, 2.0)})], [])
     assert not any(s.source == "nofluffpicks" for s in parsed.team_stats)
+
+
+def striker_line(boca_home: bool = True) -> st.GameLine:
+    return st.GameLine(
+        game_id="401",
+        kickoff_utc=datetime(2026, 4, 29, 0, 30, tzinfo=UTC),
+        boca_home=boca_home,
+        team_stats={"clearances": (22, 30), "tackles_won": (10, 9)},
+        boca_players=[st.PlayerLine("Carlos Nueve", {"fouls_committed": 2})],
+    )
+
+
+def striker_shot(boca: bool, player: str | None = "Carlos Nueve") -> st.Shot:
+    return st.Shot(
+        game_id="401",
+        date=datetime(2026, 4, 29).date(),
+        boca=boca,
+        minute=7,
+        player=player,
+        outcome="goal",
+        body_part="header",
+        penalty=False,
+        zone="penalty_area",
+        xg=0.2,
+        x=0.1,
+        y=0.4,
+        end_x=0.0,
+        end_y=0.4,
+    )
+
+
+def test_strikerapi_adds_team_player_stats_and_shots() -> None:
+    parsed = pd.parse_game(game())
+    assert parsed is not None
+    warnings: list[str] = []
+    n = enrich.attach_strikerapi(
+        [parsed], [striker_line()], [striker_shot(True), striker_shot(False, "Rival Uno")], warnings
+    )
+    assert n == 1 and warnings == []
+    rows = {(s.team_source_id, s.stat_key): s.value for s in parsed.team_stats if s.source == "strikerapi"}
+    assert rows[("igg", "clearances")] == 22 and rows[("zzz", "tackles_won")] == 9
+    assert ("carlos nueve", "fouls_committed") in {
+        (p.player_source_id, p.stat_key) for p in parsed.player_stats
+    }
+    boca_shot = next(s for s in parsed.shots if s.team_source_id == "igg")
+    rival_shot = next(s for s in parsed.shots if s.team_source_id == "zzz")
+    assert boca_shot.player_source_id == "carlos nueve" and boca_shot.body_part == "header"
+    assert rival_shot.player_source_id is None  # de los rivales no se guardan jugadores
+
+
+def test_strikerapi_side_mismatch_is_skipped() -> None:
+    parsed = pd.parse_game(game())
+    assert parsed is not None
+    warnings: list[str] = []
+    assert (
+        enrich.attach_strikerapi([parsed], [striker_line(boca_home=False)], [striker_shot(True)], warnings)
+        == 0
+    )
+    assert not parsed.shots and warnings

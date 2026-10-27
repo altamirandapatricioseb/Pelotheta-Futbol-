@@ -31,6 +31,7 @@ from pipeline.models import (
     MatchRecord,
     PlayerRecord,
     PlayerStatRecord,
+    ShotRecord,
     SquadRecord,
     TeamRecord,
     TeamStatRecord,
@@ -109,6 +110,7 @@ class ParsedGame:
     # Los completan otras fuentes en pipeline/enrich.py (Promiedos no los publica).
     player_stats: list[PlayerStatRecord] = field(default_factory=list)
     formations: list[FormationRecord] = field(default_factory=list)
+    shots: list[ShotRecord] = field(default_factory=list)
 
 
 # --- utilidades -------------------------------------------------------------------------

@@ -326,9 +326,7 @@ def analyse_host(client: PoliteClient, host: str) -> tuple[dict[str, Any], bool]
     )
     entry["sitemaps_count"] = len(sitemaps)
     entry["comment_lines"] = comments
-    entry["crawl_delays"] = {
-        ",".join(g.agents): g.crawl_delay for g in groups if g.crawl_delay is not None
-    }
+    entry["crawl_delays"] = {",".join(g.agents): g.crawl_delay for g in groups if g.crawl_delay is not None}
     entry["generic_bot_rules"] = [f"{k}: {p}" for k, p in generic_rules]
     entry["our_ua_group"] = ours_label
     entry["our_ua_has_own_group"] = ours_label != GENERIC_AGENT
@@ -336,8 +334,7 @@ def analyse_host(client: PoliteClient, host: str) -> tuple[dict[str, Any], bool]
     api_root = CANDIDATE_PATHS[host][0][0]
     entry["api_root_checked"] = api_root
     entry["api_root_allowed_by_agent"] = {
-        agent: is_allowed(rules_for(groups, agent)[1], api_root)[0]
-        for agent in entry["user_agents_named"]
+        agent: is_allowed(rules_for(groups, agent)[1], api_root)[0] for agent in entry["user_agents_named"]
     }
 
     checks: list[dict[str, Any]] = []

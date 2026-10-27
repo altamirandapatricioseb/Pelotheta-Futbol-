@@ -224,9 +224,7 @@ def _analyze_league_list(payload: Any) -> dict[str, Any]:
     # Hasta 3 nombres de ejemplo para ver qué deja la clave demo, sin volcar la lista.
     analysis["league_name_examples"] = [str(lg.get("name", "")) for lg in dict_leagues[:3]]
 
-    argentina = [
-        lg for lg in dict_leagues if str(lg.get("country", "")).lower() == ARGENTINA_COUNTRY
-    ]
+    argentina = [lg for lg in dict_leagues if str(lg.get("country", "")).lower() == ARGENTINA_COUNTRY]
     analysis["argentina_league_count"] = len(argentina)
     analysis["argentina_leagues"] = [
         {

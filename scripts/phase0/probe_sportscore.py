@@ -155,9 +155,7 @@ TERMS_REVIEWED: list[dict[str, str]] = [
 WEB_HINTS_UNVERIFIED: dict[str, Any] = {
     "boca_pagina_publica": "/football/team/boca-juniors/z8yomo4hj31q0j6/",
     "boca_id_en_url": "z8yomo4hj31q0j6",
-    "libertadores_id_en_url": (
-        "v2y8m4zhe6ql074 (/football/competition/world/conmebol-copa-libertadores/)"
-    ),
+    "libertadores_id_en_url": ("v2y8m4zhe6ql074 (/football/competition/world/conmebol-copa-libertadores/)"),
     "liga_rotulo": "Argentine Division 1 (con etapa Clausura 2026 en páginas de partidos)",
     "liga_url_competicion": "no encontrada",
     "nota": (
@@ -475,9 +473,7 @@ def call(
     return data
 
 
-def conclusion(
-    robots: dict[str, Any], docs: dict[str, Any], log: list[dict[str, Any]]
-) -> dict[str, Any]:
+def conclusion(robots: dict[str, Any], docs: dict[str, Any], log: list[dict[str, Any]]) -> dict[str, Any]:
     """Resume el estado de acceso a partir de lo que pasó de verdad en esta corrida."""
     states = Counter(str(e.get("estado")) for e in log)
     docs_blocked = [name for name, d in docs.items() if d.get("estado") == "bloqueado"]
@@ -540,9 +536,7 @@ def main() -> None:
     # Rutas a consultar contra robots.txt (la de datos lleva parámetros de ejemplo).
     urls_to_check = {
         "api_widget_team": data_url("/api/widget/team/", {"sport": SPORT, "slug": BOCA_SLUG}),
-        "api_v1_standings": data_url(
-            "/api/v1/standings/", {"sport": SPORT, "slug": LEAGUE_SLUG_GUESS}
-        ),
+        "api_v1_standings": data_url("/api/v1/standings/", {"sport": SPORT, "slug": LEAGUE_SLUG_GUESS}),
         "pagina_publica_equipo": f"{SITE}/football/team/{BOCA_SLUG}/z8yomo4hj31q0j6/",
         **DOC_PAGES,
     }
@@ -566,9 +560,7 @@ def main() -> None:
             return call(client, budget, log, name, path, params)
 
         # 2) Partidos de Boca (pasados y próximos) por slug de equipo.
-        team = step(
-            "partidos_boca", "/api/widget/team/", {"sport": SPORT, "slug": BOCA_SLUG, "limit": "30"}
-        )
+        team = step("partidos_boca", "/api/widget/team/", {"sport": SPORT, "slug": BOCA_SLUG, "limit": "30"})
         # 3) Tabla de la liga (para comparar Boca contra el resto).
         step("tabla_liga", "/api/widget/standings/", {"sport": SPORT, "slug": LEAGUE_SLUG_GUESS})
         # 4) Goleadores de la liga.
@@ -591,9 +583,7 @@ def main() -> None:
     report["presupuesto"] = {
         "max_requests_datos": MAX_DATA_REQUESTS,
         "requests_datos_planificadas": budget.used,
-        "requests_datos_omitidas_por_robots": sum(
-            1 for e in log if e.get("estado") == "omitido_por_robots"
-        ),
+        "requests_datos_omitidas_por_robots": sum(1 for e in log if e.get("estado") == "omitido_por_robots"),
         "desde_red_en_esta_corrida": sum(1 for e in log if e.get("from_cache") is False),
         "total_en_manifiesto_incluye_robots_y_docs": manifest_count(),
     }

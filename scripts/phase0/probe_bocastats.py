@@ -339,9 +339,7 @@ def analyze_squad(soup: BeautifulSoup) -> dict[str, Any]:
         "jugadores": len(cards),
         "por_posicion": dict(Counter(text(c.select_one(".pc-pos")) for c in cards)),
         "sin_dorsal": sum(1 for c in cards if text(c.select_one(".pc-dorsal")) in {"", "-"}),
-        "campos_de_tarjeta": sorted(
-            {attr(x, "class") for c in cards[:3] for x in c.select("[class]")}
-        ),
+        "campos_de_tarjeta": sorted({attr(x, "class") for c in cards[:3] for x in c.select("[class]")}),
         "etiquetas_de_estadisticas": dict(stat_labels),
         "patron_enlace_jugador": sorted({path_pattern(attr(c, "href")) for c in cards}),
         "trae_nacimiento_o_altura_en_listado": any(
@@ -403,9 +401,7 @@ def analyze_player(soup: BeautifulSoup) -> dict[str, Any]:
         rows = table.select("tbody tr")
         role = Counter(text(tr.select_one("td")) for tr in rows)
         links = [attr(a, "href") for a in table.select("a[href*='/partido/']")]
-        dates = sorted(
-            m.group(0) for h in links if (m := re.search(r"\d{4}-\d{2}-\d{2}", h)) is not None
-        )
+        dates = sorted(m.group(0) for h in links if (m := re.search(r"\d{4}-\d{2}-\d{2}", h)) is not None)
         section = table.find_parent("div", class_="jg-section")
         title = text(section.select_one(".jg-section-title")) if section is not None else ""
         match_table = {

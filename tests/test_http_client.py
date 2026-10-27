@@ -32,9 +32,7 @@ def robots_ok(request: httpx.Request) -> httpx.Response | None:
 
 
 def test_mask_url_oculta_claves() -> None:
-    assert (
-        mask_url("https://x.com/a?key=SECRETO&season=2026") == "https://x.com/a?key=***&season=2026"
-    )
+    assert mask_url("https://x.com/a?key=SECRETO&season=2026") == "https://x.com/a?key=***&season=2026"
 
 
 def test_pausa_minima_no_se_puede_bajar() -> None:
@@ -61,16 +59,12 @@ def test_cache_evita_repetir_requests(tmp_path: Path, monkeypatch: pytest.Monkey
 
 def test_respeta_robots(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(http_client.time, "sleep", lambda _s: None)
-    client = make_client(
-        tmp_path, httpx.MockTransport(lambda r: robots_ok(r) or httpx.Response(200))
-    )
+    client = make_client(tmp_path, httpx.MockTransport(lambda r: robots_ok(r) or httpx.Response(200)))
     with pytest.raises(FetchError):
         client.get("https://ejemplo.com/privado/x")
 
 
-def test_bloquea_redireccion_a_otro_dominio(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_bloquea_redireccion_a_otro_dominio(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(http_client.time, "sleep", lambda _s: None)
 
     def handler(request: httpx.Request) -> httpx.Response:
@@ -81,9 +75,7 @@ def test_bloquea_redireccion_a_otro_dominio(
         client.get("https://ejemplo.com/x")
 
 
-def test_las_claves_en_headers_no_se_guardan(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_las_claves_en_headers_no_se_guardan(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(http_client.time, "sleep", lambda _s: None)
     client = make_client(
         tmp_path, httpx.MockTransport(lambda r: robots_ok(r) or httpx.Response(200, text="ok"))
@@ -93,9 +85,7 @@ def test_las_claves_en_headers_no_se_guardan(
     assert "SECRETO" not in stored
 
 
-def test_espera_entre_requests_al_mismo_host(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_espera_entre_requests_al_mismo_host(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     sleeps: list[float] = []
     monkeypatch.setattr(http_client.time, "sleep", sleeps.append)
     client = PoliteClient(source="prueba", cache_dir=tmp_path, manifest_path=tmp_path / "m.jsonl")
@@ -104,3 +94,12 @@ def test_espera_entre_requests_al_mismo_host(
     client._wait_turn("otro.com")  # otro host: no espera
     assert len(sleeps) == 1
     assert 2.9 < sleeps[0] <= 3.0
+
+
+def test_same_site_compares_full_host() -> None:
+    from sources.http_client import _same_site
+
+    assert _same_site("www.fbref.com", "fbref.com")
+    assert _same_site("bocastats.com", "www.bocastats.com")
+    assert not _same_site("www.football-data.co.uk", "evil.co.uk")
+    assert not _same_site("www.promiedos.com.ar", "api.promiedos.com.ar")

@@ -277,10 +277,7 @@ def _as_dict(value: Any) -> dict[str, Any]:
 def _keyword_flags(description: str) -> dict[str, bool]:
     """Marca qué conceptos menciona la descripción de una ruta (sin guardar el texto)."""
     text = description.lower()
-    return {
-        concept: any(word in text for word in words)
-        for concept, words in DESCRIPTION_KEYWORDS.items()
-    }
+    return {concept: any(word in text for word in words) for concept, words in DESCRIPTION_KEYWORDS.items()}
 
 
 def analyze_openapi(spec: Any) -> dict[str, Any]:
@@ -318,9 +315,7 @@ def analyze_openapi(spec: Any) -> dict[str, Any]:
                 continue
             op_name = f"{method.upper()} {path}"
             # Una operación con `security: []` (o sin seguridad global) no necesita clave.
-            if operation.get("security") == [] or (
-                "security" not in operation and not global_security
-            ):
+            if operation.get("security") == [] or ("security" not in operation and not global_security):
                 keyless.append(op_name)
             description = str(operation.get("description", ""))
             match = PLAN_PATTERN.search(description)
@@ -393,9 +388,7 @@ def run_with_key(client: PoliteClient, key: str, budget: int) -> dict[str, Any]:
         path = planned.path
         params = dict(planned.params)
         missing = [
-            name
-            for name in ("boca_id", "match_id")
-            if f"<{name}>" in path or f"<{name}>" in params.values()
+            name for name in ("boca_id", "match_id") if f"<{name}>" in path or f"<{name}>" in params.values()
         ]
         if any(name not in ids for name in missing):
             results[planned.name] = {"status": f"no_pedido_falta_{'_'.join(missing)}"}

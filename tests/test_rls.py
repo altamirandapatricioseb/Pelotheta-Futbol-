@@ -18,9 +18,7 @@ import pytest
 URL = os.environ.get("SUPABASE_URL", "").rstrip("/")
 KEY = os.environ.get("SUPABASE_PUBLISHABLE_KEY", "")
 
-pytestmark = pytest.mark.skipif(
-    not (URL and KEY), reason="Faltan SUPABASE_URL o SUPABASE_PUBLISHABLE_KEY"
-)
+pytestmark = pytest.mark.skipif(not (URL and KEY), reason="Faltan SUPABASE_URL o SUPABASE_PUBLISHABLE_KEY")
 
 
 @pytest.fixture(scope="module")

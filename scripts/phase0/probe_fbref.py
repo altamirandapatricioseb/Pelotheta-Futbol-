@@ -189,11 +189,7 @@ def describe_table(table: Tag, origin: str) -> dict[str, Any]:
                 "filas_con_valor": filled.get(stat, 0),
             }
         )
-    advanced = [
-        c
-        for c in columns
-        if ADVANCED_RE.search(c["data_stat"]) or ADVANCED_RE.search(c["etiqueta"])
-    ]
+    advanced = [c for c in columns if ADVANCED_RE.search(c["data_stat"]) or ADVANCED_RE.search(c["etiqueta"])]
     caption = table.select_one("caption")
     return {
         "id": attr(table, "id"),

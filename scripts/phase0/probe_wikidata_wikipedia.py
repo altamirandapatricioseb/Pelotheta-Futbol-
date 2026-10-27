@@ -328,11 +328,7 @@ def entity_from(data: Any, qid: str) -> dict[str, Any] | None:
 def statements(entity: dict[str, Any], pid: str) -> list[dict[str, Any]]:
     """Declaraciones de una propiedad, sin las de rango 'deprecated' (marcadas como erróneas)."""
     claims = as_dict(entity.get("claims"))
-    return [
-        st
-        for st in as_list(claims.get(pid))
-        if isinstance(st, dict) and st.get("rank") != "deprecated"
-    ]
+    return [st for st in as_list(claims.get(pid)) if isinstance(st, dict) and st.get("rank") != "deprecated"]
 
 
 def main_value(statement: dict[str, Any]) -> Any:
@@ -452,9 +448,7 @@ def venue_summary(entity: dict[str, Any]) -> dict[str, Any]:
                     "globo_tierra": value.get("globe") == "http://www.wikidata.org/entity/Q2",
                 }
             )
-    aliases = [
-        str(as_dict(a).get("value", "")) for a in as_list(as_dict(entity.get("aliases")).get("es"))
-    ]
+    aliases = [str(as_dict(a).get("value", "")) for a in as_list(as_dict(entity.get("aliases")).get("es"))]
     names = [text_value(entity, "labels", lang) or "" for lang in ("es", "en")] + aliases
     return {
         **entity_overview(entity, ("P31", "P625", "P1083", "P131", "P466", "P571")),
@@ -476,9 +470,7 @@ def season_summary(entity: dict[str, Any]) -> dict[str, Any]:
         "n_equipos_participantes_P1923": len(teams),
         "boca_entre_participantes": BOCA_QID in teams,
         # Si P1923 trae calificadores como P1352 (puesto) o P1351 (puntos), hay tabla.
-        "calificadores_usados_en_P1923": dict(
-            Counter(k for st in participants for k in qualifier_keys(st))
-        ),
+        "calificadores_usados_en_P1923": dict(Counter(k for st in participants for k in qualifier_keys(st))),
         "forma": entity_shape(entity, ("P1923", "P3450", "P31")),
     }
 
@@ -487,9 +479,7 @@ def season_summary(entity: dict[str, Any]) -> dict[str, Any]:
 def sparql_rows(data: Any) -> list[dict[str, str]]:
     rows: list[dict[str, str]] = []
     for binding in as_list(as_dict(as_dict(data).get("results")).get("bindings")):
-        row = {
-            str(var): str(as_dict(cell).get("value", "")) for var, cell in as_dict(binding).items()
-        }
+        row = {str(var): str(as_dict(cell).get("value", "")) for var, cell in as_dict(binding).items()}
         rows.append(row)
     return rows
 
@@ -613,9 +603,7 @@ def describe_table(table: Tag, index: int) -> dict[str, Any]:
     if summary["tipo"] in ("plantel", "estadisticas_o_lista_de_jugadores"):
         # Cobertura por columna: filas alineadas con el encabezado que traen algo en la celda.
         aligned = [row_cells(r) for r in rows if len(row_cells(r)) == len(headers)]
-        coverage = {
-            kind: sum(1 for cells in aligned if tag_text(cells[idx])) for kind, idx in kinds.items()
-        }
+        coverage = {kind: sum(1 for cells in aligned if tag_text(cells[idx])) for kind, idx in kinds.items()}
         summary["filas_alineadas_con_encabezado"] = len(aligned)
         summary["filas_con_valor_por_columna"] = coverage
         # Respaldo por patrones (por si la tabla usa colspan o plantillas raras).
@@ -623,9 +611,7 @@ def describe_table(table: Tag, index: int) -> dict[str, Any]:
         summary["filas_con_patron_fecha_o_edad"] = sum(
             bool(BIRTH_DATE_RE.search(r.get_text(" "))) for r in rows
         )
-        summary["filas_con_patron_altura"] = sum(
-            bool(HEIGHT_RE.search(r.get_text(" "))) for r in rows
-        )
+        summary["filas_con_patron_altura"] = sum(bool(HEIGHT_RE.search(r.get_text(" "))) for r in rows)
     return summary
 
 
@@ -646,24 +632,14 @@ def icon_kind(src: str) -> str | None:
 def footballbox_summary(root: Tag) -> dict[str, Any]:
     """Cajas de partido de en.wikipedia (plantilla Football box): fecha, local, goles, árbitro."""
     boxes = [b for b in root.select("div.footballbox") if isinstance(b, Tag)]
-    boca = [
-        b
-        for b in boxes
-        if "Boca" in tag_text(b.select_one(".fhome")) + tag_text(b.select_one(".faway"))
-    ]
+    boca = [b for b in boxes if "Boca" in tag_text(b.select_one(".fhome")) + tag_text(b.select_one(".faway"))]
     dates = sorted(tag_text(b.select_one(".fdate")) for b in boca)
     return {
         "n_cajas": len(boxes),
         "n_cajas_de_boca": len(boca),
-        "con_goles_y_minuto": sum(
-            bool(MINUTE_RE.search(tag_text(b.select_one(".fgoals")))) for b in boca
-        ),
+        "con_goles_y_minuto": sum(bool(MINUTE_RE.search(tag_text(b.select_one(".fgoals")))) for b in boca),
         "con_estadio_o_asistencia_o_arbitro": sum(
-            bool(
-                re.search(
-                    r"Attendance|Referee|Stadium|Estadio|Árbitro", tag_text(b.select_one(".fright"))
-                )
-            )
+            bool(re.search(r"Attendance|Referee|Stadium|Estadio|Árbitro", tag_text(b.select_one(".fright"))))
             for b in boca
         ),
         # Dos valores de ejemplo (primera y última fecha) para confirmar que es la temporada 2026.
@@ -694,9 +670,7 @@ def wikipedia_summary(result: FetchResult) -> dict[str, Any]:
     described = [describe_table(t, i) for i, t in enumerate(tables)]
     text = root.get_text(" ")
     icons = Counter(
-        kind
-        for img in root.select("img")
-        if (kind := icon_kind(str(img.get("src", "")))) is not None
+        kind for img in root.select("img") if (kind := icon_kind(str(img.get("src", "")))) is not None
     )
     infobox = root.select_one("table.infobox")
     keywords = (
@@ -729,9 +703,7 @@ def wikipedia_summary(result: FetchResult) -> dict[str, Any]:
         "n_tablas_wikitable": len(tables),
         "tablas_por_tipo": dict(Counter(t["tipo"] for t in described)),
         "tablas": described[:40],
-        "infobox_campos": [tag_text(th)[:40] for th in (infobox.select("th") if infobox else [])][
-            :30
-        ],
+        "infobox_campos": [tag_text(th)[:40] for th in (infobox.select("th") if infobox else [])][:30],
         "cajas_de_partido_en": footballbox_summary(root),
         "n_elementos_vevent": len(root.select(".vevent")),
         "n_minutos_en_texto": len(MINUTE_RE.findall(text)),
@@ -761,9 +733,7 @@ def wiki_url(origin: str, title: str) -> str:
 def main() -> None:
     log: list[dict[str, Any]] = []
     budget = Budget(MAX_DATA_REQUESTS, MAX_SPARQL_REQUESTS)
-    queries = {
-        name: q.replace("wd:BOCA", f"wd:{BOCA_QID}").strip() for name, q in SPARQL_QUERIES.items()
-    }
+    queries = {name: q.replace("wd:BOCA", f"wd:{BOCA_QID}").strip() for name, q in SPARQL_QUERIES.items()}
     report: dict[str, Any] = {
         "source": SOURCE,
         "generated_at": datetime.now(UTC).isoformat(timespec="seconds"),
@@ -835,9 +805,7 @@ def main() -> None:
                 {"format": "json", "query": queries["jugadores_P54_2026"]},
                 sparql=True,
             )
-            summaries["sparql_jugadores"] = players_summary(
-                sparql_rows(parse_json(players, log[-1]))
-            )
+            summaries["sparql_jugadores"] = players_summary(sparql_rows(parse_json(players, log[-1])))
             stadiums = fetch(
                 client,
                 budget,
@@ -847,9 +815,7 @@ def main() -> None:
                 {"format": "json", "query": queries["estadios_de_la_liga"]},
                 sparql=True,
             )
-            summaries["sparql_estadios"] = stadiums_summary(
-                sparql_rows(parse_json(stadiums, log[-1]))
-            )
+            summaries["sparql_estadios"] = stadiums_summary(sparql_rows(parse_json(stadiums, log[-1])))
         else:
             for name in ("jugadores_P54_2026", "estadios_de_la_liga"):
                 log.append(
@@ -873,9 +839,7 @@ def main() -> None:
 
         # 3) Entidad JSON del estadio (coordenadas P625).
         if venue_qid is not None:
-            venue_result = fetch(
-                client, budget, log, "entidad_estadio", f"{ENTITY_DATA}{venue_qid}.json"
-            )
+            venue_result = fetch(client, budget, log, "entidad_estadio", f"{ENTITY_DATA}{venue_qid}.json")
             venue = entity_from(parse_json(venue_result, log[-1]), venue_qid)
             if venue is not None:
                 summaries["entidad_estadio"] = venue_summary(venue)

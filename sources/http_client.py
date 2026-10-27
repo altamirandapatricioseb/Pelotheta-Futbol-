@@ -51,9 +51,7 @@ DEFAULT_TIMEOUT = httpx.Timeout(20.0, connect=10.0)
 
 # Nombres de parámetros de query que suelen llevar claves. Se reemplazan por "***" antes de
 # escribir la URL en el manifiesto o de usarla como clave de caché.
-SECRET_PARAM_NAMES = frozenset(
-    {"key", "apikey", "api_key", "token", "access_token", "x-apisports-key"}
-)
+SECRET_PARAM_NAMES = frozenset({"key", "apikey", "api_key", "token", "access_token", "x-apisports-key"})
 
 
 class FetchError(Exception):
@@ -88,14 +86,16 @@ def mask_url(url: str) -> str:
         (k, "***" if k.lower() in SECRET_PARAM_NAMES else v)
         for k, v in parse_qsl(parts.query, keep_blank_values=True)
     ]
-    return urlunsplit(
-        (parts.scheme, parts.netloc, parts.path, urlencode(query, safe="*"), parts.fragment)
-    )
+    return urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(query, safe="*"), parts.fragment))
 
 
 def _same_site(host_a: str, host_b: str) -> bool:
-    """Compara los dos últimos niveles del dominio (www.fbref.com y fbref.com son el mismo sitio)."""
-    return host_a.split(".")[-2:] == host_b.split(".")[-2:]
+    """Mismo host, salvo el prefijo `www.` (www.fbref.com y fbref.com son el mismo sitio).
+
+    No se comparan solo los dos últimos niveles: en dominios como `football-data.co.uk` eso
+    aceptaría cualquier `*.co.uk` como el mismo sitio.
+    """
+    return host_a.lower().removeprefix("www.") == host_b.lower().removeprefix("www.")
 
 
 @dataclass
@@ -244,9 +244,7 @@ class PoliteClient:
                         current = urljoin(current, location)
                         continue
                     if response.status_code == 429 or response.status_code >= 500:
-                        raise RetryableFetchError(
-                            f"HTTP {response.status_code} en {mask_url(current)}"
-                        )
+                        raise RetryableFetchError(f"HTTP {response.status_code} en {mask_url(current)}")
                     body = self._read_limited(response)
                     content_type = response.headers.get("content-type", "")
                     return response.status_code, content_type, body, current

@@ -273,9 +273,7 @@ def summarize_teams(payload: Any) -> dict[str, Any]:
 
 def pick_played_fixture(items: list[Any]) -> dict[str, Any] | None:
     """Prefiere el último partido jugado de la Liga Profesional; si no hay, cualquiera jugado."""
-    played = [
-        i for i in items if i.get("fixture", {}).get("status", {}).get("short") in PLAYED_STATUSES
-    ]
+    played = [i for i in items if i.get("fixture", {}).get("status", {}).get("short") in PLAYED_STATUSES]
     if not played:
         return None
     played.sort(key=lambda i: i.get("fixture", {}).get("timestamp") or 0)
@@ -569,9 +567,7 @@ def run_with_key(key: str, report: dict[str, Any]) -> str:
                 team_id = found
             fixtures_step = build_plan(team_id, FIXTURE_PLACEHOLDER)[3]
             fixtures_payload = call(fixtures_step)
-            report["endpoints"]["fixtures"]["summary"] = summarize_fixtures(
-                fixtures_payload, team_id
-            )
+            report["endpoints"]["fixtures"]["summary"] = summarize_fixtures(fixtures_payload, team_id)
             fixture_errors = api_errors(fixtures_payload)
             chosen = pick_played_fixture(response_items(fixtures_payload))
             # Para el backfill cuenta el calendario completo (jugados + por jugar), no solo jugados.

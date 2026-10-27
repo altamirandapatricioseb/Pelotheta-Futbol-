@@ -205,9 +205,7 @@ def summarize_competitions(payload: Any) -> dict[str, Any]:
         "competiciones_listadas": len(comps),
         "competiciones_por_plan": dict(plans),
         "tier_one_codigos": sorted(tier_one_codes),
-        "tier_one_coincide_con_plan_gratis_de_cobertura": (
-            tier_one_codes == FREE_TIER_CODES_FROM_COVERAGE
-        ),
+        "tier_one_coincide_con_plan_gratis_de_cobertura": (tier_one_codes == FREE_TIER_CODES_FROM_COVERAGE),
         "argentina_competiciones": [describe_competition(c) for c in argentina],
         "asl_presente": asl is not None,
         "asl_id_coincide_con_2024": asl is not None and asl.get("id") == ARGENTINA_ID,

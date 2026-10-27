@@ -13,7 +13,8 @@ Fecha: 27-oct-2026. Objetivo: comprobar con pocas requests reales qué devuelve 
 
 | Fuente | Estado | Cubre Liga Profesional 2026 | Datos crudos mínimos que aporta | Requests | Recomendación |
 |---|---|---|---|---|---|
-| API-Football | requiere clave | no verificado (probablemente no en el plan Free) | partidos, alineaciones, eventos con minuto, box score equipo y jugador, plantel, tabla (según documentación) | 0 | Principal **condicionada** a clave y a que el plan Free incluya 2026 |
+| API-Football | probado con clave (27-oct) | **no**: el plan Free responde `errors.plan` y solo permite 2022 a 2024 | partidos, alineaciones, eventos, box score equipo y jugador (solo temporadas viejas) | 5 | Solo histórico 2022 a 2024 |
+| Promiedos | funciona (sin robots.txt; datos en `__NEXT_DATA__` del HTML) | sí: Liga Profesional, Copa Argentina, Libertadores; 34 partidos jugados de Boca listados | alineaciones con formación, eventos con minuto (goles, tarjetas, cambios), estadísticas por equipo, árbitro, estadio, plantel con nacimiento y altura, tabla, goleadores | 3 | **Principal** |
 | FBref | bloqueado (Cloudflare, 403 hasta en robots.txt) | no verificado | ninguno | 1 | Descartar en automático; solo referencia manual |
 | FootyStats | no probado por términos (web prohíbe automatizar; API paga, robots `Disallow: /`) | sí (en la web) | ninguno | 1 | Solo referencia manual |
 | ESPN | no probado por términos (Disney 2.B(x) prohíbe scripts; robots de la API 403) | no verificado | ninguno | 3 | Descartar |
@@ -24,6 +25,8 @@ Fecha: 27-oct-2026. Objetivo: comprobar con pocas requests reales qué devuelve 
 | Football Soccer API (footballsoccerapi.com) | requiere clave (alta solo con Google) | no verificado | no verificado | 1 | Pendiente de decisión del dueño |
 | BocaStats | funciona (páginas permitidas por robots; `/api/` prohibido) | sí: temporada 2026 con Liga Profesional (19), Copa Argentina (3), Libertadores (6), Sudamericana (8) | resultados, goleadores, plantel y fichas (HTML); términos no verificados | 4 | Validación cruzada manual hasta revisar sus términos |
 | football-data.co.uk (`new/ARG.csv`) | funciona | sí: 449 partidos de la Liga Profesional 2026, 30 equipos, 30 de Boca | partidos con resultado final de toda la liga | 2 | Validación cruzada de resultados y tabla |
+| worldfootball.net | bloqueado (desafío de Cloudflare) | no verificado | ninguno | 1 | Descartar |
+| Transfermarkt | robots permite, términos prohíben el acceso automatizado | sí (en la web) | ninguno | 1 | Descartar |
 | Wikidata y Wikipedia | sonda escrita, ejecución interrumpida | no aplica | plantel con fecha de nacimiento, altura y posición; coordenadas de estadios | 0 | Pendiente: correr `just probe wikidata_wikipedia` |
 | Open-Meteo | no probado (robots.txt de la API prohíbe todo a robots) | no aplica | clima (opcional) | 0 | Desactivada; decisión del dueño |
 
@@ -82,19 +85,20 @@ FBref, ESPN, FotMob, Sofascore, SportScore y football-data.org: los motivos est�
 | xG | ninguna verificada (API-Football solo en algunas ligas) | xPts, goles − xG, npxG, xG por tiro | Quedan `n/d` |
 | Plantel con fecha de nacimiento y posición | Wikidata (pendiente), API-Football, BocaStats | Edad a la fecha del partido, tramos de edad, Potencial, referencias por posición y zona | Potenciales y edades |
 
-## Decisión de arquitectura de fuentes (propuesta)
+## Decisión de arquitectura de fuentes
 
-1. **Base asegurada hoy:** football-data.co.uk para resultados de toda la liga 2026 (lo único verificado, gratis y automatizable sin conflicto). Con eso solo ya salen tabla, forma, rachas, Elo, pitagóricos y las situaciones basadas en el resultado final.
-2. **Principal propuesta:** API-Football, si el dueño consigue la clave gratuita y la sonda confirma que 2026 entra en el plan Free. Si no entra, el plan Free no sirve para la temporada actual.
-3. **Respaldo manual:** `data/manual/` con CSV que el dueño exporte a mano (alineaciones, eventos, box scores), con el esquema documentado en la etapa 3.
-4. **Validación cruzada:** TheSportsDB y BocaStats.
-5. **Descartadas:** ESPN, FotMob, Sofascore, SportScore, football-data.org; FBref y FootyStats solo como referencia manual.
+Detalle y motivos en `docs/adr/0004-fuentes-y-boton-actualizar.md`.
 
-Pendiente del dueño: decidir la fuente de eventos, alineaciones y box scores (ver README temporal). No se piden ni se guardan claves en el repositorio.
+1. **Principal:** Promiedos (páginas HTML públicas, sonda en `scripts/phase0/probe_promiedos.py`).
+2. **Validación cruzada:** football-data.co.uk (resultados de toda la liga), TheSportsDB y BocaStats.
+3. **Histórico:** API-Football 2022 a 2024 (el plan Free no incluye 2026).
+4. **Respaldo manual:** `data/manual/` con CSV, esquema documentado en la etapa 3.
+5. **Descartadas:** ESPN, FotMob, Sofascore, SportScore, football-data.org, Transfermarkt, worldfootball.net; FBref y FootyStats solo como referencia manual.
 
 ## Impacto orientativo en el catálogo
 
 - Nivel B seguro (desde resultados): resultados, forma y rachas, tabla, Elo y probabilidad pre-partido, pitagóricos, localía, rendimiento por rival, días de descanso.
 - Nivel A/B condicionado a eventos y alineaciones: tramos de minutos, NR, EWA, ELA, carga, rotación, situaciones por minuto.
-- Condicionado a box score por jugador: por 90, percentiles, índice de rendimiento, Mejoría y Potencial, Interfaz 5.
+- Desde alineaciones y eventos de Promiedos (nivel B): minutos, goles, asistencias y tarjetas por 90, NR, EWA, ELA, carga, rotación, situaciones por minuto, edad al partido.
+- Sin fuente gratuita permitida (nivel C): box score individual (remates, pases, entradas, duelos y calificación por jugador). El índice de rendimiento, Mejoría y Potencial se calculan con las estadísticas disponibles y se marcan como estimados.
 - Nivel C probable: xG, xA, npxG, pases progresivos, presiones, PPDA, Field Tilt, distancia y sprints, mapas de tiros.

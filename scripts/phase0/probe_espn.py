@@ -238,9 +238,7 @@ def pick_played_event(schedule: Any) -> str | None:
 def describe_json(data: Any) -> dict[str, Any]:
     """Describe la FORMA de una respuesta JSON, sin copiar datos de terceros."""
     paths = json_paths(data)
-    interesting = sorted(
-        p for p in paths if p.rsplit(".", 1)[-1].removesuffix("[]") in INTERESTING_FIELDS
-    )
+    interesting = sorted(p for p in paths if p.rsplit(".", 1)[-1].removesuffix("[]") in INTERESTING_FIELDS)
     top_keys = sorted(data.keys()) if isinstance(data, dict) else []
     return {
         "claves_de_primer_nivel": top_keys,

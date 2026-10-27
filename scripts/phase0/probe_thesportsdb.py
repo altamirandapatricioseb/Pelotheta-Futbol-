@@ -254,9 +254,7 @@ def events_summary(rows: list[dict[str, Any]], team_id: str) -> dict[str, Any]:
 
 
 def lineup_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
-    minute_fields = sorted(
-        {k for r in rows for k in r if "min" in k.lower() or "time" in k.lower()}
-    )
+    minute_fields = sorted({k for r in rows for k in r if "min" in k.lower() or "time" in k.lower()})
     return {
         "n_filas": len(rows),
         "por_localia_strHome": dict(Counter(str(r.get("strHome")) for r in rows)),
@@ -439,9 +437,7 @@ def main() -> None:
         # 3) Partidos de la temporada de la liga.
         season_rows: list[dict[str, Any]] = []
         if league_id:
-            season_rows = call(
-                client, budget, log, "eventsseason.php", {"id": league_id, "s": SEASON}
-            )
+            season_rows = call(client, budget, log, "eventsseason.php", {"id": league_id, "s": SEASON})
             summaries["eventsseason_2026"] = events_summary(season_rows, team_id)
 
         # 4) Últimos partidos del equipo (con la clave gratis la doc dice: solo de local).
@@ -471,9 +467,7 @@ def main() -> None:
         # 6) Request sobrante: si "2026" no trajo partidos, probar otro formato de temporada;
         #    si los trajo, mirar la tabla de la liga (para comparar Boca contra el resto).
         if league_id and not season_rows:
-            alt_rows = call(
-                client, budget, log, "eventsseason.php", {"id": league_id, "s": ALT_SEASON}
-            )
+            alt_rows = call(client, budget, log, "eventsseason.php", {"id": league_id, "s": ALT_SEASON})
             summaries["eventsseason_alt"] = events_summary(alt_rows, team_id)
         elif league_id:
             table = call(client, budget, log, "lookuptable.php", {"l": league_id, "s": SEASON})

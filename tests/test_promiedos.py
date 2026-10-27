@@ -277,3 +277,24 @@ def test_lineup_player_keeps_position_group() -> None:
     assert parsed is not None
     keeper = next(p for p in parsed.players if p.source_id == pd.player_key("Ana Arquera"))
     assert keeper.position_raw == "Arquero"
+
+
+def test_league_is_split_into_apertura_and_clausura() -> None:
+    def league_game(game_id: str, start: str, round_name: str) -> pd.ParsedGame:
+        parsed = pd.parse_game(game(id=game_id, start_time=start, stage_round_name=round_name))
+        assert parsed is not None
+        return parsed
+
+    games = [
+        league_game("a1", "02-05-2026 21:30", "Apertura, Fecha 9"),
+        league_game("po", "09-05-2026 21:30", "Octavos de Final"),  # mata-mata del Apertura
+        league_game("c1", "20-07-2026 21:30", "Clausura, Fecha 1"),
+    ]
+    cup = pd.parse_game(game(id="cup", league={"name": "Copa Argentina", "id": "ca", "country_id": "ba"}))
+    assert cup is not None
+    pd.split_league_tournaments([*games, cup])
+    codes = [g.competition.code for g in games]
+    assert codes == ["liga_profesional_apertura", "liga_profesional_apertura", "liga_profesional_clausura"]
+    assert games[0].competition.name_es == "Liga Profesional: Torneo Apertura"
+    assert games[0].match.competition_source_id == games[0].competition.source_id == "hc-apertura"
+    assert cup.competition.code == "copa_argentina"  # las copas no se tocan

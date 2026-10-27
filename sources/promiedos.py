@@ -457,3 +457,35 @@ def head_to_head_refs(game: dict[str, Any], season_year: int) -> list[GameRef]:
 def opponent_paths(game: dict[str, Any]) -> list[str]:
     """Rutas de las páginas de equipo de los rivales de un partido."""
     return [f"/team/{t['url_name']}/{t['id']}" for t in game.get("teams") or [] if t.get("id") != BOCA_ID]
+
+
+TOURNAMENTS = {"apertura": "Torneo Apertura", "clausura": "Torneo Clausura"}
+
+
+def split_league_tournaments(games: list[ParsedGame]) -> None:
+    """Separa la Liga Profesional en Torneo Apertura y Torneo Clausura (cambia los partidos).
+
+    Promiedos la publica como una sola liga y marca el torneo en la ronda («Apertura, Fecha 9»).
+    Los partidos de mata-mata («Octavos de Final») no lo dicen: van con el torneo del último
+    partido de liga anterior, porque cada torneo cierra con sus propios playoffs.
+    """
+    current: str | None = None
+    for parsed in sorted(games, key=lambda g: g.match.kickoff_at):
+        if parsed.competition.kind != "liga":
+            continue
+        prefix = (parsed.match.round_label or "").split(",")[0].strip().lower()
+        if prefix in TOURNAMENTS:
+            current = prefix
+        if current is None:
+            continue
+        base = parsed.competition
+        competition = base.model_copy(
+            update={
+                "source_id": f"{base.source_id}-{current}",
+                "code": f"liga_profesional_{current}",
+                "name_es": f"Liga Profesional: {TOURNAMENTS[current]}",
+                "sort_order": base.sort_order + (0 if current == "apertura" else 1),
+            }
+        )
+        parsed.competition = competition
+        parsed.match = parsed.match.model_copy(update={"competition_source_id": competition.source_id})

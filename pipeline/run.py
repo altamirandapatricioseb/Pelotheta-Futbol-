@@ -119,6 +119,7 @@ def crawl(client: PoliteClient, season_year: int) -> tuple[list[pd.ParsedGame], 
         f"Partidos cargables: {len(games)}."
     )
     games.sort(key=lambda g: g.match.kickoff_at)
+    pd.split_league_tournaments(games)
     return games, players, squad, warnings
 
 

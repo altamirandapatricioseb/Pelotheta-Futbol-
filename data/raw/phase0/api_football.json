@@ -1,6 +1,6 @@
 {
   "source": "api_football",
-  "generated_at": "2026-10-27T02:58:14+00:00",
+  "generated_at": "2026-10-27T14:36:13+00:00",
   "base_url": "https://v3.football.api-sports.io",
   "auth": "header x-apisports-key leído de la variable de entorno API_FOOTBALL_KEY",
   "season": 2026,
@@ -110,9 +110,133 @@
     "Las respuestas con errors (HTTP 200) quedan en caché; para reintentar con otro plan hay que invalidar esa entrada de caché a mano.",
     "Si /status descuenta o no de la cuota diaria: no verificado."
   ],
-  "requests_made": 0,
-  "http_results": [],
-  "endpoints": {},
+  "requests_made": 5,
+  "http_results": [
+    {
+      "url_masked": "https://v3.football.api-sports.io/robots.txt",
+      "status": 403,
+      "from_cache": false,
+      "note": "robots.txt del host de la API"
+    },
+    {
+      "url_masked": "https://v3.football.api-sports.io/status",
+      "status": 200,
+      "from_cache": false,
+      "note": "status; errores API: ninguno"
+    },
+    {
+      "url_masked": "https://v3.football.api-sports.io/leagues?id=128&season=2026",
+      "status": 200,
+      "from_cache": false,
+      "note": "leagues; errores API: ['plan']"
+    },
+    {
+      "url_masked": "https://v3.football.api-sports.io/teams?search=Boca",
+      "status": 200,
+      "from_cache": false,
+      "note": "teams; errores API: ninguno"
+    },
+    {
+      "url_masked": "https://v3.football.api-sports.io/fixtures?team=451&season=2026",
+      "status": 200,
+      "from_cache": false,
+      "note": "fixtures; errores API: ['plan']"
+    }
+  ],
+  "endpoints": {
+    "status": {
+      "url_masked": "https://v3.football.api-sports.io/status",
+      "status": 200,
+      "sha256": "295caa88911d99cb6e4fb8df275427f9dd4365eed0a3764fab1d90d8c980e3bb",
+      "from_cache": false,
+      "results": 0,
+      "errors": {},
+      "field_paths": [
+        "account",
+        "account.email",
+        "account.firstname",
+        "account.lastname",
+        "requests",
+        "requests.current",
+        "requests.limit_day",
+        "subscription",
+        "subscription.active",
+        "subscription.end",
+        "subscription.plan"
+      ],
+      "summary": {
+        "plan": "Free",
+        "activa": true,
+        "requests_hoy": 0,
+        "limite_diario": 100
+      }
+    },
+    "leagues": {
+      "url_masked": "https://v3.football.api-sports.io/leagues?id=128&season=2026",
+      "status": 200,
+      "sha256": "62d0fc27398a2146b157efe721423063d042f845100a190bee0fc297e73756fb",
+      "from_cache": false,
+      "results": 0,
+      "errors": {
+        "plan": "Free plans do not have access to this season, try from 2022 to 2024."
+      },
+      "field_paths": [],
+      "summary": {
+        "encontrada": false
+      }
+    },
+    "teams": {
+      "url_masked": "https://v3.football.api-sports.io/teams?search=Boca",
+      "status": 200,
+      "sha256": "638093a247a90983528f7a8897b8446f82cfb41f78d376fc259caed7d1c1ea81",
+      "from_cache": false,
+      "results": 14,
+      "errors": {},
+      "field_paths": [
+        "[].team",
+        "[].team.code",
+        "[].team.country",
+        "[].team.founded",
+        "[].team.id",
+        "[].team.logo",
+        "[].team.name",
+        "[].team.national",
+        "[].venue",
+        "[].venue.address",
+        "[].venue.capacity",
+        "[].venue.city",
+        "[].venue.id",
+        "[].venue.image",
+        "[].venue.name",
+        "[].venue.surface"
+      ],
+      "summary": {
+        "candidatos": 14,
+        "boca_juniors_id": 451,
+        "boca_id_coincide_con_451": true
+      }
+    },
+    "fixtures": {
+      "url_masked": "https://v3.football.api-sports.io/fixtures?team=451&season=2026",
+      "status": 200,
+      "sha256": "bf4b45db47a9d943c2990f3543b6af06ca7ee207eaf9ca1c2cae562c84d677ea",
+      "from_cache": false,
+      "results": 0,
+      "errors": {
+        "plan": "Free plans do not have access to this season, try from 2022 to 2024."
+      },
+      "field_paths": [],
+      "summary": {
+        "partidos": 0,
+        "jugados": 0,
+        "estados": {},
+        "competiciones": {},
+        "prefijos_de_ronda_liga_128": [],
+        "rango_fechas": null,
+        "partido_elegido": null
+      }
+    }
+  },
   "backfill_estimate": {
     "partidos_boca_considerados": 54,
     "fuente_del_numero": "estimación",
@@ -135,6 +259,5 @@
     "liga_completa_con_batch_20": 26,
     "notas": "El batch /fixtures?ids= depende del plan (no verificado para Free). Con el plan Free la temporada 2026 probablemente responde errors.plan, así que el backfill real requiere un plan pago o aceptar temporadas anteriores."
   },
-  "access_status": "requiere_clave",
-  "note": "No se encontró API_FOOTBALL_KEY en el entorno; no se hizo ninguna request de datos. El plan de requests queda listo para ejecutarse cuando haya clave."
+  "access_status": "funciona_parcial"
 }

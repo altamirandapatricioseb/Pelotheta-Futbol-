@@ -540,7 +540,10 @@ def run_with_key(key: str, report: dict[str, Any]) -> str:
             nonlocal made
             if made >= MAX_DATA_REQUESTS + 1:  # +1 por el robots.txt
                 raise FetchError("Tope de requests de la sonda alcanzado")
-            result = client.get(f"{BASE_URL}{step.path}", params=step.params, headers=headers)
+            # API autenticada con clave: la rigen sus términos y la cuota, no robots.txt (responde 403).
+            result = client.get(
+                f"{BASE_URL}{step.path}", params=step.params, headers=headers, check_robots=False
+            )
             made += 0 if result.from_cache else 1
             payload = result.json() if result.status == 200 else None
             summarizer = SUMMARIZERS.get(step.name)

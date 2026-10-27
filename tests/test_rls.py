@@ -74,6 +74,8 @@ def test_anon_no_ve_el_detalle_del_log(client: httpx.Client) -> None:
         "load_weather",
         "load_extras",
         "load_competition_metrics",
+        "load_player_foot",
+        "load_player_stats",
     ],
 )
 def test_anon_no_ejecuta_la_carga(client: httpx.Client, function: str) -> None:

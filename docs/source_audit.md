@@ -126,7 +126,8 @@ lo que las fuentes activas ya publican y no se extraía, y después fuentes nuev
 | Wikipedia en español | Nacionalidad, club formador y nivel de selección (plantilla del plantel) y peso (ficha de cada jugador, 19 de 35) | **Activa** (CC BY-SA, se cita) |
 | Wikidata | Tiene peso, altura y nacionalidad, pero su robots.txt cierra `/sparql` y la búsqueda; las fichas `Special:EntityData/*.json` sí están permitidas, pero no aportan más que Wikipedia | **Sin uso** |
 | Statshub | Sin términos publicados y robots.txt abierto, pero los datos por jugador llegan solo por una API interna (el HTML no los trae) y son de SofaScore, cuyos términos prohíben el scraping. La revisión automática de seguridad bloqueó leer su JavaScript para ubicar esa API | **Activa** desde la autorización explícita del dueño: una consulta por corrida trae centros, duelos aéreos ganados, despejes, pérdidas, desposesiones, toques, xG y xA por jugador y partido |
-| Pie hábil | No figura en Promiedos, Wikipedia ni Wikidata | **Sin fuente** |
+| Bzzoiro (API gratis con clave) | Por jugador y partido: regates y entradas intentados, recuperaciones, bloqueos, duelos aéreos ganados y perdidos, salidas y errores del arquero, conducciones progresivas, pases en campo rival; pie hábil en la ficha | **Activa** |
+| Pie hábil por estrellas (EA FC) | EA prohíbe extraer datos; SoFIFA y FUTBIN con Cloudflare; FUTWIZ sin términos pero listas cargadas desde el navegador | Se usa el pie de Bzzoiro; FUTWIZ queda de reserva |
 
 Lo que sigue sin ninguna fuente gratis y permitida para Argentina (22 crudas): pases progresivos y al
 último tercio, duelos aéreos, recuperaciones, despejes y bloqueos por jugador, presiones, pérdidas por

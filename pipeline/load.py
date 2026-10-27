@@ -155,3 +155,21 @@ def send_extras(extras: dict[str, Any], url: str, key: str, client: httpx.Client
 
 def send_competition_metrics(rows: list[Any], url: str, key: str, client: httpx.Client | None = None) -> Any:
     return _rpc("load_competition_metrics", {"p_rows": [_dump(r) for r in rows]}, url, key, client)
+
+
+def send_player_foot(
+    rows: list[dict[str, str]], url: str, key: str, client: httpx.Client | None = None
+) -> Any:
+    return _rpc("load_player_foot", {"p_rows": rows}, url, key, client)
+
+
+def send_player_stats(
+    rows: list[dict[str, Any]], url: str, key: str, client: httpx.Client | None = None, chunk: int = 5000
+) -> int:
+    """Estadísticas por jugador en bloques (después de `load_batch`, que borra las del partido)."""
+    total = 0
+    for start in range(0, len(rows), chunk):
+        total += int(
+            _rpc("load_player_stats", {"p_rows": rows[start : start + chunk]}, url, key, client) or 0
+        )
+    return total

@@ -9,7 +9,7 @@ j07,jugador,perfil,Posicion,cargado,promiedos,
 j08,jugador,perfil,Fecha de nacimiento,cargado,promiedos,
 j09,jugador,perfil,Altura,cargado,promiedos,
 j10,jugador,perfil,Peso,parcial,wikipedia,ficha de Wikipedia: 19 de 35 jugadores
-j11,jugador,perfil,Pie preferido,falta,,
+j11,jugador,perfil,Pie preferido,cargado,bzzoiro,ficha del jugador (R/L)
 j12,jugador,perfil,Nacionalidad,cargado,wikipedia,plantilla del plantel (código FIFA)
 j13,jugador,ataque,Goles de cabeza,cargado,strikerapi,solo liga
 j14,jugador,ataque,Goles desde fuera del area,cargado,strikerapi,solo liga
@@ -20,7 +20,7 @@ j18,jugador,ataque,xG,cargado,strikerapi,suma del xG de cada tiro; solo liga
 j19,jugador,ataque,Fueras de juego,cargado,strikerapi,solo liga
 j20,jugador,ataque,Faltas recibidas,cargado,strikerapi,solo liga
 j21,jugador,ataque,Regates exitosos,cargado,scoutingstats,
-j22,jugador,ataque,Regates intentados,falta,,
+j22,jugador,ataque,Regates intentados,cargado,bzzoiro,
 j23,jugador,pase,Pases intentados,cargado,scoutingstats,
 j24,jugador,pase,Pases completados,cargado,scoutingstats,desde el % de acierto
 j25,jugador,pase,Pases clave,cargado,scoutingstats,
@@ -30,11 +30,11 @@ j28,jugador,pase,Pases al ultimo tercio,falta,,
 j29,jugador,pase,Centros intentados y completados,cargado,statshub,
 j30,jugador,pase,Perdidas de posesion,cargado,statshub,pérdidas y desposesiones
 j31,jugador,defensa,Entradas ganadas,cargado,scoutingstats,
-j32,jugador,defensa,Entradas intentadas,falta,,StrikerAPI solo por equipo
+j32,jugador,defensa,Entradas intentadas,cargado,bzzoiro,
 j33,jugador,defensa,Intercepciones,cargado,scoutingstats,
 j34,jugador,defensa,Despejes,cargado,statshub,
-j35,jugador,defensa,Bloqueos,falta,,
-j36,jugador,defensa,Recuperaciones,falta,,
+j35,jugador,defensa,Bloqueos,cargado,bzzoiro,
+j36,jugador,defensa,Recuperaciones,cargado,bzzoiro,
 j37,jugador,defensa,Duelos ganados,cargado,scoutingstats,
 j38,jugador,defensa,Duelos aereos ganados,cargado,statshub,solo ganados
 j39,jugador,defensa,Faltas cometidas,cargado,strikerapi,solo liga
@@ -42,8 +42,8 @@ j40,jugador,defensa,Presiones,falta,,
 j41,jugador,arquero,Atajadas,cargado,scoutingstats,las del equipo cuando ataja un solo arquero
 j42,jugador,arquero,xG al arco enfrentado (para goles evitados),cargado,scoutingstats,xGOT del rival
 j43,jugador,arquero,Penales atajados,cargado,strikerapi,penales en contra atajados con el arquero en cancha; solo liga
-j44,jugador,arquero,Centros atrapados y salidas,falta,,
-j45,jugador,arquero,Errores que terminan en tiro o gol,falta,,
+j44,jugador,arquero,Centros atrapados y salidas,cargado,bzzoiro,"despejes de puños, centros atrapados y salidas"
+j45,jugador,arquero,Errores que terminan en tiro o gol,cargado,bzzoiro,
 j46,jugador,disciplina,Amarillas y rojas,cargado,promiedos,
 j47,jugador,disciplina,Penales cometidos,cargado,strikerapi,relato de la falta («Penalty conceded by»); solo liga
 j48,jugador,disciplina,Sanciones y fechas de suspension,cargado,promiedos,bajas por roja o acumulación de amarillas por partido
@@ -69,7 +69,7 @@ e17,equipo,defensa,Intercepciones,cargado,scoutingstats,
 e18,equipo,defensa,Duelos ganados,cargado,scoutingstats,
 e19,equipo,defensa,Despejes,cargado,strikerapi,solo liga
 e20,equipo,defensa,Duelos aereos,parcial,statshub,"solo Boca, ganados"
-e21,equipo,defensa,Recuperaciones,falta,,
+e21,equipo,defensa,Recuperaciones,parcial,bzzoiro,solo Boca: suma de jugadores
 e22,equipo,defensa,Presiones,falta,,
 e23,equipo,defensa,Atajadas,cargado,scoutingstats,
 e24,equipo,defensa,Faltas y tarjetas,cargado,promiedos,
@@ -127,3 +127,7 @@ n24,jugador,participacion,Toques,cargado,statshub,todas las competiciones
 n25,jugador,pase,Ocasiones claras creadas,cargado,statshub,todas las competiciones
 n26,jugador,defensa,Veces regateado,cargado,statshub,todas las competiciones
 n27,jugador,defensa,Duelos perdidos,cargado,statshub,todas las competiciones
+n28,jugador,posesion,Conducciones y conducciones progresivas,cargado,bzzoiro,todas las competiciones
+n29,jugador,pase,Pases en campo rival,cargado,bzzoiro,todas las competiciones
+n30,jugador,posesion,Malos controles,cargado,bzzoiro,todas las competiciones
+n31,jugador,defensa,Entradas de último hombre y despejes en la línea,cargado,bzzoiro,todas las competiciones

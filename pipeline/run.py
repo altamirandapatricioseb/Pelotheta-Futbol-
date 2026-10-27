@@ -32,6 +32,7 @@ from pipeline.models import (
     PlayerProfileRecord,
     WeatherRecord,
 )
+from sources import bzzoiro as bz
 from sources import nofluffpicks as nfp
 from sources import openmeteo as om
 from sources import promiedos as pd
@@ -225,6 +226,51 @@ def crawl_statshub(client: PoliteClient, warnings: list[str]) -> list[sh.MatchLi
         warnings.append(f"Statshub no disponible: {exc}")
         return []
     return sh.parse_performance(payload)
+
+
+def crawl_bzzoiro(
+    warnings: list[str],
+) -> tuple[list[tuple[bz.Event, list[tuple[str, dict[str, float]]]]], dict[str, str]]:
+    """Estadísticas por jugador de cada partido de Boca de la temporada (Bzzoiro, con clave).
+
+    Una consulta por la lista de partidos y dos por cada partido nuevo (estadísticas y
+    alineación); los partidos terminados quedan en caché.
+    """
+    key = os.environ.get("BZZOIRO_API_KEY", "")
+    if not key:
+        warnings.append("Bzzoiro sin clave (BZZOIRO_API_KEY)")
+        return [], {}
+    client = bz.BzzoiroClient(api_key=key)
+    result = []
+    player_ids: dict[int, str] = {}
+    feet: dict[str, str] = {}
+    try:
+        listing = client.get(
+            "/api/v2/events/",
+            {
+                "team_id": bz.BOCA_TEAM_ID,
+                "status": "finished",
+                "date_from": f"{SEASON_YEAR}-01-01",
+                "limit": 200,
+            },
+        )
+        for event in bz.parse_events(listing, SEASON_YEAR):
+            stats = client.get(
+                f"/api/v2/events/{event.event_id}/player-stats/", cache_key=f"ps_{event.event_id}"
+            )
+            lineups = client.get(
+                f"/api/v2/events/{event.event_id}/lineups/", cache_key=f"lu_{event.event_id}"
+            )
+            result.append((event, bz.parse_player_stats(stats, lineups)))
+            player_ids.update(bz.boca_player_ids(lineups))
+        # Pie hábil de la ficha de cada jugador (en caché: casi no cambia).
+        for player_id, name in player_ids.items():
+            value = bz.foot(client.get(f"/api/v2/players/{player_id}/", cache_key=f"pl_{player_id}"))
+            if value:
+                feet[name] = value
+    except bz.BzzoiroError as exc:
+        warnings.append(f"Bzzoiro no disponible: {exc}")
+    return result, feet
 
 
 def crawl_ss_performance(client: PoliteClient, warnings: list[str]) -> list[CompetitionMetricRecord]:
@@ -459,6 +505,9 @@ def main(argv: list[str] | None = None) -> int:
         with PoliteClient(source=sh.SOURCE) as client:
             with_sh = enrich.attach_statshub(games, crawl_statshub(client, warnings), warnings)
         print(f"Partidos con datos de Statshub: {with_sh}.")
+        bz_matches, bz_feet = crawl_bzzoiro(warnings)
+        with_bz = enrich.attach_bzzoiro(games, bz_matches, warnings)
+        print(f"Partidos con datos de Bzzoiro: {with_bz}.")
         striker_lines, striker_shots, striker_league, striker_events = crawl_strikerapi(warnings)
         with_st = enrich.attach_strikerapi(games, striker_lines, striker_shots, warnings, striker_events)
         print(f"Partidos con datos de StrikerAPI: {with_st}.")
@@ -471,6 +520,11 @@ def main(argv: list[str] | None = None) -> int:
             {p.source_id for p in players} | {lu.player_source_id for g in games for lu in g.lineups}
         )
         profiles = crawl_wikipedia(known, warnings)
+        feet = [
+            {"player_source_id": player_key, "foot": value, "source": bz.SOURCE}
+            for name, value in bz_feet.items()
+            if (player_key := enrich.match_player(name, known)) is not None
+        ]
         print(f"Perfiles de Wikipedia: {len(profiles)}.")
         promiedos_leaders = pd.parse_league_leaders(league_page, SEASON_YEAR) if league_page else []
         extras = load.build_extras(
@@ -505,10 +559,14 @@ def main(argv: list[str] | None = None) -> int:
             f"jugador. No se cargó nada."
         )
         return 0
+    player_stats = batch.pop("player_stats")
     result = load.send_batch(batch, url, key)
+    result["player_stats"] = load.send_player_stats(player_stats, url, key)
     if weather:
         result["weather"] = load.send_weather(weather, url, key)
     result.update(load.send_extras(extras, url, key) or {})
+    if feet:
+        result["feet"] = load.send_player_foot(feet, url, key)
     if competition_metrics:
         result["competition_metrics"] = load.send_competition_metrics(competition_metrics, url, key)
     seconds = (datetime.now() - started).total_seconds()

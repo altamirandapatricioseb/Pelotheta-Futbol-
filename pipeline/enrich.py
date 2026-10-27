@@ -23,6 +23,7 @@ from pipeline.models import (
     ShotRecord,
     TeamStatRecord,
 )
+from sources import bzzoiro as bz
 from sources import nofluffpicks as nfp
 from sources import promiedos as pd
 from sources import scoutingstats as ss
@@ -190,6 +191,25 @@ def attach_statshub(games: list[pd.ParsedGame], matches: list[sh.MatchLines], wa
             continue
         label = f"Statshub {found.kickoff_utc.date().isoformat()}"
         _add_player_stats(parsed, found.players, sh.SOURCE, label, warnings)
+        attached += 1
+    return attached
+
+
+def attach_bzzoiro(
+    games: list[pd.ParsedGame],
+    matches: list[tuple[bz.Event, list[tuple[str, dict[str, float]]]]],
+    warnings: list[str],
+) -> int:
+    """Estadísticas por jugador de Boca de Bzzoiro (todas las competiciones). Cruce por fecha UTC."""
+    by_utc_date = {g.match.kickoff_at.astimezone(UTC).date(): g for g in games}
+    attached = 0
+    for event, lines in matches:
+        parsed = by_utc_date.get(event.kickoff_utc.date())
+        if parsed is None:
+            continue
+        _add_player_stats(
+            parsed, lines, bz.SOURCE, f"Bzzoiro {event.kickoff_utc.date().isoformat()}", warnings
+        )
         attached += 1
     return attached
 

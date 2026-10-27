@@ -7,7 +7,7 @@ d05,5.6,Precisión de tiro,calculable,remates y remates al arco,
 d06,5.6,Goles por tiro y por tiro al arco,calculable,goles y remates,
 d07,5.6,xG por tiro,calculable,xG y remates,
 d08,5.6,Rendimiento sobre lo esperado (goles − xG),calculable,goles y xG,
-d09,5.6,"Precisión de pase, % de entradas ganadas y % de duelos aéreos",parcial,pases y entradas,% de entradas ganadas ya calculable (StrikerAPI); falta el total de duelos aéreos
+d09,5.6,"Precisión de pase, % de entradas ganadas y % de duelos aéreos",calculable,pases y entradas,duelos aéreos ganados y perdidos (Bzzoiro)
 d10,5.6,% de atajadas,calculable,atajadas y remates al arco recibidos,
 d11,5.6,Goles evitados del arquero,calculable,xGOT del rival y goles recibidos,
 d12,5.6,Puntos por partido y % de victorias,calculable,resultados,

@@ -130,3 +130,17 @@ def test_weather_goes_to_its_own_function() -> None:
         load.send_weather([row], "https://abc.supabase.co", "sb_secret_x", client)
     assert seen["path"] == "/rest/v1/rpc/load_weather"
     assert seen["body"]["p_rows"][0]["temperature_c"] == 15.2  # type: ignore[index]
+
+
+def test_player_stats_are_sent_in_chunks() -> None:
+    calls: list[int] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        assert request.url.path == "/rest/v1/rpc/load_player_stats"
+        calls.append(len(json.loads(request.content)["p_rows"]))
+        return httpx.Response(200, json=calls[-1])
+
+    rows = [{"stat_key": "xa"}] * 12
+    with httpx.Client(transport=httpx.MockTransport(handler)) as client:
+        total = load.send_player_stats(rows, "https://abc.supabase.co", "sb_secret_x", client, chunk=5)
+    assert calls == [5, 5, 2] and total == 12

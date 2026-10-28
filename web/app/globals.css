@@ -19,13 +19,17 @@
 html {
   background: var(--color-bg);
   color: var(--color-text);
-  scroll-padding-top: calc(var(--header-bar-h) + var(--header-strip-h) + 16px);
+  scroll-padding-top: calc(var(--header-bar-h) + 16px);
 }
 
 body {
   font-family: var(--font-montserrat), var(--font-greek), system-ui, sans-serif;
   min-height: 100dvh;
-  background: var(--color-bg);
+  /* Brillo verde arriba a la izquierda: el fondo no es un solo color plano. */
+  background-color: var(--color-bg);
+  background-image: var(--bg-glow);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 
 h1,
@@ -189,13 +193,12 @@ h3 {
 
 .freshness {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 20px;
-  height: var(--header-strip-h);
+  gap: 8px 20px;
+  min-height: 34px;
   color: var(--color-text-muted);
-  font-size: 0.8125rem;
-  white-space: nowrap;
-  overflow-x: auto;
+  font-size: 0.875rem;
 }
 .freshness__item {
   display: inline-flex;
@@ -317,9 +320,9 @@ h3 {
 }
 .chip[aria-current='true'],
 .chip[aria-pressed='true'] {
-  color: var(--color-bg);
-  background: var(--color-text);
-  border-color: var(--color-text);
+  color: var(--color-on-brand);
+  background: var(--color-brand);
+  border-color: var(--color-brand);
 }
 
 /* --- Tabla «Resumen» ---------------------------------------------------------------- */
@@ -329,6 +332,7 @@ h3 {
   border: 1px solid var(--color-border);
   border-radius: 12px;
   background: var(--color-surface);
+  box-shadow: var(--shadow-card);
 }
 
 .data-table {
@@ -428,6 +432,7 @@ h3 {
   border: 1px solid var(--color-border);
   border-radius: 12px;
   background: var(--color-border);
+  box-shadow: var(--shadow-card);
 }
 .context-panel > section {
   position: relative;
@@ -527,6 +532,7 @@ h3 {
   border: 1px solid var(--color-border);
   border-radius: 12px;
   background: var(--color-surface);
+  box-shadow: var(--shadow-card);
 }
 
 .update-panel__last,
@@ -703,7 +709,7 @@ h3 {
   padding: 14px 14px 12px;
   text-align: left;
   color: var(--color-text);
-  box-shadow: 0 1px 0 color-mix(in oklab, var(--color-text) 6%, transparent);
+  box-shadow: var(--shadow-card);
   transition:
     transform var(--dur-fast) var(--ease-out-quart),
     border-color var(--dur-fast) var(--ease-out-quart);
@@ -744,42 +750,42 @@ h3 {
 
 /* Gráficos (etapa 5). Paleta categórica validada con scripts/validate_palette.js de la skill
    dataviz: verde de marca, rosa, amarillo, azul y naranja (sin violeta). Pasa todos los pares
-   vecinos en claro (#f7f8f6) y oscuro (#0a0a0a); en dispersiones se usan solo los slots 1, 2 y 4
+   vecinos en claro (#ffffff) y oscuro (#131911); en dispersiones se usan solo los slots 1, 2 y 4
    (todos los pares). Rosa y amarillo quedan bajo 3:1 en claro: cada gráfico tiene tabla. */
 :root {
-  --series-1: #2a9a29;
+  --series-1: #279301;
   --series-2: #e87ba4;
   --series-3: #eda100;
   --series-4: #2a78d6;
   --series-5: #eb6834;
-  --chart-surface: #f7f8f6;
+  --chart-surface: #ffffff;
   --chart-grid: #e1e5e0;
   --chart-axis: #c3c9c2;
   --chart-empty: #e8ece7;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --series-1: #2a9a29;
+    --series-1: #43ad2c;
     --series-2: #d55181;
     --series-3: #c98500;
     --series-4: #3987e5;
     --series-5: #d95926;
-    --chart-surface: #0a0a0a;
-    --chart-grid: #1c221c;
-    --chart-axis: #344034;
-    --chart-empty: #161b16;
+    --chart-surface: #131911;
+    --chart-grid: #222c20;
+    --chart-axis: #3a4a37;
+    --chart-empty: #1b2319;
   }
 }
 :root[data-theme='dark'] {
-  --series-1: #2a9a29;
+  --series-1: #43ad2c;
   --series-2: #d55181;
   --series-3: #c98500;
   --series-4: #3987e5;
   --series-5: #d95926;
-  --chart-surface: #0a0a0a;
-  --chart-grid: #1c221c;
-  --chart-axis: #344034;
-  --chart-empty: #161b16;
+  --chart-surface: #131911;
+  --chart-grid: #222c20;
+  --chart-axis: #3a4a37;
+  --chart-empty: #1b2319;
 }
 .chart-card {
   display: flex;
@@ -790,6 +796,7 @@ h3 {
   background: var(--color-surface);
   padding: 14px 16px 12px;
   min-width: 0;
+  box-shadow: var(--shadow-card);
 }
 .chart-card--empty {
   border-style: dashed;
@@ -964,7 +971,7 @@ h3 {
 .category-bar {
   position: sticky;
   /* Debajo del header compacto (barra + franja de actualización + borde). */
-  top: calc(var(--header-bar-h-compact) + var(--header-strip-h) + 2px);
+  top: calc(var(--header-bar-h-compact) + 1px);
   z-index: 20;
   display: flex;
   gap: 6px;
@@ -976,15 +983,17 @@ h3 {
   scrollbar-width: none;
 }
 .landing-section {
-  scroll-margin-top: calc(var(--header-bar-h) + var(--header-strip-h) + 64px);
+  scroll-margin-top: calc(var(--header-bar-h) + 64px);
 }
 /* Números destacados de cada sección de la landing (9.2). */
 .tile-row {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 170px), 1fr));
   gap: 12px 24px;
-  border-block: 1px solid var(--color-border);
-  padding-block: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-surface-2);
+  padding: 14px 18px;
 }
 .tile {
   display: flex;
@@ -1022,4 +1031,42 @@ h3 {
 .icon-button[aria-pressed='true'] {
   color: var(--color-text);
   border-color: var(--color-brand);
+}
+
+/* Valor del panel de contexto: verde si es el mejor del plantel o de la liga, rojo si es el
+   peor. Siempre con un texto al lado: el color nunca es la única señal. */
+.value-best {
+  color: var(--color-best);
+}
+.value-worst {
+  color: var(--color-worst);
+}
+.rank-flag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  padding: 1px 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* Botón de modo claro y oscuro: muestra el sol en oscuro y la luna en claro. */
+.theme-toggle .icon-sun {
+  display: none;
+}
+:root[data-theme='dark'] .theme-toggle .icon-sun {
+  display: block;
+}
+:root[data-theme='dark'] .theme-toggle .icon-moon {
+  display: none;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .theme-toggle .icon-sun {
+    display: block;
+  }
+  :root:not([data-theme='light']) .theme-toggle .icon-moon {
+    display: none;
+  }
 }

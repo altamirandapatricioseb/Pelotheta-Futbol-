@@ -32,10 +32,10 @@ Generic SaaS admin templates, "toy dashboard" card grids, betting sites (no odds
 
 1. Every number earns trust: source, level and formula one step away.
 2. Show the gap honestly: `n/d` is visible, never hidden or filled.
-3. Broadcast clarity: tabular numerals, strong hierarchy, green signal on black.
+3. Broadcast clarity: tabular numerals, strong hierarchy, green signal (#64cc4f) on layered green-tinted surfaces; best value in green, worst in red, always with a text label.
 4. Motion conveys state and entrance (cascades, sliding selection), always smooth.
 5. Explainable in an interview: simple structures over clever ones.
 
 ## Accessibility & Inclusion
 
-WCAG 2.2 AA: keyboard navigation of tables (grid role, arrows), visible focus, contrast checked in light and full-black dark themes, win/draw/loss never by color alone. The owner chose always-on animations with an in-app switch to reduce them (section 9.10), instead of following prefers-reduced-motion.
+WCAG 2.2 AA: keyboard navigation of tables (grid role, arrows), visible focus, contrast checked in light and layered dark themes (toggle in the header, saved in a cookie), win/draw/loss never by color alone. The owner chose always-on animations with an in-app switch to reduce them (section 9.10), instead of following prefers-reduced-motion.

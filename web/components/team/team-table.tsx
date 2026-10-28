@@ -7,6 +7,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { NOT_AVAILABLE } from '@/lib/format';
 import {
   aggregateTeam,
+  extremeOf,
   formatStat,
   type StatDef,
   type StatSet,
@@ -161,6 +162,21 @@ export function TeamTableView({
   const seasonAvg = column ? aggregateTeam(all.rows, column, byId, { perMatch: true }) : null;
   const last5Avg = column ? aggregateTeam(last5.rows, column, byId, { perMatch: true }) : null;
   const single = current?.rows.length === 1 ? current.rows[0] : undefined;
+  // Mejor o peor fila de la tabla (partido, rival, mes o competición) para la estadística, y
+  // mejor o peor de los 30 clubes de la liga para el promedio de la temporada.
+  const panelExtreme =
+    column && typeof panelValue === 'number'
+      ? extremeOf(
+          groups.map((g) => valueOf(g, column)).filter((v): v is number => typeof v === 'number'),
+          panelValue,
+          column.higherIsBetter,
+        )
+      : null;
+  const league = column ? leagueComparison(column.id, column.higherIsBetter, clubs) : null;
+  const leagueExtreme = league?.bocaPercentile === 100 ? 'best' : league?.bocaPercentile === 0 ? 'worst' : null;
+  const rowName = (
+    { partido: 'partido', rival: 'rival', mes: 'mes', competicion: 'competición', acumulada: 'fila' } as const
+  )[view];
 
   return (
     <div className="grid gap-6">
@@ -224,7 +240,9 @@ export function TeamTableView({
               </p>
             ) : null}
             <div className="mt-1 flex flex-wrap items-end gap-x-8 gap-y-2">
-              <p className="text-4xl font-extrabold tabular">
+              <p
+                className={`text-4xl font-extrabold tabular${panelExtreme === 'best' ? ' value-best' : panelExtreme === 'worst' ? ' value-worst' : ''}`}
+              >
                 {panelValue === null ? (
                   <span className="text-muted">{NOT_AVAILABLE}</span>
                 ) : (
@@ -233,10 +251,30 @@ export function TeamTableView({
               </p>
               <p className="pb-1 text-sm text-muted">
                 {column.per90 ? 'Promedio por partido' : 'Temporada'}:{' '}
-                <span className="font-bold text-fg">{formatStat(seasonAvg, column, column.per90)}</span> · últimos 5:{' '}
-                <span className="font-bold text-fg">{formatStat(last5Avg, column, column.per90)}</span>
+                <span
+                  className={`font-bold ${leagueExtreme === 'best' ? 'value-best' : leagueExtreme === 'worst' ? 'value-worst' : 'text-fg'}`}
+                >
+                  {formatStat(seasonAvg, column, column.per90)}
+                </span>{' '}
+                · últimos 5: <span className="font-bold text-fg">{formatStat(last5Avg, column, column.per90)}</span>
               </p>
             </div>
+            {panelExtreme || leagueExtreme ? (
+              <div className="flex flex-wrap gap-2">
+                {panelExtreme ? (
+                  <p className={`rank-flag ${panelExtreme === 'best' ? 'value-best' : 'value-worst'}`}>
+                    {panelExtreme === 'best' ? `Mejor ${rowName} de la tabla` : `Peor ${rowName} de la tabla`}
+                  </p>
+                ) : null}
+                {leagueExtreme ? (
+                  <p className={`rank-flag ${leagueExtreme === 'best' ? 'value-best' : 'value-worst'}`}>
+                    {leagueExtreme === 'best'
+                      ? 'En la liga: el mejor de los 30 clubes'
+                      : 'En la liga: el peor de los 30 clubes'}
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
             <p className="text-xs text-muted">
               Fuente: {column.source.replaceAll('|', ', ')}
               {column.level === 'B' ? '; cálculo propio' : ''}.

@@ -207,3 +207,15 @@ export function rankAndPercentile(
   const percentile = values.length > 1 ? Math.round((worse / (values.length - 1)) * 100) : 100;
   return { rank: better + 1, percentile };
 }
+
+/**
+ * «best» si nadie del grupo supera el valor, «worst» si todos lo superan o igualan y alguno lo
+ * supera; null si no hay con quién comparar o el grupo es parejo. Respeta `higher_is_better`.
+ */
+export function extremeOf(values: readonly number[], value: number, higherIsBetter: boolean): 'best' | 'worst' | null {
+  const better = values.filter((v) => (higherIsBetter ? v > value : v < value)).length;
+  const worse = values.filter((v) => (higherIsBetter ? v < value : v > value)).length;
+  if (better === 0 && worse > 0) return 'best';
+  if (worse === 0 && better > 0) return 'worst';
+  return null;
+}

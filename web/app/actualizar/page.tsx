@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 
+import { FreshnessStrip } from '@/components/header/freshness-strip';
 import { UpdatePanel } from '@/components/update/update-panel';
 import { getFreshness } from '@/lib/data/freshness';
 import { getUpdateStatus } from '@/lib/update/status';
@@ -18,6 +19,7 @@ export default async function Page() {
         Corre de nuevo el scraping de todas las fuentes, sube los resultados a la base y refleja los cambios en todas
         las páginas. También se actualiza solo el día 1 de cada mes.
       </p>
+      <FreshnessStrip />
       <UpdatePanel lastUpdate={freshness.lastUpdate} initial={status} />
     </div>
   );

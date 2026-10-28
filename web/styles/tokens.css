@@ -1,35 +1,52 @@
 /*
  * Tokens de diseño (sección 9.10). Fuente única de color y tipografía: se reusan en los
  * gráficos, en los PNG exportados, en los estilos de Excel y en powerbi/theme.json.
- * Prohibido el violeta (matices entre 255° y 335°): lo verifica un test.
+ * Prohibido el violeta (matices entre 255° y 335°).
+ *
+ * Verde principal #64cc4f (pedido del dueño, 28-oct): OKLCH 0,757 0,19 140°. La rampa sale del
+ * mismo matiz. El rojo de «peor» tiene la misma luminosidad y croma con matiz 27°: el
+ * complementario estricto (320°) es violeta y está prohibido.
+ *
+ * Superficies en capas para que la página no sea un solo color de fondo: fondo con tinte verde,
+ * tarjetas un escalón más claras (oscuro) o blancas con sombra (claro) y un tercer nivel para
+ * encabezados y celdas destacadas.
  */
 :root {
-  /* Verde de la marca y variantes */
-  --color-brand: #32b531;
-  --color-brand-700: #2a9a29;
-  --color-brand-800: #1f7a20;
-  --color-brand-900: #145214;
-  --color-brand-300: #6fd870;
-  --color-brand-200: #b7f0b8;
-  --color-brand-100: #e6f9e6;
-  /* Neón: solo acentos y animaciones */
-  --color-neon: #39ff14;
-  --color-neon-soft: #7cff6b;
+  color-scheme: light;
 
-  /* Modo diurno: #32B531 sobre blanco no llega a AA, así que el texto usa el verde oscuro */
-  --color-bg: #ffffff;
-  --color-surface: #f7f8f6;
-  --color-text: #101410;
-  --color-text-muted: #4a554a;
-  --color-link: #1f7a20;
-  --color-border: #d9e2d9;
-  --color-accent-motion: #1f7a20;
-  --color-surface-2: #eef2ed;
-  --color-row-hover: #f1f8f0;
-  --color-row-selected: #e6f9e6;
-  --color-header-bg: rgb(255 255 255 / 0.86);
+  /* Verde de la marca y variantes (mismo matiz, distinta luminosidad) */
+  --color-brand: #64cc4f;
+  --color-brand-700: #43ad2c;
+  --color-brand-800: #1e7801;
+  --color-brand-900: #165e00;
+  --color-brand-300: #7fe86b;
+  --color-brand-200: #b5f1a9;
+  --color-brand-100: #e3f7de;
+  /* Texto sobre el verde de la marca (botones y pestañas activas) */
+  --color-on-brand: #0f1a0c;
+  /* Neón: solo acentos y animaciones */
+  --color-neon: #7fe86b;
+  --color-neon-soft: #b5f1a9;
+
+  /* Modo claro: #64CC4F sobre blanco no llega a AA, así que el texto usa el verde oscuro */
+  --color-bg: #eef5ed;
+  --color-surface: #ffffff;
+  --color-surface-2: #e4ece2;
+  --color-text: #10190e;
+  --color-text-muted: #4f5c4d;
+  --color-link: #1e7801;
+  --color-border: #d0dbce;
+  --color-accent-motion: #1e7801;
+  --color-row-hover: #f1f8ef;
+  --color-row-selected: #e3f7de;
+  --color-header-bg: rgb(255 255 255 / 0.9);
   --color-warn: #8a5a00;
-  --color-loss: #b3261e;
+  --color-loss: #b7191c;
+  /* Mejor y peor del plantel o de la liga (valor del panel de contexto) */
+  --color-best: #1e7801;
+  --color-worst: #b7191c;
+  --shadow-card: 0 1px 2px rgb(16 40 12 / 0.06), 0 10px 28px -14px rgb(16 40 12 / 0.22);
+  --bg-glow: radial-gradient(1100px 520px at 12% -8%, rgb(100 204 79 / 0.18), transparent 62%);
   --glow-neon: 0 0 0 transparent;
 
   /* Movimiento: curvas de salida exponenciales (sin rebote) y duraciones de 9.10 */
@@ -47,41 +64,50 @@
 
   --header-bar-h: 64px;
   --header-bar-h-compact: 52px;
-  --header-strip-h: 34px;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --color-bg: #000000;
-    --color-surface: #0a0a0a;
-    --color-text: #f2f5f2;
-    --color-text-muted: #a9b5a9;
-    --color-link: #6fd870;
-    --color-border: #1e261e;
-    --color-accent-motion: #39ff14;
-    --color-surface-2: #121212;
-    --color-row-hover: #0f160f;
-    --color-row-selected: #0d1f0d;
-    --color-header-bg: rgb(0 0 0 / 0.82);
+    color-scheme: dark;
+    --color-bg: #0a0f09;
+    --color-surface: #131911;
+    --color-surface-2: #1b2319;
+    --color-text: #eef4ed;
+    --color-text-muted: #a7b6a4;
+    --color-link: #7fe86b;
+    --color-border: #283426;
+    --color-accent-motion: #7fe86b;
+    --color-row-hover: #182116;
+    --color-row-selected: #1c2e18;
+    --color-header-bg: rgb(10 15 9 / 0.86);
     --color-warn: #f2b33d;
-    --color-loss: #ff6b5f;
-    --glow-neon: 0 0 18px rgb(57 255 20 / 0.35);
+    --color-loss: #fe897d;
+    --color-best: #64cc4f;
+    --color-worst: #fe897d;
+    --shadow-card: inset 0 1px 0 rgb(255 255 255 / 0.04), 0 14px 34px -18px rgb(0 0 0 / 0.8);
+    --bg-glow: radial-gradient(1100px 520px at 12% -8%, rgb(100 204 79 / 0.16), transparent 62%);
+    --glow-neon: 0 0 18px rgb(100 204 79 / 0.35);
   }
 }
 
 :root[data-theme='dark'] {
-  --color-bg: #000000;
-  --color-surface: #0a0a0a;
-  --color-text: #f2f5f2;
-  --color-text-muted: #a9b5a9;
-  --color-link: #6fd870;
-  --color-border: #1e261e;
-  --color-accent-motion: #39ff14;
-  --color-surface-2: #121212;
-  --color-row-hover: #0f160f;
-  --color-row-selected: #0d1f0d;
-  --color-header-bg: rgb(0 0 0 / 0.82);
+  color-scheme: dark;
+  --color-bg: #0a0f09;
+  --color-surface: #131911;
+  --color-surface-2: #1b2319;
+  --color-text: #eef4ed;
+  --color-text-muted: #a7b6a4;
+  --color-link: #7fe86b;
+  --color-border: #283426;
+  --color-accent-motion: #7fe86b;
+  --color-row-hover: #182116;
+  --color-row-selected: #1c2e18;
+  --color-header-bg: rgb(10 15 9 / 0.86);
   --color-warn: #f2b33d;
-  --color-loss: #ff6b5f;
-  --glow-neon: 0 0 18px rgb(57 255 20 / 0.35);
+  --color-loss: #fe897d;
+  --color-best: #64cc4f;
+  --color-worst: #fe897d;
+  --shadow-card: inset 0 1px 0 rgb(255 255 255 / 0.04), 0 14px 34px -18px rgb(0 0 0 / 0.8);
+  --bg-glow: radial-gradient(1100px 520px at 12% -8%, rgb(100 204 79 / 0.16), transparent 62%);
+  --glow-neon: 0 0 18px rgb(100 204 79 / 0.35);
 }

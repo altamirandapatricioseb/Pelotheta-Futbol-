@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
 import { Montserrat, Noto_Sans } from 'next/font/google';
+import { cookies } from 'next/headers';
 
 import { SystemMark, TeamMark } from '@/components/header/brand-marks';
-import { FreshnessStrip } from '@/components/header/freshness-strip';
 import { SiteHeader } from '@/components/header/site-header';
+import { THEME_COOKIE } from '@/lib/theme';
 import { SITE_DESCRIPTION, SYSTEM_NAME } from '@/config/brand';
 
 import './globals.css';
@@ -35,14 +36,17 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  // Tema elegido con el botón del header; sin cookie, manda la preferencia del sistema.
+  const saved = (await cookies()).get(THEME_COOKIE)?.value;
+  const theme = saved === 'dark' || saved === 'light' ? saved : undefined;
   return (
-    <html lang="es-AR" className={`${montserrat.variable} ${greek.variable}`}>
+    <html lang="es-AR" className={`${montserrat.variable} ${greek.variable}`} data-theme={theme}>
       <body className="antialiased">
         <a href="#contenido" className="skip-link">
           Saltar al contenido
         </a>
-        <SiteHeader teamMark={<TeamMark />} systemMark={<SystemMark />} freshness={<FreshnessStrip />} />
+        <SiteHeader teamMark={<TeamMark />} systemMark={<SystemMark />} />
         <main id="contenido" className="page" tabIndex={-1}>
           {children}
         </main>

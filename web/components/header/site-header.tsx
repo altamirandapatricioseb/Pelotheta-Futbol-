@@ -4,32 +4,30 @@ import { ListIcon, XIcon } from '@phosphor-icons/react';
 import { motion } from 'motion/react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { INTERFACES, isActive } from '@/config/navigation';
 
 import { InterfaceIcon } from './interface-icon';
+import { ThemeToggle } from './theme-toggle';
 
 interface SiteHeaderProps {
   teamMark: React.ReactNode;
   systemMark: React.ReactNode;
-  freshness: React.ReactNode;
 }
 
 const UNDERLINE_SPRING = { type: 'spring', stiffness: 420, damping: 36 } as const;
 
 /**
- * Header fijo (9.1): se compacta al bajar, y la segunda fila (última actualización y estado
- * de la fuente) se oculta al bajar y reaparece al subir. El subrayado de la pestaña activa se
- * desliza entre pestañas con `layoutId`.
+ * Header fijo (9.1): se compacta al bajar. El subrayado de la pestaña activa se desliza entre
+ * pestañas con `layoutId`. La última actualización y el estado de la fuente se muestran solo en
+ * Actualizar (pedido del dueño, 28-oct).
  */
-export function SiteHeader({ teamMark, systemMark, freshness }: SiteHeaderProps) {
+export function SiteHeader({ teamMark, systemMark }: SiteHeaderProps) {
   const pathname = usePathname();
   const [compact, setCompact] = useState(false);
-  const [showStrip, setShowStrip] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuPath, setMenuPath] = useState(pathname);
-  const lastY = useRef(0);
 
   // Al cambiar de página se cierra el menú del celular (ajuste de estado durante el render,
   // la forma que recomienda React en vez de un efecto).
@@ -40,13 +38,7 @@ export function SiteHeader({ teamMark, systemMark, freshness }: SiteHeaderProps)
 
   useEffect(() => {
     const onScroll = () => {
-      const y = window.scrollY;
-      setCompact(y > 24);
-      // Margen de 6 px para que un temblor del scroll no haga parpadear la fila.
-      if (Math.abs(y - lastY.current) > 6) {
-        setShowStrip(y < lastY.current || y < 80);
-        lastY.current = y;
-      }
+      setCompact(window.scrollY > 24);
     };
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
@@ -88,6 +80,7 @@ export function SiteHeader({ teamMark, systemMark, freshness }: SiteHeaderProps)
 
         <div className="site-header__side site-header__side--end">
           {systemMark}
+          <ThemeToggle />
           <button
             type="button"
             className="menu-button focus-ring"
@@ -101,10 +94,6 @@ export function SiteHeader({ teamMark, systemMark, freshness }: SiteHeaderProps)
             <span className="sr-only">{menuOpen ? 'Cerrar menú' : 'Abrir menú'}</span>
           </button>
         </div>
-      </div>
-
-      <div className="site-header__strip" data-hidden={!showStrip || undefined}>
-        {freshness}
       </div>
 
       {menuOpen ? (

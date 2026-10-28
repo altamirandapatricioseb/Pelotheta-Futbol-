@@ -150,6 +150,14 @@ funcionan con datos reales** (el piso de 50 se supera) y 8 muestran la tarjeta �
 - **Seguridad 14.9:** Security Advisor 0 ERROR y 0 WARN (2 INFO de tablas privadas sin política, a propósito);
   sin secretos en el diff; parámetros de la URL de origen validados contra lista cerrada.
 
+Pedidos del dueño (28-oct, después del despliegue), hechos: verde principal #64cc4f (rampa del mismo matiz; en
+modo claro el texto verde usa el escalón oscuro #1e7801 para llegar a AA); en los paneles de contexto el valor es
+verde si es el mejor del plantel, de la tabla o de los 30 clubes de la liga y rojo si es el peor, siempre con una
+etiqueta de texto (el rojo #fe897d tiene la misma luminosidad y croma que el verde; el complementario estricto es
+violeta y está prohibido); la franja «Última actualización» quedó solo en Actualizar; botón de modo claro y
+oscuro en el header (cookie `tema`, sin destello); fondo con tinte verde y brillo, tarjetas un escalón más claras
+y con sombra en los dos modos. Tipografía confirmada: Montserrat 400 a 800 servida por el propio sitio.
+
 Sin datos (8): 03 evolución de la tabla (solo hay tabla final), 14 primer gol (etapa 6), 26 pases progresivos y
 33 presiones (ninguna fuente gratuita los publica), 66 marcador por minuto (etapa 6), 80, 81 y 82 de 6.1 (serie
 por partido, componentes del índice y desglose del Potencial: etapa 6).

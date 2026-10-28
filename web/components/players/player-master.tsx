@@ -9,6 +9,7 @@ import { NOT_AVAILABLE } from '@/lib/format';
 import {
   formatStat,
   playerValue,
+  extremeOf,
   rankAndPercentile,
   type PlayerRow,
   type StatDef,
@@ -140,6 +141,9 @@ export function PlayerMasterView({
   const currentValue = current && column ? playerValue(current, column, per90) : null;
   const standing =
     column && numeric(currentValue) ? rankAndPercentile(valuesOf(column), currentValue, column.higherIsBetter) : null;
+  // Mejor o peor del plantel visible: el valor del panel cambia de color y lleva una etiqueta.
+  const extreme =
+    column && numeric(currentValue) ? extremeOf(valuesOf(column), currentValue, column.higherIsBetter) : null;
 
   // Primer clic: elige la estadística (se lee su definición); los siguientes ordenan de menor a
   // mayor, de mayor a menor y vuelven al orden original (lib/stats/sort.ts).
@@ -295,7 +299,9 @@ export function PlayerMasterView({
             </p>
             {current ? (
               <div className="mt-2 flex flex-wrap items-end gap-x-6 gap-y-2">
-                <p className="text-4xl font-extrabold tabular">
+                <p
+                  className={`text-4xl font-extrabold tabular${extreme === 'best' ? ' value-best' : extreme === 'worst' ? ' value-worst' : ''}`}
+                >
                   {numeric(currentValue) ? (
                     <AnimatedNumber value={currentValue} format={(v) => formatStat(v, column, per90)} />
                   ) : currentValue !== null ? (
@@ -308,6 +314,11 @@ export function PlayerMasterView({
                   <p className="pb-1 text-sm text-muted">
                     <span className="font-bold text-fg">{standing.rank}.º</span> de {valuesOf(column).length} en el
                     plantel · percentil <span className="font-bold text-fg">{standing.percentile}</span>
+                  </p>
+                ) : null}
+                {extreme ? (
+                  <p className={`mb-1 rank-flag ${extreme === 'best' ? 'value-best' : 'value-worst'}`}>
+                    {extreme === 'best' ? 'Mejor del plantel' : 'Peor del plantel'}
                   </p>
                 ) : null}
               </div>

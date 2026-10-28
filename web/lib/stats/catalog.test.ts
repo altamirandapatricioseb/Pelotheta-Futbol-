@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  extremeOf,
   aggregateTeam,
   formatStat,
   playerValue,
@@ -189,5 +190,23 @@ describe('rankAndPercentile', () => {
 
   it('si más bajo es mejor, el primero es el más bajo', () => {
     expect(rankAndPercentile([1, 5, 3, 9], 1, false)).toEqual({ rank: 1, percentile: 100 });
+  });
+});
+
+describe('extremeOf', () => {
+  it('marca el mejor y el peor según higher_is_better', () => {
+    expect(extremeOf([3, 5, 9], 9, true)).toBe('best');
+    expect(extremeOf([3, 5, 9], 3, true)).toBe('worst');
+    expect(extremeOf([3, 5, 9], 5, true)).toBeNull();
+    // Más bajo es mejor (por ejemplo, goles recibidos): el orden se invierte.
+    expect(extremeOf([3, 5, 9], 3, false)).toBe('best');
+    expect(extremeOf([3, 5, 9], 9, false)).toBe('worst');
+  });
+  it('un empate en la punta sigue siendo el mejor', () => {
+    expect(extremeOf([9, 9, 2], 9, true)).toBe('best');
+  });
+  it('sin comparación posible no marca nada', () => {
+    expect(extremeOf([4], 4, true)).toBeNull();
+    expect(extremeOf([4, 4, 4], 4, true)).toBeNull();
   });
 });

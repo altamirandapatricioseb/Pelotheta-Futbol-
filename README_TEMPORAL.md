@@ -43,13 +43,17 @@ Para retomar en un chat nuevo: leer este archivo, `PROMPT-1-BOCA-FUTBOL.md` (ya 
    confirmar; probable falta de GitHub Secrets. Ya se agregó: corte temprano si faltan claves, registro
    del fallo en `ingest_log`, resumen en la página de la corrida y caché guardada aunque falle.
    Segunda corrida lanzada a las 00:49 UTC del 28-oct (ver resultado en `/actualizar`).
-2. **GitHub Secrets que tiene que haber** (Settings → Secrets and variables → Actions):
-   `SUPABASE_URL`, `API_SUPABASE_SECRET_KEY` (o `SUPABASE_SECRET_KEY`), `STRIKER_API_KEY`,
-   `BZZOIRO_API_KEY`, `SUPABASE_PUBLISHABLE_KEY` (keepalive).
-3. Cierre de seguridad 14.9 de la etapa 3: Advisor sin ERROR (2 INFO intencionales) y cabeceras OK
+2. **GitHub Secrets** (Settings → Secrets and variables → Actions). Cargados (28-oct, ~00:50 UTC):
+   `SUPABASE_URL`, `API_SUPABASE_SECRET_KEY`, `STRIKER_API_KEY`, `BZZOIRO_API_KEY`, `API_FOOTBALL_KEY`.
+   `SUPABASE_URL` y la clave secreta se cargaron recién ahí: causa probable de la primera falla.
+   **Falta** `SUPABASE_PUBLISHABLE_KEY` (la usa `keepalive.yml`; es la clave pública).
+3. **Claves expuestas, decisión del dueño (28-oct):** el `.env` completo (secreta de Supabase,
+   StrikerAPI, Bzzoiro, API-Football) quedó en el chat por una captura. El dueño decidió **no rotarlas**.
+   Riesgo aceptado y registrado.
+4. Cierre de seguridad 14.9 de la etapa 3: Advisor sin ERROR (2 INFO intencionales) y cabeceras OK
    verificados; falta confirmar CI en verde (repo privado: verlo en GitHub) y revisar `risk_register.csv`.
-4. Eventos de StrikerAPI: 15 de 31 partidos (el resto llega cuando se recargan los créditos).
-5. Mails de permiso enviados (SporLens, ScoutingStats, PitchMath, GoalPulz): sin respuesta todavía.
+5. Eventos de StrikerAPI: 15 de 31 partidos (el resto llega cuando se recargan los créditos).
+6. Mails de permiso enviados (SporLens, ScoutingStats, PitchMath, GoalPulz): sin respuesta todavía.
 
 ## Cómo probar
 

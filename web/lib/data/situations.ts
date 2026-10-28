@@ -57,8 +57,19 @@ export async function getSituations(): Promise<DataResult<SituationsData>> {
   try {
     const api = createApiClient();
     const [catalog, results, concl] = await Promise.all([
-      api.from('situational_catalog').select('*').order('sort_order').limit(500),
-      api.from('situational_result').select('*').limit(3000),
+      api
+        .from('situational_catalog')
+        .select(
+          'card_id, category, title_es, condition_es, params_es, measured_es, required_data, level, available, estimated, reason_es, sort_order, main_metric, extra_metrics',
+        )
+        .order('sort_order')
+        .limit(500),
+      api
+        .from('situational_result')
+        .select(
+          'card_id, param_value, param_order, n, w, d, l, win_pct, ppg, goal_diff, base_win_pct, delta, gf_avg, ga_avg, clean_pct, scored_pct, base_ppg, base_gf, base_ga, base_clean, stats, base_stats',
+        )
+        .limit(3000),
       api.from('conclusion').select('*').neq('text_es', '').order('sort_order').order('player_name').limit(1000),
     ]);
     if (catalog.error) return fail(catalog.error.message);

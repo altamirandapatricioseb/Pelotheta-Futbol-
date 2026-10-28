@@ -11,7 +11,7 @@ Para retomar en un chat nuevo: leer este archivo, `PROMPT-1-BOCA-FUTBOL.md` (ya 
 | 1. Preparación | Hecha (27-oct) |
 | 2. Esqueleto desplegado | Hecha (27-oct) |
 | 3. Pipeline completo | Hecha (28-oct): workflow corrido desde el botón con éxito y fecha nueva visible en la web |
-| 4. Estadísticas, métricas propias y tablas | **En curso** en la rama `etapa-4` (ver abajo) |
+| 4. Estadísticas, métricas propias y tablas | **Desplegada** (28-oct): Interfaces 2 y 3 en producción; quedan pendientes menores (ver abajo) |
 | 5. Gráficos (Interfaz 1) | Pendiente |
 | 6. Situaciones y estadística desglosada | Pendiente |
 | 7. Comparación directa | Pendiente |
@@ -84,8 +84,37 @@ cd web && corepack pnpm@10.34.9 install && corepack pnpm@10.34.9 dev
 Si Supabase se pausa por inactividad (plan gratis, 7 días): entrar al panel de Supabase, abrir el
 proyecto `pelotheta-futbol` y tocar «Restore project». El keepalive de lunes y jueves debería evitarlo.
 
-## Etapa 4 (en curso, rama `etapa-4`)
+## Etapa 4: estado (28-oct-2026)
 
-Skills: `superpowers:test-driven-development`, `karpathy-guidelines`, `data:sql-queries`,
-`data:statistical-analysis`, `impeccable` para las tablas, cierre con `code-review` y
-`design:accessibility-review`.
+Criterio («ambas interfaces muestran una tabla a la vez con sus descripciones»): **cumplido en producción**.
+
+- **Catálogo:** `data/stat_catalog.csv` con 160 estadísticas de jugador y 184 de equipo (A 157, B 175, C 12), cada
+  una con descripción propia y regla de cálculo; `data/stat_sets.csv` con los 11 conjuntos de 9.1 y los 14 de 9.5.
+  Resumen y reemplazos posibles en `docs/catalogo_estadisticas.md`.
+- **Base:** valores por partido (`sql/player_match_value.sql`, `sql/team_match_value.sql`) y tablas maestras
+  materializadas que refresca el pipeline (la web lee resultados ya calculados, en milisegundos).
+- **Métricas propias** (`pipeline/own_metrics.py`, se calculan al final de cada corrida): Elo propio con
+  probabilidades previas, sorpresa y Brier; xPts por Poisson; exponente pitagórico calibrado (x = 1,29); rachas,
+  forma, rotación, estabilidad del once, concentración de goles, edad; NR, NR relativo, EWA y ELA; índice de
+  rendimiento, Mejoría α y β y Potencial α y β (6.1), con los ejemplos del prompt en tests. Ver
+  `docs/metricas_propias.md` y `docs/model_cards/mejoria_potencial.md`.
+- **Interfaz 3** (`/jugadores`): desplegable de conjuntos y Personalizado, por 90, filtros, percentiles, estimadas,
+  porteros aparte, aviso de muestra pequeña. **Interfaz 2** (`/equipo`): vistas por partido, rival, mes,
+  competición y acumulada, con total y promedio al pie.
+- Revisión de código de cierre hecha: 5 correcciones aplicadas. Security Advisor: 0 ERROR, 0 WARN.
+
+Pendientes de la etapa 4 (no bloquean la 5):
+
+1. Filas «Promedio de la liga» y «Boca vs liga (percentil)» en la Interfaz 2 (hay datos de los 30 clubes en
+   `club_season_stat`).
+2. NR con xG (necesita minutos de entrada y salida junto a los tiros con minuto) y la serie partido a partido de
+   6.1 «a la fecha»: van con la estadística desglosada de la etapa 6.
+3. Parámetros de 6.1 en una tabla `projection_param` (hoy en `pipeline/projection.py`).
+4. Revisión de accesibilidad de las tablas (`design:accessibility-review`) y doble clic a la desglosada (etapa 6).
+5. Revisar en el Elo si Promiedos y StrikerAPI fechan distinto los partidos nocturnos (podrían quedar duplicados).
+6. Las estadísticas solo de liga muestran 0 (no `n/d`) a quien jugó solo copas en la ventana «todas».
+
+## Próxima etapa (5: Gráficos, Interfaz 1)
+
+Skills: `dataviz` antes del primer gráfico, `data:create-viz` y `data:data-visualization` para el catálogo,
+`animejs` para los trazos, cierre con `impeccable` (`audit` y `polish`).

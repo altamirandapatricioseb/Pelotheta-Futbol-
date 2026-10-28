@@ -103,16 +103,25 @@ Criterio («ambas interfaces muestran una tabla a la vez con sus descripciones»
   competición y acumulada, con total y promedio al pie.
 - Revisión de código de cierre hecha: 5 correcciones aplicadas. Security Advisor: 0 ERROR, 0 WARN.
 
-Pendientes de la etapa 4 (no bloquean la 5):
+Pedidos del dueño (28-oct), hechos: el primer clic en un encabezado solo elige la estadística y los siguientes
+ordenan de menor a mayor, de mayor a menor y vuelven al original; la primera columna ordena por fecha o nombre;
+las 344 estadísticas tienen guía de lectura («más alto es mejor», «negativo: menos de lo esperado»...); la vista
+acumulada del equipo es un tablero de tarjetas con línea partido a partido; las métricas de ventana también
+existen por partido.
 
-1. Filas «Promedio de la liga» y «Boca vs liga (percentil)» en la Interfaz 2 (hay datos de los 30 clubes en
-   `club_season_stat`).
-2. NR con xG (necesita minutos de entrada y salida junto a los tiros con minuto) y la serie partido a partido de
-   6.1 «a la fecha»: van con la estadística desglosada de la etapa 6.
-3. Parámetros de 6.1 en una tabla `projection_param` (hoy en `pipeline/projection.py`).
-4. Revisión de accesibilidad de las tablas (`design:accessibility-review`) y doble clic a la desglosada (etapa 6).
-5. Revisar en el Elo si Promiedos y StrikerAPI fechan distinto los partidos nocturnos (podrían quedar duplicados).
-6. Las estadísticas solo de liga muestran 0 (no `n/d`) a quien jugó solo copas en la ventana «todas».
+Pendientes de la etapa 4: **cerrados** (28-oct).
+
+1. Filas «Promedio de la liga» y «Boca vs liga (percentil)» en la Interfaz 2 (y una línea «Liga» en cada tarjeta),
+   con los promedios por partido de los 30 clubes.
+2. NR con xG calculado (xG de los tiros con minuto que caen con el jugador en cancha, solo liga).
+3. Parámetros de 6.1 y del Elo en `core.projection_param` (versión y fecha); el pipeline los lee antes de calcular.
+4. Accesibilidad de las tablas: nombre explícito en los desplegables, `aria-sort` en todos los encabezados
+   ordenables, tablero como lista de botones con `aria-pressed`.
+5. Elo sin partidos duplicados: 33 partidos fechados con un día de diferencia entre Promiedos y StrikerAPI.
+6. `n/d` (no 0) para los datos que el jugador nunca tuvo en la ventana (por ejemplo, solo de liga).
+
+Pasan a la etapa 6 por definición: la serie partido a partido de 6.1 «a la fecha» y el doble clic a la
+estadística desglosada.
 
 ## Próxima etapa (5: Gráficos, Interfaz 1)
 

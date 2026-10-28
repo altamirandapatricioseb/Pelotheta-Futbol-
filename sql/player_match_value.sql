@@ -214,6 +214,22 @@ combined_values as (
   ) as v(key, value)
   where v.value is not null
 ),
+xg_on_values as (
+  -- xG de Boca y del rival con el jugador en cancha (tiros con minuto de StrikerAPI, solo liga):
+  -- base del NR con xG de la sección 6. Solo en partidos con tiros cargados.
+  select a.match_id, a.player_id, v.key, v.value
+  from appear a
+  cross join lateral (
+    select coalesce(sum(sh.xg) filter (where t.is_boca), 0) as xg_for,
+           coalesce(sum(sh.xg) filter (where not t.is_boca), 0) as xg_against
+    from core.shot sh
+    join core.team t on t.team_id = sh.team_id
+    where sh.match_id = a.match_id and sh.minute >= a.minute_in
+      and (sh.minute < a.minute_out or a.minute_out >= a.end_minute)
+  ) x
+  cross join lateral (values ('team_xg_on', x.xg_for), ('team_xg_against_on', x.xg_against)) as v(key, value)
+  where exists (select 1 from core.shot sh where sh.match_id = a.match_id)
+),
 suspension_values as (
   -- Partidos que se perdió por suspensión (no tiene fila de alineación).
   select ab.match_id, ab.player_id, 'suspensions' as key, 1 as value
@@ -228,4 +244,5 @@ union all select match_id, player_id, key, value::numeric from keeper_values whe
 union all select match_id, player_id, key, value::numeric from shot_values
 union all select match_id, player_id, key, value from source_values
 union all select match_id, player_id, key, value from combined_values
+union all select match_id, player_id, key, value from xg_on_values
 union all select match_id, player_id, key, value::numeric from suspension_values

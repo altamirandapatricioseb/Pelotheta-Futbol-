@@ -3,6 +3,7 @@ import 'server-only';
 import { numericStats } from '@/lib/data/catalog';
 import type { DataResult } from '@/lib/data/players';
 import type { TeamMatchRow } from '@/lib/stats/catalog';
+import type { ClubRow } from '@/lib/stats/league';
 import { createApiClient } from '@/lib/supabase/server';
 
 function fail(cause: unknown): { ok: false; code: 'PEL-DB-001'; detail: string } {
@@ -62,6 +63,27 @@ export async function getTeamWindowValues(): Promise<DataResult<Record<string, R
       }
     }
     return { ok: true, data: out };
+  } catch (cause) {
+    return fail(cause);
+  }
+}
+
+/** Promedios por partido de los 30 clubes de la liga (StrikerAPI), para comparar a Boca (9.5). */
+export async function getLeagueClubs(season = 2026): Promise<DataResult<ClubRow[]>> {
+  try {
+    const { data, error } = await createApiClient()
+      .from('club_season_stat')
+      .select('team_name, stat_key, value')
+      .eq('season', season)
+      .limit(2000);
+    if (error) return fail(error.message);
+    const byTeam = new Map<string, Record<string, number>>();
+    for (const r of data) {
+      if (r.team_name && r.stat_key && r.value !== null) {
+        byTeam.set(r.team_name, { ...byTeam.get(r.team_name), [r.stat_key]: r.value });
+      }
+    }
+    return { ok: true, data: [...byTeam.entries()].map(([team, stats]) => ({ team, stats })) };
   } catch (cause) {
     return fail(cause);
   }

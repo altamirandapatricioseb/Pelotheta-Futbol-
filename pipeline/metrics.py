@@ -48,10 +48,15 @@ def elo_update(
     away: float,
     home_goals: int,
     away_goals: int,
-    k: float = ELO_K,
-    home_advantage: float = ELO_HOME_ADVANTAGE,
+    k: float | None = None,
+    home_advantage: float | None = None,
 ) -> tuple[float, float]:
-    """Elo después del partido: R_nuevo = R + K × (S − E), con S = 1, 0,5 o 0."""
+    """Elo después del partido: R_nuevo = R + K × (S − E), con S = 1, 0,5 o 0.
+
+    Sin K ni V se usan los vigentes (`projection_param`), leídos al llamar y no al definir.
+    """
+    k = ELO_K if k is None else k
+    home_advantage = ELO_HOME_ADVANTAGE if home_advantage is None else home_advantage
     expected = elo_expected(home, away, home_advantage)
     score = 1.0 if home_goals > away_goals else 0.5 if home_goals == away_goals else 0.0
     change = k * (score - expected)
@@ -59,7 +64,7 @@ def elo_update(
 
 
 def elo_run(
-    games: Sequence[Game], k: float = ELO_K, home_advantage: float = ELO_HOME_ADVANTAGE
+    games: Sequence[Game], k: float | None = None, home_advantage: float | None = None
 ) -> list[tuple[float, float]]:
     """Elo de local y visitante ANTES de cada partido (sin datos del futuro), en orden de fecha."""
     ratings: dict[str, float] = {}

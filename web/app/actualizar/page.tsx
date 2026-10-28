@@ -15,8 +15,8 @@ export default async function Page() {
         <span className="title-trace">Actualizar</span>
       </h1>
       <p className="max-w-[65ch] text-muted">
-        Corre de nuevo el scraping de todas las fuentes, sube los resultados a la base y refleja los
-        cambios en todas las páginas. También se actualiza solo el día 1 de cada mes.
+        Corre de nuevo el scraping de todas las fuentes, sube los resultados a la base y refleja los cambios en todas
+        las páginas. También se actualiza solo el día 1 de cada mes.
       </p>
       <UpdatePanel lastUpdate={freshness.lastUpdate} initial={status} />
     </div>

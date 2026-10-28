@@ -325,6 +325,7 @@ export function PlayerMasterView({
         <label className="flex items-center gap-2 text-sm font-semibold">
           <span>Categoría</span>
           <select
+            aria-label="Categoría de estadísticas"
             className="select focus-ring"
             value={setId}
             onChange={(e) => {

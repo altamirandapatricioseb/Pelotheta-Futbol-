@@ -21,7 +21,7 @@ partido se calculan solo con datos anteriores o iguales a la fecha de ese partid
 ## Equipo
 
 - **Elo propio:** `E = 1 / (1 + 10^((R_rival − R_propio − V) / 400))` y `R_nuevo = R + K × (S − E)`, con todos
-  los partidos de la liga 2025 y 2026 (sin duplicados entre fuentes). Para los partidos de copa se usa el último Elo
+  los partidos de la liga 2025 y 2026 (sin duplicados entre fuentes: el mismo cruce a ±1 día es el mismo partido, porque StrikerAPI fecha en UTC y Promiedos en hora argentina). Para los partidos de copa se usa el último Elo
   conocido de Boca; el del rival existe solo si jugó la liga.
 - **Probabilidad previa de ganar, empatar y perder (estimada):** el Elo da un solo número
   (`E = P(G) + P(E) / 2`). El empate se separa con la tasa de empates de la liga, máxima entre equipos parejos:
@@ -47,8 +47,8 @@ partido se calculan solo con datos anteriores o iguales a la fecha de ese partid
 - **Límite conocido del nivel de reemplazo:** los suplentes entran sobre todo en los segundos tiempos, cuando hay
   más goles, y eso infla su GF cada 90. Por eso el EWA de casi todos los titulares de 2026 da negativo: compara
   contra un reemplazo que jugó en el tramo más goleador. Se mantiene la definición del prompt y se avisa.
-- **NR con xG:** `n/d` por ahora. Necesita los minutos de entrada y salida junto al xG de cada tiro con minuto
-  (StrikerAPI, solo liga); queda para la etapa 6, junto con la estadística desglosada.
+- **NR con xG:** `(xG_on − xGA_on) × 90 / minutos`, con el xG de cada tiro con minuto (StrikerAPI, solo liga) que
+  cae entre la entrada y la salida del jugador. Solo cuenta los minutos de los partidos con tiros cargados.
 
 ## Sección 6.1: Mejoría y Potencial
 
@@ -66,5 +66,4 @@ ejemplo numérico reproducido en `tests/test_projection.py`. Detalle, supuestos,
 **Cambios frente al prompt por falta de datos:** el componente C no tiene pases progresivos (ninguna fuente
 permitida) y el set de Mejoría α de mediocampistas no tiene pases progresivos cada 90; los pesos se reescalan como
 indica 6.1.1. La edad es en años enteros: la fecha de nacimiento no es pública en la base (dato personal, 14.7).
-Los parámetros viven en el código (`pipeline/projection.py`) y no en una tabla `projection_param`: queda pendiente
-moverlos a la base para la etapa 9 (parámetros de hipótesis de Power BI).
+Los parámetros viven en la tabla `core.projection_param` (con versión y fecha de vigencia; la vista `api.projection_param` da la vigente): el pipeline los lee antes de calcular y los valores del código son solo el arranque.

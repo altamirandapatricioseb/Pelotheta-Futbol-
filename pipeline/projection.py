@@ -100,8 +100,9 @@ def mejoria_beta(r_recent: float, r_previous: float) -> float:
     return r_recent - r_previous
 
 
-def shrink(value: float, minutes: float, k: float = K_LEVEL) -> float:
+def shrink(value: float, minutes: float, k: float | None = None) -> float:
     """Reducción por muestra chica: 50 + (valor − 50) × Min / (Min + K)."""
+    k = K_LEVEL if k is None else k
     return 50 + (value - 50) * minutes / (minutes + k) if minutes > 0 else 50.0
 
 

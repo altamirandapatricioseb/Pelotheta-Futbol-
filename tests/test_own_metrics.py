@@ -86,6 +86,38 @@ def test_expected_points_only_with_both_xg() -> None:
     assert xpts[1] == pytest.approx(m.expected_points(1.8, 0.4), abs=1e-4)  # se guarda con 4 decimales
 
 
+def test_league_games_from_two_sources_are_deduplicated_with_one_day_tolerance() -> None:
+    # Un partido nocturno: Promiedos lo fecha el 1 (hora argentina) y StrikerAPI el 2 (UTC).
+    rows = [
+        {
+            "source": "strikerapi",
+            "match_date": "2026-03-02",
+            "home_team": "River",
+            "away_team": "Boca Juniors",
+            "home_goals": 1,
+            "away_goals": 2,
+        },
+        {
+            "source": "promiedos",
+            "match_date": "2026-03-01",
+            "home_team": "River",
+            "away_team": "Boca Juniors",
+            "home_goals": 1,
+            "away_goals": 2,
+        },
+        {
+            "source": "strikerapi",
+            "match_date": "2026-09-20",
+            "home_team": "River",
+            "away_team": "Boca Juniors",
+            "home_goals": 0,
+            "away_goals": 0,
+        },
+    ]
+    games = om.dedupe_games(rows)
+    assert [(g.date, g.home_goals) for g in games] == [("2026-03-01", 1), ("2026-09-20", 0)]
+
+
 def test_elo_before_each_league_match() -> None:
     _, per_match = om.compute(inputs())
     elo = {r["match_id"]: r["value"] for r in per_match if r["stat_id"] == "eq_elo"}

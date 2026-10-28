@@ -5,6 +5,7 @@ import { motion } from 'motion/react';
 import { StatReading } from '@/components/stats/stat-reading';
 import { NOT_AVAILABLE } from '@/lib/format';
 import { aggregateTeam, formatStat, type StatDef, type TeamMatchRow } from '@/lib/stats/catalog';
+import { leagueComparison, type ClubRow } from '@/lib/stats/league';
 
 interface SeasonBoardProps {
   rows: TeamMatchRow[];
@@ -13,6 +14,7 @@ interface SeasonBoardProps {
   windowValues: Record<string, number>;
   selectedId: string | null;
   onSelect: (id: string) => void;
+  clubs: ClubRow[];
 }
 
 /**
@@ -20,7 +22,7 @@ interface SeasonBoardProps {
  * aporta. Cada estadística es una tarjeta con el valor de la temporada, el promedio por partido,
  * la línea partido a partido y cómo leerla. Al elegir una tarjeta, el panel muestra su definición.
  */
-export function SeasonBoard({ rows, columns, byId, windowValues, selectedId, onSelect }: SeasonBoardProps) {
+export function SeasonBoard({ rows, columns, byId, windowValues, selectedId, onSelect, clubs }: SeasonBoardProps) {
   return (
     <ul className="board" aria-label="Estadísticas de la temporada">
       {columns.map((stat, i) => {
@@ -28,6 +30,7 @@ export function SeasonBoard({ rows, columns, byId, windowValues, selectedId, onS
         const average = stat.per90 ? aggregateTeam(rows, stat, byId, { perMatch: true }) : null;
         const series = rows.map((r) => aggregateTeam([r], stat, byId));
         const selected = stat.id === selectedId;
+        const league = leagueComparison(stat.id, stat.higherIsBetter, clubs);
         return (
           <li key={stat.id} className="contents">
             <motion.button
@@ -55,6 +58,12 @@ export function SeasonBoard({ rows, columns, byId, windowValues, selectedId, onS
               {average !== null ? (
                 <span className="text-xs text-muted">
                   Promedio por partido: <span className="font-bold text-fg">{formatStat(average, stat, true)}</span>
+                </span>
+              ) : null}
+              {league ? (
+                <span className="text-xs text-muted">
+                  Liga: <span className="font-bold text-fg">{formatStat(league.average, stat, true)}</span> por partido
+                  {league.bocaPercentile !== null ? ` · Boca, percentil ${String(league.bocaPercentile)}` : ''}
                 </span>
               ) : null}
               <Sparkline values={series} />

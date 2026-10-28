@@ -20,12 +20,14 @@ import unicodedata
 from collections import defaultdict
 from collections.abc import Iterable
 from dataclasses import dataclass, field
+from datetime import date
 from typing import Any
 
 import httpx
 
 from pipeline import catalog, load
 from pipeline import metrics as m
+from pipeline import projection as pj
 from pipeline import projection_data as pdata
 
 PAGE = 1000
@@ -68,6 +70,9 @@ PLAYER_KEYS = (
     "shots_on_target_faced",
     "xgot_faced",
     "goals_conceded",
+    # xG de los dos equipos con el jugador en cancha (NR con xG).
+    "team_xg_on",
+    "team_xg_against_on",
 )
 
 
@@ -397,6 +402,12 @@ def player_window_values(inp: Inputs) -> list[dict[str, Any]]:
                 continue
             gf90, ga90 = gf_on * 90 / mins, ga_on * 90 / mins
             rows.append(_row("nr", gf90 - ga90, code, pid))
+            # NR con xG: solo con los minutos de los partidos con tiros ubicados (liga).
+            with_xg = [v for _, v in games if "team_xg_on" in v and "team_xg_against_on" in v]
+            xg_minutes = sum(v["minutes"] for v in with_xg)
+            if xg_minutes > 0:
+                xg_diff = sum(v["team_xg_on"] - v["team_xg_against_on"] for v in with_xg)
+                rows.append(_row("nr_xg", xg_diff * 90 / xg_minutes, code, pid))
             rep = _replacement(pid, position, on, inp.players)
             if rep is not None:
                 gf_rep, ga_rep = rep
@@ -477,6 +488,60 @@ def _fetch(
         offset += PAGE
 
 
+# Parámetros configurables (tabla `projection_param`) y el módulo donde vive cada uno. Los
+# valores del código son el arranque; la tabla manda y la web muestra los usados.
+PARAM_MODULES: dict[str, Any] = {
+    "ELO_START": m,
+    "ELO_K": m,
+    "ELO_HOME_ADVANTAGE": m,
+    "MIN_COVERAGE": pj,
+    "K_RELIABILITY": pj,
+    "Z_CLIP": pj,
+    "ALPHA_SCALE": pj,
+    "K_LEVEL": pj,
+    "PEAK_AGE": pj,
+    "PEAK_AGE_GOALKEEPER": pj,
+    "GROWTH_PER_YEAR": pj,
+    "TREND_WEIGHT": pj,
+    "UNCERTAINTY": pj,
+    "MIN_MINUTES": pdata,
+    "REPLACEMENT_MIN_MINUTES": sys.modules[__name__],
+}
+
+
+def apply_params(values: dict[str, float]) -> dict[str, float]:
+    """Aplica los parámetros vigentes de la base; los nombres desconocidos se ignoran."""
+    applied = {}
+    for name, value in values.items():
+        module = PARAM_MODULES.get(name)
+        if module is not None:
+            setattr(module, name, float(value))
+            applied[name] = float(value)
+    return applied
+
+
+def dedupe_games(results: list[dict[str, Any]]) -> list[m.Game]:
+    """Partidos de liga sin repetir entre fuentes, en orden de fecha.
+
+    Promiedos va primero (fecha argentina). StrikerAPI fecha en UTC, así que un partido nocturno
+    puede aparecer con un día de diferencia: mismo local y visitante a ±1 día es el mismo partido
+    (el mismo cruce no se repite en dos días seguidos). Sin esto, 33 partidos de 2026 entraban dos
+    veces al Elo.
+    """
+    kept: list[m.Game] = []
+    seen: dict[tuple[str, str], list[date]] = defaultdict(list)
+    for r in sorted(results, key=lambda r: r["source"] != "promiedos"):
+        if r["home_goals"] is None or r["away_goals"] is None:
+            continue
+        pair = (_norm(r["home_team"]), _norm(r["away_team"]))
+        day = date.fromisoformat(r["match_date"])
+        if any(abs((day - other).days) <= 1 for other in seen[pair]):
+            continue
+        seen[pair].append(day)
+        kept.append(m.Game(r["match_date"], r["home_team"], r["away_team"], r["home_goals"], r["away_goals"]))
+    return sorted(kept, key=lambda g: g.date)
+
+
 def fetch_inputs(url: str, key: str) -> Inputs:
     with httpx.Client(timeout=60) as client:
         team = _fetch(
@@ -514,9 +579,6 @@ def fetch_inputs(url: str, key: str) -> Inputs:
                 {"competition_code": "eq.todas"},
             )
         }
-        seen: set[tuple[str, str, str]] = set()
-        league: list[m.Game] = []
-        # Promiedos primero: si StrikerAPI trae el mismo partido, se queda uno solo.
         results = _fetch(
             "league_result",
             "source,season,match_date,home_team,away_team,home_goals,away_goals",
@@ -524,15 +586,7 @@ def fetch_inputs(url: str, key: str) -> Inputs:
             key,
             client,
         )
-        for r in sorted(results, key=lambda r: r["source"] != "promiedos"):
-            if r["home_goals"] is None or r["away_goals"] is None:
-                continue
-            ident = (r["match_date"], _norm(r["home_team"]), _norm(r["away_team"]))
-            if ident not in seen:
-                seen.add(ident)
-                league.append(
-                    m.Game(r["match_date"], r["home_team"], r["away_team"], r["home_goals"], r["away_goals"])
-                )
+        league = dedupe_games(results)
         standings = _fetch(
             "league_standing",
             "table_name,rank,team_name,played,goals_for,goals_against,points",
@@ -584,8 +638,17 @@ def fetch_inputs(url: str, key: str) -> Inputs:
     )
 
 
+def fetch_params(url: str, key: str) -> dict[str, float]:
+    """Parámetros vigentes de `api.projection_param` (la última versión de cada uno)."""
+    with httpx.Client(timeout=60) as client:
+        rows = _fetch("projection_param", "param,value", url, key, client)
+    return {r["param"]: float(r["value"]) for r in rows if r["value"] is not None}
+
+
 def run(url: str, key: str) -> dict[str, Any]:
+    applied = apply_params(fetch_params(url, key))
     inp = fetch_inputs(url, key)
+    inp.params.update({f"param_{k}": v for k, v in applied.items()})
     window, per_match = compute(inp)
     # Todas las métricas propias del catálogo, aunque esta vez no den valores: así se borran las
     # filas viejas de una métrica que dejó de poder calcularse (no queda un valor desactualizado).

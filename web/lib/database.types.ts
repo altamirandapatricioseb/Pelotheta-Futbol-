@@ -141,6 +141,16 @@ export type Database = {
         };
         Relationships: [];
       };
+      club_season_stat: {
+        Row: {
+          season: number | null;
+          source: string | null;
+          stat_key: string | null;
+          team_name: string | null;
+          value: number | null;
+        };
+        Relationships: [];
+      };
       team_window_value: {
         Row: {
           competition_code: string | null;

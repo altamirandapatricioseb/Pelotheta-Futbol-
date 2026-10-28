@@ -151,6 +151,19 @@ def test_projection_rows_on_a_synthetic_squad() -> None:
     assert all(r["value"] <= 100 for r in rows if r["stat_id"].startswith("potencial"))
 
 
+def test_parameters_come_from_the_database_table() -> None:
+    # Los parámetros viven en `projection_param`: con otro pico de edad cambia el Potencial α.
+    from pipeline import metrics, own_metrics
+
+    try:
+        own_metrics.apply_params({"PEAK_AGE": 30.0, "ELO_K": 30.0, "DESCONOCIDO": 1.0})
+        value, _, _ = pj.potencial_alpha(60, age=20, mejoria=None, goalkeeper=False)
+        assert value == pytest.approx(60 + 1.5 * 10)
+        assert metrics.ELO_K == 30.0
+    finally:
+        own_metrics.apply_params({"PEAK_AGE": 27.0, "ELO_K": 20.0})
+
+
 def test_percent_rank_and_inversion() -> None:
     reference = [1.0, 2.0, 3.0, 4.0, 5.0]
     assert pj.percentile(3.0, reference, higher_is_better=True) == pytest.approx(50)

@@ -3,7 +3,7 @@ import { z } from 'zod';
 
 import { TeamTableView } from '@/components/team/team-table';
 import { getCatalog, getStatSets } from '@/lib/data/catalog';
-import { getTeamMatches, getTeamWindowValues } from '@/lib/data/team';
+import { getLeagueClubs, getTeamMatches, getTeamWindowValues } from '@/lib/data/team';
 
 export const metadata: Metadata = {
   title: 'Equipo',
@@ -28,11 +28,12 @@ interface PageProps {
 export default async function EquipoPage({ searchParams }: PageProps) {
   const raw = await searchParams;
   const params = searchSchema.parse({ conjunto: raw.conjunto, vista: raw.vista });
-  const [matches, catalog, sets, windowValues] = await Promise.all([
+  const [matches, catalog, sets, windowValues, clubs] = await Promise.all([
     getTeamMatches(),
     getCatalog('team'),
     getStatSets('team'),
     getTeamWindowValues(),
+    getLeagueClubs(),
   ]);
   const failed = [matches, catalog, sets, windowValues].flatMap((r) => (r.ok ? [] : [r]))[0];
 
@@ -55,6 +56,7 @@ export default async function EquipoPage({ searchParams }: PageProps) {
           catalog={catalog.data}
           sets={sets.data}
           windowValues={windowValues.data}
+          clubs={clubs.ok ? clubs.data : []}
           initialSet={params.conjunto ?? null}
           initialView={params.vista}
         />

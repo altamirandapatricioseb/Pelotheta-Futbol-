@@ -13,6 +13,7 @@ import {
   type StatValue,
   type TeamMatchRow,
 } from '@/lib/stats/catalog';
+import { leagueComparison, type ClubRow } from '@/lib/stats/league';
 import { nextSort, type SortState } from '@/lib/stats/sort';
 import { groupMatches, resultLabel, TEAM_VIEWS, type MatchGroup, type TeamView } from '@/lib/stats/team-groups';
 
@@ -29,6 +30,7 @@ interface TeamTableProps {
   catalog: StatDef[];
   sets: StatSet[];
   windowValues: Record<string, Record<string, number>>;
+  clubs: ClubRow[];
   initialSet: string | null;
   initialView: TeamView;
 }
@@ -40,7 +42,15 @@ const numeric = (v: StatValue): v is number => typeof v === 'number' && Number.i
  * grupo de partidos (rival, mes, competición o temporada) y cada columna una estadística del
  * conjunto elegido. Panel alto con el partido (o grupo) actual y la estadística actual.
  */
-export function TeamTableView({ matches, catalog, sets, windowValues, initialSet, initialView }: TeamTableProps) {
+export function TeamTableView({
+  matches,
+  catalog,
+  sets,
+  windowValues,
+  clubs,
+  initialSet,
+  initialView,
+}: TeamTableProps) {
   const byId = useMemo(() => new Map(catalog.map((s) => [s.id, s])), [catalog]);
   const [setId, setSetId] = useState(sets.some((s) => s.id === initialSet) ? (initialSet ?? '') : (sets[0]?.id ?? ''));
   const [view, setView] = useState<TeamView>(initialView);
@@ -239,6 +249,7 @@ export function TeamTableView({ matches, catalog, sets, windowValues, initialSet
         <label className="flex items-center gap-2 text-sm font-semibold">
           <span>Categoría</span>
           <select
+            aria-label="Categoría de estadísticas"
             className="select focus-ring"
             value={setId}
             onChange={(e) => {
@@ -306,6 +317,7 @@ export function TeamTableView({ matches, catalog, sets, windowValues, initialSet
           windowValues={query ? {} : (windowValues.todas ?? {})}
           selectedId={column?.id ?? null}
           onSelect={setStatId}
+          clubs={clubs}
         />
       ) : (
         <div className="data-table-wrap">
@@ -452,6 +464,25 @@ export function TeamTableView({ matches, catalog, sets, windowValues, initialSet
                   ))}
                 </tr>
               ))}
+              {/* Liga Profesional 2026: promedio por partido de los 30 clubes y puesto de Boca. */}
+              <tr>
+                <td>Promedio de la liga</td>
+                <td />
+                {columns.map((c) => {
+                  const cmp = leagueComparison(c.id, c.higherIsBetter, clubs);
+                  return <td key={c.id}>{cmp ? formatStat(cmp.average, c, true) : ''}</td>;
+                })}
+              </tr>
+              <tr>
+                <td title="Percentil de Boca entre los 30 clubes de la liga (100 = el mejor)">
+                  Boca vs liga (percentil)
+                </td>
+                <td />
+                {columns.map((c) => {
+                  const cmp = leagueComparison(c.id, c.higherIsBetter, clubs);
+                  return <td key={c.id}>{cmp?.bocaPercentile ?? ''}</td>;
+                })}
+              </tr>
             </tfoot>
           </table>
         </div>

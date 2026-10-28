@@ -550,7 +550,9 @@ h3 {
   color: var(--color-brand-900);
   font-size: 1.125rem;
   font-weight: 700;
-  transition: transform 160ms var(--ease-out-quart), background-color 160ms var(--ease-out-quart);
+  transition:
+    transform 160ms var(--ease-out-quart),
+    background-color 160ms var(--ease-out-quart);
 }
 
 .update-panel__button:hover:not(:disabled) {
@@ -598,7 +600,8 @@ h3 {
   font: inherit;
   font-size: 0.875rem;
   font-weight: 600;
-  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%),
+  background-image:
+    linear-gradient(45deg, transparent 50%, currentColor 50%),
     linear-gradient(135deg, currentColor 50%, transparent 50%);
   background-position:
     calc(100% - 18px) 55%,

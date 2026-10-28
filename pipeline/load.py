@@ -138,6 +138,29 @@ def send_batch(batch: dict[str, Any], url: str, key: str, client: httpx.Client |
     return _rpc("load_batch", {"p_batch": batch}, url, key, client)
 
 
+def send_catalog(payload: dict[str, Any], url: str, key: str, client: httpx.Client | None = None) -> Any:
+    """Catálogo de estadísticas y conjuntos de columnas (`data/stat_catalog.csv` y `stat_sets.csv`)."""
+    return _rpc("load_catalog", {"p_stats": payload["stats"], "p_sets": payload["sets"]}, url, key, client)
+
+
+def send_stat_values(
+    stat_ids: list[str],
+    values: list[dict[str, Any]],
+    match_values: list[dict[str, Any]],
+    url: str,
+    key: str,
+    client: httpx.Client | None = None,
+) -> Any:
+    """Métricas propias por ventana y por partido; reemplaza las anteriores de esos ids."""
+    payload = {"p_stat_ids": stat_ids, "p_values": values, "p_match_values": match_values}
+    return _rpc("load_stat_values", payload, url, key, client)
+
+
+def refresh_stats(url: str, key: str, client: httpx.Client | None = None) -> None:
+    """Recalcula las tablas maestras materializadas (valores por partido y por ventana)."""
+    _rpc("refresh_stats", {}, url, key, client)
+
+
 def log_failure(source: str, message: str, url: str, key: str, client: httpx.Client | None = None) -> None:
     _rpc("log_failure", {"p_source": source, "p_message": message[:500]}, url, key, client)
 

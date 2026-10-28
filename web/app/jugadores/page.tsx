@@ -2,12 +2,14 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { z } from 'zod';
 
-import { PlayerSummaryView } from '@/components/players/player-summary';
-import { getCompetitions, getPlayerSummary } from '@/lib/data/players';
+import { PlayerMasterView } from '@/components/players/player-master';
+import { getCatalog, getStatSets } from '@/lib/data/catalog';
+import { getCompetitions, getPlayerMaster } from '@/lib/data/players';
 
 export const metadata: Metadata = {
   title: 'Jugadores',
-  description: 'Resumen del plantel de Boca Juniors 2026: partidos, minutos, goles, asistencias y tarjetas.',
+  description:
+    'Tabla maestra del plantel de Boca Juniors 2026: estadísticas por categoría, por 90 minutos, métricas propias y proyección.',
 };
 
 // Los parámetros de la URL vienen de afuera: se validan antes de usarlos (14.3).
@@ -19,7 +21,12 @@ const searchSchema = z.object({
   jugador: z.coerce.number().int().positive().optional().catch(undefined),
   estadistica: z
     .string()
-    .regex(/^[a-zA-Z]{1,30}$/)
+    .regex(/^[a-z][a-z0-9_]{0,60}$/)
+    .optional()
+    .catch(undefined),
+  conjunto: z
+    .string()
+    .regex(/^[a-z][a-z0-9_]{0,40}$/)
     .optional()
     .catch(undefined),
 });
@@ -34,10 +41,17 @@ export default async function JugadoresPage({ searchParams }: PageProps) {
     comp: typeof raw.comp === 'string' ? raw.comp : 'todas',
     jugador: raw.jugador,
     estadistica: raw.estadistica,
+    conjunto: raw.conjunto,
   });
-  const [summary, competitions] = await Promise.all([getPlayerSummary(params.comp), getCompetitions()]);
+  const [players, competitions, catalog, sets] = await Promise.all([
+    getPlayerMaster(params.comp),
+    getCompetitions(),
+    getCatalog('player'),
+    getStatSets('player'),
+  ]);
   const options = competitions.ok ? competitions.data : [];
   const activeName = options.find((c) => c.code === params.comp)?.name ?? 'Todas las competiciones';
+  const failed = [players, catalog, sets].flatMap((r) => (r.ok ? [] : [r]))[0];
 
   return (
     <div className="grid gap-6">
@@ -46,7 +60,7 @@ export default async function JugadoresPage({ searchParams }: PageProps) {
           <h1 className="page-title">
             <span className="title-trace">Jugadores</span>
           </h1>
-          <p className="mt-2 text-muted">Resumen del plantel 2026 · partidos oficiales</p>
+          <p className="mt-2 text-muted">Plantel 2026 · partidos oficiales · una categoría por vez</p>
         </div>
         <nav aria-label="Competición" className="flex flex-wrap gap-2">
           <CompetitionChip code="todas" label="Todas" active={params.comp === 'todas'} />
@@ -62,25 +76,26 @@ export default async function JugadoresPage({ searchParams }: PageProps) {
         </nav>
       </div>
 
-      {summary.ok ? (
-        summary.data.length > 0 ? (
-          <PlayerSummaryView
-            key={params.comp}
-            players={summary.data}
-            competitionName={activeName}
-            initialPlayerId={params.jugador ?? null}
-            initialStat={params.estadistica ?? null}
-          />
-        ) : (
-          <p className="under-construction text-muted">
-            Todavía no hay partidos cargados para esta competición. Se completan con la próxima actualización.
-          </p>
-        )
-      ) : (
+      {failed ? (
         <div role="alert" className="under-construction">
-          <p className="font-bold">{summary.code}: la base de datos no responde.</p>
+          <p className="font-bold">{failed.code}: la base de datos no responde.</p>
           <p className="text-muted">Puede estar pausada por inactividad. Probá de nuevo en unos minutos.</p>
         </div>
+      ) : players.ok && catalog.ok && sets.ok && players.data.length > 0 ? (
+        <PlayerMasterView
+          key={params.comp}
+          players={players.data}
+          catalog={catalog.data}
+          sets={sets.data}
+          competitionName={activeName}
+          initialPlayerId={params.jugador ?? null}
+          initialStat={params.estadistica ?? null}
+          initialSet={params.conjunto ?? null}
+        />
+      ) : (
+        <p className="under-construction text-muted">
+          Todavía no hay partidos cargados para esta competición. Se completan con la próxima actualización.
+        </p>
       )}
     </div>
   );

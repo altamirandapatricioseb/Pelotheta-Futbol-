@@ -26,7 +26,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from pipeline import enrich, load
+from pipeline import catalog, enrich, load, own_metrics
 from pipeline.models import (
     CompetitionMetricRecord,
     LeagueResultRecord,
@@ -588,6 +588,10 @@ def run_pipeline(dry_run: bool, url: str, key: str) -> int:
     player_stats = batch.pop("player_stats")
     try:
         result = load.send_batch(batch, url, key)
+        # El catálogo viaja en cada corrida: es la fuente de verdad de las tablas de la web.
+        result["catalog"] = load.send_catalog(
+            catalog.to_payload(catalog.load_catalog(), catalog.load_sets()), url, key
+        )
         result["player_stats"] = load.send_player_stats(player_stats, url, key)
         if weather:
             result["weather"] = load.send_weather(weather, url, key)
@@ -602,6 +606,16 @@ def run_pipeline(dry_run: bool, url: str, key: str) -> int:
         with contextlib.suppress(load.LoadError):
             load.log_failure(pd.SOURCE, f"Fallo de la carga: {exc}", url, key)
         return 1
+    # Métricas propias (5.7 y 6) con todo lo cargado; al terminar recalculan las tablas maestras
+    # de la web. Si fallan, los datos ya están en la base: se registra el fallo, se recalculan las
+    # tablas igual y la corrida sigue siendo válida.
+    try:
+        result["metricas_propias"] = own_metrics.run(url, key)
+    except load.LoadError as exc:
+        print(f"Aviso: métricas propias no calculadas: {exc}", file=sys.stderr)
+        with contextlib.suppress(load.LoadError):
+            load.log_failure("metricas_propias", f"Métricas propias: {exc}", url, key)
+            load.refresh_stats(url, key)
     seconds = (datetime.now() - started).total_seconds()
     print(f"Carga {status} en {seconds:.0f} s: {result}")
     return 0

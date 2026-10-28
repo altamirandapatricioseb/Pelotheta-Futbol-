@@ -111,6 +111,15 @@ def test_only_boca_players_with_their_stats() -> None:
     assert "minutes" not in montero.stats  # los minutos los calcula Promiedos
 
 
+def test_rating_zero_means_no_rating() -> None:
+    # Un suplente con pocos minutos aparece con data-r="0": no tiene nota, no sacó un cero.
+    html = match_html().replace('data-r="8.1"', 'data-r="0"')
+    parsed = ss.parse_match(html)
+    assert parsed is not None
+    (montero,) = parsed.boca_players
+    assert "rating" not in montero.stats
+
+
 def test_player_xg_dash_is_not_stored_as_zero() -> None:
     # La fuente pone data-xg="0" pero muestra «–»: no hay xG por jugador, no es un cero.
     parsed = ss.parse_match(match_html())

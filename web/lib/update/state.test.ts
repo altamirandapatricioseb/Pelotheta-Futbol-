@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { COOLDOWN_MS, updateState, type WorkflowRun } from './state';
+import { COOLDOWN_MS, justFinished, updateState, type WorkflowRun } from './state';
 
 const now = new Date('2026-10-27T15:00:00Z');
 const run = (overrides: Partial<WorkflowRun>): WorkflowRun => ({
@@ -34,5 +34,20 @@ describe('updateState', () => {
 
   it('pasado el enfriamiento se puede volver a actualizar', () => {
     expect(updateState(run({ createdAt: '2026-10-27T13:00:00Z' }), now).state).toBe('idle');
+  });
+});
+
+describe('justFinished', () => {
+  it('una corrida exitosa que terminó hace poco renueva los datos de la web', () => {
+    expect(justFinished(run({ updatedAt: '2026-10-27T14:50:00Z' }), now)).toBe(true);
+  });
+
+  it('no renueva por una corrida vieja, fallida o en curso', () => {
+    expect(justFinished(run({ updatedAt: '2026-10-27T10:20:00Z' }), now)).toBe(false);
+    expect(justFinished(run({ updatedAt: '2026-10-27T14:50:00Z', conclusion: 'failure' }), now)).toBe(false);
+    expect(justFinished(run({ status: 'in_progress', conclusion: null, updatedAt: '2026-10-27T14:59:00Z' }), now)).toBe(
+      false,
+    );
+    expect(justFinished(null, now)).toBe(false);
   });
 });

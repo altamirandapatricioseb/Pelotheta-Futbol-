@@ -1,7 +1,9 @@
+import { revalidateTag } from 'next/cache';
 import { NextResponse, type NextRequest } from 'next/server';
 
+import { DATA_CACHE_TAG } from '@/lib/supabase/server';
 import { dispatch, latestRun, readConfig, UpdateError } from '@/lib/update/github';
-import { updateState } from '@/lib/update/state';
+import { justFinished, updateState } from '@/lib/update/state';
 import { getUpdateStatus } from '@/lib/update/status';
 
 // Botón «Actualizar» (Interfaz 6, ADR 0004).
@@ -24,6 +26,9 @@ function originHost(origin: string | null): string | null {
 
 export async function GET() {
   const status = await getUpdateStatus();
+  // La página consulta este estado mientras corre la carga; la primera consulta después de una
+  // carga exitosa descarta la caché de datos y la web muestra la fecha nueva.
+  if ('lastRun' in status && justFinished(status.lastRun)) revalidateTag(DATA_CACHE_TAG, { expire: 0 });
   return NextResponse.json(status, { status: status.state === 'unavailable' ? 502 : 200, headers: noStore });
 }
 
@@ -38,7 +43,10 @@ export async function POST(request: NextRequest) {
     const current = updateState(await latestRun(config));
     if (current.state !== 'idle') return NextResponse.json(current, { status: 409, headers: noStore });
     await dispatch(config);
-    return NextResponse.json({ state: 'running', nextAvailableAt: null, lastRun: null }, { status: 202, headers: noStore });
+    return NextResponse.json(
+      { state: 'running', nextAvailableAt: null, lastRun: null },
+      { status: 202, headers: noStore },
+    );
   } catch (error) {
     const status = error instanceof UpdateError ? 502 : 500;
     return NextResponse.json({ state: 'unavailable' }, { status, headers: noStore });

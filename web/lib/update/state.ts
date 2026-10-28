@@ -22,6 +22,18 @@ export interface UpdateState {
   lastRun: WorkflowRun | null;
 }
 
+/** Ventana después de una carga exitosa en la que la web descarta su caché de datos. */
+export const FRESH_RUN_MS = 15 * 60 * 1000;
+
+/**
+ * ¿Terminó bien una corrida hace menos de 15 minutos? Entonces la web vuelve a pedir los datos
+ * en vez de esperar las 6 horas de la caché: así la fecha nueva se ve apenas termina la carga.
+ */
+export function justFinished(lastRun: WorkflowRun | null, now: Date = new Date()): boolean {
+  if (lastRun?.status !== 'completed' || lastRun.conclusion !== 'success') return false;
+  return now.getTime() - Date.parse(lastRun.updatedAt) < FRESH_RUN_MS;
+}
+
 export function updateState(lastRun: WorkflowRun | null, now: Date = new Date()): UpdateState {
   if (!lastRun) return { state: 'idle', nextAvailableAt: null, lastRun: null };
   if (lastRun.status !== 'completed') return { state: 'running', nextAvailableAt: null, lastRun };

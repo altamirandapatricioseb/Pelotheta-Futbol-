@@ -1403,3 +1403,342 @@ h3 {
   border-style: dashed;
   box-shadow: none;
 }
+
+/* --- Comparar (9.7) ------------------------------------------------------------------- */
+.cmp-bar {
+  display: grid;
+  gap: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: var(--color-surface);
+  padding: 12px 14px;
+  box-shadow: var(--shadow-card);
+}
+/* Barra fija en pantallas anchas; en el celular ocuparía media pantalla, así que va normal.
+   Pegada arriba se achica: quedan jugador y referencias, y el resto se abre con un botón. */
+.cmp-bar__toggle {
+  display: none;
+}
+@media (min-width: 1024px) {
+  .cmp-bar {
+    position: sticky;
+    top: calc(var(--header-bar-h-compact) + 8px);
+    z-index: var(--z-sticky);
+  }
+  .cmp-bar--stuck {
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding-block: 8px;
+  }
+  .cmp-bar--stuck .cmp-bar__toggle {
+    display: inline-flex;
+    grid-column: 2;
+    grid-row: 1;
+    align-self: center;
+  }
+  .cmp-bar--stuck .cmp-bar__row {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .cmp-bar--stuck .cmp-bar__row--compact {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+  .cmp-bar--stuck:not(.cmp-bar--open) .cmp-bar__row--compact,
+  .cmp-bar--stuck .cmp-field legend {
+    display: none;
+  }
+}
+/* Los hijos de las grillas no se estiran con el contenido (la tabla ancha hace scroll adentro). */
+.cmp-bar,
+.cmp-bar__row,
+.cmp-bar__row > *,
+.cmp-head > *,
+.cmp-section,
+.cmp-section > div,
+.cmp-section .chart-card {
+  min-width: 0;
+}
+.cmp-bar__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  gap: 12px 20px;
+  align-items: start;
+}
+.cmp-bar__row--compact {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  border-top: 1px solid var(--color-border);
+  padding-top: 10px;
+}
+.cmp-bar .view-switch {
+  padding: 2px;
+  box-shadow: none;
+}
+.cmp-bar .view-switch__button {
+  padding: 5px 12px;
+}
+@media (max-width: 860px) {
+  .cmp-bar__row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.cmp-field {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 6px;
+  min-width: 0;
+}
+.cmp-field legend {
+  margin-bottom: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+}
+.cmp-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.cmp-inline select:disabled {
+  opacity: 0.55;
+}
+.cmp-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface-2);
+  padding: 2px 4px 2px 12px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.cmp-tag--off {
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+}
+.cmp-tag__remove {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  color: var(--color-text-muted);
+}
+.cmp-tag__remove:hover:not(:disabled) {
+  color: var(--color-text);
+  background: var(--color-surface);
+}
+.cmp-tag__remove:disabled {
+  opacity: 0.35;
+}
+.cmp-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-link);
+}
+
+.cmp-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px 24px;
+  align-items: start;
+}
+.cmp-head > :last-child {
+  grid-column: 1 / -1;
+}
+@media (max-width: 860px) {
+  .cmp-head {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.cmp-ref-list {
+  display: grid;
+  gap: 4px;
+  font-size: 0.875rem;
+}
+.cmp-ref-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+}
+
+.cmp-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
+  gap: 12px;
+}
+.cmp-card {
+  display: grid;
+  gap: 6px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: var(--color-surface);
+  padding: 14px;
+  box-shadow: var(--shadow-card);
+}
+.cmp-count {
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+/* Proporción mejor / igual / peor: segmentos con 2px de separación (skill dataviz). */
+.cmp-split {
+  display: flex;
+  gap: 2px;
+  height: 8px;
+}
+.cmp-split > span {
+  flex-basis: 0;
+  min-width: 0;
+  border-radius: 4px;
+}
+.cmp-split__better {
+  background: var(--color-best);
+}
+.cmp-split__equal {
+  background: var(--color-border);
+}
+.cmp-split__worse {
+  background: var(--color-worst);
+}
+.cmp-summary-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+@media (max-width: 960px) {
+  .cmp-summary-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.cmp-strengths {
+  display: grid;
+  gap: 8px;
+  margin-top: 6px;
+  counter-reset: cmp;
+}
+.cmp-strengths li {
+  display: grid;
+  gap: 1px;
+  padding-left: 22px;
+  position: relative;
+  counter-increment: cmp;
+}
+.cmp-strengths li::before {
+  content: counter(cmp);
+  position: absolute;
+  left: 0;
+  top: 1px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--color-text-muted);
+}
+
+.cmp-section {
+  border-top: 1px solid var(--color-border);
+  padding-top: 14px;
+}
+.cmp-section > div {
+  grid-template-columns: minmax(0, 1fr);
+}
+/* Los textos para lectores de pantalla (absolutos) quedan dentro del contenedor con scroll. */
+.cmp-section .data-table-wrap {
+  position: relative;
+}
+.cmp-section .view-switch {
+  flex-wrap: wrap;
+}
+.cmp-section__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  cursor: pointer;
+  list-style: none;
+  border-radius: 8px;
+}
+.cmp-section__head::-webkit-details-marker {
+  display: none;
+}
+.cmp-section__caret {
+  align-self: center;
+  color: var(--color-text-muted);
+  transition: transform var(--dur-fast) var(--ease-out-quart);
+}
+.cmp-section:not([open]) .cmp-section__caret {
+  transform: rotate(-90deg);
+}
+.cmp-table .cmp-band {
+  text-align: right;
+  color: var(--color-text);
+}
+.cmp-table tbody tr:focus-visible > * {
+  background: var(--color-row-selected);
+}
+.cmp-row--empty > *,
+.cmp-cell--empty {
+  color: var(--color-text-muted);
+  background: color-mix(in oklab, var(--color-surface) 55%, var(--color-surface-2));
+}
+.cmp-cell--empty {
+  text-align: center !important;
+  font-style: italic;
+}
+.cmp-row__open {
+  display: inline-grid;
+  place-items: center;
+  border-radius: 6px;
+  color: var(--color-link);
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease-out-quart);
+}
+.cmp-table tbody tr:hover .cmp-row__open,
+.cmp-table tbody tr:focus-within .cmp-row__open {
+  opacity: 1;
+}
+@media (hover: none) {
+  .cmp-row__open {
+    opacity: 1;
+  }
+}
+
+.cmp-chart-row {
+  cursor: pointer;
+}
+.cmp-chart-hit {
+  fill: transparent;
+}
+.cmp-chart-row:hover .cmp-chart-hit {
+  fill: var(--color-row-hover);
+}
+.cmp-bullet-range {
+  fill: color-mix(in oklab, var(--color-text-muted) 18%, transparent);
+}
+.cmp-bullet-iqr {
+  fill: color-mix(in oklab, var(--color-text-muted) 34%, transparent);
+}
+.cmp-bullet-key {
+  background: color-mix(in oklab, var(--color-text-muted) 34%, transparent);
+}
+.cmp-label {
+  fill: var(--color-text);
+}
+.cmp-value {
+  fill: var(--color-text-muted);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+/* Los gráficos de la comparación no se estiran a todo el ancho: crecerían las letras y el alto. */
+.cmp-section .chart-frame,
+.cmp-wide-chart {
+  max-width: 760px;
+}

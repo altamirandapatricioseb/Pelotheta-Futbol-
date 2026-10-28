@@ -121,6 +121,19 @@ export type Database = {
         };
         Relationships: [];
       };
+      player_position: {
+        Row: {
+          detail_level: string | null;
+          games: number | null;
+          lane: string | null;
+          player_id: number | null;
+          position_raw: string | null;
+          role: string | null;
+          starts: number | null;
+          zone: string | null;
+        };
+        Relationships: [];
+      };
       team_match_master: {
         Row: {
           boca_home: boolean | null;

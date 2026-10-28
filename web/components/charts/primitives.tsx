@@ -369,7 +369,7 @@ export function BarChart({
           });
         })}
         {!horizontal
-          ? references.map((r) => (
+          ? references.map((r, i) => (
               <g key={r.label}>
                 <line
                   x1={left}
@@ -378,7 +378,13 @@ export function BarChart({
                   y2={M.t + plotH - scale(r.value)}
                   className="chart-reference"
                 />
-                <text x={W - M.r} y={M.t + plotH - scale(r.value) - 4} textAnchor="end" className="chart-axis-title">
+                {/* Etiquetas alternadas a la derecha y a la izquierda para que no se pisen. */}
+                <text
+                  x={i % 2 ? left + 4 : W - M.r}
+                  y={M.t + plotH - scale(r.value) - 4}
+                  textAnchor={i % 2 ? 'start' : 'end'}
+                  className="chart-axis-title"
+                >
                   {r.label}: {format(r.value)}
                 </text>
               </g>

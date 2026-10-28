@@ -37,7 +37,7 @@ function csvCell(v: string | number | null): string {
   return `"${safe.replaceAll('"', '""')}"`;
 }
 
-function download(blob: Blob, name: string) {
+export function download(blob: Blob, name: string) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
@@ -47,7 +47,7 @@ function download(blob: Blob, name: string) {
 }
 
 /** PNG del gráfico: copia los estilos ya resueltos (colores de las variables CSS) al SVG. */
-async function downloadPng(svg: SVGSVGElement, name: string) {
+export async function downloadPng(svg: SVGSVGElement, name: string) {
   const clone = svg.cloneNode(true) as SVGSVGElement;
   const from = svg.querySelectorAll('*');
   const to = clone.querySelectorAll('*');

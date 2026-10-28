@@ -13,8 +13,8 @@ Para retomar en un chat nuevo: leer este archivo, `PROMPT-1-BOCA-FUTBOL.md` (ya 
 | 3. Pipeline completo | Hecha (28-oct): workflow corrido desde el botón con éxito y fecha nueva visible en la web |
 | 4. Estadísticas, métricas propias y tablas | **Desplegada** (28-oct): Interfaces 2 y 3 en producción; quedan pendientes menores (ver abajo) |
 | 5. Gráficos (Interfaz 1) | **Desplegada** (28-oct): 103 gráficos en producción, 95 con datos y 8 «sin datos» con motivo |
-| 6. Situaciones y estadística desglosada | **En curso** (28-oct): tablero, desglosada y doble clic desplegados; faltan pendientes menores (ver abajo) |
-| 7. Comparación directa | Pendiente |
+| 6. Situaciones y estadística desglosada | **Desplegada** (28-oct): tablero, conclusiones, desglosada y doble clic; queda la página de partido (ver abajo) |
+| 7. Comparación directa | **Desplegada** (28-oct): `/comparar` contra plantel, zona, carril, posición y otro jugador |
 | 8. Excel | Pendiente |
 | 9. Power BI | Pendiente |
 | 10. Pulido | Pendiente |
@@ -200,9 +200,47 @@ todas sus competiciones contra la liga, copas contra liga, pelota parada, posici
 Equipo, pasar el mouse (o el foco) por una columna muestra esa estadística en el panel. Gráficos 81 y 82 hechos
 (landing: 100 de 103 con datos).
 
-Pendientes de la etapa 6: doble clic desde Comparar (la interfaz llega en la etapa 7); página de partido
-(los enlaces «al partido» de 9.8 todavía no tienen destino); revisión de diseño de cierre del tablero.
+Pendientes de la etapa 6: página de partido (los enlaces «al partido» de 9.8 todavía no tienen destino);
+revisión de diseño de cierre del tablero. El doble clic desde Comparar quedó hecho en la etapa 7.
 
-## Próxima etapa (7: Comparar)
+## Etapa 7: estado (28-oct-2026)
 
-Skills: `impeccable` (`shape`) para el comparador, `dataviz` para radar y barras de diferencia.
+- **Comparar (`/comparar`, 9.7):** un jugador contra 1 a 3 referencias (media del plantel, de su zona, de su
+  zona y carril, de su posición u otro jugador). La media de la liga en su posición figura deshabilitada: no hay
+  datos de jugadores de otros equipos por posición. Período (temporada, últimos 5 o 10 partidos, último mes),
+  competición, totales o por 90, mínimo de minutos y promedio simple o ponderado por minutos (se muestra cuál).
+- **Reglas:** el jugador nunca entra en su propia media; arqueros solo contra arqueros (y suman la sección
+  Porteros); verde = mejor según `higher_is_better`; filas grises «sin datos» que no cuentan en el resumen;
+  muestra pequeña marcada (jugador y grupos de menos de 3); si la fuente solo da la línea, se avisa que zona y
+  posición coinciden. Funciones puras en `web/lib/compare/compare.ts` con 24 tests.
+- **Zona y posición:** tabla `core.position_zone_map` (mapeo de posiciones de las alineaciones a zona, carril y
+  rol; también las cuatro líneas generales) y vista `api.player_position` (posición más repetida de cada jugador,
+  con respaldo en la línea del plantel). Nuevas ventanas en `core.player_master_mv`: `ultimos5`, `ultimos10` y
+  `ultimo_mes` (medidos desde el último partido cargado).
+- **Qué se ve:** resumen (mejor/peor/igual contra cada referencia, 5 fortalezas y 5 debilidades por diferencia
+  estandarizada sin contar minutos ni carga, radar del percentil medio por categoría); partido a partido de la
+  estadística elegida contra la media por partido de cada referencia; una sección plegable por categoría con
+  tabla (valor, media, diferencia absoluta y %, percentil, flecha) y gráficos alternables (radar de 3 a 8 ejes,
+  barras divergentes, agrupadas y de bala). Barra de controles fija que se achica al bajar.
+- **Doble clic** en una fila o un gráfico (también Enter o D): la desglosada con las referencias elegidas
+  superpuestas (barras comparadas y líneas sobre cada partido) y «Volver» a la misma comparación.
+- **Exportar:** PNG de cada gráfico y Excel (`.xlsx` con la hoja «Comparación», una tabla por categoría), armado
+  en el navegador sin dependencias. La hoja interactiva «Comparador» del libro llega en la etapa 8.
+- **Arreglo de la etapa 6:** `api.stat_series` usaba el id de la estadística como clave base en los compuestos
+  (porcentajes, diferencias y sumas): 58 estadísticas (28 de jugador y 30 del equipo) no tenían serie ni
+  ventanas en la desglosada. Ahora resuelve la clave base en el catálogo, como la tabla maestra.
+
+Cierre de seguridad 14.9 de la etapa 7: advisors de Supabase sin hallazgos nuevos (solo los dos INFO de siempre:
+`audit_log` y `source_id_map` sin políticas a propósito); `position_zone_map` con RLS y lectura pública;
+`api.player_position` con `security_invoker`; prueba de RLS con la clave pública 36/36 (suma `player_position`).
+Los parámetros de `/comparar` y la vuelta de la desglosada se validan con listas cerradas y expresiones regulares
+(«volver» solo acepta rutas internas de Comparar); el Excel escribe textos como texto (nunca fórmulas).
+
+Pendientes que no bloquean: el dato de penales del equipo tiene partidos con más convertidos que a favor (sale
+200 % en `eq_pct_penales`); revisar la fuente en la etapa 10. Hay dos registros del mismo jugador (J. Barinaga y
+Juan Barinaga) que vienen así de la fuente.
+
+## Próxima etapa (8: Excel)
+
+Skills: `anthropic-skills:xlsx` antes de escribir el generador (libros con gráficos nativos, hojas interactivas
+con validación de datos y estilos), `dataviz` para los colores de los gráficos.

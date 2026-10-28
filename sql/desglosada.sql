@@ -25,8 +25,17 @@ security invoker
 set search_path = ''
 as $$
   with cat as (
-    select rule, arg1, arg2, factor from api.stat_catalog
-    where stat_id = p_stat and entity = case when p_entity = 'jugador' then 'player' else 'team' end
+    -- En los compuestos, arg1 y arg2 son estadísticas del catálogo: se usa su clave base (como en
+    -- core.player_master_mv), no el id de la estadística.
+    select c.rule, c.factor,
+           case when c.rule in ('cociente', 'diferencia', 'adicion') then coalesce(k1.arg1, c.arg1) else c.arg1 end
+             as arg1,
+           case when c.rule in ('cociente', 'diferencia', 'adicion') then coalesce(k2.arg1, c.arg2) else c.arg2 end
+             as arg2
+    from api.stat_catalog c
+    left join api.stat_catalog k1 on k1.entity = c.entity and k1.stat_id = c.arg1 and k1.rule in ('suma', 'promedio')
+    left join api.stat_catalog k2 on k2.entity = c.entity and k2.stat_id = c.arg2 and k2.rule in ('suma', 'promedio')
+    where c.stat_id = p_stat and c.entity = case when p_entity = 'jugador' then 'player' else 'team' end
   ),
   games as (
     select b.match_id, b.match_date, b.competition_code, b.competition_name, b.opponent, b.home, b.result,

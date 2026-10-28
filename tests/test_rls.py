@@ -113,6 +113,7 @@ def test_anon_lee_el_resumen_sin_fecha_de_nacimiento(client: httpx.Client) -> No
         "boca_competition_metric",
         "referee_stats",
         "league_absences",
+        "player_position",
     ],
 )
 def test_anon_lee_las_vistas_avanzadas(client: httpx.Client, view: str) -> None:

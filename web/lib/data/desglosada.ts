@@ -1,6 +1,17 @@
 import 'server-only';
 
+import {
+  referenceLabel,
+  referenceMembers,
+  referencePerMatch,
+  referencePool,
+  referenceValue,
+  refProblem,
+  type AverageMode,
+  type RefSpec,
+} from '@/lib/compare/compare';
 import { getCatalog } from '@/lib/data/catalog';
+import { getPlayerPositions } from '@/lib/data/compare';
 import type { DataResult } from '@/lib/data/players';
 import { getPlayerMaster } from '@/lib/data/players';
 import { getLeagueClubs } from '@/lib/data/team';
@@ -45,6 +56,8 @@ export interface StatDetail {
   standing: { rank: number; of: number; percentile: number; group: string } | null;
   /** Referencias para las barras comparadas: plantel y posición, o promedio de la liga. */
   references: { label: string; value: number }[];
+  /** Referencias elegidas en Comparar (9.7), como media por partido sobre las barras de cada partido. */
+  matchReferences: { label: string; value: number }[];
   related: StatDef[];
 }
 
@@ -54,11 +67,19 @@ function fail(cause: unknown): { ok: false; code: 'PEL-DB-001'; detail: string }
 
 const average = (values: number[]) => (values.length ? values.reduce((a, b) => a + b, 0) / values.length : null);
 
+/** Referencias elegidas en Comparar: cuáles, mínimo de minutos y tipo de promedio. */
+export interface DetailReferences {
+  refs: RefSpec[];
+  minMinutes: number;
+  mode: AverageMode;
+}
+
 /** Todo lo que muestra la página de una estadística desglosada (9.8). */
 export async function getStatDetail(
   statId: string,
   entity: Entity,
   id: number | null,
+  chosen: DetailReferences | null = null,
 ): Promise<DataResult<StatDetail> | null> {
   try {
     const catalog = await getCatalog(entity === 'jugador' ? 'player' : 'team');
@@ -67,15 +88,29 @@ export async function getStatDetail(
     if (!stat) return null;
     const api = createApiClient();
     const args = { p_stat: statId, p_entity: entity, p_id: id };
-    const [series, windows] = await Promise.all([api.rpc('stat_series', args), api.rpc('stat_windows', args)]);
+    // Columnas explícitas: piden la versión nueva de las funciones sin esperar la caché.
+    const [series, windows] = await Promise.all([
+      api
+        .rpc('stat_series', args)
+        .select(
+          'match_id, match_date, competition_code, competition_name, opponent, home, result, goals_for, goals_against, minutes, num, den, value',
+        ),
+      api
+        .rpc('stat_windows', args)
+        .select('window_key, label, sort_order, n, value, total, best, worst, season, delta'),
+    ]);
     if (series.error) return fail(series.error.message);
     if (windows.error) return fail(windows.error.message);
 
     let entityName = 'Boca Juniors';
     let standing: StatDetail['standing'] = null;
     const references: StatDetail['references'] = [];
+    const matchReferences: StatDetail['matchReferences'] = [];
     if (entity === 'jugador') {
-      const players = await getPlayerMaster('todas');
+      const [players, positions] = await Promise.all([
+        getPlayerMaster('todas'),
+        chosen ? getPlayerPositions() : Promise.resolve(null),
+      ]);
       if (players.ok) {
         const me = players.data.find((p) => p.playerId === id);
         entityName = me?.name ?? 'Jugador';
@@ -89,14 +124,29 @@ export async function getStatDetail(
           const r = rankAndPercentile(all, mine, stat.higherIsBetter);
           standing = { rank: r.rank, of: all.length, percentile: r.percentile, group: 'en el plantel' };
         }
-        const squad = average(all);
-        if (squad !== null) references.push({ label: 'Plantel', value: squad });
-        const samePosition = players.data
-          .filter((p) => p.position === me?.position)
-          .map(valueOf)
-          .filter((v): v is number => v !== null);
-        const position = average(samePosition);
-        if (position !== null && me?.position) references.push({ label: `${me.position}s`, value: position });
+        if (chosen && me && positions?.ok) {
+          // Las mismas referencias que en Comparar, sin el jugador y con arqueros solo contra arqueros.
+          const byId = new Map(positions.data.map((p) => [p.playerId, p]));
+          const pool = referencePool(players.data, me, byId, chosen.minMinutes);
+          for (const ref of chosen.refs) {
+            if (refProblem(ref, me, byId, players.data)) continue;
+            const members = referenceMembers(ref, me, pool, byId, players.data);
+            const label = referenceLabel(ref, byId.get(me.playerId), players.data).long;
+            const value = referenceValue(members, stat, stat.per90, chosen.mode).value;
+            if (value !== null) references.push({ label, value });
+            const perMatch = referencePerMatch(members, stat, chosen.mode);
+            if (perMatch !== null) matchReferences.push({ label, value: perMatch });
+          }
+        } else {
+          const squad = average(all);
+          if (squad !== null) references.push({ label: 'Plantel', value: squad });
+          const samePosition = players.data
+            .filter((p) => p.position === me?.position)
+            .map(valueOf)
+            .filter((v): v is number => v !== null);
+          const position = average(samePosition);
+          if (position !== null && me?.position) references.push({ label: `${me.position}s`, value: position });
+        }
         if (mine !== null) references.unshift({ label: entityName, value: mine });
       }
     } else {
@@ -145,6 +195,7 @@ export async function getStatDetail(
         })),
         standing,
         references,
+        matchReferences,
         related: catalog.data.filter((s) => s.group === stat.group && s.id !== stat.id && s.available).slice(0, 12),
       },
     };

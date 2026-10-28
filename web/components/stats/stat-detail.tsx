@@ -97,7 +97,7 @@ export function StatDetailView({ detail, backHref, query }: { detail: StatDetail
         </Link>
         <CaretRightIcon size={12} aria-hidden="true" />
         <Link href={backHref} className="focus-ring hover:text-fg">
-          {detail.entity === 'jugador' ? 'Jugadores' : 'Equipo'}
+          {backHref.startsWith('/comparar') ? 'Comparar' : detail.entity === 'jugador' ? 'Jugadores' : 'Equipo'}
         </Link>
         <CaretRightIcon size={12} aria-hidden="true" />
         <span className="font-semibold text-fg">{stat.name}</span>
@@ -182,6 +182,8 @@ export function StatDetailView({ detail, backHref, query }: { detail: StatDetail
                     const l10 = windows.find((w) => w.key === 'u10')?.value;
                     return l10 !== null && l10 !== undefined ? [{ value: l10, label: 'Últimos 10' }] : [];
                   })(),
+                  // Referencias elegidas en Comparar (9.7), como media por partido.
+                  ...detail.matchReferences,
                 ]}
                 highlight={withValue.length - 1}
                 format={(v) => formatStat(v, stat, false)}
@@ -226,9 +228,11 @@ export function StatDetailView({ detail, backHref, query }: { detail: StatDetail
                   series={[{ id: 'r', label: stat.name, slot: 1, values: detail.references.map((r) => r.value) }]}
                   format={(v) => formatStat(v, stat, false)}
                   label={
-                    detail.entity === 'jugador'
-                      ? 'Comparado con el plantel y con su posición'
-                      : 'Comparado con el promedio de la liga'
+                    detail.matchReferences.length
+                      ? 'Comparado con las referencias elegidas en Comparar'
+                      : detail.entity === 'jugador'
+                        ? 'Comparado con el plantel y con su posición'
+                        : 'Comparado con el promedio de la liga'
                   }
                 />
               </article>

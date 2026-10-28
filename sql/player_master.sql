@@ -1,6 +1,6 @@
 -- =============================================================================
--- Tabla maestra de jugadores (Interfaz 3): una fila por jugador y ventana (cada competición y
--- 'todas') con todas las estadísticas del catálogo en un objeto JSON {stat_id: valor}.
+-- Tabla maestra de jugadores (Interfaz 3): una fila por jugador y ventana (cada competición,
+-- 'todas', 'ultimos5', 'ultimos10' y 'ultimo_mes') con todas las estadísticas del catálogo en un objeto JSON {stat_id: valor}.
 -- Es el texto de la vista materializada `core.player_master_mv`.
 --
 -- Reglas del catálogo (`core.stat_catalog.rule`):
@@ -10,10 +10,20 @@
 --   cociente / diferencia / adición: suma sobre suma, solo con los partidos que tienen los dos datos.
 --   métrica / especial: ya calculadas en Python (`core.stat_value`).
 -- =============================================================================
-with window_match as (
-  select match_id, competition_code as code from api.boca_match where status = 'jugado'
-  union all
-  select match_id, 'todas' from api.boca_match where status = 'jugado'
+with played as (
+  select match_id, competition_code, match_date,
+         row_number() over (order by kickoff_at desc) as recent,
+         max(match_date) over () as last_date
+  from api.boca_match where status = 'jugado'
+),
+-- Ventanas: cada competición, 'todas' y, para Comparar (9.7), los últimos 5 y 10 partidos de
+-- Boca y el último mes (30 días hasta el último partido cargado).
+window_match as (
+  select match_id, competition_code as code from played
+  union all select match_id, 'todas' from played
+  union all select match_id, 'ultimos5' from played where recent <= 5
+  union all select match_id, 'ultimos10' from played where recent <= 10
+  union all select match_id, 'ultimo_mes' from played where match_date > last_date - 30
 ),
 pmv as (
   select v.match_id, v.player_id, v.key, v.value, w.code

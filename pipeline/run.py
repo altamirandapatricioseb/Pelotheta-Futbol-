@@ -63,7 +63,7 @@ def load_dotenv(path: Path = ROOT / ".env") -> None:
 
 def secret_key() -> str:
     # Se acepta el nombre que eligió el dueño en GitHub Secrets además del documentado.
-    return os.environ.get("SUPABASE_SECRET_KEY") or os.environ.get("API_SUPABASE_SECRET_KEY", "")
+    return (os.environ.get("SUPABASE_SECRET_KEY") or os.environ.get("API_SUPABASE_SECRET_KEY", "")).strip()
 
 
 def league_team_paths(league_data: dict[str, object]) -> list[str]:
@@ -490,11 +490,31 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--dry-run", action="store_true", help="no carga en Supabase")
     args = parser.parse_args(argv)
     load_dotenv()
-    url, key = os.environ.get("SUPABASE_URL", ""), secret_key()
-    if not args.dry_run and not (url and key):
-        # Antes de media hora de scraping: sin destino no tiene sentido empezar.
-        print("Faltan SUPABASE_URL o la clave secreta (GitHub Secrets o .env).", file=sys.stderr)
-        return 2
+    # strip: un secret pegado con un espacio o un salto de línea al final rompe la URL o la cabecera.
+    url, key = os.environ.get("SUPABASE_URL", "").strip(), secret_key()
+    if not args.dry_run:
+        # Antes de media hora de scraping: sin destino válido no tiene sentido empezar.
+        if not (url and key):
+            print("Faltan SUPABASE_URL o la clave secreta (GitHub Secrets o .env).", file=sys.stderr)
+            return 2
+        try:
+            load.check_connection(url, key)
+        except load.LoadError as exc:
+            print(f"El destino de la carga no responde bien: {exc}", file=sys.stderr)
+            return 2
+    try:
+        return run_pipeline(dry_run=args.dry_run, url=url, key=key)
+    except Exception as exc:
+        # Un error no previsto queda en ingest_log (y se ve en /actualizar) y se relanza para que
+        # el traceback completo quede en el log de GitHub Actions.
+        if not args.dry_run:
+            with contextlib.suppress(load.LoadError):
+                load.log_failure(pd.SOURCE, f"Error inesperado ({type(exc).__name__}): {exc}", url, key)
+        raise
+
+
+def run_pipeline(dry_run: bool, url: str, key: str) -> int:
+    """Scraping de todas las fuentes, validación y carga (con el destino ya verificado)."""
     run_id = str(uuid.uuid4())
     started = datetime.now()
     try:
@@ -544,8 +564,9 @@ def main(argv: list[str] | None = None) -> int:
     except (FetchError, RetryableFetchError, ValueError, KeyError) as exc:
         message = f"Fallo del scraping: {exc}"
         print(message, file=sys.stderr)
-        if not args.dry_run:
-            load.log_failure(pd.SOURCE, message, url, key)
+        if not dry_run:
+            with contextlib.suppress(load.LoadError):
+                load.log_failure(pd.SOURCE, message, url, key)
         return 1
     if not games:
         print("Sin partidos: no se carga nada para no borrar datos buenos.", file=sys.stderr)
@@ -557,7 +578,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     for warning in warnings:
         print(f"Aviso: {warning}")
-    if args.dry_run:
+    if dry_run:
         print(
             f"Dry run: {len(batch['matches'])} partidos, {len(batch['lineups'])} alineaciones, "
             f"{len(batch['events'])} eventos, {len(batch['player_stats'])} estadísticas de "

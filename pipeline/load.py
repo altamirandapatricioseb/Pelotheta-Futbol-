@@ -85,7 +85,8 @@ def build_batch(
 
 
 def _check_target(url: str, key: str) -> None:
-    if not SUPABASE_URL_RE.match(url):
+    # fullmatch y no match: con match, «$» acepta un salto de línea final (un secret mal pegado).
+    if not SUPABASE_URL_RE.fullmatch(url):
         raise LoadError("SUPABASE_URL no tiene la forma https://<ref>.supabase.co")
     if not key.startswith("sb_secret_"):
         raise LoadError("La carga necesita la clave secreta (sb_secret_...), no la publicable")
@@ -110,6 +111,27 @@ def _rpc(function: str, payload: dict[str, Any], url: str, key: str, client: htt
         # El cuerpo de error de PostgREST trae el mensaje de SQL: útil y sin secretos.
         raise LoadError(f"Supabase respondió {response.status_code}: {response.text[:300]}")
     return response.json() if response.content else None
+
+
+def check_connection(url: str, key: str, client: httpx.Client | None = None) -> None:
+    """Lectura mínima con la clave secreta antes de empezar: si el destino está mal, se sabe en
+    segundos y no después de media hora de scraping (cuando ni el fallo se puede registrar)."""
+    _check_target(url, key)
+    own_client = client is None
+    http = client or httpx.Client(timeout=TIMEOUT_SECONDS)
+    try:
+        response = http.get(
+            f"{url.rstrip('/')}/rest/v1/system_status",
+            params={"select": "key", "limit": "1"},
+            headers={"apikey": key, "Accept-Profile": "api"},
+        )
+    except httpx.HTTPError as exc:
+        raise LoadError(f"No se pudo conectar con Supabase ({type(exc).__name__})") from None
+    finally:
+        if own_client:
+            http.close()
+    if response.status_code >= 400:
+        raise LoadError(f"Supabase respondió {response.status_code}: {response.text[:300]}")
 
 
 def send_batch(batch: dict[str, Any], url: str, key: str, client: httpx.Client | None = None) -> Any:

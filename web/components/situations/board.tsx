@@ -427,17 +427,27 @@ function ConclusionsView({ conclusions, onShowCards }: { conclusions: Conclusion
     (c) => (!tone || c.tone === tone) && (scope === 'equipo' || !player || c.playerName === player),
   );
   const count = (t: Conclusion['tone']) => (scope === 'equipo' ? team : players).filter((c) => c.tone === t).length;
+  const POSITIONS = ['Arquero', 'Defensor', 'Mediocampista', 'Delantero'];
+  const PLURAL: Record<string, string> = {
+    Arquero: 'Arqueros',
+    Defensor: 'Defensores',
+    Mediocampista: 'Mediocampistas',
+    Delantero: 'Delanteros',
+  };
+  const byName = (a: Conclusion, b: Conclusion) => (a.playerName ?? '').localeCompare(b.playerName ?? '');
   const groups =
     scope === 'equipo'
       ? [...new Set([...AREA_ORDER, ...pool.map((c) => c.area)])]
           .filter((a) => pool.some((c) => c.area === a))
           .map((a) => ({ name: a, items: pool.filter((c) => c.area === a) }))
-      : [
-          {
-            name: player || 'Todos los jugadores',
-            items: [...pool].sort((a, b) => (a.playerName ?? '').localeCompare(b.playerName ?? '')),
-          },
-        ];
+      : [...POSITIONS, '']
+          .map((pos) => ({
+            name: pos ? (PLURAL[pos] ?? pos) : 'Sin posición cargada',
+            items: pool
+              .filter((c) => (pos ? c.playerPosition === pos : !POSITIONS.includes(c.playerPosition ?? '')))
+              .sort(byName),
+          }))
+          .filter((g) => g.items.length);
 
   return (
     <div className="grid gap-6">

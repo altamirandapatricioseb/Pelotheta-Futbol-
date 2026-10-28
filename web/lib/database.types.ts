@@ -297,6 +297,7 @@ export type Database = {
         Row: {
           entity_id: number | null;
           player_name: string | null;
+          player_position: string | null;
           area: string | null;
           band: string | null;
           computed_at: string | null;

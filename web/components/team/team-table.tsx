@@ -3,7 +3,7 @@
 import { CaretDownIcon, InfoIcon, MagnifyingGlassIcon } from '@phosphor-icons/react';
 import { motion } from 'motion/react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useRef } from 'react';
 
 import { NOT_AVAILABLE } from '@/lib/format';
 import {
@@ -20,6 +20,7 @@ import { nextSort, type SortState } from '@/lib/stats/sort';
 import { groupMatches, resultLabel, TEAM_VIEWS, type MatchGroup, type TeamView } from '@/lib/stats/team-groups';
 
 import { StatReading } from '@/components/stats/stat-reading';
+import { useGrowOnlyHeight, useHoverPreview } from '@/components/stats/use-hover-preview';
 
 import { SeasonBoard } from './season-board';
 
@@ -69,7 +70,9 @@ export function TeamTableView({
   const [statId, setStatId] = useState(columns[0]?.id ?? '');
   const column = columns.find((c) => c.id === statId) ?? columns[0];
   // Vista previa de una columna al pasar el mouse (como la de la fila): solo cambia el panel.
-  const [previewStatId, setPreviewStatId] = useState<string | null>(null);
+  const { preview: previewStatId, hover: hoverStat, focus: focusStat } = useHoverPreview();
+  const panelRef = useRef<HTMLDivElement>(null);
+  useGrowOnlyHeight(panelRef);
   const shown = (previewStatId !== null ? columns.find((c) => c.id === previewStatId) : undefined) ?? column;
   const [sort, setSort] = useState<SortState | null>(null);
 
@@ -194,7 +197,7 @@ export function TeamTableView({
 
   return (
     <div className="grid gap-6">
-      <div className="context-panel" aria-live="polite">
+      <div ref={panelRef} className="context-panel" aria-live="polite">
         <section aria-label="Partido actual">
           {current ? (
             <div className="relative grid gap-4">
@@ -380,15 +383,15 @@ export function TeamTableView({
             onKeyDown={onKeyDown}
             onMouseOver={(e) => {
               const stat = (e.target as HTMLElement).closest<HTMLElement>('[data-stat]')?.dataset.stat;
-              setPreviewStatId(stat ?? null);
+              hoverStat(stat ?? null);
             }}
             onFocus={(e) => {
               // Con el teclado, el encabezado enfocado también muestra su estadística en el panel.
               const stat = (e.target as HTMLElement).closest<HTMLElement>('[data-stat]')?.dataset.stat;
-              if (stat) setPreviewStatId(stat);
+              if (stat) focusStat(stat);
             }}
             onMouseLeave={() => {
-              setPreviewStatId(null);
+              hoverStat(null);
             }}
             onDoubleClick={(e) => {
               // Doble clic en una celda: la estadística desglosada del equipo (9.8).

@@ -18,6 +18,7 @@ import {
 } from '@/lib/stats/catalog';
 import { nextSort, type SortState } from '@/lib/stats/sort';
 import { StatReading } from '@/components/stats/stat-reading';
+import { useGrowOnlyHeight, useHoverPreview } from '@/components/stats/use-hover-preview';
 
 const NAME_SORT = '__nombre';
 const POSITIONS = ['Todas', 'Arquero', 'Defensor', 'Mediocampista', 'Delantero'] as const;
@@ -109,7 +110,9 @@ export function PlayerMasterView({
   // Si cambia el conjunto y la estadística actual no está, pasa a la primera columna.
   const column = columns.find((c) => c.id === statId) ?? columns[0];
   // Vista previa de una columna al pasar el mouse (como la de la fila): solo cambia el panel.
-  const [previewStatId, setPreviewStatId] = useState<string | null>(null);
+  const { preview: previewStatId, hover: hoverStat, focus: focusStat } = useHoverPreview();
+  const panelRef = useRef<HTMLDivElement>(null);
+  useGrowOnlyHeight(panelRef);
   const shown = (previewStatId !== null ? columns.find((c) => c.id === previewStatId) : undefined) ?? column;
 
   const visible = useMemo(() => {
@@ -237,7 +240,7 @@ export function PlayerMasterView({
   return (
     <div className="grid gap-6">
       {/* Panel de contexto: ficha del jugador y descripción de la estadística actual. */}
-      <div className="context-panel" aria-live="polite">
+      <div ref={panelRef} className="context-panel" aria-live="polite">
         <section aria-label="Jugador actual">
           <PitchTexture />
           {current ? (
@@ -464,15 +467,15 @@ export function PlayerMasterView({
           onKeyDown={onKeyDown}
           onMouseOver={(e) => {
             const stat = (e.target as HTMLElement).closest<HTMLElement>('[data-stat]')?.dataset.stat;
-            setPreviewStatId(stat ?? null);
+            hoverStat(stat ?? null);
           }}
           onFocus={(e) => {
             // Con el teclado, el encabezado enfocado también muestra su estadística en el panel.
             const stat = (e.target as HTMLElement).closest<HTMLElement>('[data-stat]')?.dataset.stat;
-            if (stat) setPreviewStatId(stat);
+            if (stat) focusStat(stat);
           }}
           onMouseLeave={() => {
-            setPreviewStatId(null);
+            hoverStat(null);
           }}
           onDoubleClick={(e) => {
             // Doble clic en una celda: la estadística desglosada de ese jugador (9.8).

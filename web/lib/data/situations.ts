@@ -29,6 +29,8 @@ export interface Conclusion {
   /** 0 para el equipo; el id del jugador en las conclusiones individuales. */
   entityId: number;
   playerName: string | null;
+  /** Posición del jugador (Arquero, Defensor, Mediocampista o Delantero). */
+  playerPosition: string | null;
   area: string;
   title: string;
   kind: string;
@@ -70,7 +72,15 @@ export async function getSituations(): Promise<DataResult<SituationsData>> {
           'card_id, param_value, param_order, n, w, d, l, win_pct, ppg, goal_diff, base_win_pct, delta, gf_avg, ga_avg, clean_pct, scored_pct, base_ppg, base_gf, base_ga, base_clean, stats, base_stats',
         )
         .limit(3000),
-      api.from('conclusion').select('*').neq('text_es', '').order('sort_order').order('player_name').limit(1000),
+      api
+        .from('conclusion')
+        .select(
+          'rule_id, entity_id, player_name, player_position, area, title_es, kind, scope, unit, link, sort_order, band, value, reference, percentile, n, tone, text_es',
+        )
+        .neq('text_es', '')
+        .order('sort_order')
+        .order('player_name')
+        .limit(1000),
     ]);
     if (catalog.error) return fail(catalog.error.message);
     if (results.error) return fail(results.error.message);
@@ -159,6 +169,7 @@ export async function getSituations(): Promise<DataResult<SituationsData>> {
                   id: c.rule_id,
                   entityId: c.entity_id ?? 0,
                   playerName: c.player_name,
+                  playerPosition: c.player_position,
                   area: c.area ?? '',
                   title: c.title_es ?? '',
                   kind: c.kind ?? '',

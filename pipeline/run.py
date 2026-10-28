@@ -564,15 +564,24 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 0
     player_stats = batch.pop("player_stats")
-    result = load.send_batch(batch, url, key)
-    result["player_stats"] = load.send_player_stats(player_stats, url, key)
-    if weather:
-        result["weather"] = load.send_weather(weather, url, key)
-    result.update(load.send_extras(extras, url, key) or {})
-    if feet:
-        result["feet"] = load.send_player_foot(feet, url, key)
-    if competition_metrics:
-        result["competition_metrics"] = load.send_competition_metrics(competition_metrics, url, key)
+    try:
+        result = load.send_batch(batch, url, key)
+        result["player_stats"] = load.send_player_stats(player_stats, url, key)
+        if weather:
+            result["weather"] = load.send_weather(weather, url, key)
+        result.update(load.send_extras(extras, url, key) or {})
+        if feet:
+            result["feet"] = load.send_player_foot(feet, url, key)
+        if competition_metrics:
+            result["competition_metrics"] = load.send_competition_metrics(competition_metrics, url, key)
+    except load.LoadError as exc:
+        # El mensaje de LoadError nunca incluye la clave: se puede registrar en la base.
+        print(f"Fallo de la carga: {exc}", file=sys.stderr)
+        try:
+            load.log_failure(pd.SOURCE, f"Fallo de la carga: {exc}", url, key)
+        except load.LoadError:
+            pass
+        return 1
     seconds = (datetime.now() - started).total_seconds()
     print(f"Carga {status} en {seconds:.0f} s: {result}")
     return 0

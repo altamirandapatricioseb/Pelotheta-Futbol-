@@ -14,8 +14,10 @@ import {
   type StatDef,
   type StatSet,
 } from '@/lib/stats/catalog';
+import { nextSort, type SortState } from '@/lib/stats/sort';
+import { StatReading } from '@/components/stats/stat-reading';
 
-type SortDir = 'asc' | 'desc';
+const NAME_SORT = '__nombre';
 const POSITIONS = ['Todas', 'Arquero', 'Defensor', 'Mediocampista', 'Delantero'] as const;
 const ROW_LAYOUT = { type: 'spring', stiffness: 520, damping: 44 } as const;
 const CUSTOM_SET = 'personalizado';
@@ -87,7 +89,7 @@ export function PlayerMasterView({
   const [statId, setStatId] = useState<string>(
     columns.some((c) => c.id === initialStat) ? (initialStat ?? '') : (columns[0]?.id ?? ''),
   );
-  const [sort, setSort] = useState<{ id: string; dir: SortDir }>({ id: 'minutos', dir: 'desc' });
+  const [sort, setSort] = useState<SortState | null>(null);
   const [selectedId, setSelectedId] = useState<number | null>(
     players.some((p) => p.playerId === initialPlayerId) ? initialPlayerId : (players[0]?.playerId ?? null),
   );
@@ -101,19 +103,21 @@ export function PlayerMasterView({
     const q = query.trim().toLocaleLowerCase('es-AR');
     // Los arqueros tienen su propia tabla y no se mezclan con los jugadores de campo (9.1).
     const goalkeepers = setId === GOALKEEPER_SET;
-    const sortStat = byId.get(sort.id);
-    return players
+    const filtered = players
       .filter((p) => (goalkeepers ? p.position === 'Arquero' : position === 'Todas' || p.position === position))
       .filter((p) => p.minutes >= minMinutes)
-      .filter((p) => !q || p.name.toLocaleLowerCase('es-AR').includes(q))
-      .toSorted((a, b) => {
-        const va = sortStat ? playerValue(a, sortStat, per90) : a.minutes;
-        const vb = sortStat ? playerValue(b, sortStat, per90) : b.minutes;
-        // `n/d` siempre al final, sin importar el sentido del orden (9.10).
-        if (va === null || vb === null) return va === vb ? 0 : va === null ? 1 : -1;
-        const cmp = numeric(va) && numeric(vb) ? va - vb : String(va).localeCompare(String(vb), 'es');
-        return sort.dir === 'asc' ? cmp : -cmp;
-      });
+      .filter((p) => !q || p.name.toLocaleLowerCase('es-AR').includes(q));
+    // Sin orden elegido: el original de la base (de más a menos minutos).
+    if (!sort) return filtered;
+    const sortStat = byId.get(sort.id);
+    return filtered.toSorted((a, b) => {
+      const va = sort.id === NAME_SORT ? a.name : sortStat ? playerValue(a, sortStat, per90) : a.minutes;
+      const vb = sort.id === NAME_SORT ? b.name : sortStat ? playerValue(b, sortStat, per90) : b.minutes;
+      // `n/d` siempre al final, sin importar el sentido del orden (9.10).
+      if (va === null || vb === null) return va === vb ? 0 : va === null ? 1 : -1;
+      const cmp = numeric(va) && numeric(vb) ? va - vb : String(va).localeCompare(String(vb), 'es');
+      return sort.dir === 'asc' ? cmp : -cmp;
+    });
   }, [players, position, minMinutes, query, sort, per90, setId, byId]);
 
   // Si el jugador elegido no está en la tabla visible (por ejemplo, un defensor en Porteros),
@@ -137,10 +141,15 @@ export function PlayerMasterView({
   const standing =
     column && numeric(currentValue) ? rankAndPercentile(valuesOf(column), currentValue, column.higherIsBetter) : null;
 
+  // Primer clic: elige la estadística (se lee su definición); los siguientes ordenan de menor a
+  // mayor, de mayor a menor y vuelven al orden original (lib/stats/sort.ts).
   const onHeaderClick = (id: string) => {
-    setStatId(id);
-    // Primer clic: de menor a mayor; segundo clic sobre la misma columna: al revés (9.10).
-    setSort((s) => (s.id === id ? { id, dir: s.dir === 'asc' ? 'desc' : 'asc' } : { id, dir: 'asc' }));
+    const next = nextSort(sort, id, column?.id ?? null);
+    setStatId(next.selected);
+    setSort(next.sort);
+  };
+  const onNameHeaderClick = () => {
+    setSort(nextSort(sort, NAME_SORT, NAME_SORT).sort);
   };
 
   const moveSelection = useCallback(
@@ -275,6 +284,7 @@ export function PlayerMasterView({
             </div>
             <p className="text-xs font-semibold text-muted">{column.group}</p>
             <p className="max-w-[60ch] text-sm leading-relaxed">{column.description}</p>
+            <StatReading text={column.reading} />
             {column.formula && column.rule !== 'suma' ? (
               <p className="text-sm text-muted">
                 Fórmula: <span className="font-semibold text-fg">{column.formula}</span>
@@ -435,9 +445,25 @@ export function PlayerMasterView({
               </tr>
             ) : null}
             <tr>
-              <th scope="col">Jugador</th>
+              <th
+                scope="col"
+                aria-sort={sort?.id === NAME_SORT ? (sort.dir === 'asc' ? 'ascending' : 'descending') : 'none'}
+              >
+                <button type="button" className="sort-button focus-ring" onClick={onNameHeaderClick}>
+                  Jugador
+                  {sort?.id === NAME_SORT ? (
+                    <CaretDownIcon
+                      size={12}
+                      weight="bold"
+                      className="sort-arrow"
+                      data-dir={sort.dir}
+                      aria-hidden="true"
+                    />
+                  ) : null}
+                </button>
+              </th>
               {columns.map((c) => {
-                const sorted = sort.id === c.id;
+                const sorted = sort?.id === c.id;
                 return (
                   <th
                     key={c.id}

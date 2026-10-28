@@ -18,6 +18,8 @@ export interface StatDef {
   name: string;
   short: string;
   description: string;
+  /** Cómo leer el valor: si más alto es mejor, qué significa negativo o cerca de 0. */
+  reading: string;
   group: string;
   category: string;
   unit: string;
@@ -141,7 +143,11 @@ export function aggregateTeam(
     }
     case 'metrica':
     case 'especial': {
-      if (stat.arg2 === 'ventana') return options.windowValue ?? null;
+      if (stat.arg2 === 'ventana') {
+        // Un solo partido: su valor guardado (por ejemplo, la concentración de goles de ese partido).
+        const single = rows.length === 1 ? rows[0]?.stats[stat.id] : undefined;
+        return single ?? options.windowValue ?? null;
+      }
       const values = present(rows, stat.id);
       if (values.length === 0) return null;
       return stat.arg2 === 'suma' && !perMatch ? sum(values) : sum(values) / values.length;

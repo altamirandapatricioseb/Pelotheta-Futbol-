@@ -271,6 +271,7 @@ class Stat(BaseModel):
     nombre_es: str = Field(min_length=2)
     abrev: str = Field(min_length=1, max_length=10)
     descripcion_es: str
+    lectura_es: str  # cómo leer el valor: si más alto es mejor, qué significa negativo...
     grupo: str
     categoria: str
     unidad: str
@@ -330,6 +331,7 @@ def to_payload(stats: list[Stat], sets: list[StatSet]) -> dict[str, list[dict[st
                 "name_es": s.nombre_es,
                 "short_name": s.abrev,
                 "description_es": s.descripcion_es,
+                "reading_es": s.lectura_es,
                 "stat_group": s.grupo,
                 "category": s.categoria,
                 "unit": s.unidad,

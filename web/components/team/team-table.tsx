@@ -13,9 +13,14 @@ import {
   type StatValue,
   type TeamMatchRow,
 } from '@/lib/stats/catalog';
+import { nextSort, type SortState } from '@/lib/stats/sort';
 import { groupMatches, resultLabel, TEAM_VIEWS, type MatchGroup, type TeamView } from '@/lib/stats/team-groups';
 
-type SortDir = 'asc' | 'desc';
+import { StatReading } from '@/components/stats/stat-reading';
+
+import { SeasonBoard } from './season-board';
+
+const GROUP_SORT = '__grupo';
 const ROW_LAYOUT = { type: 'spring', stiffness: 520, damping: 44 } as const;
 const LEVEL_TEXT = { A: 'dato directo de una fuente', B: 'calculado', C: 'no disponible en fuentes gratuitas' };
 
@@ -51,7 +56,7 @@ export function TeamTableView({ matches, catalog, sets, windowValues, initialSet
   );
   const [statId, setStatId] = useState(columns[0]?.id ?? '');
   const column = columns.find((c) => c.id === statId) ?? columns[0];
-  const [sort, setSort] = useState<{ id: string; dir: SortDir } | null>(null);
+  const [sort, setSort] = useState<SortState | null>(null);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLocaleLowerCase('es-AR');
@@ -73,8 +78,11 @@ export function TeamTableView({ matches, catalog, sets, windowValues, initialSet
     });
 
   const groups = useMemo(() => {
+    // Sin orden elegido: por partido, del más reciente al más viejo; el resto, en su orden natural.
     const list = groupMatches(filtered, view);
     if (!sort) return view === 'partido' ? list.toReversed() : list;
+    // Primera columna: por fecha (partido y mes) o por nombre (rival y competición).
+    if (sort.id === GROUP_SORT) return sort.dir === 'asc' ? list : list.toReversed();
     const stat = byId.get(sort.id);
     if (!stat) return list;
     return list.toSorted((a, b) => {
@@ -101,10 +109,15 @@ export function TeamTableView({ matches, catalog, sets, windowValues, initialSet
     window.history.replaceState(null, '', url);
   }, [setId, view, column]);
 
+  // Primer clic: elige la estadística (se lee su definición); los siguientes ordenan de menor a
+  // mayor, de mayor a menor y vuelven al orden original (lib/stats/sort.ts).
   const onHeaderClick = (id: string) => {
-    setStatId(id);
-    // Primer clic: de menor a mayor; segundo clic sobre la misma columna: al revés (9.10).
-    setSort((s) => (s?.id === id ? { id, dir: s.dir === 'asc' ? 'desc' : 'asc' } : { id, dir: 'asc' }));
+    const next = nextSort(sort, id, column?.id ?? null);
+    setStatId(next.selected);
+    setSort(next.sort);
+  };
+  const onGroupHeaderClick = () => {
+    setSort(nextSort(sort, GROUP_SORT, GROUP_SORT).sort);
   };
 
   const onKeyDown = (event: React.KeyboardEvent) => {
@@ -194,6 +207,7 @@ export function TeamTableView({ matches, catalog, sets, windowValues, initialSet
               ) : null}
             </div>
             <p className="max-w-[60ch] text-sm leading-relaxed">{column.description}</p>
+            <StatReading text={column.reading} />
             {column.formula && column.rule !== 'suma' ? (
               <p className="text-sm text-muted">
                 Fórmula: <span className="font-semibold text-fg">{column.formula}</span>
@@ -284,127 +298,164 @@ export function TeamTableView({ matches, catalog, sets, windowValues, initialSet
         ) : null}
       </div>
 
-      <div className="data-table-wrap">
-        <table className="data-table tabular" role="grid" aria-readonly="true" onKeyDown={onKeyDown}>
-          <caption className="sr-only">
-            Tabla del equipo, {sets.find((s) => s.id === setId)?.name}. Flechas arriba y abajo cambian la fila;
-            izquierda y derecha, la estadística.
-          </caption>
-          <thead>
-            <tr>
-              <th scope="col">{TEAM_VIEWS.find((v) => v.id === view)?.label.replace('Por ', '') ?? 'Grupo'}</th>
-              {view === 'partido' ? <th scope="col">Res.</th> : <th scope="col">PJ</th>}
-              {columns.map((c) => {
-                const sorted = sort?.id === c.id;
-                return (
-                  <th
-                    key={c.id}
-                    scope="col"
-                    title={c.name}
-                    data-current-stat={c.id === column?.id || undefined}
-                    aria-sort={sorted ? (sort.dir === 'asc' ? 'ascending' : 'descending') : 'none'}
+      {view === 'acumulada' ? (
+        <SeasonBoard
+          rows={filtered}
+          columns={columns}
+          byId={byId}
+          windowValues={query ? {} : (windowValues.todas ?? {})}
+          selectedId={column?.id ?? null}
+          onSelect={setStatId}
+        />
+      ) : (
+        <div className="data-table-wrap">
+          <table className="data-table tabular" role="grid" aria-readonly="true" onKeyDown={onKeyDown}>
+            <caption className="sr-only">
+              Tabla del equipo, {sets.find((s) => s.id === setId)?.name}. Flechas arriba y abajo cambian la fila;
+              izquierda y derecha, la estadística.
+            </caption>
+            <thead>
+              <tr>
+                <th
+                  scope="col"
+                  aria-sort={sort?.id === GROUP_SORT ? (sort.dir === 'asc' ? 'ascending' : 'descending') : 'none'}
+                >
+                  <button
+                    type="button"
+                    className="sort-button focus-ring"
+                    title={view === 'partido' || view === 'mes' ? 'Ordenar por fecha' : 'Ordenar por nombre'}
+                    onClick={onGroupHeaderClick}
                   >
-                    <button
-                      type="button"
-                      className="sort-button focus-ring"
-                      onClick={() => {
-                        onHeaderClick(c.id);
-                      }}
+                    {view === 'partido'
+                      ? 'Fecha y rival'
+                      : (TEAM_VIEWS.find((v) => v.id === view)?.label.replace('Por ', '') ?? 'Grupo')}
+                    {sort?.id === GROUP_SORT ? (
+                      <CaretDownIcon
+                        size={12}
+                        weight="bold"
+                        className="sort-arrow"
+                        data-dir={sort.dir}
+                        aria-hidden="true"
+                      />
+                    ) : null}
+                  </button>
+                </th>
+                {view === 'partido' ? <th scope="col">Res.</th> : <th scope="col">PJ</th>}
+                {columns.map((c) => {
+                  const sorted = sort?.id === c.id;
+                  return (
+                    <th
+                      key={c.id}
+                      scope="col"
+                      title={c.name}
+                      data-current-stat={c.id === column?.id || undefined}
+                      aria-sort={sorted ? (sort.dir === 'asc' ? 'ascending' : 'descending') : 'none'}
                     >
-                      {c.short}
-                      {c.estimated ? (
-                        <span className="est-mark" aria-label="estimada">
-                          *
-                        </span>
-                      ) : null}
-                      {sorted ? (
-                        <CaretDownIcon
-                          size={12}
-                          weight="bold"
-                          className="sort-arrow"
-                          data-dir={sort.dir}
-                          aria-hidden="true"
-                        />
-                      ) : null}
-                    </button>
-                  </th>
+                      <button
+                        type="button"
+                        className="sort-button focus-ring"
+                        onClick={() => {
+                          onHeaderClick(c.id);
+                        }}
+                      >
+                        {c.short}
+                        {c.estimated ? (
+                          <span className="est-mark" aria-label="estimada">
+                            *
+                          </span>
+                        ) : null}
+                        {sorted ? (
+                          <CaretDownIcon
+                            size={12}
+                            weight="bold"
+                            className="sort-arrow"
+                            data-dir={sort.dir}
+                            aria-hidden="true"
+                          />
+                        ) : null}
+                      </button>
+                    </th>
+                  );
+                })}
+              </tr>
+            </thead>
+            <tbody
+              onMouseLeave={() => {
+                setPreviewKey(null);
+              }}
+            >
+              {groups.map((g, i) => {
+                const selected = g.key === current?.key && previewKey === null;
+                return (
+                  <motion.tr
+                    key={g.key}
+                    layout="position"
+                    transition={ROW_LAYOUT}
+                    className="row-enter"
+                    style={{ '--i': Math.min(i, 24) } as React.CSSProperties}
+                    aria-selected={selected}
+                    tabIndex={g.key === current?.key ? 0 : -1}
+                    onClick={() => {
+                      setSelectedKey(g.key);
+                    }}
+                    onMouseEnter={() => {
+                      setPreviewKey(g.key);
+                    }}
+                    onFocus={() => {
+                      setSelectedKey(g.key);
+                    }}
+                  >
+                    <th scope="row" className="font-semibold">
+                      {g.label}
+                    </th>
+                    <td>{view === 'partido' && g.rows[0] ? resultLabel(g.rows[0]) : g.rows.length}</td>
+                    {columns.map((c) => {
+                      const v = valueOf(g, c);
+                      return (
+                        <td key={c.id} data-current-stat={c.id === column?.id || undefined}>
+                          {v === null ? (
+                            <span
+                              className="text-muted"
+                              title="No disponible para este grupo o en las fuentes gratuitas"
+                            >
+                              {NOT_AVAILABLE}
+                            </span>
+                          ) : (
+                            formatStat(v, c, perMatch && view !== 'partido')
+                          )}
+                        </td>
+                      );
+                    })}
+                  </motion.tr>
                 );
               })}
-            </tr>
-          </thead>
-          <tbody
-            onMouseLeave={() => {
-              setPreviewKey(null);
-            }}
-          >
-            {groups.map((g, i) => {
-              const selected = g.key === current?.key && previewKey === null;
-              return (
-                <motion.tr
-                  key={g.key}
-                  layout="position"
-                  transition={ROW_LAYOUT}
-                  className="row-enter"
-                  style={{ '--i': Math.min(i, 24) } as React.CSSProperties}
-                  aria-selected={selected}
-                  tabIndex={g.key === current?.key ? 0 : -1}
-                  onClick={() => {
-                    setSelectedKey(g.key);
-                  }}
-                  onMouseEnter={() => {
-                    setPreviewKey(g.key);
-                  }}
-                  onFocus={() => {
-                    setSelectedKey(g.key);
-                  }}
-                >
-                  <th scope="row" className="font-semibold">
-                    {g.label}
-                  </th>
-                  <td>{view === 'partido' && g.rows[0] ? resultLabel(g.rows[0]) : g.rows.length}</td>
-                  {columns.map((c) => {
-                    const v = valueOf(g, c);
-                    return (
-                      <td key={c.id} data-current-stat={c.id === column?.id || undefined}>
-                        {v === null ? (
-                          <span className="text-muted" title="No disponible para este grupo o en las fuentes gratuitas">
-                            {NOT_AVAILABLE}
-                          </span>
-                        ) : (
-                          formatStat(v, c, perMatch && view !== 'partido')
-                        )}
-                      </td>
-                    );
-                  })}
-                </motion.tr>
-              );
-            })}
-          </tbody>
-          <tfoot>
-            {/* Fila fija al pie: total de los partidos visibles y promedio por partido (9.5). */}
-            {[false, true].map((avg) => (
-              <tr key={String(avg)}>
-                <td>{avg ? 'Promedio por partido' : 'Total'}</td>
-                <td>{avg ? '' : filtered.length}</td>
-                {columns.map((c) => (
-                  <td key={c.id}>
-                    {avg && !c.per90
-                      ? ''
-                      : formatStat(
-                          aggregateTeam(filtered, c, byId, {
-                            perMatch: avg,
-                            windowValue: query ? null : (windowValues.todas?.[c.id] ?? null),
-                          }),
-                          c,
-                          avg,
-                        )}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tfoot>
-        </table>
-      </div>
+            </tbody>
+            <tfoot>
+              {/* Fila fija al pie: total de los partidos visibles y promedio por partido (9.5). */}
+              {[false, true].map((avg) => (
+                <tr key={String(avg)}>
+                  <td>{avg ? 'Promedio por partido' : 'Total'}</td>
+                  <td>{avg ? '' : filtered.length}</td>
+                  {columns.map((c) => (
+                    <td key={c.id}>
+                      {avg && !c.per90
+                        ? ''
+                        : formatStat(
+                            aggregateTeam(filtered, c, byId, {
+                              perMatch: avg,
+                              windowValue: query ? null : (windowValues.todas?.[c.id] ?? null),
+                            }),
+                            c,
+                            avg,
+                          )}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tfoot>
+          </table>
+        </div>
+      )}
       <p className="flex items-center gap-2 text-xs text-muted">
         <InfoIcon size={14} aria-hidden="true" />
         Partidos oficiales de 2026. Los porcentajes y cocientes se calculan sumando numeradores y denominadores (solo

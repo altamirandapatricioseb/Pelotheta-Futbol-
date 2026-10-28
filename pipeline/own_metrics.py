@@ -225,6 +225,19 @@ def team_match_values(inp: Inputs) -> list[dict[str, Any]]:
             ]
         if xi:
             previous_xi = xi
+        # Las métricas de ventana también por partido, para la vista «por partido» de la tabla:
+        # puntos pitagóricos del partido, el exponente usado y la concentración de sus goles.
+        x = inp.params["x"]
+        goals = [v.get("goals", 0) for (_, mid), v in inp.player_values.items() if mid == mt.match_id]
+        rows += [
+            _match_row(
+                "eq_puntos_pitagoricos",
+                mt.match_id,
+                3 * m.pythagorean_share(mt.goals_for, mt.goals_against, x),
+            ),
+            _match_row("eq_exponente_pitagorico", mt.match_id, x),
+            _match_row("eq_herfindahl", mt.match_id, m.herfindahl([g for g in goals if g > 0])),
+        ]
     return rows
 
 
@@ -247,8 +260,7 @@ def _ppp(matches: Iterable[Match]) -> float | None:
 
 def team_window_values(inp: Inputs) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
-    x = m.calibrate_pythagorean(r for _, r, _ in inp.table) if inp.table else 1.35
-    inp.params["x"] = x
+    x = inp.params["x"]
     rank_of = {_norm(team): rank for team, _, rank in inp.table}
     n_teams = len(inp.table)
     for code, ms in _windows(inp.matches).items():
@@ -427,6 +439,8 @@ def _league_goals_per_team(games: list[m.Game]) -> float:
 
 def compute(inp: Inputs) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     """(valores por ventana, valores por partido) de todas las métricas propias."""
+    # El exponente pitagórico se calibra una vez con la Tabla Anual (1,35 si no hay tabla).
+    inp.params["x"] = m.calibrate_pythagorean(r for _, r, _ in inp.table) if inp.table else 1.35
     per_match = team_match_values(inp)
     window = team_window_values(inp) + player_window_values(inp)
     # Sección 6.1 con la temporada completa ("todas"), a la fecha del último partido cargado.

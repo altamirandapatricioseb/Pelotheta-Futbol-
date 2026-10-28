@@ -650,3 +650,90 @@ h3 {
 .data-table.has-bands thead tr:not(.band-row) th {
   top: 26px;
 }
+
+/* Guía de lectura de cada estadística (pedido del dueño, 28-oct). */
+.stat-reading {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  max-width: 60ch;
+  border-left: 3px solid var(--color-brand);
+  border-radius: 4px;
+  background: color-mix(in oklab, var(--color-brand) 10%, transparent);
+  padding: 8px 12px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.45;
+}
+.stat-reading svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--color-brand);
+}
+.stat-reading--compact {
+  padding: 6px 8px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Tablero de la temporada (vista acumulada de la Interfaz 2): lienzo punteado con tarjetas. */
+.board {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 18px;
+  background-color: var(--color-bg);
+  background-image: radial-gradient(color-mix(in oklab, var(--color-text-muted) 28%, transparent) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 210px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: var(--color-surface);
+  padding: 14px 14px 12px;
+  text-align: left;
+  color: var(--color-text);
+  box-shadow: 0 1px 0 color-mix(in oklab, var(--color-text) 6%, transparent);
+  transition:
+    transform var(--dur-fast) var(--ease-out-quart),
+    border-color var(--dur-fast) var(--ease-out-quart);
+}
+.stat-card:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in oklab, var(--color-brand) 55%, var(--color-border));
+}
+.stat-card[aria-pressed='true'] {
+  border-color: var(--color-brand);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--color-brand) 35%, transparent);
+}
+.stat-card .stat-reading {
+  margin-top: auto;
+}
+.sparkline {
+  width: 100%;
+  height: 36px;
+  overflow: visible;
+}
+.sparkline--empty {
+  display: block;
+  height: 36px;
+}
+.sparkline-line {
+  fill: none;
+  stroke: var(--color-brand);
+  stroke-width: 1.75;
+  vector-effect: non-scaling-stroke;
+  stroke-linejoin: round;
+}
+.sparkline-mean {
+  stroke: var(--color-text-muted);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+  vector-effect: non-scaling-stroke;
+}

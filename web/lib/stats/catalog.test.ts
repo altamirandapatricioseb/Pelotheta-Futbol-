@@ -17,6 +17,7 @@ function stat(overrides: Partial<StatDef>): StatDef {
     name: 'Prueba',
     short: 'P',
     description: 'Estadística de prueba.',
+    reading: 'Más alto es mejor.',
     group: 'Resumen',
     category: 'ataque',
     unit: 'goles',
@@ -148,6 +149,13 @@ describe('aggregateTeam', () => {
     const forma = stat({ id: 'eq_forma_5', entity: 'team', rule: 'especial', arg1: 'forma_5', arg2: 'ventana' });
     expect(aggregateTeam(metricRows, forma, byId)).toBeNull();
     expect(aggregateTeam(metricRows, forma, byId, { windowValue: 10 })).toBe(10);
+  });
+
+  it('por partido, las métricas de ventana usan el valor guardado del partido', () => {
+    const hhi = stat({ id: 'eq_herfindahl', entity: 'team', rule: 'metrica', arg1: 'herfindahl', arg2: 'ventana' });
+    const one = [match(1, { eq_herfindahl: 0.5 })];
+    expect(aggregateTeam(one, hhi, byId)).toBe(0.5);
+    expect(aggregateTeam([...one, match(2, { eq_herfindahl: 1 })], hhi, byId)).toBeNull();
   });
 
   it('los datos del partido solo existen para un partido', () => {

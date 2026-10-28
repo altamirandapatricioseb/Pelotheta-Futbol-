@@ -36,6 +36,7 @@ export async function getCatalog(entity: 'player' | 'team'): Promise<DataResult<
               name: r.name_es ?? r.stat_id,
               short: r.short_name ?? r.stat_id,
               description: r.description_es ?? '',
+              reading: r.reading_es ?? '',
               group: r.stat_group ?? '',
               category: r.category ?? '',
               unit: r.unit ?? '',

@@ -36,6 +36,12 @@ def test_descriptions_are_short_and_own() -> None:
         assert 10 <= len(s.descripcion_es) <= 160, s.id
 
 
+def test_every_stat_says_how_to_read_it() -> None:
+    # Guía de lectura: qué significa un valor alto, bajo, negativo o cerca de 0.
+    for s in STATS:
+        assert 10 <= len(s.lectura_es) <= 160, s.id
+
+
 def test_no_emojis_in_texts() -> None:
     emoji = re.compile("[\U0001f300-\U0001faff☀-➿]")
     for s in STATS:

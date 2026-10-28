@@ -81,6 +81,7 @@ export type Database = {
           level: string | null;
           name_es: string | null;
           per90: boolean | null;
+          reading_es: string | null;
           rule: string | null;
           short_name: string | null;
           source: string | null;

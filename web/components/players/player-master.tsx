@@ -19,6 +19,8 @@ type SortDir = 'asc' | 'desc';
 const POSITIONS = ['Todas', 'Arquero', 'Defensor', 'Mediocampista', 'Delantero'] as const;
 const ROW_LAYOUT = { type: 'spring', stiffness: 520, damping: 44 } as const;
 const CUSTOM_SET = 'personalizado';
+// Sección 6: por debajo de 900 minutos las métricas propias se muestran con aviso.
+const SMALL_SAMPLE_MINUTES = 900;
 const GOALKEEPER_SET = 'porteros';
 const LEVEL_TEXT = { A: 'dato directo de una fuente', B: 'calculado', C: 'no disponible en fuentes gratuitas' };
 // Métricas propias que se muestran en la ficha si existen (9.1 y 6.1).
@@ -246,6 +248,12 @@ export function PlayerMasterView({
                   );
                 })}
               </dl>
+              {current.minutes < SMALL_SAMPLE_MINUTES ? (
+                <p className="text-xs text-warn">
+                  Muestra pequeña: menos de {SMALL_SAMPLE_MINUTES} minutos. NR, EWA, ELA, Mejoría y Potencial se leen
+                  con cautela.
+                </p>
+              ) : null}
             </div>
           ) : (
             <p className="relative text-muted">No hay jugadores con estos filtros.</p>

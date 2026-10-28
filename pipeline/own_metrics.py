@@ -26,6 +26,7 @@ import httpx
 
 from pipeline import load
 from pipeline import metrics as m
+from pipeline import projection_data as pdata
 
 PAGE = 1000
 # Mínimo de minutos para entrar en el nivel de reemplazo de NR relativo (sección 6, configurable).
@@ -41,6 +42,32 @@ PLAYER_KEYS = (
     "team_goals_against_on",
     "rating",
     "clean_sheets",
+    # Sección 6.1: estadísticas de los componentes del índice y de los sets de Mejoría α.
+    "npg",
+    "npxg",
+    "xg",
+    "xa",
+    "shots_on_target",
+    "shots_total",
+    "key_passes",
+    "big_chances_created",
+    "tackles_won",
+    "tackles_attempted",
+    "interceptions",
+    "clearances",
+    "blocks",
+    "aerials_won",
+    "aerials_total",
+    "recoveries",
+    "passes",
+    "passes_accurate",
+    "dribbles_successful",
+    "dribbles_attempted",
+    "fouls_committed",
+    "saves",
+    "shots_on_target_faced",
+    "xgot_faced",
+    "goals_conceded",
 )
 
 
@@ -398,6 +425,13 @@ def compute(inp: Inputs) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     """(valores por ventana, valores por partido) de todas las métricas propias."""
     per_match = team_match_values(inp)
     window = team_window_values(inp) + player_window_values(inp)
+    # Sección 6.1 con la temporada completa ("todas"), a la fecha del último partido cargado.
+    seasons = pdata.seasons_from(
+        inp.player_values,
+        {mt.match_id: mt.date for mt in inp.matches},
+        {pid: (p.position, p.age) for pid, p in inp.players.items()},
+    )
+    window += pdata.projection_rows(seasons, len(inp.matches))
     return [r for r in window if r["value"] is not None], [r for r in per_match if r["value"] is not None]
 
 

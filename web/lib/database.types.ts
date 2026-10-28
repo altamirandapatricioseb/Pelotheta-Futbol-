@@ -66,6 +66,91 @@ export type Database = {
         };
         Relationships: [];
       };
+      stat_catalog: {
+        Row: {
+          arg1: string | null;
+          arg2: string | null;
+          available: boolean | null;
+          category: string | null;
+          description_es: string | null;
+          entity: string | null;
+          estimated: boolean | null;
+          factor: number | null;
+          formula: string | null;
+          higher_is_better: boolean | null;
+          level: string | null;
+          name_es: string | null;
+          per90: boolean | null;
+          rule: string | null;
+          short_name: string | null;
+          source: string | null;
+          stat_group: string | null;
+          stat_id: string | null;
+          unit: string | null;
+        };
+        Relationships: [];
+      };
+      stat_set: {
+        Row: {
+          description_es: string | null;
+          entity: string | null;
+          name_es: string | null;
+          set_id: string | null;
+          sort_order: number | null;
+          stat_ids: string[] | null;
+        };
+        Relationships: [];
+      };
+      player_master: {
+        Row: {
+          age: number | null;
+          competition_code: string | null;
+          full_name: string | null;
+          height_cm: number | null;
+          known_as: string | null;
+          matches: number | null;
+          minutes: number | null;
+          nationality: string | null;
+          player_id: number | null;
+          position_group: string | null;
+          preferred_foot: string | null;
+          shirt_number: number | null;
+          stats: Json | null;
+          weight_kg: number | null;
+        };
+        Relationships: [];
+      };
+      team_match_master: {
+        Row: {
+          boca_home: boolean | null;
+          competition_code: string | null;
+          competition_name: string | null;
+          goals_against: number | null;
+          goals_for: number | null;
+          kickoff_at: string | null;
+          match_date: string | null;
+          match_id: number | null;
+          opponent: string | null;
+          penalties_against: number | null;
+          penalties_for: number | null;
+          referee: string | null;
+          round_label: string | null;
+          stats: Json | null;
+          venue: string | null;
+        };
+        Relationships: [];
+      };
+      team_window_value: {
+        Row: {
+          competition_code: string | null;
+          coverage: number | null;
+          high: number | null;
+          low: number | null;
+          stat_id: string | null;
+          value: number | null;
+        };
+        Relationships: [];
+      };
       system_status: {
         Row: {
           key: string | null;

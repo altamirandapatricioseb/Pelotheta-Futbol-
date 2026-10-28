@@ -83,7 +83,12 @@ export function UpdatePanel({ lastUpdate, initial }: { lastUpdate: string | null
           {formatDateTime(lastUpdate)}
         </time>
       </p>
-      <button type="button" className="update-panel__button focus-ring" onClick={() => void start()} disabled={disabled}>
+      <button
+        type="button"
+        className="update-panel__button focus-ring"
+        onClick={() => void start()}
+        disabled={disabled}
+      >
         <ArrowsClockwiseIcon
           size={22}
           aria-hidden="true"

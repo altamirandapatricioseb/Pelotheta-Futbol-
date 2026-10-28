@@ -160,7 +160,8 @@ def _player_line(row: Tag) -> PlayerLine:
     stats: dict[str, float] = {}
     for attr, key in PLAYER_STAT_ATTRS.items():
         value = _number(str(row.get(attr, "")))
-        if value is not None:
+        # Nota 0 = la fuente no calificó al jugador (pocos minutos): no es un cero.
+        if value is not None and not (key == "rating" and value == 0):
             stats[key] = value
     # Remates al arco y precisión de pase solo están en el texto de la celda: «3 (1)», «28 86%».
     cells = row.find_all("td")

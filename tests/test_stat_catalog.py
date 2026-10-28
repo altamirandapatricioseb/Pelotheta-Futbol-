@@ -73,6 +73,15 @@ def test_composite_rules_use_base_stats_of_the_same_entity() -> None:
                 assert ref.agregacion in ("suma", "promedio"), f"{s.id}: {arg} es {ref.agregacion}"
 
 
+def test_own_metrics_say_how_they_add_up() -> None:
+    # Las métricas que calcula el pipeline se guardan por partido (y se suman o promedian al
+    # agrupar por rival, mes o competición) o solo por ventana (rachas, forma, exponente).
+    for s in STATS:
+        if s.agregacion in ("metrica", "especial"):
+            allowed = ("suma", "promedio", "ventana") if s.entidad == "equipo" else ("ventana",)
+            assert s.arg2 in allowed, s.id
+
+
 def test_ratios_have_a_positive_factor() -> None:
     assert all(s.factor > 0 for s in STATS if s.agregacion == "cociente")
 

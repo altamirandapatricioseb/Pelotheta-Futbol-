@@ -1,5 +1,10 @@
 # Supabase Advisors
 
+## 28-oct-2026 (cierre de la etapa 3)
+
+Security Advisor: 0 ERROR, 0 WARN. Siguen solo los 2 INFO intencionales de la etapa 1
+(`rls_enabled_no_policy` en `core.audit_log` y `core.source_id_map`).
+
 ## 27-oct-2026 (etapa 1)
 
 Security Advisor: 0 ERROR, 0 WARN.

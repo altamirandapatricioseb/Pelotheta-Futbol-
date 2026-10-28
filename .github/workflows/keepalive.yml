@@ -1,10 +1,10 @@
-# Keepalive: Supabase (plan gratis) pausa el proyecto tras 7 días sin actividad. Una lectura
-# semanal con la clave publicable (solo lectura, RLS) lo mantiene activo.
+# Keepalive: Supabase (plan gratis) pausa el proyecto tras 7 días sin actividad. Dos lecturas
+# por semana con la clave publicable (solo lectura, RLS) lo mantiene activo.
 name: Keepalive
 
 on:
   schedule:
-    - cron: "0 12 * * 1" # lunes, 09:00 en Argentina
+    - cron: "0 12 * * 1,4" # lunes y jueves, 09:00 en Argentina
   workflow_dispatch:
 
 permissions:

@@ -39,19 +39,26 @@ Para retomar en un chat nuevo: leer este archivo, `PROMPT-1-BOCA-FUTBOL.md` (ya 
 
 ## Etapa 3: qué falta o falló
 
-1. **Primera corrida del workflow desde el botón: falló** (27-oct, 36 min, paso «Pipeline»). Causa sin
-   confirmar; probable falta de GitHub Secrets. Ya se agregó: corte temprano si faltan claves, registro
-   del fallo en `ingest_log`, resumen en la página de la corrida y caché guardada aunque falle.
-   Segunda corrida lanzada a las 00:49 UTC del 28-oct (ver resultado en `/actualizar`).
+1. **Corridas del workflow desde el botón: fallaron dos veces** (27-oct, 36 min; 28-oct 00:49 UTC, 44 min;
+   paso «Pipeline», sin fila en `ingest_log`). Causa probable (28-oct): el `.env` local tiene
+   `SUPABASE_URL=https://ymnbuywcpkynikudybth.supabase.com` (con **.com**). La correcta es
+   `https://ymnbuywcpkynikudybth.supabase.co`. Si el secret se copió del `.env`, el scraping terminaba y
+   la carga se rechazaba por la forma de la URL. Además, el registro del fallo usaba la misma URL y
+   también fallaba. Con `.co` y la clave del `.env`, la conexión responde bien (probado).
+   Arreglo en el código: la URL y la clave se limpian (`strip`), se validan y se prueban con una lectura
+   a la base **antes** del scraping (falla en segundos con un mensaje claro), y cualquier error inesperado
+   queda en `ingest_log`. Falta: corregir el secret `SUPABASE_URL` en GitHub y volver a correr.
 2. **GitHub Secrets** (Settings → Secrets and variables → Actions). Cargados (28-oct, ~00:50 UTC):
    `SUPABASE_URL`, `API_SUPABASE_SECRET_KEY`, `STRIKER_API_KEY`, `BZZOIRO_API_KEY`, `API_FOOTBALL_KEY`.
    `SUPABASE_URL` y la clave secreta se cargaron recién ahí: causa probable de la primera falla.
-   **Falta** `SUPABASE_PUBLISHABLE_KEY` (la usa `keepalive.yml`; es la clave pública).
+   `SUPABASE_PUBLISHABLE_KEY` (la usa `keepalive.yml`) cargada el 28-oct. Revisar que `SUPABASE_URL`
+   termine en `.supabase.co` (ver punto 1).
 3. **Claves expuestas, decisión del dueño (28-oct):** el `.env` completo (secreta de Supabase,
    StrikerAPI, Bzzoiro, API-Football) quedó en el chat por una captura. El dueño decidió **no rotarlas**.
    Riesgo aceptado y registrado.
-4. Cierre de seguridad 14.9 de la etapa 3: Advisor sin ERROR (2 INFO intencionales) y cabeceras OK
-   verificados; falta confirmar CI en verde (repo privado: verlo en GitHub) y revisar `risk_register.csv`.
+4. Cierre de seguridad 14.9 de la etapa 3: Advisor sin ERROR (2 INFO intencionales, 28-oct) y cabeceras
+   OK en la URL real; `docs/security/risk_register.csv` creado (13 riesgos). Falta confirmar CI en verde
+   (repo privado: verlo en GitHub). Keepalive pasa a lunes y jueves (sección 8.4).
 5. Eventos de StrikerAPI: 15 de 31 partidos (el resto llega cuando se recargan los créditos).
 6. Mails de permiso enviados (SporLens, ScoutingStats, PitchMath, GoalPulz): sin respuesta todavía.
 

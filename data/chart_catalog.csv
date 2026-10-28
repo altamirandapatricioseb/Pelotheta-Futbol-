@@ -97,8 +97,8 @@ g102,Q,Ambos marcan más de 2 goles y vallas invictas,barras_agrupadas,goles por
 g78,N,Mejoría α frente a Potencial α,dispersion,métricas de 6.1 y minutos,jugadores:evolucion_proyeccion,sí,sí,true,
 g79,N,Potencial α por edad con su rango y el margen esperado,dispersion,métricas de 6.1 y edad,jugadores:evolucion_proyeccion,sí,sí,true,
 g80,N,Mejoría α y β partido a partido de un jugador,linea,serie de 6.1 partido a partido,jugadores:evolucion_proyeccion,sí,sí,true,
-g81,N,Índice de rendimiento por componentes,radar,componentes A C D E y P del índice,jugadores:evolucion_proyeccion,alternativa,alternativa,false,Los componentes del índice todavía no se guardan en la base; llegan con la etapa 6
-g82,N,Desglose del Potencial,barras_apiladas,nivel margen y factor de edad del Potencial,jugadores:evolucion_proyeccion,sí,sí,false,El desglose del cálculo todavía no se guarda en la base; llega con la etapa 6
+g81,N,Índice de rendimiento por componentes,radar,componentes del índice de 6.1,jugadores:evolucion_proyeccion,alternativa,alternativa,true,
+g82,N,Desglose del Potencial,barras_apiladas,partes del Potencial β de 6.1,jugadores:evolucion_proyeccion,sí,sí,true,
 g83,N,Ranking del plantel por Potencial β con cobertura,ranking,métricas de 6.1 y cobertura,jugadores:evolucion_proyeccion,sí,sí,true,
 g84,N,Acuerdo entre variantes α y β,dispersion,métricas de 6.1,jugadores:evolucion_proyeccion,sí,sí,true,
 g107,N,Índice de rendimiento frente a Potencial β,dispersion,métricas de 6.1 y minutos,jugadores:evolucion_proyeccion,sí,sí,true,

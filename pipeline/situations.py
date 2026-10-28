@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import csv
 from pathlib import Path
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -32,6 +33,8 @@ class Card(BaseModel):
     available: bool
     estimada: bool = False
     motivo: str = ""
+    # Lo que se destaca en la tarjeta: % de victorias, puntos, diferencia de gol, goles o vallas.
+    metrica_principal: Literal["win_pct", "ppg", "goal_diff", "gf", "ga", "clean_pct"] = "win_pct"
 
     @field_validator("available", "estimada", mode="before")
     @classmethod
@@ -68,6 +71,7 @@ def to_payload(cards: list[Card]) -> list[dict[str, object]]:
             "available": c.available,
             "estimated": c.estimada,
             "reason_es": c.motivo,
+            "main_metric": c.metrica_principal,
             "sort_order": order,
         }
         for order, c in enumerate(cards, start=1)

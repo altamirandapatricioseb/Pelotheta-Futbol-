@@ -17,6 +17,8 @@ create table core.situational_catalog (
   available      boolean not null,
   estimated      boolean not null default false,
   reason_es      text not null default '',
+  -- Métrica que se destaca en la tarjeta: win_pct, ppg, goal_diff, gf, ga o clean_pct.
+  main_metric    text not null default 'win_pct',
   sort_order     smallint not null
 );
 
@@ -41,6 +43,14 @@ create table core.situational_result (
   goal_diff    numeric not null,
   base_win_pct numeric not null,
   delta        numeric not null,
+  gf_avg       numeric not null default 0,
+  ga_avg       numeric not null default 0,
+  clean_pct    numeric not null default 0,
+  scored_pct   numeric not null default 0,
+  base_ppg     numeric not null default 0,
+  base_gf      numeric not null default 0,
+  base_ga      numeric not null default 0,
+  base_clean   numeric not null default 0,
   computed_at  timestamptz not null default now(),
   primary key (card_id, param_value)
 );
@@ -81,9 +91,12 @@ begin
 
   delete from core.situational_result where true;
   insert into core.situational_result (card_id, param_value, param_order, n, w, d, l, win_pct, ppg, goal_diff,
-                                       base_win_pct, delta)
+                                       base_win_pct, delta, gf_avg, ga_avg, clean_pct, scored_pct, base_ppg, base_gf,
+                                       base_ga, base_clean)
   with base as (
-    select avg(case when result = 'G' then 100.0 else 0 end) as win_pct from core.situ_base
+    select avg(case when result = 'G' then 100.0 else 0 end) as win_pct, avg(points) as ppg, avg(gf) as gf,
+           avg(ga) as ga, avg(case when ga = 0 then 100.0 else 0 end) as clean
+    from core.situ_base
   )
   select m.card_id, m.param_value, min(m.param_order), count(*),
          count(*) filter (where b.result = 'G'), count(*) filter (where b.result = 'E'),
@@ -91,7 +104,11 @@ begin
          round(avg(case when b.result = 'G' then 100.0 else 0 end), 1),
          round(avg(b.points), 2), round(avg(b.gf - b.ga), 2),
          round(max(base.win_pct), 1),
-         round(avg(case when b.result = 'G' then 100.0 else 0 end) - max(base.win_pct), 1)
+         round(avg(case when b.result = 'G' then 100.0 else 0 end) - max(base.win_pct), 1),
+         round(avg(b.gf), 2), round(avg(b.ga), 2),
+         round(avg(case when b.ga = 0 then 100.0 else 0 end), 1),
+         round(avg(case when b.gf > 0 then 100.0 else 0 end), 1),
+         round(max(base.ppg), 2), round(max(base.gf), 2), round(max(base.ga), 2), round(max(base.clean), 1)
   from core.situational_match m
   join core.situ_base b on b.match_id = m.match_id
   cross join base
@@ -126,10 +143,11 @@ declare
 begin
   delete from core.situational_catalog where true;
   insert into core.situational_catalog (card_id, category, title_es, condition_es, params_es, measured_es,
-                                        required_data, level, available, estimated, reason_es, sort_order)
+                                        required_data, level, available, estimated, reason_es, main_metric, sort_order)
   select c ->> 'card_id', c ->> 'category', c ->> 'title_es', c ->> 'condition_es', coalesce(c ->> 'params_es', ''),
          c ->> 'measured_es', c ->> 'required_data', c ->> 'level', (c ->> 'available')::boolean,
-         (c ->> 'estimated')::boolean, coalesce(c ->> 'reason_es', ''), (c ->> 'sort_order')::smallint
+         (c ->> 'estimated')::boolean, coalesce(c ->> 'reason_es', ''), coalesce(c ->> 'main_metric', 'win_pct'),
+         (c ->> 'sort_order')::smallint
   from jsonb_array_elements(p_cards) c;
   get diagnostics n_cards = row_count;
   return jsonb_build_object('cards', n_cards);
@@ -142,12 +160,13 @@ grant execute on function ingest.load_situations(jsonb) to service_role;
 create view api.situational_catalog
 with (security_invoker = true) as
 select card_id, category, title_es, condition_es, params_es, measured_es, required_data, level, available,
-       estimated, reason_es, sort_order
+       estimated, reason_es, sort_order, main_metric
 from core.situational_catalog;
 
 create view api.situational_result
 with (security_invoker = true) as
-select card_id, param_value, param_order, n, w, d, l, win_pct, ppg, goal_diff, base_win_pct, delta, computed_at
+select card_id, param_value, param_order, n, w, d, l, win_pct, ppg, goal_diff, base_win_pct, delta, computed_at,
+       gf_avg, ga_avg, clean_pct, scored_pct, base_ppg, base_gf, base_ga, base_clean
 from core.situational_result;
 
 -- Partidos de cada fila («Ver los partidos»), con lo necesario para verificarlos a mano.

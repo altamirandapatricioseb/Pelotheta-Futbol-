@@ -194,8 +194,13 @@ def index_for(
     reference: Sequence[PlayerSeason],
     share: float | None,
     shares: list[float],
+    components_out: dict[str, float | None] | None = None,
 ) -> tuple[float | None, float]:
-    """Índice de rendimiento de un grupo de partidos frente a la referencia de temporada."""
+    """Índice de rendimiento de un grupo de partidos frente a la referencia de temporada.
+
+    Si se pasa `components_out`, se completa con los componentes (percentiles de A, C, D, E y P):
+    son el radar del gráfico 81.
+    """
     goalkeeper = player.position == "Arquero"
     weights = pj.WEIGHTS.get(player.position, pj.WEIGHTS[None])
     components: dict[str, float | None] = {}
@@ -208,6 +213,8 @@ def index_for(
             components["C"] = _component_values(games, GOALKEEPER_C, reference)
         else:
             components[comp] = _component_values(games, COMPONENTS[comp], reference)
+    if components_out is not None:
+        components_out.update(components)
     return pj.performance_index(components, weights)
 
 
@@ -243,10 +250,17 @@ def projection_rows(players: Sequence[PlayerSeason], team_matches: int) -> list[
     for player in players:
         reference = _reference(players, player.position)
         ref_shares = [shares[p.player_id] for p in reference if p.player_id in shares]
+        components: dict[str, float | None] = {}
         r_season, coverage = index_for(
-            player.games, player, reference, shares.get(player.player_id), ref_shares
+            player.games, player, reference, shares.get(player.player_id), ref_shares, components
         )
-        row("rendimiento_indice", player.player_id, r_season, coverage=round(coverage, 4))
+        row(
+            "rendimiento_indice",
+            player.player_id,
+            r_season,
+            coverage=round(coverage, 4),
+            detail={"componentes": {k: round(v, 2) for k, v in components.items() if v is not None}},
+        )
         row("rendimiento_cobertura", player.player_id, coverage)
 
         # Mejoría β: últimas 10 apariciones contra las 10 anteriores (6 y 450 min por bloque).
@@ -301,10 +315,13 @@ def projection_rows(players: Sequence[PlayerSeason], team_matches: int) -> list[
             row("potencial_alpha", player.player_id, value, low=round(low_r, 4), high=round(high_r, 4))
         # Potencial β: nivel (R*), tendencia (Mejoría β) y edad.
         if r_season is not None:
+            r_star = pj.shrink(r_season, player.minutes)
+            parts = pj.potencial_beta_parts(r_star, mej_beta, player.age, goalkeeper)
             row(
                 "potencial_beta",
                 player.player_id,
-                pj.potencial_beta(pj.shrink(r_season, player.minutes), mej_beta, player.age, goalkeeper),
+                pj.potencial_beta(r_star, mej_beta, player.age, goalkeeper),
+                detail={"partes": {k: round(v, 2) for k, v in parts.items()}},
             )
     return rows
 

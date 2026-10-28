@@ -169,3 +169,17 @@ def test_percent_rank_and_inversion() -> None:
     assert pj.percentile(3.0, reference, higher_is_better=True) == pytest.approx(50)
     assert pj.percentile(5.0, reference, higher_is_better=True) == pytest.approx(100)
     assert pj.percentile(5.0, reference, higher_is_better=False) == pytest.approx(0)
+
+
+def test_potencial_beta_parts_add_up_to_the_value() -> None:
+    # Ejemplo de 6.1.5: jugador A, 19 años, R = 65, Mejoría β +8 → 39 + 18,25 + 13,5.
+    parts = pj.potencial_beta_parts(65, mejoria=8, age=19, goalkeeper=False)
+    assert parts == pytest.approx({"nivel": 39.0, "tendencia": 18.25, "edad": 13.5})
+    assert sum(parts.values()) == pytest.approx(pj.potencial_beta(65, mejoria=8, age=19, goalkeeper=False))
+
+
+def test_index_components_are_the_inputs_of_the_index() -> None:
+    comps, weights = {"A": 80.0, "C": 60.0, "D": None, "E": 50.0, "P": 70.0}, pj.WEIGHTS[None]
+    r, _ = pj.performance_index(comps, weights)
+    scaled = pj.rescaled_weights(comps, weights)
+    assert r == pytest.approx(sum(w * (comps[c] or 0) for c, w in scaled.items()))

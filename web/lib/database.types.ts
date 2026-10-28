@@ -233,12 +233,21 @@ export type Database = {
           required_data: string | null;
           sort_order: number | null;
           title_es: string | null;
+          main_metric: string | null;
         };
         Relationships: [];
       };
       situational_result: {
         Row: {
           base_win_pct: number | null;
+          base_ppg: number | null;
+          base_gf: number | null;
+          base_ga: number | null;
+          base_clean: number | null;
+          gf_avg: number | null;
+          ga_avg: number | null;
+          clean_pct: number | null;
+          scored_pct: number | null;
           card_id: string | null;
           computed_at: string | null;
           d: number | null;
@@ -276,6 +285,36 @@ export type Database = {
           high: number | null;
           low: number | null;
           match_id: number | null;
+          stat_id: string | null;
+          value: number | null;
+        };
+        Relationships: [];
+      };
+      conclusion: {
+        Row: {
+          area: string | null;
+          band: string | null;
+          computed_at: string | null;
+          kind: string | null;
+          link: string | null;
+          n: number | null;
+          percentile: number | null;
+          reference: number | null;
+          rule_id: string | null;
+          scope: string | null;
+          sort_order: number | null;
+          text_es: string | null;
+          title_es: string | null;
+          tone: string | null;
+          unit: string | null;
+          value: number | null;
+        };
+        Relationships: [];
+      };
+      stat_value_detail: {
+        Row: {
+          detail: Json | null;
+          player_id: number | null;
           stat_id: string | null;
           value: number | null;
         };

@@ -1,16 +1,41 @@
 import 'server-only';
 
 import type { DataResult } from '@/lib/data/players';
-import type { SituationCard, SituationMatch, SituationRow } from '@/lib/situations/board';
+import {
+  METRICS,
+  type MainMetric,
+  type SituationCard,
+  type SituationMatch,
+  type SituationRow,
+} from '@/lib/situations/board';
 import { createApiClient } from '@/lib/supabase/server';
 
 const PAGE = 1000;
+const METRIC_IDS = new Set(Object.keys(METRICS));
 
 function fail(cause: unknown): { ok: false; code: 'PEL-DB-001'; detail: string } {
   return { ok: false, code: 'PEL-DB-001', detail: cause instanceof Error ? cause.message : String(cause) };
 }
 
+export interface Conclusion {
+  id: string;
+  area: string;
+  title: string;
+  kind: string;
+  scope: string;
+  unit: string;
+  link: string;
+  band: string;
+  tone: 'positivo' | 'negativo' | 'neutral';
+  text: string;
+  value: number;
+  reference: number | null;
+  percentile: number | null;
+  n: number;
+}
+
 export interface SituationsData {
+  conclusions: Conclusion[];
   cards: SituationCard[];
   matches: Record<number, SituationMatch>;
   /** % de victorias de Boca en toda la temporada (la base de cada tarjeta). */
@@ -21,9 +46,10 @@ export interface SituationsData {
 export async function getSituations(): Promise<DataResult<SituationsData>> {
   try {
     const api = createApiClient();
-    const [catalog, results] = await Promise.all([
+    const [catalog, results, concl] = await Promise.all([
       api.from('situational_catalog').select('*').order('sort_order').limit(500),
       api.from('situational_result').select('*').limit(3000),
+      api.from('conclusion').select('*').order('sort_order').limit(200),
     ]);
     if (catalog.error) return fail(catalog.error.message);
     if (results.error) return fail(results.error.message);
@@ -83,6 +109,11 @@ export async function getSituations(): Promise<DataResult<SituationsData>> {
         goalDiff: r.goal_diff ?? 0,
         base: r.base_win_pct ?? 0,
         delta: r.delta ?? 0,
+        gf: r.gf_avg ?? 0,
+        ga: r.ga_avg ?? 0,
+        cleanPct: r.clean_pct ?? 0,
+        scoredPct: r.scored_pct ?? 0,
+        base2: { ppg: r.base_ppg ?? 0, gf: r.base_gf ?? 0, ga: r.base_ga ?? 0, clean: r.base_clean ?? 0 },
         // Partidos de la fila, del más reciente al más viejo.
         matchIds: (byRow.get(`${r.card_id}|${r.param_value}`) ?? []).sort((a, b) =>
           (matches[b]?.date ?? '').localeCompare(matches[a]?.date ?? ''),
@@ -94,6 +125,32 @@ export async function getSituations(): Promise<DataResult<SituationsData>> {
     return {
       ok: true,
       data: {
+        // Solo las conclusiones con frase y tono: la banda media de algunas reglas no dice nada.
+        conclusions: (concl.data ?? []).flatMap((c): Conclusion[] =>
+          c.rule_id &&
+          c.text_es &&
+          (c.tone === 'positivo' || c.tone === 'negativo' || c.tone === 'neutral') &&
+          c.value !== null
+            ? [
+                {
+                  id: c.rule_id,
+                  area: c.area ?? '',
+                  title: c.title_es ?? '',
+                  kind: c.kind ?? '',
+                  scope: c.scope ?? '',
+                  unit: c.unit ?? '',
+                  link: c.link ?? '',
+                  band: c.band ?? '',
+                  tone: c.tone,
+                  text: c.text_es,
+                  value: c.value,
+                  reference: c.reference,
+                  percentile: c.percentile,
+                  n: c.n ?? 0,
+                },
+              ]
+            : [],
+        ),
         cards: catalog.data.flatMap((c): SituationCard[] =>
           c.card_id && c.category && c.title_es
             ? [
@@ -109,6 +166,7 @@ export async function getSituations(): Promise<DataResult<SituationsData>> {
                   available: c.available ?? false,
                   estimated: c.estimated ?? false,
                   reason: c.reason_es ?? '',
+                  mainMetric: METRIC_IDS.has(c.main_metric ?? '') ? (c.main_metric as MainMetric) : 'win_pct',
                   rows: (rowsByCard.get(c.card_id) ?? []).sort(
                     (a, b) => a.order - b.order || a.param.localeCompare(b.param),
                   ),

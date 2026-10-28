@@ -156,6 +156,13 @@ def send_situations(
     return _rpc("load_situations", {"p_cards": cards}, url, key, client)
 
 
+def send_conclusions(
+    rules: list[dict[str, Any]], url: str, key: str, client: httpx.Client | None = None
+) -> Any:
+    """Reglas de las conclusiones (`data/conclusion_catalog.csv`); la base recalcula al cargarlas."""
+    return _rpc("load_conclusions", {"p_rules": rules}, url, key, client)
+
+
 def send_stat_values(
     stat_ids: list[str],
     values: list[dict[str, Any]],

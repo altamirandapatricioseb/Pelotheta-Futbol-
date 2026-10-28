@@ -1856,6 +1856,83 @@ export const CHARTS: Record<string, ChartRender> = {
       },
     };
   },
+  g81: ({ data, regulars }) => {
+    const LABELS: Record<string, string> = {
+      A: 'Ataque',
+      C: 'Creación',
+      D: 'Defensa',
+      E: 'Eficacia',
+      P: 'Participación',
+    };
+    const withDetail = regulars.filter(
+      (p) => Object.keys(data.projectionDetail[p.playerId]?.components ?? {}).length >= 3,
+    );
+    if (!withDetail.length) return { empty: 'Los componentes del índice todavía no se calcularon.' };
+    return {
+      node: (
+        <Selectable
+          label="Jugador"
+          options={playerOptions(withDetail)}
+          initial={String(withDetail[0]?.playerId ?? '')}
+          render={(id) => {
+            const comps = data.projectionDetail[Number(id)]?.components ?? {};
+            const axes = Object.keys(LABELS).filter((k) => comps[k] !== undefined);
+            return (
+              <Radar
+                axes={axes.map((k) => LABELS[k] ?? k)}
+                series={[
+                  { id: 'c', label: 'Percentil en su posición', slot: 1, values: axes.map((k) => comps[k] ?? null) },
+                ]}
+                label="Componentes del índice de rendimiento (percentiles de 0 a 100 frente a su posición). Estimado."
+              />
+            );
+          }}
+        />
+      ),
+      table: {
+        head: ['Jugador', ...Object.values(LABELS)],
+        rows: withDetail.map((p) => [
+          p.name,
+          ...Object.keys(LABELS).map((k) => data.projectionDetail[p.playerId]?.components[k] ?? null),
+        ]),
+      },
+    };
+  },
+  g82: ({ data, regulars }) => {
+    const list = regulars
+      .filter((p) => Object.keys(data.projectionDetail[p.playerId]?.parts ?? {}).length === 3)
+      .map((p) => ({ p, parts: data.projectionDetail[p.playerId]?.parts ?? {} }))
+      .sort(
+        (a, b) => Object.values(b.parts).reduce((x, y) => x + y, 0) - Object.values(a.parts).reduce((x, y) => x + y, 0),
+      )
+      .slice(0, 14);
+    if (!list.length) return { empty: 'El desglose del Potencial todavía no se calculó.' };
+    return {
+      node: (
+        <BarChart
+          horizontal
+          stacked
+          labels={list.map((x) => x.p.name)}
+          series={[
+            { id: 'n', label: 'Nivel (0,60 × R*)', slot: 1, values: list.map((x) => x.parts.nivel ?? null) },
+            { id: 't', label: 'Tendencia (0,25 × T)', slot: 3, values: list.map((x) => x.parts.tendencia ?? null) },
+            { id: 'e', label: 'Edad (0,15 × 100 × F)', slot: 4, values: list.map((x) => x.parts.edad ?? null) },
+          ]}
+          label="De dónde sale el Potencial β de cada jugador: nivel, tendencia y edad. Estimado."
+        />
+      ),
+      table: {
+        head: ['Jugador', 'Nivel', 'Tendencia', 'Edad', 'Potencial β'],
+        rows: list.map((x) => [
+          x.p.name,
+          x.parts.nivel ?? null,
+          x.parts.tendencia ?? null,
+          x.parts.edad ?? null,
+          Object.values(x.parts).reduce((a, b) => a + b, 0),
+        ]),
+      },
+    };
+  },
   g83: ({ data }) => {
     const list = data.players
       .map((p) => ({

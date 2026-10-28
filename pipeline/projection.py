@@ -129,7 +129,18 @@ def age_factor(age: float, goalkeeper: bool) -> float:
     return AGE_FACTOR_OLDER
 
 
+def potencial_beta_parts(
+    r_star: float, mejoria: float | None, age: float, goalkeeper: bool
+) -> dict[str, float]:
+    """Desglose del Potencial β (gráfico 82): 0,60 × R* (nivel), 0,25 × T (tendencia), 0,15 × 100 × F_edad."""
+    trend = _clip(r_star + mejoria, 0, 100) if mejoria is not None else r_star
+    return {
+        "nivel": 0.60 * r_star,
+        "tendencia": 0.25 * trend,
+        "edad": 0.15 * 100 * age_factor(age, goalkeeper),
+    }
+
+
 def potencial_beta(r_star: float, mejoria: float | None, age: float, goalkeeper: bool) -> float:
     """Potencial β = min(100, 0,60 × R* + 0,25 × T + 0,15 × 100 × F_edad)."""
-    trend = _clip(r_star + mejoria, 0, 100) if mejoria is not None else r_star
-    return min(100.0, 0.60 * r_star + 0.25 * trend + 0.15 * 100 * age_factor(age, goalkeeper))
+    return min(100.0, sum(potencial_beta_parts(r_star, mejoria, age, goalkeeper).values()))

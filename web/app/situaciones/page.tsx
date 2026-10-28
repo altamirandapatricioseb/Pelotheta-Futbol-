@@ -20,6 +20,11 @@ export default async function Page() {
     );
   }
   return (
-    <SituationsBoard cards={result.data.cards} matches={result.data.matches} baseWinPct={result.data.baseWinPct} />
+    <SituationsBoard
+      cards={result.data.cards}
+      matches={result.data.matches}
+      baseWinPct={result.data.baseWinPct}
+      conclusions={result.data.conclusions}
+    />
   );
 }

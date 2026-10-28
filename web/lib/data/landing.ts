@@ -45,6 +45,8 @@ export interface LandingData {
     string,
     { param: string; order: number; n: number; w: number; d: number; l: number; ppg: number }[]
   >;
+  /** Componentes del índice (gráfico 81) y partes del Potencial β (gráfico 82) de cada jugador. */
+  projectionDetail: Record<number, { components: Record<string, number>; parts: Record<string, number> }>;
   /** Mejoría α y β de cada jugador partido a partido (gráfico 80): {jugador: {partido: {métrica: valor}}}. */
   metricSeries: Record<number, Record<number, Record<string, number>>>;
   updated: string | null;
@@ -78,7 +80,7 @@ export async function getLandingData(): Promise<LandingData | null> {
   ]);
   if (!matches.ok || !players.ok || !playerCatalog.ok || !teamCatalog.ok) return null;
 
-  const [shots, formations, momentum, series, leaders, referees, previous, table, params, situ, metric] =
+  const [shots, formations, momentum, series, leaders, referees, previous, table, params, situ, metric, detail] =
     await Promise.all([
       api
         .from('boca_shot')
@@ -141,6 +143,11 @@ export async function getLandingData(): Promise<LandingData | null> {
           .order('stat_id')
           .range(a, b),
       ),
+      api
+        .from('stat_value_detail')
+        .select('player_id, stat_id, detail')
+        .in('stat_id', ['rendimiento_indice', 'potencial_beta'])
+        .limit(500),
     ]);
 
   const momentumByMinute = new Map<number, number[]>();
@@ -245,6 +252,17 @@ export async function getLandingData(): Promise<LandingData | null> {
       if (r.entity_id !== null && r.match_id !== null && r.stat_id && r.value !== null) {
         ((acc[r.entity_id] ??= {})[r.match_id] ??= {})[r.stat_id] = r.value;
       }
+      return acc;
+    }, {}),
+    projectionDetail: (detail.data ?? []).reduce<LandingData['projectionDetail']>((acc, r) => {
+      if (r.player_id === null || !r.detail || typeof r.detail !== 'object' || Array.isArray(r.detail)) return acc;
+      const entry = (acc[r.player_id] ??= { components: {}, parts: {} });
+      const numbers = (v: unknown) =>
+        v && typeof v === 'object' && !Array.isArray(v)
+          ? Object.fromEntries(Object.entries(v).filter((e): e is [string, number] => typeof e[1] === 'number'))
+          : {};
+      if (r.stat_id === 'rendimiento_indice') entry.components = numbers(r.detail.componentes);
+      if (r.stat_id === 'potencial_beta') entry.parts = numbers(r.detail.partes);
       return acc;
     }, {}),
     updated: freshness.lastUpdate,

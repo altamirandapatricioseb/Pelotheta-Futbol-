@@ -79,7 +79,8 @@ async function downloadPng(svg: SVGSVGElement, name: string) {
 
 /**
  * Tarjeta de un gráfico de la landing (9.2): número del catálogo, título, fuente, fecha de
- * actualización, cobertura, tabla equivalente (también para lectores de pantalla), descarga en PNG
+ * actualización, cobertura, tabla equivalente (botón «Ver como tabla», también para lectores de
+ * pantalla; no se repite oculta en cada tarjeta para no multiplicar el DOM), descarga en PNG
  * y CSV y «Ver origen de los datos» (9.9). Sin datos, queda la tarjeta con el motivo.
  */
 export function ChartCard({
@@ -102,7 +103,7 @@ export function ChartCard({
     <article ref={ref} className={`chart-card${empty ? ' chart-card--empty' : ''}`} aria-labelledby={`${id}-title`}>
       <header className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-[0.7rem] font-bold uppercase tracking-wide text-muted">Gráfico {number}</p>
+          <p className="tabular text-xs text-muted">Gráfico {number}</p>
           <h3 id={`${id}-title`} className="text-base font-bold leading-snug">
             {title}
           </h3>
@@ -163,14 +164,7 @@ export function ChartCard({
           <ChartDataTable table={table} title={title} />
         </div>
       ) : (
-        <>
-          {children}
-          {table ? (
-            <div className="sr-only">
-              <ChartDataTable table={table} title={title} />
-            </div>
-          ) : null}
-        </>
+        children
       )}
 
       <footer className="mt-auto flex flex-wrap items-center justify-between gap-2 text-xs text-muted">

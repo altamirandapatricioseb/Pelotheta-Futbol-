@@ -158,11 +158,11 @@ function Selectable<T extends string>({
   const [value, setValue] = useState<T>(initial);
   return (
     <div className="grid gap-2">
-      <label className="flex items-center gap-2 text-xs font-semibold text-muted">
+      <label className="flex min-w-0 items-center gap-2 text-xs font-semibold text-muted">
         {label}
         <select
           aria-label={label}
-          className="select focus-ring text-xs"
+          className="select focus-ring min-w-0 max-w-full flex-1 text-xs"
           value={value}
           onChange={(e) => {
             setValue(e.target.value as T);
@@ -668,7 +668,7 @@ export const CHARTS: Record<string, ChartRender> = {
         label="Jugador"
         options={playerOptions(regulars)}
         initial={String(regulars[0]?.playerId ?? '')}
-        render={(id) => playerSeries(data, matches, Number(id), 'goals', 'Goles (media de 5)', true)}
+        render={(id) => playerSeries(data, matches, Number(id), 'goals', 'Goles', true)}
       />
     ),
     table: { head: ['Jugador', 'Goles'], rows: regulars.map((p) => [p.name, pv(p, data.playerCatalog, 'goles')]) },
@@ -1987,11 +1987,11 @@ function ScatterConfig({ players, catalog }: { players: PlayerRow[]; catalog: St
       : [];
   });
   const select = (label: string, value: string, set: (v: string) => void) => (
-    <label className="flex items-center gap-2 text-xs font-semibold text-muted">
+    <label className="flex min-w-0 items-center gap-2 text-xs font-semibold text-muted">
       {label}
       <select
         aria-label={label}
-        className="select focus-ring text-xs"
+        className="select focus-ring min-w-0 max-w-full flex-1 text-xs"
         value={value}
         onChange={(e) => {
           set(e.target.value);

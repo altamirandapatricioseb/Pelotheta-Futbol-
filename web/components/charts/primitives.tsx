@@ -65,7 +65,7 @@ function Frame({ tip, children, label }: { tip: Tip | null; children: ReactNode;
       {tip ? (
         <div
           className="chart-tip"
-          role="status"
+          aria-hidden="true"
           style={{ left: `${String((tip.x / W) * 100)}%`, top: `${String((tip.y / H) * 100)}%` }}
         >
           {tip.content}

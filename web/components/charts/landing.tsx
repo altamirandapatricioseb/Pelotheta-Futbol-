@@ -68,11 +68,12 @@ const CHART_SOURCE: Record<string, string> = {
 
 type Venue = 'todos' | 'local' | 'visitante';
 
-const int = (v: number) => new Intl.NumberFormat('es-AR', { maximumFractionDigits: 0 }).format(v);
-const dec1 = (v: number) =>
-  new Intl.NumberFormat('es-AR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(v);
-const dec2 = (v: number) =>
-  new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v);
+const INT = new Intl.NumberFormat('es-AR', { maximumFractionDigits: 0 });
+const DEC1 = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const DEC2 = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const int = (v: number) => INT.format(v);
+const dec1 = (v: number) => DEC1.format(v);
+const dec2 = (v: number) => DEC2.format(v);
 const pct = (v: number) => `${int(v)} %`;
 
 interface Tile {
@@ -313,7 +314,7 @@ export function Landing({ data, charts }: { data: LandingData; charts: ChartDef[
   const working = charts.filter((c) => c.available).length;
 
   return (
-    <div className="grid gap-6">
+    <div className="grid gap-6 [&>*]:min-w-0">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="page-title">
@@ -323,11 +324,15 @@ export function Landing({ data, charts }: { data: LandingData; charts: ChartDef[
             Boca Juniors 2026 · {charts.length} gráficos en {sections.length} categorías · {working} con datos
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filtros globales">
-          <label className="flex items-center gap-2 text-sm font-semibold text-muted">
+        <div
+          className="flex min-w-0 max-w-full flex-wrap items-center gap-2"
+          role="group"
+          aria-label="Filtros globales"
+        >
+          <label className="flex min-w-0 max-w-full items-center gap-2 text-sm font-semibold text-muted">
             Competición
             <select
-              className="select focus-ring"
+              className="select focus-ring min-w-0 flex-1"
               value={competition}
               onChange={(e) => {
                 setCompetition(e.target.value);

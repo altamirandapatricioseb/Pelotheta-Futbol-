@@ -12,7 +12,7 @@ Para retomar en un chat nuevo: leer este archivo, `PROMPT-1-BOCA-FUTBOL.md` (ya 
 | 2. Esqueleto desplegado | Hecha (27-oct) |
 | 3. Pipeline completo | Hecha (28-oct): workflow corrido desde el botón con éxito y fecha nueva visible en la web |
 | 4. Estadísticas, métricas propias y tablas | **Desplegada** (28-oct): Interfaces 2 y 3 en producción; quedan pendientes menores (ver abajo) |
-| 5. Gráficos (Interfaz 1) | Pendiente |
+| 5. Gráficos (Interfaz 1) | **Desplegada** (28-oct): 103 gráficos en producción, 95 con datos y 8 «sin datos» con motivo |
 | 6. Situaciones y estadística desglosada | Pendiente |
 | 7. Comparación directa | Pendiente |
 | 8. Excel | Pendiente |
@@ -123,7 +123,42 @@ Pendientes de la etapa 4: **cerrados** (28-oct).
 Pasan a la etapa 6 por definición: la serie partido a partido de 6.1 «a la fecha» y el doble clic a la
 estadística desglosada.
 
-## Próxima etapa (5: Gráficos, Interfaz 1)
+## Etapa 5: estado (28-oct-2026)
 
-Skills: `dataviz` antes del primer gráfico, `data:create-viz` y `data:data-visualization` para el catálogo,
-`animejs` para los trazos, cierre con `impeccable` (`audit` y `polish`).
+Criterio («todos los gráficos con datos disponibles funcionan en producción; los que no tienen datos figuran
+«sin datos» y se informa cuántos de los 50 funcionan»): **cumplido**. De los 103 gráficos del catálogo, **95
+funcionan con datos reales** (el piso de 50 se supera) y 8 muestran la tarjeta «sin datos» con su motivo.
+
+- **Catálogo:** `data/chart_catalog.csv` (103 gráficos en 17 categorías, A a Q, con tipo, datos que necesita,
+  conjunto de origen y si se lleva a Power BI y Excel) y `data/chart_source_map.csv` (destino del botón «Ver
+  origen de los datos»). El pipeline los carga en cada corrida con `ingest.load_charts` a `core.chart_catalog` y
+  `core.chart_source_map` (RLS de solo lectura, vistas `api.chart_catalog` y `api.chart_source_map`).
+- **Landing `/`:** barra de categorías fija que resalta la sección actual, filtros globales de competición y
+  localía, 2 a 4 números destacados por sección y grilla de 1 a 3 columnas. Cada gráfico: título, número,
+  fuente, fecha, cobertura («dato en 45 de 48 partidos»), tooltip, tabla equivalente, PNG, CSV (sin fórmulas
+  ejecutables) y «Ver origen» con tooltip «Origen: Equipo › Resultados». Los 24 destinos responden 200.
+- **Gráficos SVG propios** (`web/components/charts/`), paleta validada en claro y oscuro (sin violeta), un solo eje
+  por gráfico, leyenda desde dos series y resultado G/E/P nunca solo por color.
+- **Categoría N alineada con 6.1.6** (gráficos 78 a 84). El rango de ± 8 del Potencial α y la curva del margen
+  esperado salen de `core.projection_param`, no están fijos en el código.
+- **Tests:** catálogo y mapa sin enlaces rotos (prueba obligatoria de 9.9), cada gráfico con datos tiene dibujo,
+  Spearman y transformaciones. Python 204, web 62.
+- **Cierre de diseño (impeccable audit y polish):** 14/20 antes de corregir. Se quitó el borde lateral de los
+  números destacados, la tabla oculta repetida en cada tarjeta (de 22.142 a 9.378 nodos), el anuncio del
+  tooltip a lectores de pantalla y el desborde horizontal en 375 px; se agregó `content-visibility` y texto de
+  ejes más grande en móvil.
+- **Seguridad 14.9:** Security Advisor 0 ERROR y 0 WARN (2 INFO de tablas privadas sin política, a propósito);
+  sin secretos en el diff; parámetros de la URL de origen validados contra lista cerrada.
+
+Sin datos (8): 03 evolución de la tabla (solo hay tabla final), 14 primer gol (etapa 6), 26 pases progresivos y
+33 presiones (ninguna fuente gratuita los publica), 66 marcador por minuto (etapa 6), 80, 81 y 82 de 6.1 (serie
+por partido, componentes del índice y desglose del Potencial: etapa 6).
+
+Pendientes que no bloquean: el interruptor propio para reducir animaciones (9.10) llega en la etapa 10; mientras
+tanto se respeta la preferencia del sistema. El doble clic hacia la estadística desglosada llega con la etapa 6.
+
+## Próxima etapa (6: Situaciones y estadística desglosada)
+
+Skills: `impeccable` (`shape` y `animate`) antes de escribir el tablero tipo Miro,
+`animation-components:animated-component-libraries` al implementar el lienzo, cierre con `impeccable` (`audit` y
+`polish`). Al terminarla se completan los gráficos 14, 66, 80, 81 y 82.

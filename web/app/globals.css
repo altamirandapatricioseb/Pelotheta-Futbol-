@@ -794,6 +794,10 @@ h3 {
 .chart-card--empty {
   border-style: dashed;
 }
+.landing-section .chart-card {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 420px;
+}
 .chart-frame {
   position: relative;
 }
@@ -803,6 +807,11 @@ h3 {
   height: auto;
   overflow: visible;
   font-size: 11px;
+}
+@media (max-width: 640px) {
+  .chart-svg {
+    font-size: 13px;
+  }
 }
 .chart-axis text {
   fill: var(--color-text-muted);
@@ -972,15 +981,15 @@ h3 {
 /* Números destacados de cada sección de la landing (9.2). */
 .tile-row {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 180px), 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 170px), 1fr));
+  gap: 12px 24px;
+  border-block: 1px solid var(--color-border);
+  padding-block: 12px;
 }
 .tile {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  border-left: 3px solid var(--color-brand);
-  padding: 4px 0 4px 12px;
 }
 .tile-label {
   font-size: 0.75rem;

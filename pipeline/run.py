@@ -26,7 +26,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from pipeline import catalog, enrich, load
+from pipeline import catalog, enrich, load, own_metrics
 from pipeline.models import (
     CompetitionMetricRecord,
     LeagueResultRecord,
@@ -608,6 +608,14 @@ def run_pipeline(dry_run: bool, url: str, key: str) -> int:
         with contextlib.suppress(load.LoadError):
             load.log_failure(pd.SOURCE, f"Fallo de la carga: {exc}", url, key)
         return 1
+    # Métricas propias (5.7 y 6) con todo lo cargado. Si fallan, los datos ya están en la base:
+    # se registra el fallo y la corrida sigue siendo válida.
+    try:
+        result["metricas_propias"] = own_metrics.run(url, key)
+    except load.LoadError as exc:
+        print(f"Aviso: métricas propias no calculadas: {exc}", file=sys.stderr)
+        with contextlib.suppress(load.LoadError):
+            load.log_failure("metricas_propias", f"Métricas propias: {exc}", url, key)
     seconds = (datetime.now() - started).total_seconds()
     print(f"Carga {status} en {seconds:.0f} s: {result}")
     return 0

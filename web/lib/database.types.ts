@@ -234,6 +234,7 @@ export type Database = {
           sort_order: number | null;
           title_es: string | null;
           main_metric: string | null;
+          extra_metrics: string | null;
         };
         Relationships: [];
       };
@@ -248,6 +249,8 @@ export type Database = {
           ga_avg: number | null;
           clean_pct: number | null;
           scored_pct: number | null;
+          stats: Json | null;
+          base_stats: Json | null;
           card_id: string | null;
           computed_at: string | null;
           d: number | null;
@@ -292,6 +295,8 @@ export type Database = {
       };
       conclusion: {
         Row: {
+          entity_id: number | null;
+          player_name: string | null;
           area: string | null;
           band: string | null;
           computed_at: string | null;

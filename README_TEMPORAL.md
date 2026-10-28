@@ -191,8 +191,16 @@ tanto se respeta la preferencia del sistema. El doble clic hacia la estadística
   desglosada de Mejoría y Potencial. Los gráficos 14 y 66 salen de las tarjetas de Situaciones. Landing: 98 de
   103 gráficos con datos.
 
-Pendientes de la etapa 6: gráficos 81 y 82 (componentes del índice y desglose del Potencial: hay que guardar los
-componentes en el cálculo de 6.1); doble clic desde Comparar (la interfaz llega en la etapa 7); página de partido
+Pedidos del dueño sobre Situaciones (28-oct), hechos: sin arrastrar (scroll e índice fijo); tarjetas en
+columnas sin huecos y filas plegables; guía «Cómo leer las tarjetas» (qué es cada número, la flecha y los pp);
+cada fila destaca su métrica principal y suma promedios de remates, xG, posesión, córners o tarjetas contra la
+temporada. **Conclusiones** (botón aparte): 86 reglas en `data/conclusion_catalog.csv` → 41 del equipo (Boca en
+todas sus competiciones contra la liga, copas contra liga, pelota parada, posiciones) y 74 de 26 jugadores
+(percentil frente al plantel); verde, rojo o azul según la banda, recalculadas en cada corrida. En Jugadores y
+Equipo, pasar el mouse (o el foco) por una columna muestra esa estadística en el panel. Gráficos 81 y 82 hechos
+(landing: 100 de 103 con datos).
+
+Pendientes de la etapa 6: doble clic desde Comparar (la interfaz llega en la etapa 7); página de partido
 (los enlaces «al partido» de 9.8 todavía no tienen destino); revisión de diseño de cierre del tablero.
 
 ## Próxima etapa (7: Comparar)

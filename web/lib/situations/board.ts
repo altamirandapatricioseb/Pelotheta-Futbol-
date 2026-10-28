@@ -19,6 +19,9 @@ export interface SituationRow {
   scoredPct: number;
   /** Base de Boca en toda la temporada para las otras métricas. */
   base2: { ppg: number; gf: number; ga: number; clean: number };
+  /** Promedio de estadísticas del partido en esos partidos y en toda la temporada. */
+  stats: Record<string, number>;
+  baseStats: Record<string, number>;
   matchIds: number[];
 }
 
@@ -38,6 +41,8 @@ export interface SituationCard {
   reason: string;
   /** Métrica que destaca la tarjeta (la que mejor responde su pregunta). */
   mainMetric: MainMetric;
+  /** Estadísticas del partido que muestra cada fila además de la principal. */
+  extraMetrics: string[];
   rows: SituationRow[];
 }
 
@@ -146,3 +151,20 @@ export function sortCards(cards: readonly SituationCard[], mode: CardSort): Situ
   if (mode === 'muestra') return list.sort((a, b) => totalN(b) - totalN(a));
   return list.sort((a, b) => a.category.localeCompare(b.category) || a.id.localeCompare(b.id));
 }
+
+/** Estadísticas del partido que pueden mostrar las filas. `better`: si más alto es mejor (null: estilo). */
+export const MATCH_STATS: Record<string, { label: string; percent: boolean; better: boolean | null }> = {
+  shots_total: { label: 'Remates', percent: false, better: true },
+  shots_on_target: { label: 'Al arco', percent: false, better: true },
+  shots_total_against: { label: 'Remates del rival', percent: false, better: false },
+  xg: { label: 'xG', percent: false, better: true },
+  xg_against: { label: 'xG del rival', percent: false, better: false },
+  possession_pct: { label: 'Posesión', percent: true, better: null },
+  pass_accuracy_pct: { label: 'Pases correctos', percent: true, better: null },
+  corners: { label: 'Córners', percent: false, better: true },
+  big_chances: { label: 'Ocasiones claras', percent: false, better: true },
+  fouls: { label: 'Faltas', percent: false, better: false },
+  yellow_cards: { label: 'Amarillas', percent: false, better: false },
+  yellow_cards_against: { label: 'Amarillas del rival', percent: false, better: null },
+  saves: { label: 'Atajadas', percent: false, better: null },
+};

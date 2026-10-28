@@ -2,6 +2,7 @@ import 'server-only';
 
 import type { DataResult } from '@/lib/data/players';
 import {
+  MATCH_STATS,
   METRICS,
   type MainMetric,
   type SituationCard,
@@ -13,12 +14,21 @@ import { createApiClient } from '@/lib/supabase/server';
 const PAGE = 1000;
 const METRIC_IDS = new Set(Object.keys(METRICS));
 
+/** Objeto JSON de la base con valores numéricos; cualquier otra cosa se descarta. */
+function numbers(json: unknown): Record<string, number> {
+  if (!json || typeof json !== 'object' || Array.isArray(json)) return {};
+  return Object.fromEntries(Object.entries(json).filter((e): e is [string, number] => typeof e[1] === 'number'));
+}
+
 function fail(cause: unknown): { ok: false; code: 'PEL-DB-001'; detail: string } {
   return { ok: false, code: 'PEL-DB-001', detail: cause instanceof Error ? cause.message : String(cause) };
 }
 
 export interface Conclusion {
   id: string;
+  /** 0 para el equipo; el id del jugador en las conclusiones individuales. */
+  entityId: number;
+  playerName: string | null;
   area: string;
   title: string;
   kind: string;
@@ -49,7 +59,7 @@ export async function getSituations(): Promise<DataResult<SituationsData>> {
     const [catalog, results, concl] = await Promise.all([
       api.from('situational_catalog').select('*').order('sort_order').limit(500),
       api.from('situational_result').select('*').limit(3000),
-      api.from('conclusion').select('*').order('sort_order').limit(200),
+      api.from('conclusion').select('*').neq('text_es', '').order('sort_order').order('player_name').limit(1000),
     ]);
     if (catalog.error) return fail(catalog.error.message);
     if (results.error) return fail(results.error.message);
@@ -114,6 +124,8 @@ export async function getSituations(): Promise<DataResult<SituationsData>> {
         cleanPct: r.clean_pct ?? 0,
         scoredPct: r.scored_pct ?? 0,
         base2: { ppg: r.base_ppg ?? 0, gf: r.base_gf ?? 0, ga: r.base_ga ?? 0, clean: r.base_clean ?? 0 },
+        stats: numbers(r.stats),
+        baseStats: numbers(r.base_stats),
         // Partidos de la fila, del más reciente al más viejo.
         matchIds: (byRow.get(`${r.card_id}|${r.param_value}`) ?? []).sort((a, b) =>
           (matches[b]?.date ?? '').localeCompare(matches[a]?.date ?? ''),
@@ -134,6 +146,8 @@ export async function getSituations(): Promise<DataResult<SituationsData>> {
             ? [
                 {
                   id: c.rule_id,
+                  entityId: c.entity_id ?? 0,
+                  playerName: c.player_name,
                   area: c.area ?? '',
                   title: c.title_es ?? '',
                   kind: c.kind ?? '',
@@ -166,6 +180,7 @@ export async function getSituations(): Promise<DataResult<SituationsData>> {
                   available: c.available ?? false,
                   estimated: c.estimated ?? false,
                   reason: c.reason_es ?? '',
+                  extraMetrics: (c.extra_metrics ?? '').split(' ').filter((k) => k in MATCH_STATS),
                   mainMetric: METRIC_IDS.has(c.main_metric ?? '') ? (c.main_metric as MainMetric) : 'win_pct',
                   rows: (rowsByCard.get(c.card_id) ?? []).sort(
                     (a, b) => a.order - b.order || a.param.localeCompare(b.param),

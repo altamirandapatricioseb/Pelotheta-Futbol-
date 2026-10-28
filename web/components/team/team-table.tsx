@@ -68,6 +68,9 @@ export function TeamTableView({
   );
   const [statId, setStatId] = useState(columns[0]?.id ?? '');
   const column = columns.find((c) => c.id === statId) ?? columns[0];
+  // Vista previa de una columna al pasar el mouse (como la de la fila): solo cambia el panel.
+  const [previewStatId, setPreviewStatId] = useState<string | null>(null);
+  const shown = (previewStatId !== null ? columns.find((c) => c.id === previewStatId) : undefined) ?? column;
   const [sort, setSort] = useState<SortState | null>(null);
 
   const filtered = useMemo(() => {
@@ -169,21 +172,21 @@ export function TeamTableView({
   // Panel: valor en el grupo actual, promedio por partido de la temporada y de los últimos 5.
   const all: MatchGroup = { key: 'todas', label: 'Temporada', rows: matches };
   const last5: MatchGroup = { key: 'ultimos5', label: 'Últimos 5', rows: matches.slice(-5) };
-  const panelValue = current && column ? valueOf(current, column) : null;
-  const seasonAvg = column ? aggregateTeam(all.rows, column, byId, { perMatch: true }) : null;
-  const last5Avg = column ? aggregateTeam(last5.rows, column, byId, { perMatch: true }) : null;
+  const panelValue = current && shown ? valueOf(current, shown) : null;
+  const seasonAvg = shown ? aggregateTeam(all.rows, shown, byId, { perMatch: true }) : null;
+  const last5Avg = shown ? aggregateTeam(last5.rows, shown, byId, { perMatch: true }) : null;
   const single = current?.rows.length === 1 ? current.rows[0] : undefined;
   // Mejor o peor fila de la tabla (partido, rival, mes o competición) para la estadística, y
   // mejor o peor de los 30 clubes de la liga para el promedio de la temporada.
   const panelExtreme =
-    column && typeof panelValue === 'number'
+    shown && typeof panelValue === 'number'
       ? extremeOf(
-          groups.map((g) => valueOf(g, column)).filter((v): v is number => typeof v === 'number'),
+          groups.map((g) => valueOf(g, shown)).filter((v): v is number => typeof v === 'number'),
           panelValue,
-          column.higherIsBetter,
+          shown.higherIsBetter,
         )
       : null;
-  const league = column ? leagueComparison(column.id, column.higherIsBetter, clubs) : null;
+  const league = shown ? leagueComparison(shown.id, shown.higherIsBetter, clubs) : null;
   const leagueExtreme = league?.bocaPercentile === 100 ? 'best' : league?.bocaPercentile === 0 ? 'worst' : null;
   const rowName = (
     { partido: 'partido', rival: 'rival', mes: 'mes', competicion: 'competición', acumulada: 'fila' } as const
@@ -230,24 +233,24 @@ export function TeamTableView({
           )}
         </section>
 
-        {column ? (
+        {shown ? (
           <section aria-label="Estadística actual" className="grid content-start gap-3">
             <div className="flex flex-wrap items-center gap-2">
-              <h2 className="text-xl font-extrabold tracking-tight">{column.name}</h2>
-              <span className="level-badge" title={LEVEL_TEXT[column.level]}>
-                Nivel {column.level}
+              <h2 className="text-xl font-extrabold tracking-tight">{shown.name}</h2>
+              <span className="level-badge" title={LEVEL_TEXT[shown.level]}>
+                Nivel {shown.level}
               </span>
-              {column.estimated ? (
+              {shown.estimated ? (
                 <span className="level-badge" title="Calculada con un supuesto: es una estimación">
                   Estimada
                 </span>
               ) : null}
             </div>
-            <p className="max-w-[60ch] text-sm leading-relaxed">{column.description}</p>
-            <StatReading text={column.reading} />
-            {column.formula && column.rule !== 'suma' ? (
+            <p className="max-w-[60ch] text-sm leading-relaxed">{shown.description}</p>
+            <StatReading text={shown.reading} />
+            {shown.formula && shown.rule !== 'suma' ? (
               <p className="text-sm text-muted">
-                Fórmula: <span className="font-semibold text-fg">{column.formula}</span>
+                Fórmula: <span className="font-semibold text-fg">{shown.formula}</span>
               </p>
             ) : null}
             <div className="mt-1 flex flex-wrap items-end gap-x-8 gap-y-2">
@@ -257,17 +260,17 @@ export function TeamTableView({
                 {panelValue === null ? (
                   <span className="text-muted">{NOT_AVAILABLE}</span>
                 ) : (
-                  formatStat(panelValue, column, false)
+                  formatStat(panelValue, shown, false)
                 )}
               </p>
               <p className="pb-1 text-sm text-muted">
-                {column.per90 ? 'Promedio por partido' : 'Temporada'}:{' '}
+                {shown.per90 ? 'Promedio por partido' : 'Temporada'}:{' '}
                 <span
                   className={`font-bold ${leagueExtreme === 'best' ? 'value-best' : leagueExtreme === 'worst' ? 'value-worst' : 'text-fg'}`}
                 >
-                  {formatStat(seasonAvg, column, column.per90)}
+                  {formatStat(seasonAvg, shown, shown.per90)}
                 </span>{' '}
-                · últimos 5: <span className="font-bold text-fg">{formatStat(last5Avg, column, column.per90)}</span>
+                · últimos 5: <span className="font-bold text-fg">{formatStat(last5Avg, shown, shown.per90)}</span>
               </p>
             </div>
             {panelExtreme || leagueExtreme ? (
@@ -287,8 +290,8 @@ export function TeamTableView({
               </div>
             ) : null}
             <p className="text-xs text-muted">
-              Fuente: {column.source.replaceAll('|', ', ')}
-              {column.level === 'B' ? '; cálculo propio' : ''}.
+              Fuente: {shown.source.replaceAll('|', ', ')}
+              {shown.level === 'B' ? '; cálculo propio' : ''}.
             </p>
           </section>
         ) : null}
@@ -375,6 +378,18 @@ export function TeamTableView({
             role="grid"
             aria-readonly="true"
             onKeyDown={onKeyDown}
+            onMouseOver={(e) => {
+              const stat = (e.target as HTMLElement).closest<HTMLElement>('[data-stat]')?.dataset.stat;
+              setPreviewStatId(stat ?? null);
+            }}
+            onFocus={(e) => {
+              // Con el teclado, el encabezado enfocado también muestra su estadística en el panel.
+              const stat = (e.target as HTMLElement).closest<HTMLElement>('[data-stat]')?.dataset.stat;
+              if (stat) setPreviewStatId(stat);
+            }}
+            onMouseLeave={() => {
+              setPreviewStatId(null);
+            }}
             onDoubleClick={(e) => {
               // Doble clic en una celda: la estadística desglosada del equipo (9.8).
               const stat = (e.target as HTMLElement).closest<HTMLElement>('td[data-stat]')?.dataset.stat;
@@ -423,6 +438,7 @@ export function TeamTableView({
                       key={c.id}
                       scope="col"
                       title={c.name}
+                      data-stat={c.id}
                       data-current-stat={c.id === column?.id || undefined}
                       aria-sort={sorted ? (sort.dir === 'asc' ? 'ascending' : 'descending') : 'none'}
                     >

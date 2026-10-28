@@ -19,6 +19,8 @@ const row = (param: string, n: number, delta: number) => ({
   cleanPct: 30,
   scoredPct: 70,
   base2: { ppg: 1.5, gf: 1.4, ga: 0.9, clean: 40 },
+  stats: {},
+  baseStats: {},
   matchIds: [],
 });
 
@@ -40,6 +42,7 @@ const card = (
   estimated: false,
   reason: '',
   mainMetric: 'win_pct',
+  extraMetrics: [],
   rows,
   ...extra,
 });

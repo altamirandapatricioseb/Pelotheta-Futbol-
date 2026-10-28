@@ -108,6 +108,9 @@ export function PlayerMasterView({
 
   // Si cambia el conjunto y la estadística actual no está, pasa a la primera columna.
   const column = columns.find((c) => c.id === statId) ?? columns[0];
+  // Vista previa de una columna al pasar el mouse (como la de la fila): solo cambia el panel.
+  const [previewStatId, setPreviewStatId] = useState<string | null>(null);
+  const shown = (previewStatId !== null ? columns.find((c) => c.id === previewStatId) : undefined) ?? column;
 
   const visible = useMemo(() => {
     const q = query.trim().toLocaleLowerCase('es-AR');
@@ -147,12 +150,12 @@ export function PlayerMasterView({
     (stat: StatDef) => visible.map((p) => playerValue(p, stat, per90)).filter(numeric),
     [visible, per90],
   );
-  const currentValue = current && column ? playerValue(current, column, per90) : null;
+  const currentValue = current && shown ? playerValue(current, shown, per90) : null;
   const standing =
-    column && numeric(currentValue) ? rankAndPercentile(valuesOf(column), currentValue, column.higherIsBetter) : null;
+    shown && numeric(currentValue) ? rankAndPercentile(valuesOf(shown), currentValue, shown.higherIsBetter) : null;
   // Mejor o peor del plantel visible: el valor del panel cambia de color y lleva una etiqueta.
   const extreme =
-    column && numeric(currentValue) ? extremeOf(valuesOf(column), currentValue, column.higherIsBetter) : null;
+    shown && numeric(currentValue) ? extremeOf(valuesOf(shown), currentValue, shown.higherIsBetter) : null;
 
   // Primer clic: elige la estadística (se lee su definición); los siguientes ordenan de menor a
   // mayor, de mayor a menor y vuelven al orden original (lib/stats/sort.ts).
@@ -292,29 +295,29 @@ export function PlayerMasterView({
           )}
         </section>
 
-        {column ? (
+        {shown ? (
           <section aria-label="Estadística actual" className="grid content-start gap-3">
             <div className="flex flex-wrap items-center gap-2">
-              <h2 className="text-xl font-extrabold tracking-tight">{column.name}</h2>
-              <span className="level-badge" title={LEVEL_TEXT[column.level]}>
-                Nivel {column.level}
+              <h2 className="text-xl font-extrabold tracking-tight">{shown.name}</h2>
+              <span className="level-badge" title={LEVEL_TEXT[shown.level]}>
+                Nivel {shown.level}
               </span>
-              {column.estimated ? (
+              {shown.estimated ? (
                 <span className="level-badge" title="Calculada con un supuesto: es una estimación">
                   Estimada
                 </span>
               ) : null}
             </div>
-            <p className="text-xs font-semibold text-muted">{column.group}</p>
-            <p className="max-w-[60ch] text-sm leading-relaxed">{column.description}</p>
-            <StatReading text={column.reading} />
-            {column.formula && column.rule !== 'suma' ? (
+            <p className="text-xs font-semibold text-muted">{shown.group}</p>
+            <p className="max-w-[60ch] text-sm leading-relaxed">{shown.description}</p>
+            <StatReading text={shown.reading} />
+            {shown.formula && shown.rule !== 'suma' ? (
               <p className="text-sm text-muted">
-                Fórmula: <span className="font-semibold text-fg">{column.formula}</span>
+                Fórmula: <span className="font-semibold text-fg">{shown.formula}</span>
               </p>
             ) : null}
             <p className="text-sm text-muted">
-              Unidad: {per90 && column.per90 ? `${column.unit} cada 90 minutos` : column.unit}
+              Unidad: {per90 && shown.per90 ? `${shown.unit} cada 90 minutos` : shown.unit}
             </p>
             {current ? (
               <div className="mt-2 flex flex-wrap items-end gap-x-6 gap-y-2">
@@ -322,7 +325,7 @@ export function PlayerMasterView({
                   className={`text-4xl font-extrabold tabular${extreme === 'best' ? ' value-best' : extreme === 'worst' ? ' value-worst' : ''}`}
                 >
                   {numeric(currentValue) ? (
-                    <AnimatedNumber value={currentValue} format={(v) => formatStat(v, column, per90)} />
+                    <AnimatedNumber value={currentValue} format={(v) => formatStat(v, shown, per90)} />
                   ) : currentValue !== null ? (
                     currentValue
                   ) : (
@@ -331,7 +334,7 @@ export function PlayerMasterView({
                 </p>
                 {standing ? (
                   <p className="pb-1 text-sm text-muted">
-                    <span className="font-bold text-fg">{standing.rank}.º</span> de {valuesOf(column).length} en el
+                    <span className="font-bold text-fg">{standing.rank}.º</span> de {valuesOf(shown).length} en el
                     plantel · percentil <span className="font-bold text-fg">{standing.percentile}</span>
                   </p>
                 ) : null}
@@ -343,8 +346,8 @@ export function PlayerMasterView({
               </div>
             ) : null}
             <p className="text-xs text-muted">
-              Fuente: {column.source.replaceAll('|', ', ')}
-              {column.level === 'B' ? '; cálculo propio' : ''}.
+              Fuente: {shown.source.replaceAll('|', ', ')}
+              {shown.level === 'B' ? '; cálculo propio' : ''}.
             </p>
           </section>
         ) : null}
@@ -459,6 +462,18 @@ export function PlayerMasterView({
           role="grid"
           aria-readonly="true"
           onKeyDown={onKeyDown}
+          onMouseOver={(e) => {
+            const stat = (e.target as HTMLElement).closest<HTMLElement>('[data-stat]')?.dataset.stat;
+            setPreviewStatId(stat ?? null);
+          }}
+          onFocus={(e) => {
+            // Con el teclado, el encabezado enfocado también muestra su estadística en el panel.
+            const stat = (e.target as HTMLElement).closest<HTMLElement>('[data-stat]')?.dataset.stat;
+            if (stat) setPreviewStatId(stat);
+          }}
+          onMouseLeave={() => {
+            setPreviewStatId(null);
+          }}
           onDoubleClick={(e) => {
             // Doble clic en una celda: la estadística desglosada de ese jugador (9.8).
             const cell = (e.target as HTMLElement).closest<HTMLElement>('td[data-stat]');
@@ -506,6 +521,7 @@ export function PlayerMasterView({
                     key={c.id}
                     scope="col"
                     title={c.name}
+                    data-stat={c.id}
                     data-current-stat={c.id === column?.id || undefined}
                     aria-sort={sorted ? (sort.dir === 'asc' ? 'ascending' : 'descending') : 'none'}
                   >

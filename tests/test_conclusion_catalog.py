@@ -25,10 +25,21 @@ def test_links_point_to_real_stats_or_situations() -> None:
         assert r.enlace == "situaciones" or r.enlace in STATS, r.id
 
 
-def test_every_rule_says_something_at_both_ends() -> None:
-    # Arriba y abajo siempre hay una conclusión; la banda media puede no decir nada.
+def test_every_rule_says_something_at_the_ends() -> None:
+    # Las del equipo dicen algo arriba y abajo; las de jugador, al menos en un extremo (en las de
+    # volumen, «pocos centros» no dice nada de un jugador que juega en otra posición).
     for r in RULES:
-        assert r.texto_alto and r.texto_bajo, r.id
+        if r.tipo == "jugador":
+            assert r.texto_alto or r.texto_bajo, r.id
+        else:
+            assert r.texto_alto and r.texto_bajo, r.id
+
+
+def test_about_one_hundred_conclusions_half_team_half_players() -> None:
+    team = [r for r in RULES if r.tipo != "jugador"]
+    players = [r for r in RULES if r.tipo == "jugador"]
+    assert len(team) >= 45
+    assert len(players) >= 25
 
 
 def test_band_without_tone_or_unknown_placeholder_is_rejected() -> None:

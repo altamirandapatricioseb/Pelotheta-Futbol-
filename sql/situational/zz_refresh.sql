@@ -19,6 +19,8 @@ create table core.situational_catalog (
   reason_es      text not null default '',
   -- Métrica que se destaca en la tarjeta: win_pct, ppg, goal_diff, gf, ga o clean_pct.
   main_metric    text not null default 'win_pct',
+  -- Estadísticas del partido que se muestran además en cada fila (claves separadas por espacio).
+  extra_metrics  text not null default '',
   sort_order     smallint not null
 );
 
@@ -51,6 +53,8 @@ create table core.situational_result (
   base_gf      numeric not null default 0,
   base_ga      numeric not null default 0,
   base_clean   numeric not null default 0,
+  stats        jsonb not null default '{}',
+  base_stats   jsonb not null default '{}',
   computed_at  timestamptz not null default now(),
   primary key (card_id, param_value)
 );
@@ -66,12 +70,38 @@ grant select on core.situ_base to anon;
 
 -- Refresco: SECURITY DEFINER por el REFRESH MATERIALIZED VIEW (mismo criterio que
 -- core.refresh_stats: vive en core, sin parámetros, search_path vacío y solo service_role).
+-- Promedios de las estadísticas que muestran las filas, para un grupo de partidos.
+create function core.situ_stat_avgs(p_matches integer[])
+returns jsonb
+language sql stable
+set search_path = ''
+as $$
+  select jsonb_strip_nulls(jsonb_build_object(
+    'shots_total', round(avg((s ->> 'shots_total')::numeric), 2),
+    'shots_on_target', round(avg((s ->> 'shots_on_target')::numeric), 2),
+    'shots_total_against', round(avg((s ->> 'shots_total_against')::numeric), 2),
+    'xg', round(avg((s ->> 'xg')::numeric), 2),
+    'xg_against', round(avg((s ->> 'xg_against')::numeric), 2),
+    'possession_pct', round(avg((s ->> 'possession_pct')::numeric), 1),
+    'pass_accuracy_pct', round(avg((s ->> 'pass_accuracy_pct')::numeric), 1),
+    'corners', round(avg((s ->> 'corners')::numeric), 2),
+    'big_chances', round(avg((s ->> 'big_chances')::numeric), 2),
+    'fouls', round(avg((s ->> 'fouls')::numeric), 2),
+    'yellow_cards', round(avg((s ->> 'yellow_cards')::numeric), 2),
+    'yellow_cards_against', round(avg((s ->> 'yellow_cards_against')::numeric), 2),
+    'saves', round(avg((s ->> 'saves')::numeric), 2)
+  ))
+  from core.situ_base where match_id = any (p_matches)
+$$;
+
 create function core.refresh_situations()
 returns void
 language plpgsql
 security definer
 set search_path = ''
 as $$
+declare
+  season_stats jsonb;
 begin
   refresh materialized view core.situ_base;
 
@@ -89,10 +119,12 @@ begin
   where match_id is not null and param_value is not null
   order by card_id, param_value, match_id, param_order;
 
+  season_stats := core.situ_stat_avgs(array(select match_id from core.situ_base));
+
   delete from core.situational_result where true;
   insert into core.situational_result (card_id, param_value, param_order, n, w, d, l, win_pct, ppg, goal_diff,
                                        base_win_pct, delta, gf_avg, ga_avg, clean_pct, scored_pct, base_ppg, base_gf,
-                                       base_ga, base_clean)
+                                       base_ga, base_clean, stats, base_stats)
   with base as (
     select avg(case when result = 'G' then 100.0 else 0 end) as win_pct, avg(points) as ppg, avg(gf) as gf,
            avg(ga) as ga, avg(case when ga = 0 then 100.0 else 0 end) as clean
@@ -108,7 +140,8 @@ begin
          round(avg(b.gf), 2), round(avg(b.ga), 2),
          round(avg(case when b.ga = 0 then 100.0 else 0 end), 1),
          round(avg(case when b.gf > 0 then 100.0 else 0 end), 1),
-         round(max(base.ppg), 2), round(max(base.gf), 2), round(max(base.ga), 2), round(max(base.clean), 1)
+         round(max(base.ppg), 2), round(max(base.gf), 2), round(max(base.ga), 2), round(max(base.clean), 1),
+         core.situ_stat_avgs(array_agg(m.match_id)), season_stats
   from core.situational_match m
   join core.situ_base b on b.match_id = m.match_id
   cross join base
@@ -143,11 +176,12 @@ declare
 begin
   delete from core.situational_catalog where true;
   insert into core.situational_catalog (card_id, category, title_es, condition_es, params_es, measured_es,
-                                        required_data, level, available, estimated, reason_es, main_metric, sort_order)
+                                        required_data, level, available, estimated, reason_es, main_metric,
+                                        extra_metrics, sort_order)
   select c ->> 'card_id', c ->> 'category', c ->> 'title_es', c ->> 'condition_es', coalesce(c ->> 'params_es', ''),
          c ->> 'measured_es', c ->> 'required_data', c ->> 'level', (c ->> 'available')::boolean,
          (c ->> 'estimated')::boolean, coalesce(c ->> 'reason_es', ''), coalesce(c ->> 'main_metric', 'win_pct'),
-         (c ->> 'sort_order')::smallint
+         coalesce(c ->> 'extra_metrics', ''), (c ->> 'sort_order')::smallint
   from jsonb_array_elements(p_cards) c;
   get diagnostics n_cards = row_count;
   return jsonb_build_object('cards', n_cards);
@@ -160,13 +194,13 @@ grant execute on function ingest.load_situations(jsonb) to service_role;
 create view api.situational_catalog
 with (security_invoker = true) as
 select card_id, category, title_es, condition_es, params_es, measured_es, required_data, level, available,
-       estimated, reason_es, sort_order, main_metric
+       estimated, reason_es, sort_order, main_metric, extra_metrics
 from core.situational_catalog;
 
 create view api.situational_result
 with (security_invoker = true) as
 select card_id, param_value, param_order, n, w, d, l, win_pct, ppg, goal_diff, base_win_pct, delta, computed_at,
-       gf_avg, ga_avg, clean_pct, scored_pct, base_ppg, base_gf, base_ga, base_clean
+       gf_avg, ga_avg, clean_pct, scored_pct, base_ppg, base_gf, base_ga, base_clean, stats, base_stats
 from core.situational_result;
 
 -- Partidos de cada fila («Ver los partidos»), con lo necesario para verificarlos a mano.

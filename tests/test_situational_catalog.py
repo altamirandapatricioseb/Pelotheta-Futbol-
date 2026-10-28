@@ -56,3 +56,11 @@ def test_payload_and_rpc() -> None:
     assert seen["path"] == "/rest/v1/rpc/load_situations"
     assert set(seen["body"]) == {"p_cards"}  # type: ignore[arg-type]
     assert result == {"cards": len(CARDS)}
+
+
+def test_extra_metrics_are_ones_the_database_averages() -> None:
+    # Las claves tienen que estar en core.situ_stat_avgs (si no, la fila no tiene ese promedio).
+    sql = (situations.ROOT / "sql" / "situational" / "zz_refresh.sql").read_text(encoding="utf-8")
+    for c in CARDS:
+        for key in c.metricas_extra.split():
+            assert f"'{key}'" in sql, (c.id, key)

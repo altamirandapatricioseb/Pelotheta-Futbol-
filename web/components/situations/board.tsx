@@ -1,8 +1,9 @@
 'use client';
 
-// Interfaz 4 (9.6): tarjetas de situaciones por categoría y conclusiones del equipo. Se navega con
-// el scroll de la página y un índice fijo (sin arrastrar un lienzo, pedido del dueño). Cada fila
-// destaca la métrica que mejor responde la pregunta de su tarjeta y muestra el resto al lado.
+// Interfaz 4 (9.6): tarjetas de situaciones por categoría y conclusiones del equipo y de los
+// jugadores. Se navega con el scroll de la página y un índice fijo (sin arrastrar un lienzo).
+// Cada fila destaca la métrica que mejor responde la pregunta de su tarjeta, muestra el resto de
+// los resultados y estadísticas del partido, y todo se compara con la temporada completa.
 
 import {
   ArrowDownIcon,
@@ -26,6 +27,7 @@ import {
   CATEGORY_NAMES,
   filterCards,
   headline,
+  MATCH_STATS,
   METRICS,
   SMALL_SAMPLE,
   sortCards,
@@ -41,6 +43,8 @@ const nf = (digits: number) =>
 const N0 = nf(0);
 const N1 = nf(1);
 const N2 = nf(2);
+/** Filas que se ven sin desplegar la tarjeta (las de jugadores o rivales pueden ser 20). */
+const VISIBLE_ROWS = 5;
 
 function formatMetric(metric: MainMetric, v: number): string {
   if (metric === 'win_pct' || metric === 'clean_pct') return `${N0.format(v)} %`;
@@ -119,8 +123,8 @@ export function SituationsBoard({
             </h1>
             <p className="mt-2 max-w-[70ch] text-muted">
               Cuando pasa algo en un partido, ¿qué le pasa a Boca? {cards.length} tarjetas, {withData} con datos. Cada
-              fila se compara con la temporada completa
-              {baseWinPct !== null ? ` (${N0.format(baseWinPct)} % de victorias)` : ''}.
+              fila junta los partidos en que se dio esa situación y los compara con la temporada completa de Boca
+              {baseWinPct !== null ? ` (ganó el ${N0.format(baseWinPct)} % de sus partidos)` : ''}.
             </p>
           </div>
           <div className="view-switch" role="group" aria-label="Vista">
@@ -157,6 +161,8 @@ export function SituationsBoard({
           />
         ) : (
           <>
+            <ReadingGuide />
+
             <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Búsqueda, filtros y orden">
               <label className="chip focus-ring min-w-0 cursor-text">
                 <MagnifyingGlassIcon size={14} aria-hidden="true" />
@@ -302,9 +308,67 @@ export function SituationsBoard({
   );
 }
 
+/** Cómo leer una fila: qué es cada número, qué compara la flecha y qué son los pp. */
+function ReadingGuide() {
+  return (
+    <details className="reading-guide" open>
+      <summary className="focus-ring">Cómo leer las tarjetas</summary>
+      <dl className="reading-guide__grid">
+        <div>
+          <dt>Número grande</dt>
+          <dd>
+            La métrica que mejor responde la pregunta de la tarjeta (dice cuál en «Destaca»): puntos por partido, % de
+            victorias, goles a favor o en contra, diferencia de gol o % de vallas invictas.
+          </dd>
+        </div>
+        <div>
+          <dt>Flecha y diferencia</dt>
+          <dd>
+            Contra el promedio de Boca en toda la temporada. Verde: mejor que su temporada. Rojo: peor. En goles en
+            contra, menos es mejor.
+          </dd>
+        </div>
+        <div>
+          <dt>pp (puntos porcentuales)</dt>
+          <dd>
+            La diferencia entre dos porcentajes: si en esos partidos ganó el 60 % y en la temporada el 50 %, son +10 pp.
+          </dd>
+        </div>
+        <div>
+          <dt>Barra</dt>
+          <dd>El valor de la fila. La rayita marca el promedio de la temporada.</dd>
+        </div>
+        <div>
+          <dt>Debajo</dt>
+          <dd>
+            PJ: partidos. G-E-P: ganados, empatados y perdidos. pts: puntos por partido. GF y GC: goles a favor y en
+            contra por partido. Valla: % de partidos sin recibir goles.
+          </dd>
+        </div>
+        <div>
+          <dt>Estadísticas del partido</dt>
+          <dd>
+            Remates, xG, posesión, córners o tarjetas: el promedio en esos partidos y, entre paréntesis, la diferencia
+            con su temporada.
+          </dd>
+        </div>
+      </dl>
+    </details>
+  );
+}
+
 // --- Conclusiones --------------------------------------------------------------------------
 
-const AREA_ORDER = ['Equipo', 'Pelota parada', 'Arqueros', 'Defensores', 'Mediocampistas', 'Delanteros', 'Disciplina'];
+const AREA_ORDER = [
+  'Equipo',
+  'Copas y liga',
+  'Pelota parada',
+  'Arqueros',
+  'Defensores',
+  'Mediocampistas',
+  'Delanteros',
+  'Disciplina',
+];
 const TONE_LABEL: Record<Conclusion['tone'], string> = {
   positivo: 'A favor',
   negativo: 'A mejorar',
@@ -313,22 +377,19 @@ const TONE_LABEL: Record<Conclusion['tone'], string> = {
 
 /** Números de la regla con el formato de su unidad, para completar la frase. */
 function fillText(c: Conclusion): string {
-  const value =
-    c.unit === '%'
-      ? `${N0.format(c.value)} %`
-      : c.unit === 'prop'
-        ? `${N0.format(c.value * 100)} %`
-        : N2.format(c.value);
+  const fmt = (v: number) =>
+    c.unit === '%' ? `${N0.format(v)} %` : c.unit === 'prop' ? `${N0.format(v * 100)} %` : N2.format(v);
   const reference =
     c.reference === null
       ? ''
-      : c.kind === 'cuota' || c.unit === '%'
+      : c.kind === 'cuota'
         ? `${N0.format(c.reference)} %`
-        : c.unit === 'prop'
-          ? `${N0.format(c.reference * 100)} %`
-          : N2.format(c.reference);
+        : c.kind === 'competencia'
+          ? N2.format(c.reference)
+          : fmt(c.reference);
   return c.text
-    .replaceAll('{valor}', value)
+    .replaceAll('{jugador}', c.playerName ?? 'El jugador')
+    .replaceAll('{valor}', fmt(c.value))
     .replaceAll('{referencia}', reference)
     .replaceAll('{percentil}', c.percentile === null ? '' : N0.format(c.percentile))
     .replaceAll('{n}', N0.format(c.n));
@@ -336,87 +397,158 @@ function fillText(c: Conclusion): string {
 
 function basisText(c: Conclusion): string {
   if (c.kind === 'liga')
-    return `Contra los ${N0.format(c.n)} clubes de la liga · percentil ${N0.format(c.percentile ?? 0)}`;
+    return `Boca en sus ${N0.format(c.n)} partidos (liga y copas) contra el promedio de los 30 clubes de la liga · quedaría en el percentil ${N0.format(c.percentile ?? 0)}`;
+  if (c.kind === 'competencia')
+    return `Promedio por partido en las copas (${N0.format(c.n)} partidos) dividido por el de la liga`;
   if (c.kind === 'cuota')
     return 'Su parte del total del plantel dividida por su parte de los minutos (1 = lo esperable)';
+  if (c.kind === 'jugador')
+    return `Percentil ${N0.format(c.percentile ?? 0)} entre los jugadores con 450 minutos o más, en todas las competiciones`;
   return `Sobre ${N0.format(c.n)} ${c.unit === 'pp90' ? 'minutos' : 'casos'} de la temporada`;
 }
 
 function linkFor(c: Conclusion): string | null {
   if (!c.link || c.link === 'situaciones') return null;
+  if (c.kind === 'jugador') return `/estadistica/${c.link}?entidad=jugador&id=${String(c.entityId)}`;
   return c.link.startsWith('eq_') ? `/estadistica/${c.link}?entidad=equipo` : `/jugadores?estadistica=${c.link}`;
 }
 
 function ConclusionsView({ conclusions, onShowCards }: { conclusions: Conclusion[]; onShowCards: () => void }) {
+  const [scope, setScope] = useState<'equipo' | 'jugadores'>('equipo');
+  const [player, setPlayer] = useState('');
+  const [tone, setTone] = useState<Conclusion['tone'] | ''>('');
   if (!conclusions.length)
     return <p className="text-muted">Todavía no hay conclusiones calculadas para esta temporada.</p>;
-  const count = (tone: Conclusion['tone']) => conclusions.filter((c) => c.tone === tone).length;
-  const areas = [...new Set([...AREA_ORDER, ...conclusions.map((c) => c.area)])].filter((a) =>
-    conclusions.some((c) => c.area === a),
+
+  const team = conclusions.filter((c) => c.entityId === 0);
+  const players = conclusions.filter((c) => c.entityId > 0);
+  const names = [...new Set(players.map((c) => c.playerName ?? ''))].filter(Boolean).sort((a, b) => a.localeCompare(b));
+  const pool = (scope === 'equipo' ? team : players).filter(
+    (c) => (!tone || c.tone === tone) && (scope === 'equipo' || !player || c.playerName === player),
   );
+  const count = (t: Conclusion['tone']) => (scope === 'equipo' ? team : players).filter((c) => c.tone === t).length;
+  const groups =
+    scope === 'equipo'
+      ? [...new Set([...AREA_ORDER, ...pool.map((c) => c.area)])]
+          .filter((a) => pool.some((c) => c.area === a))
+          .map((a) => ({ name: a, items: pool.filter((c) => c.area === a) }))
+      : [
+          {
+            name: player || 'Todos los jugadores',
+            items: [...pool].sort((a, b) => (a.playerName ?? '').localeCompare(b.playerName ?? '')),
+          },
+        ];
+
   return (
     <div className="grid gap-6">
-      <div className="grid gap-2">
+      <div className="grid gap-3">
         <p className="max-w-[75ch] text-sm text-muted">
-          Cada conclusión sale de comparar a Boca con los 30 clubes de la liga o a cada posición con el resto del
-          plantel, con los números de esta temporada. Se recalculan en cada actualización: si los números cambian,
-          cambia la conclusión y su color.
+          Cada conclusión sale de los partidos de Boca en todas las competiciones (liga y copas). El equipo se compara
+          con los 30 clubes de la liga, las copas con la liga y cada jugador con el resto del plantel. Se recalculan en
+          cada actualización: si los números cambian, cambia la conclusión y su color.
         </p>
-        <ul className="flex flex-wrap gap-2 text-sm">
-          <li className="concl-count concl-count--positivo">
-            <CheckCircleIcon size={16} weight="fill" aria-hidden="true" /> {count('positivo')} a favor
-          </li>
-          <li className="concl-count concl-count--negativo">
-            <WarningCircleIcon size={16} weight="fill" aria-hidden="true" /> {count('negativo')} a mejorar
-          </li>
-          <li className="concl-count concl-count--neutral">
-            <InfoIcon size={16} weight="fill" aria-hidden="true" /> {count('neutral')} rasgos de estilo
-          </li>
-        </ul>
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="view-switch" role="group" aria-label="Conclusiones de">
+            <button
+              type="button"
+              className="view-switch__button focus-ring"
+              aria-pressed={scope === 'equipo'}
+              onClick={() => {
+                setScope('equipo');
+              }}
+            >
+              Equipo <span className="tabular">{team.length}</span>
+            </button>
+            <button
+              type="button"
+              className="view-switch__button focus-ring"
+              aria-pressed={scope === 'jugadores'}
+              onClick={() => {
+                setScope('jugadores');
+              }}
+            >
+              Jugadores <span className="tabular">{players.length}</span>
+            </button>
+          </div>
+          {scope === 'jugadores' ? (
+            <select
+              aria-label="Jugador"
+              className="select focus-ring min-w-0"
+              value={player}
+              onChange={(e) => {
+                setPlayer(e.target.value);
+              }}
+            >
+              <option value="">Todos los jugadores ({names.length})</option>
+              {names.map((n) => (
+                <option key={n} value={n}>
+                  {n}
+                </option>
+              ))}
+            </select>
+          ) : null}
+          {(['positivo', 'negativo', 'neutral'] as const).map((t) => {
+            const Icon = t === 'positivo' ? CheckCircleIcon : t === 'negativo' ? WarningCircleIcon : InfoIcon;
+            return (
+              <button
+                key={t}
+                type="button"
+                className={`concl-count concl-count--${t} focus-ring`}
+                aria-pressed={tone === t}
+                onClick={() => {
+                  setTone((v) => (v === t ? '' : t));
+                }}
+              >
+                <Icon size={16} weight="fill" aria-hidden="true" /> {count(t)}{' '}
+                {t === 'positivo' ? 'a favor' : t === 'negativo' ? 'a mejorar' : 'rasgos de estilo'}
+              </button>
+            );
+          })}
+        </div>
       </div>
-      {areas.map((area) => (
-        <section key={area} className="grid gap-3" aria-labelledby={`area-${area}`}>
-          <h2 id={`area-${area}`} className="text-lg font-extrabold">
-            {area}
+      {groups.map((g) => (
+        <section key={g.name} className="grid gap-3" aria-labelledby={`area-${g.name}`}>
+          <h2 id={`area-${g.name}`} className="text-lg font-extrabold">
+            {g.name}
           </h2>
           <ul className="concl-grid">
-            {conclusions
-              .filter((c) => c.area === area)
-              .map((c, i) => {
-                const href = linkFor(c);
-                const Icon =
-                  c.tone === 'positivo' ? CheckCircleIcon : c.tone === 'negativo' ? WarningCircleIcon : InfoIcon;
-                return (
-                  <motion.li
-                    key={c.id}
-                    className={`concl concl--${c.tone}`}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: Math.min(i, 8) * 0.04, ease: [0.16, 1, 0.3, 1] }}
-                  >
-                    <p className="concl__tag">
-                      <Icon size={16} weight="fill" aria-hidden="true" />
-                      {TONE_LABEL[c.tone]} · {c.title}
-                    </p>
-                    <p className="concl__text">{fillText(c)}</p>
-                    <p className="text-xs text-muted">{basisText(c)}</p>
-                    {href ? (
-                      <Link href={href} className="text-xs font-semibold text-link focus-ring">
-                        Ver la estadística
-                      </Link>
-                    ) : c.link === 'situaciones' ? (
-                      <button
-                        type="button"
-                        className="justify-self-start text-xs font-semibold text-link focus-ring"
-                        onClick={onShowCards}
-                      >
-                        Ver las tarjetas de situaciones
-                      </button>
-                    ) : null}
-                  </motion.li>
-                );
-              })}
+            {g.items.map((c, i) => {
+              const href = linkFor(c);
+              const Icon =
+                c.tone === 'positivo' ? CheckCircleIcon : c.tone === 'negativo' ? WarningCircleIcon : InfoIcon;
+              return (
+                <motion.li
+                  key={`${c.id}-${String(c.entityId)}`}
+                  className={`concl concl--${c.tone}`}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: Math.min(i, 8) * 0.04, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  <p className="concl__tag">
+                    <Icon size={16} weight="fill" aria-hidden="true" />
+                    {TONE_LABEL[c.tone]} · {c.entityId > 0 ? `${c.playerName ?? ''} · ` : ''}
+                    {c.title}
+                  </p>
+                  <p className="concl__text">{fillText(c)}</p>
+                  <p className="text-xs text-muted">{basisText(c)}</p>
+                  {href ? (
+                    <Link href={href} className="text-xs font-semibold text-link focus-ring">
+                      Ver la estadística
+                    </Link>
+                  ) : c.link === 'situaciones' ? (
+                    <button
+                      type="button"
+                      className="justify-self-start text-xs font-semibold text-link focus-ring"
+                      onClick={onShowCards}
+                    >
+                      Ver las tarjetas de situaciones
+                    </button>
+                  ) : null}
+                </motion.li>
+              );
+            })}
           </ul>
+          {g.items.length === 0 ? <p className="text-sm text-muted">Sin conclusiones con estos filtros.</p> : null}
         </section>
       ))}
     </div>
@@ -435,9 +567,11 @@ function SituationCardView({
   index: number;
 }) {
   const [openRow, setOpenRow] = useState<string | null>(null);
+  const [allRows, setAllRows] = useState(false);
   const empty = !card.available || card.rows.length === 0;
   const opened = card.rows.find((r) => r.param === openRow);
   const meta = METRICS[card.mainMetric];
+  const rows = allRows ? card.rows : card.rows.slice(0, VISIBLE_ROWS);
   return (
     <motion.article
       className={`situ-card${empty ? ' situ-card--empty' : ''}`}
@@ -476,11 +610,12 @@ function SituationCardView({
         <p className="text-sm text-muted">Sin casos en la temporada: la condición no se dio en ningún partido.</p>
       ) : (
         <ul className="situ-rows">
-          {card.rows.map((r) => (
+          {rows.map((r) => (
             <SituationRowView
               key={r.param}
               row={r}
               metric={card.mainMetric}
+              extras={card.extraMetrics}
               open={openRow === r.param}
               onToggle={() => {
                 setOpenRow((v) => (v === r.param ? null : r.param));
@@ -491,17 +626,31 @@ function SituationCardView({
       )}
 
       {!empty ? (
-        <button
-          type="button"
-          className="chip focus-ring justify-self-start"
-          aria-expanded={openRow !== null}
-          onClick={() => {
-            setOpenRow((v) => (v === null ? (card.rows[0]?.param ?? null) : null));
-          }}
-        >
-          <ListMagnifyingGlassIcon size={14} aria-hidden="true" />
-          {openRow === null ? 'Ver los partidos' : 'Ocultar los partidos'}
-        </button>
+        <div className="flex flex-wrap gap-2">
+          {card.rows.length > VISIBLE_ROWS ? (
+            <button
+              type="button"
+              className="chip focus-ring"
+              aria-expanded={allRows}
+              onClick={() => {
+                setAllRows((v) => !v);
+              }}
+            >
+              {allRows ? 'Ver menos filas' : `Ver las ${String(card.rows.length)} filas`}
+            </button>
+          ) : null}
+          <button
+            type="button"
+            className="chip focus-ring"
+            aria-expanded={openRow !== null}
+            onClick={() => {
+              setOpenRow((v) => (v === null ? (card.rows[0]?.param ?? null) : null));
+            }}
+          >
+            <ListMagnifyingGlassIcon size={14} aria-hidden="true" />
+            {openRow === null ? 'Ver los partidos' : 'Ocultar los partidos'}
+          </button>
+        </div>
       ) : null}
 
       {opened ? (
@@ -553,11 +702,13 @@ function barPosition(metric: MainMetric, v: number): number {
 function SituationRowView({
   row,
   metric,
+  extras,
   open,
   onToggle,
 }: {
   row: SituationRow;
   metric: MainMetric;
+  extras: string[];
   open: boolean;
   onToggle: () => void;
 }) {
@@ -576,7 +727,7 @@ function SituationRowView({
           <span className="tabular text-sm font-bold">{formatMetric(metric, h.value)}</span>
           <span
             className={`situ-delta tabular ${h.diff === 0 ? 'text-muted' : h.better ? 'value-best' : 'value-worst'}`}
-            title={`Diferencia contra la temporada (${formatMetric(metric, h.base)})`}
+            title={`Contra la temporada (${formatMetric(metric, h.base)})`}
           >
             {h.diff > 0 ? (
               <ArrowUpIcon size={12} weight="bold" aria-hidden="true" />
@@ -609,6 +760,35 @@ function SituationRowView({
           {metric !== 'clean_pct' ? <span>valla {N0.format(row.cleanPct)} %</span> : null}
           {small ? <span className="situ-small">Muestra pequeña</span> : null}
         </span>
+        {extras.some((k) => row.stats[k] !== undefined) ? (
+          <span className="situ-row__stats tabular">
+            {extras.map((k) => {
+              const meta = MATCH_STATS[k];
+              const v = row.stats[k];
+              const base = row.baseStats[k];
+              if (!meta || v === undefined) return null;
+              const d = base === undefined ? null : v - base;
+              const tone =
+                d === null || Math.abs(d) < 0.05 || meta.better === null
+                  ? 'text-muted'
+                  : d > 0 === meta.better
+                    ? 'value-best'
+                    : 'value-worst';
+              return (
+                <span key={k} className="situ-stat">
+                  {meta.label} <strong>{meta.percent ? `${N0.format(v)} %` : N1.format(v)}</strong>
+                  {d !== null ? (
+                    <span className={tone}>
+                      {' '}
+                      ({d >= 0 ? '+' : '−'}
+                      {meta.percent ? `${N0.format(Math.abs(d))} pp` : N1.format(Math.abs(d))})
+                    </span>
+                  ) : null}
+                </span>
+              );
+            })}
+          </span>
+        ) : null}
       </button>
     </li>
   );

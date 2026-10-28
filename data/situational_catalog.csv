@@ -1,133 +1,133 @@
-id,categoria,titulo_es,condicion,parametros,resultado_medido,datos_requeridos,nivel,available,estimada,motivo,metrica_principal
-s001,A,Minuto del primer gol de Boca,Minuto del primer gol de Boca,tramos de 15 minutos,Resultado del partido,goles con minuto (Promiedos),A,true,false,,ppg
-s002,A,Minuto del primer gol del rival,Minuto del primer gol del rival,tramos de 15 minutos,Puntos rescatados,goles con minuto (Promiedos),A,true,false,,ppg
-s003,A,Ganando al descanso,Ventaja en el entretiempo,"+1, +2, +3 o más",Resultado del partido,marcador del entretiempo,A,true,false,,ppg
-s004,A,Perdiendo al descanso,Desventaja en el entretiempo,"−1, −2, −3 o más",Resultado del partido,marcador del entretiempo,A,true,false,,ppg
-s005,A,Empatando al descanso,Empate en el entretiempo,0-0 o con goles,Resultado del partido,marcador del entretiempo,A,true,false,,ppg
-s006,A,Ganando en el minuto 60,Ventaja en el minuto 60,"+1, +2 o más",Resultado del partido,goles con minuto (Promiedos),A,true,false,,ppg
-s007,A,Ganando en el minuto 75,Ventaja en el minuto 75,"+1, +2 o más",Resultado del partido,goles con minuto (Promiedos),A,true,false,,ppg
-s008,A,Ganando en el minuto 85,Ventaja en el minuto 85,+1 o más,Resultado del partido,goles con minuto (Promiedos),A,true,false,,ppg
-s009,A,Perdiendo en el minuto 60,Desventaja en el minuto 60,"−1, −2 o más",Resultado del partido,goles con minuto (Promiedos),A,true,false,,ppg
-s010,A,Perdiendo en el minuto 75,Desventaja en el minuto 75,"−1, −2 o más",Resultado del partido,goles con minuto (Promiedos),A,true,false,,ppg
-s011,A,Empatando en el final,Empate en el minuto 75 o en el 85,75 y 85,Resultado del partido,goles con minuto (Promiedos),A,true,false,,ppg
-s012,A,Gol en los últimos 10 minutos,Gol desde el minuto 81,a favor o en contra,Resultado del partido,goles con minuto (Promiedos),A,true,false,,ppg
-s013,A,Gol en los primeros 10 minutos,Gol hasta el minuto 10,a favor o en contra,Resultado del partido,goles con minuto (Promiedos),A,true,false,,ppg
-s014,A,Gol en tiempo agregado,Gol en el descuento,a favor o en contra,Resultado del partido,goles con minuto (Promiedos),A,true,false,,ppg
-s132,A,Quién marca primero,Primer gol del partido,"Boca, el rival o sin goles",Resultado del partido,goles con minuto (Promiedos),A,true,false,,ppg
-s015,B,Goleadas,Diferencia de 3 o más goles,a favor o en contra,Resultado del partido,resultado,A,true,false,,win_pct
-s016,B,Partidos decididos por un gol,Diferencia de un gol,ganados o perdidos,Resultado del partido,resultado,A,true,false,,win_pct
-s017,B,Marcadores más repetidos,Marcador final exacto,un marcador por fila,Resultado del partido,resultado,A,true,false,,win_pct
-s018,B,Partidos con muchos goles,Tres o más goles en total,"3 o más, 2 o menos",Resultado del partido,resultado,A,true,false,,win_pct
-s019,B,Ambos equipos marcan,Los dos convierten,sí o no,Resultado del partido,resultado,A,true,false,,win_pct
-s020,B,Valla invicta,Boca no recibe goles,sí o no,Resultado del partido,resultado,A,true,false,,win_pct
-s021,B,Después de no marcar,Partido anterior sin goles de Boca,sin marcar o marcando,Resultado del partido siguiente,resultado,A,true,false,,gf
-s022,B,Cuando marca 2 o más,Boca convierte dos o más,,Resultado del partido,resultado,A,true,false,,win_pct
-s023,B,Cuando marca exactamente 1,Boca convierte uno,,Resultado del partido,resultado,A,true,false,,win_pct
-s024,B,Gol en contra temprano,Recibe antes del minuto 10,sí o no,Resultado del partido,goles con minuto (Promiedos),A,true,false,,ppg
-s025,B,Reacción tras recibir,Marca dentro de los 10 minutos de recibir,respondió o no,Resultado del partido,goles con minuto (Promiedos),A,true,false,,ppg
-s026,B,Recibir justo después de marcar,Recibe dentro de los 10 minutos de marcar,recibió o no,Resultado del partido,goles con minuto (Promiedos),A,true,false,,ppg
-s027,C,Muchos remates,Remates totales,"10, 15 o 20 o más",Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,win_pct
-s028,C,Remates al arco,Remates al arco,"4, 6 u 8 o más",Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,win_pct
-s029,C,Más remates que el rival,Remates de Boca mayores que los del rival,,Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,win_pct
-s030,C,Menos remates que el rival,Remates de Boca menores que los del rival,,Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,win_pct
-s031,C,Diferencia de remates al arco,Al arco de Boca menos los del rival,de +3 a −3,Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,win_pct
-s032,C,xG alto a favor,xG de Boca,"1,5 o 2 o más",Resultado del partido,"xG por partido (StrikerAPI, solo liga)",A,true,false,,win_pct
-s033,C,xG alto en contra,xG del rival,"1 o 1,5 o más",Resultado del partido,"xG por partido (StrikerAPI, solo liga)",A,true,false,,ga
-s034,C,Injusticias y robos,"Más xG y no ganó, o menos xG y ganó",,Resultado del partido,"xG por partido (StrikerAPI, solo liga)",A,true,false,,win_pct
-s035,C,Después de convertir de más o de menos,Goles menos xG del partido anterior,≥ 1 o ≤ −1,Resultado del partido siguiente,"xG por partido (StrikerAPI, solo liga)",B,true,false,,gf
-s036,C,Efectividad de remate,Goles por remate,cuatro rangos,Resultado del partido,estadísticas del partido (Promiedos),B,true,false,,win_pct
-s037,C,Precisión de remate,Remates al arco sobre remates,"40 % o más, menos",Resultado del partido,estadísticas del partido (Promiedos),B,true,false,,win_pct
-s038,C,Remates bloqueados,Remates bloqueados de Boca,3 o 5 o más,Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,win_pct
-s039,C,Remates desde dentro del área,Parte de los remates dentro del área,tres rangos,Resultado del partido,estadísticas del partido (Promiedos),B,true,false,,win_pct
-s040,C,Pases clave,Pases clave del equipo,6 o 10 o más,Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,win_pct
-s041,D,Posesión alta o baja,Posesión de Boca,"60 % o más, 40 % o menos",Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,goal_diff
-s042,D,Precisión de pase,Pases correctos sobre pases,"85 % o más, 75 % o menos",Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,goal_diff
-s043,D,Pases al último tercio,Pases al último tercio,,Resultado del partido,pases por zona,C,false,false,Ninguna fuente gratuita permitida publica pases al último tercio,win_pct
-s044,D,Pases progresivos,Pases progresivos,,Resultado del partido,pases progresivos,C,false,false,Ninguna fuente gratuita permitida publica pases progresivos,win_pct
-s045,D,Pérdidas de balón,Pérdidas sumadas de los jugadores,130 o 150 o más,Resultado del partido,estadísticas de jugadores (ScoutingStats),A,true,false,,goal_diff
-s046,D,Recuperaciones en campo rival,Recuperaciones en campo rival,,Resultado del partido,recuperaciones por zona,C,false,false,Las fuentes dan recuperaciones pero no en qué zona,win_pct
-s047,D,Presión alta o baja,PPDA (pases del rival por acción defensiva),"menor a 8, mayor a 12",Resultado del partido,pases del rival y acciones defensivas,B,true,false,,goal_diff
-s048,D,Field Tilt,Parte de los pases en el último tercio,,Resultado del partido,pases por zona,C,false,false,"Requiere pases por zona, que ninguna fuente gratuita publica",win_pct
-s049,D,Centros y goles de cabeza,Centros de Boca y gol de cabeza,"20 o 30 centros, gol de cabeza",Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,goal_diff
-s050,D,Posesión sin peligro,Más de 55 % de posesión y xG menor a 1,,Resultado del partido,"xG por partido (StrikerAPI, solo liga)",B,true,false,,goal_diff
-s051,E,Remates recibidos,Remates del rival,"8 o menos, 15 o más",Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,clean_pct
-s052,E,Remates al arco recibidos,Remates al arco del rival,"3 o menos, 6 o más",Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,clean_pct
-s053,E,xG concedido,xG del rival,"0,8 o menos, 2 o más",Resultado del partido,"xG por partido (StrikerAPI, solo liga)",A,true,false,,clean_pct
-s054,E,Recibir más de lo esperado,Goles recibidos menos xG concedido mayor a 1,,Resultado del partido,"xG por partido (StrikerAPI, solo liga)",B,true,false,,clean_pct
-s055,E,Atajadas del arquero,Atajadas,4 o 6 o más,Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,clean_pct
-s056,E,Entradas e intercepciones,Entradas e intercepciones del equipo,"20 entradas, 10 intercepciones",Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,clean_pct
-s057,E,Equipo encerrado,Despejes,25 o 35 o más,Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,clean_pct
-s058,E,Duelos aéreos ganados,Porcentaje de duelos aéreos ganados,,Resultado del partido,duelos aéreos disputados,C,false,false,Las fuentes dan los aéreos ganados pero no los disputados,win_pct
-s059,E,Presiones exitosas,Presiones exitosas,,Resultado del partido,presiones,C,false,false,Ninguna fuente gratuita permitida publica presiones,win_pct
-s060,E,Cuándo recibe goles,Tramo con gol en contra,tramos de 15 minutos,Resultado del partido,goles con minuto (Promiedos),A,true,false,,ga
-s061,F,Muchos córners a favor,Córners de Boca,"5, 8 o 10 o más",Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,goal_diff
-s062,F,Muchos córners en contra,Córners del rival,5 u 8 o más,Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,goal_diff
-s063,F,Goles de córner,Gol de córner,a favor o en contra,Resultado del partido,"relato de goles (StrikerAPI, solo liga)",A,true,false,,goal_diff
-s064,F,Penal a favor,Penal para Boca,convertido o fallado,Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,goal_diff
-s065,F,Penal en contra,Penal para el rival,,Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,goal_diff
-s066,F,Penal fallado a favor,Boca falla un penal,,Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,goal_diff
-s067,F,Goles de tiro libre y pelota parada,Gol de tiro libre o de jugada preparada,a favor o en contra,Resultado del partido,"relato de goles (StrikerAPI, solo liga)",A,true,false,,goal_diff
-s068,F,Remates de pelota parada,Remates tras pelota parada,,Resultado del partido,remates por situación,C,false,false,Las fuentes no separan los remates por situación de juego,win_pct
-s069,F,Offsides del rival,Fueras de juego del rival,3 o 5 o más,Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,goal_diff
-s070,F,Faltas recibidas,Faltas cometidas por el rival,15 o 20 o más,Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,goal_diff
-s071,G,Expulsión del rival,Roja al rival (directa o doble amarilla),por minuto,Resultado del partido,tarjetas con minuto (Promiedos),A,true,false,,ppg
-s072,G,Expulsión de Boca,Roja a Boca (directa o doble amarilla),por minuto,Resultado del partido,tarjetas con minuto (Promiedos),A,true,false,,ppg
-s073,G,Amarillas de Boca,Amarillas de Boca,3 o 5 o más,Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,ppg
-s074,G,Faltas cometidas,Faltas de Boca,15 o 20 o más,Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,ppg
-s075,G,Partidos con penal,Penal señalado,a favor o en contra,Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,ppg
-s076,G,Resultado por árbitro,Árbitro del partido,uno por fila (2 o más partidos),Resultado del partido,árbitro (Promiedos),A,true,false,,ppg
-s077,G,Árbitros que sacan muchas tarjetas,Amarillas por partido del árbitro en la liga,tres rangos,Resultado del partido,partidos de la liga con árbitro (Promiedos),B,true,false,,ppg
-s078,G,Sin titulares por suspensión,Titular ausente por suspensión,,Resultado del partido,bajas de Boca por suspensión,C,false,false,Las fuentes no publican las bajas de Boca por suspensión partido a partido,win_pct
-s079,G,Jugadores al borde de la suspensión,Amarillas acumuladas,,Resultado del partido,reglamento de acumulación,C,false,false,El reglamento de acumulación de cada torneo no está cargado,win_pct
-s080,G,Amarillas del rival,Amarillas del rival,3 o 5 o más,Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,ppg
-s081,H,Local y visitante,Localía,,Resultado del partido,partidos,A,true,false,,ppg
-s082,H,Localía por competición,Localía en cada competición,,Resultado del partido,partidos,A,true,false,,ppg
-s083,H,Días de descanso,Días desde el partido anterior,"3 o menos, 4 a 6, 7 o más",Resultado del partido,fechas,A,true,false,,ppg
-s084,H,Después de copa o alargue,Partido anterior de copa o con alargue,,Resultado del partido siguiente,partidos,A,true,false,,ppg
-s085,H,Semanas con doble partido,Segundo partido en 4 días o menos,,Resultado del partido,fechas,A,true,false,,ppg
-s086,H,Día de la semana,Día del partido,lunes a domingo,Resultado del partido,fechas,A,true,false,,ppg
-s087,H,Franja horaria,Hora del partido en Buenos Aires,tarde o noche,Resultado del partido,horarios,A,true,false,,ppg
-s088,H,Mes del año,Mes del partido,,Resultado del partido,fechas,A,true,false,,ppg
-s089,H,Comienzo y final del torneo,Primeras y últimas 5 fechas de la liga,,Resultado del partido,fechas,A,true,false,,ppg
-s090,H,Clásicos y grandes,"Superclásico, otros grandes y resto",,Resultado del partido,rivales,A,true,false,,ppg
-s091,H,Rival por nivel (Elo),Cuartil del Elo del rival antes del partido,4 cuartiles,Resultado del partido,Elo propio,B,true,false,,ppg
-s092,H,Rival por puesto en la tabla,Puesto del rival en la Tabla Anual,tres tercios,Resultado del partido,"Tabla Anual (puesto final, no a la fecha)",A,true,true,,ppg
-s093,H,Rival que recibe pocos o muchos goles,Goles recibidos por partido del rival en la liga,tres tercios,Resultado del partido,promedios de la liga (StrikerAPI),A,true,false,,ppg
-s094,H,Historial contra cada rival,Rival,uno por fila (2 o más partidos),Resultado del partido,partidos,A,true,false,,ppg
-s095,H,Rivales que más puntos le sacaron,Puntos perdidos contra el rival,uno por fila,Resultado del partido,partidos,A,true,false,,ppg
-s096,I,"Después de ganar, empatar o perder",Resultado anterior,,Resultado del partido siguiente,resultados,A,true,false,,ppg
-s097,I,Después de una goleada,Goleada en el partido anterior,a favor o en contra,Resultado del partido siguiente,resultados,A,true,false,,ppg
-s098,I,Después de una racha ganadora,3 o más victorias seguidas,,Resultado del partido siguiente,resultados,A,true,false,,ppg
-s099,I,Después de una racha sin ganar,3 o más partidos sin ganar,,Resultado del partido siguiente,resultados,A,true,false,,ppg
-s100,I,Forma reciente,Puntos en los 5 partidos anteriores,"0 a 5, 6 a 9, 10 a 15",Resultado del partido,resultados,A,true,false,,ppg
-s101,I,Racha sin recibir goles,2 o más vallas invictas seguidas,,Resultado del partido siguiente,resultados,A,true,false,,clean_pct
-s102,I,Racha sin marcar,2 o más partidos seguidos sin marcar,,Resultado del partido siguiente,resultados,A,true,false,,gf
-s103,I,Rachas más largas,La racha más larga de cada tipo,"victorias, invicto, sin ganar",Resultado del partido,resultados,A,true,false,,ppg
-s104,I,Después de quedar afuera de una copa,Último partido de cada copa,,Resultado del partido siguiente,partidos,A,true,true,,ppg
-s105,I,Después de una expulsión,Expulsión de Boca en el partido anterior,,Resultado del partido siguiente,tarjetas con minuto (Promiedos),A,true,false,,ppg
-s106,J,Con cada titular,Jugador titular,uno por fila (5 o más titularidades),Resultado del partido,alineaciones y cambios (Promiedos),A,true,false,,win_pct
-s107,J,Cuando marca,Gol del jugador,uno por fila,Resultado del partido,goles con minuto (Promiedos),A,true,false,,ppg
-s108,J,Cuando asiste,Asistencia del jugador,uno por fila,Resultado del partido,goles con asistencia (Promiedos),A,true,false,,ppg
-s109,J,Cuando recibe tarjeta,Amarilla o roja del jugador,uno por fila,Resultado del partido,tarjetas (Promiedos),A,true,false,,win_pct
-s110,J,Cuando sale temprano,Sustituido antes del minuto 60,uno por fila,Resultado del partido,alineaciones y cambios (Promiedos),A,true,false,,win_pct
-s111,J,Cuando entra desde el banco,Ingresa como suplente,uno por fila,Resultado del partido,alineaciones y cambios (Promiedos),A,true,false,,win_pct
-s112,J,Gol de un suplente,Un suplente marca,,Resultado del partido,alineaciones y cambios (Promiedos),A,true,false,,gf
-s113,J,Goleadores distintos,Cantidad de goleadores del partido,"0, 1, 2, 3 o más",Resultado del partido,goles con minuto (Promiedos),A,true,false,,ppg
-s114,J,Arquero titular,Arquero del partido,uno por fila,Resultado del partido,alineaciones y cambios (Promiedos),A,true,false,,clean_pct
-s115,J,Dupla de centrales,Dupla habitual u otra,,Resultado del partido,alineaciones y cambios (Promiedos),A,true,false,,ga
-s116,J,Edad del once,Edad promedio de los titulares,tres rangos,Resultado del partido,fechas de nacimiento (incompletas),B,true,true,,win_pct
-s117,J,Rotación del once,Titulares nuevos respecto del partido anterior,"0-1, 2-3, 4 o más",Resultado del partido,alineaciones y cambios (Promiedos),B,true,false,,ppg
-s118,J,Formación,Formación de Boca,una por fila,Resultado del partido,formaciones (ScoutingStats),A,true,false,,win_pct
-s119,J,Tres partidos en una semana,Tercer partido en 7 días,,Resultado del partido,fechas,A,true,false,,ppg
-s120,J,Minuto del primer cambio,Primer cambio de Boca,"antes del 55, 55 a 70, después",Resultado del partido,alineaciones y cambios (Promiedos),A,true,false,,win_pct
-s121,J,Cómo iba en el primer cambio,Marcador en el primer cambio,"ganando, empatando, perdiendo",Resultado del partido,alineaciones y cambios (Promiedos),A,true,false,,win_pct
-s122,J,Gol después de un cambio,Gol de Boca en los 15 minutos tras un cambio,,Resultado del partido,alineaciones y cambios (Promiedos),A,true,false,,win_pct
-s123,J,Cuando marca o asiste,Gol o asistencia del jugador,uno por fila,Resultado del partido,goles con minuto (Promiedos),A,true,false,,ppg
-s124,J,Sin cada jugador clave,Jugador con 10 o más titularidades ausente,uno por fila,Resultado del partido,alineaciones y cambios (Promiedos),A,true,false,,ppg
-s125,J,Titulares con tres partidos completos,Titulares que jugaron completos los 3 partidos anteriores,"0-3, 4-6, 7 o más",Resultado del partido,alineaciones y cambios (Promiedos),B,true,false,,win_pct
-s126,K,Tiempo arriba o abajo,Minutos ganando o perdiendo,,Resultado del partido,goles con minuto (Promiedos),B,true,false,,ppg
-s127,K,Cuándo marca goles,Tramo con gol a favor,tramos de 15 minutos,Resultado del partido,goles con minuto (Promiedos),A,true,false,,gf
-s128,K,Primer y segundo tiempo,Tiempo que ganó Boca,,Resultado del partido,marcador del entretiempo,A,true,false,,ppg
-s129,K,Del descanso al final,Marcador al descanso,"ganando, empatando, perdiendo",Resultado del partido,marcador del entretiempo,A,true,false,,ppg
-s130,K,Remontadas y ventajas perdidas,Sumó desde atrás o perdió puntos con ventaja,,Resultado del partido,goles con minuto (Promiedos),B,true,false,,ppg
-s131,K,Minuto de la remontada,Primer gol de Boca estando abajo,tres tramos,Resultado del partido,goles con minuto (Promiedos),A,true,false,,ppg
+id,categoria,titulo_es,condicion,parametros,resultado_medido,datos_requeridos,nivel,available,estimada,motivo,metrica_principal,metricas_extra
+s001,A,Minuto del primer gol de Boca,Minuto del primer gol de Boca,tramos de 15 minutos,Resultado del partido,goles con minuto (Promiedos),A,true,false,,ppg,shots_total xg possession_pct
+s002,A,Minuto del primer gol del rival,Minuto del primer gol del rival,tramos de 15 minutos,Puntos rescatados,goles con minuto (Promiedos),A,true,false,,ppg,shots_total xg possession_pct
+s003,A,Ganando al descanso,Ventaja en el entretiempo,"+1, +2, +3 o más",Resultado del partido,marcador del entretiempo,A,true,false,,ppg,shots_total xg possession_pct
+s004,A,Perdiendo al descanso,Desventaja en el entretiempo,"−1, −2, −3 o más",Resultado del partido,marcador del entretiempo,A,true,false,,ppg,shots_total xg possession_pct
+s005,A,Empatando al descanso,Empate en el entretiempo,0-0 o con goles,Resultado del partido,marcador del entretiempo,A,true,false,,ppg,shots_total xg possession_pct
+s006,A,Ganando en el minuto 60,Ventaja en el minuto 60,"+1, +2 o más",Resultado del partido,goles con minuto (Promiedos),A,true,false,,ppg,shots_total xg possession_pct
+s007,A,Ganando en el minuto 75,Ventaja en el minuto 75,"+1, +2 o más",Resultado del partido,goles con minuto (Promiedos),A,true,false,,ppg,shots_total xg possession_pct
+s008,A,Ganando en el minuto 85,Ventaja en el minuto 85,+1 o más,Resultado del partido,goles con minuto (Promiedos),A,true,false,,ppg,shots_total xg possession_pct
+s009,A,Perdiendo en el minuto 60,Desventaja en el minuto 60,"−1, −2 o más",Resultado del partido,goles con minuto (Promiedos),A,true,false,,ppg,shots_total xg possession_pct
+s010,A,Perdiendo en el minuto 75,Desventaja en el minuto 75,"−1, −2 o más",Resultado del partido,goles con minuto (Promiedos),A,true,false,,ppg,shots_total xg possession_pct
+s011,A,Empatando en el final,Empate en el minuto 75 o en el 85,75 y 85,Resultado del partido,goles con minuto (Promiedos),A,true,false,,ppg,shots_total xg possession_pct
+s012,A,Gol en los últimos 10 minutos,Gol desde el minuto 81,a favor o en contra,Resultado del partido,goles con minuto (Promiedos),A,true,false,,ppg,shots_total xg possession_pct
+s013,A,Gol en los primeros 10 minutos,Gol hasta el minuto 10,a favor o en contra,Resultado del partido,goles con minuto (Promiedos),A,true,false,,ppg,shots_total xg possession_pct
+s014,A,Gol en tiempo agregado,Gol en el descuento,a favor o en contra,Resultado del partido,goles con minuto (Promiedos),A,true,false,,ppg,shots_total xg possession_pct
+s132,A,Quién marca primero,Primer gol del partido,"Boca, el rival o sin goles",Resultado del partido,goles con minuto (Promiedos),A,true,false,,ppg,shots_total xg possession_pct
+s015,B,Goleadas,Diferencia de 3 o más goles,a favor o en contra,Resultado del partido,resultado,A,true,false,,win_pct,shots_total big_chances xg_against
+s016,B,Partidos decididos por un gol,Diferencia de un gol,ganados o perdidos,Resultado del partido,resultado,A,true,false,,win_pct,shots_total big_chances xg_against
+s017,B,Marcadores más repetidos,Marcador final exacto,un marcador por fila,Resultado del partido,resultado,A,true,false,,win_pct,shots_total big_chances xg_against
+s018,B,Partidos con muchos goles,Tres o más goles en total,"3 o más, 2 o menos",Resultado del partido,resultado,A,true,false,,win_pct,shots_total big_chances xg_against
+s019,B,Ambos equipos marcan,Los dos convierten,sí o no,Resultado del partido,resultado,A,true,false,,win_pct,shots_total big_chances xg_against
+s020,B,Valla invicta,Boca no recibe goles,sí o no,Resultado del partido,resultado,A,true,false,,win_pct,shots_total big_chances xg_against
+s021,B,Después de no marcar,Partido anterior sin goles de Boca,sin marcar o marcando,Resultado del partido siguiente,resultado,A,true,false,,gf,shots_total big_chances xg_against
+s022,B,Cuando marca 2 o más,Boca convierte dos o más,,Resultado del partido,resultado,A,true,false,,win_pct,shots_total big_chances xg_against
+s023,B,Cuando marca exactamente 1,Boca convierte uno,,Resultado del partido,resultado,A,true,false,,win_pct,shots_total big_chances xg_against
+s024,B,Gol en contra temprano,Recibe antes del minuto 10,sí o no,Resultado del partido,goles con minuto (Promiedos),A,true,false,,ppg,shots_total big_chances xg_against
+s025,B,Reacción tras recibir,Marca dentro de los 10 minutos de recibir,respondió o no,Resultado del partido,goles con minuto (Promiedos),A,true,false,,ppg,shots_total big_chances xg_against
+s026,B,Recibir justo después de marcar,Recibe dentro de los 10 minutos de marcar,recibió o no,Resultado del partido,goles con minuto (Promiedos),A,true,false,,ppg,shots_total big_chances xg_against
+s027,C,Muchos remates,Remates totales,"10, 15 o 20 o más",Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,win_pct,shots_total shots_on_target xg big_chances
+s028,C,Remates al arco,Remates al arco,"4, 6 u 8 o más",Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,win_pct,shots_total shots_on_target xg big_chances
+s029,C,Más remates que el rival,Remates de Boca mayores que los del rival,,Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,win_pct,shots_total shots_on_target xg big_chances
+s030,C,Menos remates que el rival,Remates de Boca menores que los del rival,,Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,win_pct,shots_total shots_on_target xg big_chances
+s031,C,Diferencia de remates al arco,Al arco de Boca menos los del rival,de +3 a −3,Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,win_pct,shots_total shots_on_target xg big_chances
+s032,C,xG alto a favor,xG de Boca,"1,5 o 2 o más",Resultado del partido,"xG por partido (StrikerAPI, solo liga)",A,true,false,,win_pct,shots_total shots_on_target xg big_chances
+s033,C,xG alto en contra,xG del rival,"1 o 1,5 o más",Resultado del partido,"xG por partido (StrikerAPI, solo liga)",A,true,false,,ga,shots_total shots_on_target xg big_chances
+s034,C,Injusticias y robos,"Más xG y no ganó, o menos xG y ganó",,Resultado del partido,"xG por partido (StrikerAPI, solo liga)",A,true,false,,win_pct,shots_total shots_on_target xg big_chances
+s035,C,Después de convertir de más o de menos,Goles menos xG del partido anterior,≥ 1 o ≤ −1,Resultado del partido siguiente,"xG por partido (StrikerAPI, solo liga)",B,true,false,,gf,shots_total shots_on_target xg big_chances
+s036,C,Efectividad de remate,Goles por remate,cuatro rangos,Resultado del partido,estadísticas del partido (Promiedos),B,true,false,,win_pct,shots_total shots_on_target xg big_chances
+s037,C,Precisión de remate,Remates al arco sobre remates,"40 % o más, menos",Resultado del partido,estadísticas del partido (Promiedos),B,true,false,,win_pct,shots_total shots_on_target xg big_chances
+s038,C,Remates bloqueados,Remates bloqueados de Boca,3 o 5 o más,Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,win_pct,shots_total shots_on_target xg big_chances
+s039,C,Remates desde dentro del área,Parte de los remates dentro del área,tres rangos,Resultado del partido,estadísticas del partido (Promiedos),B,true,false,,win_pct,shots_total shots_on_target xg big_chances
+s040,C,Pases clave,Pases clave del equipo,6 o 10 o más,Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,win_pct,shots_total shots_on_target xg big_chances
+s041,D,Posesión alta o baja,Posesión de Boca,"60 % o más, 40 % o menos",Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,goal_diff,possession_pct pass_accuracy_pct shots_total
+s042,D,Precisión de pase,Pases correctos sobre pases,"85 % o más, 75 % o menos",Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,goal_diff,possession_pct pass_accuracy_pct shots_total
+s043,D,Pases al último tercio,Pases al último tercio,,Resultado del partido,pases por zona,C,false,false,Ninguna fuente gratuita permitida publica pases al último tercio,win_pct,possession_pct pass_accuracy_pct shots_total
+s044,D,Pases progresivos,Pases progresivos,,Resultado del partido,pases progresivos,C,false,false,Ninguna fuente gratuita permitida publica pases progresivos,win_pct,possession_pct pass_accuracy_pct shots_total
+s045,D,Pérdidas de balón,Pérdidas sumadas de los jugadores,130 o 150 o más,Resultado del partido,estadísticas de jugadores (ScoutingStats),A,true,false,,goal_diff,possession_pct pass_accuracy_pct shots_total
+s046,D,Recuperaciones en campo rival,Recuperaciones en campo rival,,Resultado del partido,recuperaciones por zona,C,false,false,Las fuentes dan recuperaciones pero no en qué zona,win_pct,possession_pct pass_accuracy_pct shots_total
+s047,D,Presión alta o baja,PPDA (pases del rival por acción defensiva),"menor a 8, mayor a 12",Resultado del partido,pases del rival y acciones defensivas,B,true,false,,goal_diff,possession_pct pass_accuracy_pct shots_total
+s048,D,Field Tilt,Parte de los pases en el último tercio,,Resultado del partido,pases por zona,C,false,false,"Requiere pases por zona, que ninguna fuente gratuita publica",win_pct,possession_pct pass_accuracy_pct shots_total
+s049,D,Centros y goles de cabeza,Centros de Boca y gol de cabeza,"20 o 30 centros, gol de cabeza",Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,goal_diff,possession_pct pass_accuracy_pct shots_total
+s050,D,Posesión sin peligro,Más de 55 % de posesión y xG menor a 1,,Resultado del partido,"xG por partido (StrikerAPI, solo liga)",B,true,false,,goal_diff,possession_pct pass_accuracy_pct shots_total
+s051,E,Remates recibidos,Remates del rival,"8 o menos, 15 o más",Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,clean_pct,shots_total_against xg_against saves
+s052,E,Remates al arco recibidos,Remates al arco del rival,"3 o menos, 6 o más",Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,clean_pct,shots_total_against xg_against saves
+s053,E,xG concedido,xG del rival,"0,8 o menos, 2 o más",Resultado del partido,"xG por partido (StrikerAPI, solo liga)",A,true,false,,clean_pct,shots_total_against xg_against saves
+s054,E,Recibir más de lo esperado,Goles recibidos menos xG concedido mayor a 1,,Resultado del partido,"xG por partido (StrikerAPI, solo liga)",B,true,false,,clean_pct,shots_total_against xg_against saves
+s055,E,Atajadas del arquero,Atajadas,4 o 6 o más,Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,clean_pct,shots_total_against xg_against saves
+s056,E,Entradas e intercepciones,Entradas e intercepciones del equipo,"20 entradas, 10 intercepciones",Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,clean_pct,shots_total_against xg_against saves
+s057,E,Equipo encerrado,Despejes,25 o 35 o más,Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,clean_pct,shots_total_against xg_against saves
+s058,E,Duelos aéreos ganados,Porcentaje de duelos aéreos ganados,,Resultado del partido,duelos aéreos disputados,C,false,false,Las fuentes dan los aéreos ganados pero no los disputados,win_pct,shots_total_against xg_against saves
+s059,E,Presiones exitosas,Presiones exitosas,,Resultado del partido,presiones,C,false,false,Ninguna fuente gratuita permitida publica presiones,win_pct,shots_total_against xg_against saves
+s060,E,Cuándo recibe goles,Tramo con gol en contra,tramos de 15 minutos,Resultado del partido,goles con minuto (Promiedos),A,true,false,,ga,shots_total_against xg_against saves
+s061,F,Muchos córners a favor,Córners de Boca,"5, 8 o 10 o más",Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,goal_diff,corners shots_total xg
+s062,F,Muchos córners en contra,Córners del rival,5 u 8 o más,Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,goal_diff,corners shots_total xg
+s063,F,Goles de córner,Gol de córner,a favor o en contra,Resultado del partido,"relato de goles (StrikerAPI, solo liga)",A,true,false,,goal_diff,corners shots_total xg
+s064,F,Penal a favor,Penal para Boca,convertido o fallado,Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,goal_diff,corners shots_total xg
+s065,F,Penal en contra,Penal para el rival,,Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,goal_diff,corners shots_total xg
+s066,F,Penal fallado a favor,Boca falla un penal,,Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,goal_diff,corners shots_total xg
+s067,F,Goles de tiro libre y pelota parada,Gol de tiro libre o de jugada preparada,a favor o en contra,Resultado del partido,"relato de goles (StrikerAPI, solo liga)",A,true,false,,goal_diff,corners shots_total xg
+s068,F,Remates de pelota parada,Remates tras pelota parada,,Resultado del partido,remates por situación,C,false,false,Las fuentes no separan los remates por situación de juego,win_pct,corners shots_total xg
+s069,F,Offsides del rival,Fueras de juego del rival,3 o 5 o más,Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,goal_diff,corners shots_total xg
+s070,F,Faltas recibidas,Faltas cometidas por el rival,15 o 20 o más,Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,goal_diff,corners shots_total xg
+s071,G,Expulsión del rival,Roja al rival (directa o doble amarilla),por minuto,Resultado del partido,tarjetas con minuto (Promiedos),A,true,false,,ppg,fouls yellow_cards yellow_cards_against
+s072,G,Expulsión de Boca,Roja a Boca (directa o doble amarilla),por minuto,Resultado del partido,tarjetas con minuto (Promiedos),A,true,false,,ppg,fouls yellow_cards yellow_cards_against
+s073,G,Amarillas de Boca,Amarillas de Boca,3 o 5 o más,Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,ppg,fouls yellow_cards yellow_cards_against
+s074,G,Faltas cometidas,Faltas de Boca,15 o 20 o más,Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,ppg,fouls yellow_cards yellow_cards_against
+s075,G,Partidos con penal,Penal señalado,a favor o en contra,Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,ppg,fouls yellow_cards yellow_cards_against
+s076,G,Resultado por árbitro,Árbitro del partido,uno por fila (2 o más partidos),Resultado del partido,árbitro (Promiedos),A,true,false,,ppg,fouls yellow_cards yellow_cards_against
+s077,G,Árbitros que sacan muchas tarjetas,Amarillas por partido del árbitro en la liga,tres rangos,Resultado del partido,partidos de la liga con árbitro (Promiedos),B,true,false,,ppg,fouls yellow_cards yellow_cards_against
+s078,G,Sin titulares por suspensión,Titular ausente por suspensión,,Resultado del partido,bajas de Boca por suspensión,C,false,false,Las fuentes no publican las bajas de Boca por suspensión partido a partido,win_pct,fouls yellow_cards yellow_cards_against
+s079,G,Jugadores al borde de la suspensión,Amarillas acumuladas,,Resultado del partido,reglamento de acumulación,C,false,false,El reglamento de acumulación de cada torneo no está cargado,win_pct,fouls yellow_cards yellow_cards_against
+s080,G,Amarillas del rival,Amarillas del rival,3 o 5 o más,Resultado del partido,estadísticas del partido (Promiedos),A,true,false,,ppg,fouls yellow_cards yellow_cards_against
+s081,H,Local y visitante,Localía,,Resultado del partido,partidos,A,true,false,,ppg,possession_pct shots_total xg
+s082,H,Localía por competición,Localía en cada competición,,Resultado del partido,partidos,A,true,false,,ppg,possession_pct shots_total xg
+s083,H,Días de descanso,Días desde el partido anterior,"3 o menos, 4 a 6, 7 o más",Resultado del partido,fechas,A,true,false,,ppg,possession_pct shots_total xg
+s084,H,Después de copa o alargue,Partido anterior de copa o con alargue,,Resultado del partido siguiente,partidos,A,true,false,,ppg,possession_pct shots_total xg
+s085,H,Semanas con doble partido,Segundo partido en 4 días o menos,,Resultado del partido,fechas,A,true,false,,ppg,possession_pct shots_total xg
+s086,H,Día de la semana,Día del partido,lunes a domingo,Resultado del partido,fechas,A,true,false,,ppg,possession_pct shots_total xg
+s087,H,Franja horaria,Hora del partido en Buenos Aires,tarde o noche,Resultado del partido,horarios,A,true,false,,ppg,possession_pct shots_total xg
+s088,H,Mes del año,Mes del partido,,Resultado del partido,fechas,A,true,false,,ppg,possession_pct shots_total xg
+s089,H,Comienzo y final del torneo,Primeras y últimas 5 fechas de la liga,,Resultado del partido,fechas,A,true,false,,ppg,possession_pct shots_total xg
+s090,H,Clásicos y grandes,"Superclásico, otros grandes y resto",,Resultado del partido,rivales,A,true,false,,ppg,possession_pct shots_total xg
+s091,H,Rival por nivel (Elo),Cuartil del Elo del rival antes del partido,4 cuartiles,Resultado del partido,Elo propio,B,true,false,,ppg,possession_pct shots_total xg
+s092,H,Rival por puesto en la tabla,Puesto del rival en la Tabla Anual,tres tercios,Resultado del partido,"Tabla Anual (puesto final, no a la fecha)",A,true,true,,ppg,possession_pct shots_total xg
+s093,H,Rival que recibe pocos o muchos goles,Goles recibidos por partido del rival en la liga,tres tercios,Resultado del partido,promedios de la liga (StrikerAPI),A,true,false,,ppg,possession_pct shots_total xg
+s094,H,Historial contra cada rival,Rival,uno por fila (2 o más partidos),Resultado del partido,partidos,A,true,false,,ppg,possession_pct shots_total xg
+s095,H,Rivales que más puntos le sacaron,Puntos perdidos contra el rival,uno por fila,Resultado del partido,partidos,A,true,false,,ppg,possession_pct shots_total xg
+s096,I,"Después de ganar, empatar o perder",Resultado anterior,,Resultado del partido siguiente,resultados,A,true,false,,ppg,shots_total xg possession_pct
+s097,I,Después de una goleada,Goleada en el partido anterior,a favor o en contra,Resultado del partido siguiente,resultados,A,true,false,,ppg,shots_total xg possession_pct
+s098,I,Después de una racha ganadora,3 o más victorias seguidas,,Resultado del partido siguiente,resultados,A,true,false,,ppg,shots_total xg possession_pct
+s099,I,Después de una racha sin ganar,3 o más partidos sin ganar,,Resultado del partido siguiente,resultados,A,true,false,,ppg,shots_total xg possession_pct
+s100,I,Forma reciente,Puntos en los 5 partidos anteriores,"0 a 5, 6 a 9, 10 a 15",Resultado del partido,resultados,A,true,false,,ppg,shots_total xg possession_pct
+s101,I,Racha sin recibir goles,2 o más vallas invictas seguidas,,Resultado del partido siguiente,resultados,A,true,false,,clean_pct,shots_total xg possession_pct
+s102,I,Racha sin marcar,2 o más partidos seguidos sin marcar,,Resultado del partido siguiente,resultados,A,true,false,,gf,shots_total xg possession_pct
+s103,I,Rachas más largas,La racha más larga de cada tipo,"victorias, invicto, sin ganar",Resultado del partido,resultados,A,true,false,,ppg,shots_total xg possession_pct
+s104,I,Después de quedar afuera de una copa,Último partido de cada copa,,Resultado del partido siguiente,partidos,A,true,true,,ppg,shots_total xg possession_pct
+s105,I,Después de una expulsión,Expulsión de Boca en el partido anterior,,Resultado del partido siguiente,tarjetas con minuto (Promiedos),A,true,false,,ppg,shots_total xg possession_pct
+s106,J,Con cada titular,Jugador titular,uno por fila (5 o más titularidades),Resultado del partido,alineaciones y cambios (Promiedos),A,true,false,,win_pct,possession_pct shots_total xg
+s107,J,Cuando marca,Gol del jugador,uno por fila,Resultado del partido,goles con minuto (Promiedos),A,true,false,,ppg,possession_pct shots_total xg
+s108,J,Cuando asiste,Asistencia del jugador,uno por fila,Resultado del partido,goles con asistencia (Promiedos),A,true,false,,ppg,possession_pct shots_total xg
+s109,J,Cuando recibe tarjeta,Amarilla o roja del jugador,uno por fila,Resultado del partido,tarjetas (Promiedos),A,true,false,,win_pct,possession_pct shots_total xg
+s110,J,Cuando sale temprano,Sustituido antes del minuto 60,uno por fila,Resultado del partido,alineaciones y cambios (Promiedos),A,true,false,,win_pct,possession_pct shots_total xg
+s111,J,Cuando entra desde el banco,Ingresa como suplente,uno por fila,Resultado del partido,alineaciones y cambios (Promiedos),A,true,false,,win_pct,possession_pct shots_total xg
+s112,J,Gol de un suplente,Un suplente marca,,Resultado del partido,alineaciones y cambios (Promiedos),A,true,false,,gf,possession_pct shots_total xg
+s113,J,Goleadores distintos,Cantidad de goleadores del partido,"0, 1, 2, 3 o más",Resultado del partido,goles con minuto (Promiedos),A,true,false,,ppg,possession_pct shots_total xg
+s114,J,Arquero titular,Arquero del partido,uno por fila,Resultado del partido,alineaciones y cambios (Promiedos),A,true,false,,clean_pct,possession_pct shots_total xg
+s115,J,Dupla de centrales,Dupla habitual u otra,,Resultado del partido,alineaciones y cambios (Promiedos),A,true,false,,ga,possession_pct shots_total xg
+s116,J,Edad del once,Edad promedio de los titulares,tres rangos,Resultado del partido,fechas de nacimiento (incompletas),B,true,true,,win_pct,possession_pct shots_total xg
+s117,J,Rotación del once,Titulares nuevos respecto del partido anterior,"0-1, 2-3, 4 o más",Resultado del partido,alineaciones y cambios (Promiedos),B,true,false,,ppg,possession_pct shots_total xg
+s118,J,Formación,Formación de Boca,una por fila,Resultado del partido,formaciones (ScoutingStats),A,true,false,,win_pct,possession_pct shots_total xg
+s119,J,Tres partidos en una semana,Tercer partido en 7 días,,Resultado del partido,fechas,A,true,false,,ppg,possession_pct shots_total xg
+s120,J,Minuto del primer cambio,Primer cambio de Boca,"antes del 55, 55 a 70, después",Resultado del partido,alineaciones y cambios (Promiedos),A,true,false,,win_pct,possession_pct shots_total xg
+s121,J,Cómo iba en el primer cambio,Marcador en el primer cambio,"ganando, empatando, perdiendo",Resultado del partido,alineaciones y cambios (Promiedos),A,true,false,,win_pct,possession_pct shots_total xg
+s122,J,Gol después de un cambio,Gol de Boca en los 15 minutos tras un cambio,,Resultado del partido,alineaciones y cambios (Promiedos),A,true,false,,win_pct,possession_pct shots_total xg
+s123,J,Cuando marca o asiste,Gol o asistencia del jugador,uno por fila,Resultado del partido,goles con minuto (Promiedos),A,true,false,,ppg,possession_pct shots_total xg
+s124,J,Sin cada jugador clave,Jugador con 10 o más titularidades ausente,uno por fila,Resultado del partido,alineaciones y cambios (Promiedos),A,true,false,,ppg,possession_pct shots_total xg
+s125,J,Titulares con tres partidos completos,Titulares que jugaron completos los 3 partidos anteriores,"0-3, 4-6, 7 o más",Resultado del partido,alineaciones y cambios (Promiedos),B,true,false,,win_pct,possession_pct shots_total xg
+s126,K,Tiempo arriba o abajo,Minutos ganando o perdiendo,,Resultado del partido,goles con minuto (Promiedos),B,true,false,,ppg,shots_total xg_against possession_pct
+s127,K,Cuándo marca goles,Tramo con gol a favor,tramos de 15 minutos,Resultado del partido,goles con minuto (Promiedos),A,true,false,,gf,shots_total xg_against possession_pct
+s128,K,Primer y segundo tiempo,Tiempo que ganó Boca,,Resultado del partido,marcador del entretiempo,A,true,false,,ppg,shots_total xg_against possession_pct
+s129,K,Del descanso al final,Marcador al descanso,"ganando, empatando, perdiendo",Resultado del partido,marcador del entretiempo,A,true,false,,ppg,shots_total xg_against possession_pct
+s130,K,Remontadas y ventajas perdidas,Sumó desde atrás o perdió puntos con ventaja,,Resultado del partido,goles con minuto (Promiedos),B,true,false,,ppg,shots_total xg_against possession_pct
+s131,K,Minuto de la remontada,Primer gol de Boca estando abajo,tres tramos,Resultado del partido,goles con minuto (Promiedos),A,true,false,,ppg,shots_total xg_against possession_pct

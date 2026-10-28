@@ -35,6 +35,8 @@ class Card(BaseModel):
     motivo: str = ""
     # Lo que se destaca en la tarjeta: % de victorias, puntos, diferencia de gol, goles o vallas.
     metrica_principal: Literal["win_pct", "ppg", "goal_diff", "gf", "ga", "clean_pct"] = "win_pct"
+    # Estadísticas del partido que la fila muestra además (promedio en esos partidos).
+    metricas_extra: str = Field(default="", pattern=r"^([a-z_]+( [a-z_]+)*)?$")
 
     @field_validator("available", "estimada", mode="before")
     @classmethod
@@ -72,6 +74,7 @@ def to_payload(cards: list[Card]) -> list[dict[str, object]]:
             "estimated": c.estimada,
             "reason_es": c.motivo,
             "main_metric": c.metrica_principal,
+            "extra_metrics": c.metricas_extra,
             "sort_order": order,
         }
         for order, c in enumerate(cards, start=1)

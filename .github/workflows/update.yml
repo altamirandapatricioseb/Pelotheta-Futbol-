@@ -26,15 +26,29 @@ jobs:
       - run: uv sync --locked
       # Caché de páginas y respuestas ya bajadas: los partidos terminados no se vuelven a pedir
       # (menos carga para las fuentes y menos créditos de StrikerAPI).
-      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: data/raw/cache
           key: raw-cache-${{ github.run_id }}
           restore-keys: raw-cache-
       - name: Pipeline
-        run: uv run python -m pipeline.run
+        run: uv run python -m pipeline.run 2>&1 | tee pipeline.log; exit ${PIPESTATUS[0]}
+        shell: bash
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY || secrets.API_SUPABASE_SECRET_KEY }}
           STRIKER_API_KEY: ${{ secrets.STRIKER_API_KEY }}
           BZZOIRO_API_KEY: ${{ secrets.BZZOIRO_API_KEY }}
+      # La caché se guarda aunque la carga falle: lo ya bajado no se vuelve a pedir.
+      - uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        if: always()
+        with:
+          path: data/raw/cache
+          key: raw-cache-${{ github.run_id }}
+      # Resumen visible en la página de la corrida: avisos y resultado, sin claves (el log no las
+      # imprime nunca).
+      - name: Resumen
+        if: always()
+        run: |
+          echo "### Pipeline" >> "$GITHUB_STEP_SUMMARY"
+          grep -vE "sin pareja" pipeline.log | tail -40 | sed 's/^/    /' >> "$GITHUB_STEP_SUMMARY" || true

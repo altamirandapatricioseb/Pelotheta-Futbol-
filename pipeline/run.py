@@ -490,6 +490,10 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     load_dotenv()
     url, key = os.environ.get("SUPABASE_URL", ""), secret_key()
+    if not args.dry_run and not (url and key):
+        # Antes de media hora de scraping: sin destino no tiene sentido empezar.
+        print("Faltan SUPABASE_URL o la clave secreta (GitHub Secrets o .env).", file=sys.stderr)
+        return 2
     run_id = str(uuid.uuid4())
     started = datetime.now()
     try:

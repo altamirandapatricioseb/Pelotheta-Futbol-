@@ -9,6 +9,8 @@ export interface WorkflowRun {
   conclusion: 'success' | 'failure' | 'cancelled' | 'skipped' | 'timed_out' | null;
   createdAt: string;
   updatedAt: string;
+  /** Nombre del paso que falló (solo si la corrida falló). */
+  failedStep?: string | null;
 }
 
 export type UpdateStateName = 'idle' | 'running' | 'cooldown';

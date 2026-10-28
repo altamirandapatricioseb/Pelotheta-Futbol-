@@ -11,7 +11,7 @@ type PanelState = 'loading' | 'idle' | 'running' | 'cooldown' | 'unconfigured' |
 interface StatusResponse {
   state: PanelState;
   nextAvailableAt?: string | null;
-  lastRun?: { conclusion: string | null } | null;
+  lastRun?: { conclusion: string | null; failedStep?: string | null } | null;
 }
 
 const POLL_MS = 10_000;
@@ -69,7 +69,7 @@ export function UpdatePanel({ lastUpdate, initial }: { lastUpdate: string | null
   }
 
   const disabled = busy || status.state !== 'idle';
-  const failed = status.state === 'idle' && status.lastRun?.conclusion === 'failure';
+  const failed = status.state !== 'running' && status.lastRun?.conclusion === 'failure';
 
   return (
     <section className="update-panel" aria-labelledby="update-title">
@@ -95,7 +95,9 @@ export function UpdatePanel({ lastUpdate, initial }: { lastUpdate: string | null
         {failed ? (
           <>
             <WarningCircleIcon size={18} weight="fill" aria-hidden="true" className="text-warn" />
-            La última corrida falló. Se puede volver a intentar.
+            La última corrida falló
+            {status.lastRun?.failedStep ? ` en el paso «${status.lastRun.failedStep}»` : ''}. Se puede volver a
+            intentar.
           </>
         ) : (
           <>

@@ -41,6 +41,7 @@ function headers(config: Config): Record<string, string> {
 const runsSchema = z.object({
   workflow_runs: z.array(
     z.object({
+      id: z.number(),
       status: z.string(),
       conclusion: z.string().nullable(),
       created_at: z.string(),
@@ -61,7 +62,26 @@ export async function latestRun(config: Config): Promise<WorkflowRun | null> {
     conclusion: run.conclusion as WorkflowRun['conclusion'],
     createdAt: run.created_at,
     updatedAt: run.updated_at,
+    failedStep: run.conclusion === 'failure' ? await failedStep(config, run.id) : null,
   };
+}
+
+const jobsSchema = z.object({
+  jobs: z.array(
+    z.object({
+      steps: z.array(z.object({ name: z.string(), conclusion: z.string().nullable() })).optional(),
+    }),
+  ),
+});
+
+/** Nombre del primer paso fallido de la corrida (para mostrar en la página, sin detalles). */
+async function failedStep(config: Config, runId: number): Promise<string | null> {
+  const url = `https://api.github.com/repos/${config.GITHUB_REPOSITORY}/actions/runs/${String(runId)}/jobs`;
+  const response = await fetch(url, { headers: headers(config), cache: 'no-store' });
+  if (!response.ok) return null;
+  const jobs = jobsSchema.parse(await response.json()).jobs;
+  const step = jobs.flatMap((job) => job.steps ?? []).find((s) => s.conclusion === 'failure');
+  return step?.name ?? null;
 }
 
 /** Dispara el workflow sobre `main`. GitHub responde 204 sin cuerpo. */

@@ -121,6 +121,39 @@ export type Database = {
         };
         Relationships: [];
       };
+      match_lineup: {
+        Row: {
+          match_id: number | null;
+          minute_in: number | null;
+          minute_out: number | null;
+          player_id: number | null;
+          player_name: string | null;
+          position: string | null;
+          shirt_number: number | null;
+          started: boolean | null;
+        };
+        Relationships: [];
+      };
+      boca_absence: {
+        Row: {
+          boca_absence: boolean | null;
+          match_id: number | null;
+          player_id: number | null;
+          player_name: string | null;
+          reason: string | null;
+        };
+        Relationships: [];
+      };
+      boca_weather: {
+        Row: {
+          match_id: number | null;
+          place: string | null;
+          precipitation_mm: number | null;
+          temperature_c: number | null;
+          wind_kmh: number | null;
+        };
+        Relationships: [];
+      };
       player_position: {
         Row: {
           detail_level: string | null;

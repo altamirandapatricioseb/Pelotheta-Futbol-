@@ -328,6 +328,8 @@ h3 {
 /* --- Tabla «Resumen» ---------------------------------------------------------------- */
 
 .data-table-wrap {
+  /* Relativo: los textos para lectores de pantalla (absolutos) no escapan del scroll. */
+  position: relative;
   overflow-x: auto;
   border: 1px solid var(--color-border);
   border-radius: 12px;
@@ -1650,10 +1652,6 @@ h3 {
 .cmp-section > div {
   grid-template-columns: minmax(0, 1fr);
 }
-/* Los textos para lectores de pantalla (absolutos) quedan dentro del contenedor con scroll. */
-.cmp-section .data-table-wrap {
-  position: relative;
-}
 .cmp-section .view-switch {
   flex-wrap: wrap;
 }
@@ -1741,4 +1739,135 @@ h3 {
 .cmp-section .chart-frame,
 .cmp-wide-chart {
   max-width: 760px;
+}
+
+/* --- Página de partido ---------------------------------------------------------------- */
+.match-head {
+  position: relative;
+  display: grid;
+  gap: 10px;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: var(--color-surface);
+  padding: 18px 20px;
+  box-shadow: var(--shadow-card);
+}
+.match-head > p:first-child {
+  text-align: center;
+}
+.match-score {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(8px, 2vw, 16px);
+}
+.match-score__team {
+  min-width: 0;
+  font-size: clamp(0.95rem, 3.4vw, 1.75rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  text-align: right;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+}
+.match-score__team--away {
+  text-align: left;
+}
+.match-score__goals {
+  font-size: clamp(2.25rem, 7vw, 3.75rem);
+  font-weight: 800;
+  line-height: 1;
+}
+.match-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+  gap: 10px 20px;
+  border-top: 1px solid var(--color-border);
+  padding-top: 12px;
+  font-size: 0.875rem;
+}
+.match-facts dt {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+.match-facts dd {
+  font-weight: 700;
+}
+.match-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
+  gap: 16px;
+  align-items: start;
+}
+.match-grid > * {
+  min-width: 0;
+}
+.match-goals {
+  display: grid;
+  gap: 6px;
+}
+.match-goals li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-left: 3px solid var(--series-1);
+  padding-left: 10px;
+}
+.match-goals .match-goal--rival {
+  border-left-color: var(--series-3);
+}
+.match-faceoff {
+  display: grid;
+  gap: 10px;
+}
+.match-faceoff li {
+  display: grid;
+  grid-template-columns: 4rem minmax(0, 1fr) 4rem;
+  align-items: baseline;
+  gap: 2px 8px;
+  font-size: 0.875rem;
+}
+.match-faceoff__bar {
+  display: flex;
+  grid-column: 1 / -1;
+  gap: 2px;
+  height: 6px;
+}
+.match-faceoff__bar > span {
+  flex-basis: 0;
+  min-width: 2px;
+  border-radius: 3px;
+}
+.match-faceoff__boca {
+  background: var(--series-1);
+}
+.match-faceoff__rival {
+  background: var(--series-3);
+}
+.match-table .match-sub > * {
+  background: color-mix(in oklab, var(--color-surface) 70%, var(--color-surface-2));
+}
+.match-stat-groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr));
+  gap: 16px;
+  align-items: start;
+}
+.match-stat-groups > * {
+  min-width: 0;
+}
+.match-caption {
+  caption-side: top;
+  padding: 10px 14px 6px;
+  text-align: left;
+  font-weight: 800;
+}
+.match-situations {
+  display: grid;
+  gap: 4px;
+  max-height: 320px;
+  overflow-y: auto;
+  font-size: 0.875rem;
 }

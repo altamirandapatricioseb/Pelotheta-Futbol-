@@ -200,8 +200,17 @@ todas sus competiciones contra la liga, copas contra liga, pelota parada, posici
 Equipo, pasar el mouse (o el foco) por una columna muestra esa estadística en el panel. Gráficos 81 y 82 hechos
 (landing: 100 de 103 con datos).
 
-Pendientes de la etapa 6: página de partido (los enlaces «al partido» de 9.8 todavía no tienen destino);
-revisión de diseño de cierre del tablero. El doble clic desde Comparar quedó hecho en la etapa 7.
+Pendientes de la etapa 6: revisión de diseño de cierre del tablero. El doble clic desde Comparar quedó hecho
+en la etapa 7 y la página de partido, después de la etapa 7 (abajo).
+
+**Página de partido (`/partido/[id]`, 28-oct):** marcador, competición, fecha y hora, estadio, árbitro,
+formaciones y clima; goles con minuto y autor (de los remates; si la fuente no los trae, lo dice); cara a cara
+Boca contra el rival (posesión, xG, remates, ocasiones, pases, córners, faltas y tarjetas); momentum; mapa de
+remates de Boca; jugadores de Boca con 20 estadísticas del partido (doble clic: desglosada del jugador);
+estadísticas del equipo contra su promedio de la temporada por grupo, con flecha de mejor o peor (doble clic:
+desglosada del equipo); bajas; tarjetas de Situaciones donde aparece; partido anterior y siguiente. Datos de la
+vista nueva `api.match_lineup` (alineación de Boca). Enlaces desde la desglosada (último partido y lista), el
+panel de Equipo y los partidos de cada fila de Situaciones.
 
 ## Etapa 7: estado (28-oct-2026)
 

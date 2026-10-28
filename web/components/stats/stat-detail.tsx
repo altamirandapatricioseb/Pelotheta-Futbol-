@@ -257,7 +257,13 @@ export function StatDetailView({ detail, backHref, query }: { detail: StatDetail
           </h2>
           <p className="text-sm">
             {fullDate(last.date)} · {last.home ? 'Boca vs' : 'Boca en cancha de'} {last.opponent} · {last.goalsFor}-
-            {last.goalsAgainst} ({last.competition})
+            {last.goalsAgainst} ({last.competition}) ·{' '}
+            <Link
+              href={`/partido/${String(last.matchId)}`}
+              className="focus-ring font-semibold text-link hover:underline"
+            >
+              Ver el partido
+            </Link>
           </p>
           <p className="text-3xl font-extrabold tabular">
             {fmt(last.value)}{' '}
@@ -356,7 +362,11 @@ export function StatDetailView({ detail, backHref, query }: { detail: StatDetail
                   const d = season !== null && p.value !== null ? p.value - season : null;
                   return (
                     <tr key={p.matchId}>
-                      <th scope="row">{fullDate(p.date)}</th>
+                      <th scope="row">
+                        <Link href={`/partido/${String(p.matchId)}`} className="focus-ring hover:underline">
+                          {fullDate(p.date)}
+                        </Link>
+                      </th>
                       <td>{p.opponent}</td>
                       <td>{p.home ? 'Local' : 'Visitante'}</td>
                       <td>

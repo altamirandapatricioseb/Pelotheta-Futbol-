@@ -2,6 +2,7 @@
 
 import { CaretDownIcon, InfoIcon, MagnifyingGlassIcon } from '@phosphor-icons/react';
 import { motion } from 'motion/react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState, useRef } from 'react';
 
@@ -225,6 +226,14 @@ export function TeamTableView({
                   <div>
                     <dt className="text-xs text-muted">Árbitro</dt>
                     <dd className="font-bold">{single.referee ?? NOT_AVAILABLE}</dd>
+                  </div>
+                  <div className="col-span-2">
+                    <Link
+                      href={`/partido/${String(single.matchId)}`}
+                      className="focus-ring font-semibold text-link hover:underline"
+                    >
+                      Ver la página del partido
+                    </Link>
                   </div>
                 </dl>
               ) : (

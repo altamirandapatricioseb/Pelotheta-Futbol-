@@ -684,7 +684,11 @@ function SituationCardView({
                 const m = matches[id];
                 return m ? (
                   <tr key={id}>
-                    <td>{m.date.split('-').reverse().join('/')}</td>
+                    <td>
+                      <Link href={`/partido/${String(id)}`} className="focus-ring hover:underline">
+                        {m.date.split('-').reverse().join('/')}
+                      </Link>
+                    </td>
                     <td>
                       {m.home ? 'vs' : 'en'} {m.opponent}
                     </td>

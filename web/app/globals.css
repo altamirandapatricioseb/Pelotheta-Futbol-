@@ -315,7 +315,8 @@ h3 {
   color: var(--color-text);
   border-color: var(--color-brand-700);
 }
-.chip[aria-current='true'] {
+.chip[aria-current='true'],
+.chip[aria-pressed='true'] {
   color: var(--color-bg);
   background: var(--color-text);
   border-color: var(--color-text);
@@ -739,4 +740,277 @@ h3 {
   stroke-width: 1;
   stroke-dasharray: 3 3;
   vector-effect: non-scaling-stroke;
+}
+
+/* Gráficos (etapa 5). Paleta categórica validada con scripts/validate_palette.js de la skill
+   dataviz: verde de marca, rosa, amarillo, azul y naranja (sin violeta). Pasa todos los pares
+   vecinos en claro (#f7f8f6) y oscuro (#0a0a0a); en dispersiones se usan solo los slots 1, 2 y 4
+   (todos los pares). Rosa y amarillo quedan bajo 3:1 en claro: cada gráfico tiene tabla. */
+:root {
+  --series-1: #2a9a29;
+  --series-2: #e87ba4;
+  --series-3: #eda100;
+  --series-4: #2a78d6;
+  --series-5: #eb6834;
+  --chart-surface: #f7f8f6;
+  --chart-grid: #e1e5e0;
+  --chart-axis: #c3c9c2;
+  --chart-empty: #e8ece7;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --series-1: #2a9a29;
+    --series-2: #d55181;
+    --series-3: #c98500;
+    --series-4: #3987e5;
+    --series-5: #d95926;
+    --chart-surface: #0a0a0a;
+    --chart-grid: #1c221c;
+    --chart-axis: #344034;
+    --chart-empty: #161b16;
+  }
+}
+:root[data-theme='dark'] {
+  --series-1: #2a9a29;
+  --series-2: #d55181;
+  --series-3: #c98500;
+  --series-4: #3987e5;
+  --series-5: #d95926;
+  --chart-surface: #0a0a0a;
+  --chart-grid: #1c221c;
+  --chart-axis: #344034;
+  --chart-empty: #161b16;
+}
+.chart-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: var(--color-surface);
+  padding: 14px 16px 12px;
+  min-width: 0;
+}
+.chart-card--empty {
+  border-style: dashed;
+}
+.chart-frame {
+  position: relative;
+}
+.chart-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  font-size: 11px;
+}
+.chart-axis text {
+  fill: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.chart-axis-title {
+  font-weight: 600;
+}
+.chart-grid {
+  stroke: var(--chart-grid);
+  stroke-width: 1;
+  fill: none;
+}
+.chart-baseline {
+  stroke: var(--chart-axis);
+  stroke-width: 1;
+}
+.chart-crosshair,
+.chart-reference {
+  stroke: var(--color-text-muted);
+  stroke-width: 1;
+  opacity: 0.5;
+}
+.chart-line {
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.chart-area {
+  opacity: 0.1;
+}
+.chart-dot {
+  stroke: var(--color-surface);
+  stroke-width: 2;
+}
+.chart-dot--open {
+  fill: transparent;
+  stroke-width: 1.75;
+}
+.chart-range {
+  stroke-width: 2;
+  opacity: 0.45;
+}
+.chart-bar {
+  transition: opacity var(--dur-fast) var(--ease-out-quart);
+}
+.chart-bar:hover,
+.chart-dot:hover {
+  opacity: 0.8;
+}
+.chart-center {
+  fill: var(--color-text);
+  font-size: 22px;
+  font-weight: 800;
+}
+.chart-strip-text {
+  fill: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  pointer-events: none;
+}
+.chart-pitch rect,
+.chart-pitch circle {
+  fill: none;
+  stroke: var(--chart-axis);
+  stroke-width: 1;
+}
+.chart-ring {
+  fill: none;
+}
+.chart-radar-shape {
+  stroke-width: 2;
+  fill-opacity: 0.12;
+}
+.chart-radar-label {
+  fill: var(--color-text-muted);
+}
+.chart-tip {
+  position: absolute;
+  z-index: 5;
+  display: grid;
+  gap: 2px;
+  min-width: 120px;
+  transform: translate(-50%, calc(-100% - 10px));
+  pointer-events: none;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-bg);
+  padding: 6px 9px;
+  color: var(--color-text);
+  font-size: 12px;
+  box-shadow: 0 6px 18px rgb(0 0 0 / 0.18);
+}
+.chart-tip strong {
+  font-weight: 700;
+}
+.chart-tip span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin-top: 6px;
+  color: var(--color-text-muted);
+  font-size: 12px;
+}
+.chart-legend li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.chart-key {
+  display: inline-block;
+  flex-shrink: 0;
+}
+.chart-key--box {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+.chart-key--line {
+  width: 14px;
+  height: 3px;
+  border-radius: 2px;
+}
+.chart-grid-layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr));
+  gap: 16px;
+}
+.chart-table {
+  width: 100%;
+  font-size: 12px;
+}
+.chart-table th,
+.chart-table td {
+  padding: 3px 6px;
+  border-bottom: 1px solid var(--color-border);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.chart-table th:first-child,
+.chart-table td:first-child {
+  text-align: left;
+}
+.category-bar {
+  position: sticky;
+  /* Debajo del header compacto (barra + franja de actualización + borde). */
+  top: calc(var(--header-bar-h-compact) + var(--header-strip-h) + 2px);
+  z-index: 20;
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--color-border);
+  background: color-mix(in oklab, var(--color-bg) 92%, transparent);
+  padding: 8px 0;
+  backdrop-filter: blur(8px);
+  scrollbar-width: none;
+}
+.landing-section {
+  scroll-margin-top: calc(var(--header-bar-h) + var(--header-strip-h) + 64px);
+}
+/* Números destacados de cada sección de la landing (9.2). */
+.tile-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 180px), 1fr));
+  gap: 12px;
+}
+.tile {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border-left: 3px solid var(--color-brand);
+  padding: 4px 0 4px 12px;
+}
+.tile-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+.tile-value {
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+.tile-hint {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+.icon-button {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  color: var(--color-text-muted);
+  transition:
+    color var(--dur-fast) var(--ease-out-quart),
+    border-color var(--dur-fast) var(--ease-out-quart);
+}
+.icon-button:hover,
+.icon-button[aria-pressed='true'] {
+  color: var(--color-text);
+  border-color: var(--color-brand);
 }

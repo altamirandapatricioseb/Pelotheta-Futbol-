@@ -143,6 +143,12 @@ def send_catalog(payload: dict[str, Any], url: str, key: str, client: httpx.Clie
     return _rpc("load_catalog", {"p_stats": payload["stats"], "p_sets": payload["sets"]}, url, key, client)
 
 
+def send_charts(payload: dict[str, Any], url: str, key: str, client: httpx.Client | None = None) -> Any:
+    """Catálogo de gráficos y mapa de origen (`data/chart_catalog.csv` y `chart_source_map.csv`)."""
+    body = {"p_charts": payload["charts"], "p_sources": payload["sources"]}
+    return _rpc("load_charts", body, url, key, client)
+
+
 def send_stat_values(
     stat_ids: list[str],
     values: list[dict[str, Any]],

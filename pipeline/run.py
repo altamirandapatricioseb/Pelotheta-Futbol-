@@ -26,7 +26,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from pipeline import catalog, enrich, load, own_metrics
+from pipeline import catalog, charts, enrich, load, own_metrics
 from pipeline.models import (
     CompetitionMetricRecord,
     LeagueResultRecord,
@@ -591,6 +591,9 @@ def run_pipeline(dry_run: bool, url: str, key: str) -> int:
         # El catálogo viaja en cada corrida: es la fuente de verdad de las tablas de la web.
         result["catalog"] = load.send_catalog(
             catalog.to_payload(catalog.load_catalog(), catalog.load_sets()), url, key
+        )
+        result["charts"] = load.send_charts(
+            charts.to_payload(charts.load_charts(), charts.load_sources()), url, key
         )
         result["player_stats"] = load.send_player_stats(player_stats, url, key)
         if weather:

@@ -141,6 +141,130 @@ export type Database = {
         };
         Relationships: [];
       };
+      boca_shot: {
+        Row: {
+          boca_shot: boolean | null;
+          body_part: string | null;
+          match_id: number | null;
+          minute: number | null;
+          outcome: string | null;
+          penalty: boolean | null;
+          player_name: string | null;
+          x: number | null;
+          xg: number | null;
+          y: number | null;
+          zone: string | null;
+        };
+        Relationships: [];
+      };
+      boca_formation: {
+        Row: {
+          boca_formation: string | null;
+          match_id: number | null;
+          opponent_formation: string | null;
+        };
+        Relationships: [];
+      };
+      boca_momentum: {
+        Row: {
+          boca_value: number | null;
+          match_id: number | null;
+          minute: number | null;
+        };
+        Relationships: [];
+      };
+      league_leader: {
+        Row: {
+          player_name: string | null;
+          rank: number | null;
+          season: number | null;
+          source: string | null;
+          stat: string | null;
+          team_name: string | null;
+          value: number | null;
+        };
+        Relationships: [];
+      };
+      referee_stats: {
+        Row: {
+          fouls_per_game: number | null;
+          games: number | null;
+          red_per_game: number | null;
+          referee: string | null;
+          season: number | null;
+          yellow_per_game: number | null;
+        };
+        Relationships: [];
+      };
+      league_result: {
+        Row: {
+          away_goals: number | null;
+          away_team: string | null;
+          home_goals: number | null;
+          home_team: string | null;
+          match_date: string | null;
+          season: number | null;
+          source: string | null;
+        };
+        Relationships: [];
+      };
+      league_standing: {
+        Row: {
+          played: number | null;
+          points: number | null;
+          rank: number | null;
+          season: number | null;
+          table_name: string | null;
+          team_name: string | null;
+        };
+        Relationships: [];
+      };
+      projection_param: {
+        Row: {
+          description_es: string | null;
+          param: string | null;
+          sport: string | null;
+          valid_from: string | null;
+          value: number | null;
+          version: number | null;
+        };
+        Relationships: [];
+      };
+      chart_catalog: {
+        Row: {
+          available: boolean | null;
+          category: string | null;
+          chart_id: string | null;
+          chart_type: string | null;
+          excel: string | null;
+          origin_ref: string | null;
+          powerbi: string | null;
+          reason_es: string | null;
+          required_data: string | null;
+          sort_order: number | null;
+          title_es: string | null;
+        };
+        Relationships: [];
+      };
+      chart_source_map: {
+        Row: {
+          chart_id: string | null;
+          label_es: string | null;
+          params: string | null;
+          target_ref: string | null;
+          target_type: string | null;
+        };
+        Relationships: [];
+      };
+      player_match_value: {
+        Row: {
+          key: string | null;
+          match_id: number | null;
+          player_id: number | null;
+          value: number | null;
+        };
+        Relationships: [];
+      };
       club_season_stat: {
         Row: {
           season: number | null;

@@ -3,50 +3,50 @@
  * gráficos, en los PNG exportados, en los estilos de Excel y en powerbi/theme.json.
  * Prohibido el violeta (matices entre 255° y 335°).
  *
- * Verde principal #64cc4f (pedido del dueño, 28-oct): OKLCH 0,757 0,19 140°. La rampa sale del
- * mismo matiz. El rojo de «peor» tiene la misma luminosidad y croma con matiz 27°: el
- * complementario estricto (320°) es violeta y está prohibido.
+ * Paleta del dueño (28-oct): #222222, #328336, #64cc4f (principal), #b2e05b y #fbfbfd. El rojo
+ * (matiz 27°) es el segundo color después del verde: el complementario estricto de #64cc4f
+ * (320°) es violeta y está prohibido. Orden de prioridad: verde, rojo, azul, amarillo, rosa.
  *
- * Superficies en capas para que la página no sea un solo color de fondo: fondo con tinte verde,
- * tarjetas un escalón más claras (oscuro) o blancas con sombra (claro) y un tercer nivel para
- * encabezados y celdas destacadas.
+ * El fondo del body es liso (#fbfbfd o #222222); la profundidad la dan las capas de encima:
+ * tarjetas, header más oscuro en modo oscuro y encabezados de tabla con tinte verde.
  */
 :root {
   color-scheme: light;
 
-  /* Verde de la marca y variantes (mismo matiz, distinta luminosidad) */
+  /* Verde de la marca y variantes */
   --color-brand: #64cc4f;
-  --color-brand-700: #43ad2c;
-  --color-brand-800: #1e7801;
-  --color-brand-900: #165e00;
-  --color-brand-300: #7fe86b;
-  --color-brand-200: #b5f1a9;
-  --color-brand-100: #e3f7de;
+  --color-brand-700: #4fae3c;
+  --color-brand-800: #328336;
+  --color-brand-900: #1f5a22;
+  --color-brand-300: #b2e05b;
+  --color-brand-200: #d4efa6;
+  --color-brand-100: #eef8e3;
   /* Texto sobre el verde de la marca (botones y pestañas activas) */
-  --color-on-brand: #0f1a0c;
+  --color-on-brand: #222222;
   /* Neón: solo acentos y animaciones */
-  --color-neon: #7fe86b;
-  --color-neon-soft: #b5f1a9;
+  --color-neon: #b2e05b;
+  --color-neon-soft: #d4efa6;
 
-  /* Modo claro: #64CC4F sobre blanco no llega a AA, así que el texto usa el verde oscuro */
-  --color-bg: #eef5ed;
+  /* Modo claro: #64CC4F sobre blanco no llega a AA; el texto verde usa #328336 (4,6:1) */
+  --color-bg: #fbfbfd;
   --color-surface: #ffffff;
-  --color-surface-2: #e4ece2;
-  --color-text: #10190e;
-  --color-text-muted: #4f5c4d;
-  --color-link: #1e7801;
-  --color-border: #d0dbce;
-  --color-accent-motion: #1e7801;
-  --color-row-hover: #f1f8ef;
-  --color-row-selected: #e3f7de;
-  --color-header-bg: rgb(255 255 255 / 0.9);
+  --color-surface-2: #f1f3f1;
+  --color-table-head: #eef8e3;
+  --color-text: #222222;
+  --color-text-muted: #555b55;
+  --color-link: #328336;
+  --color-border: #dfe3df;
+  --color-accent-motion: #328336;
+  --color-row-hover: #f4f9ee;
+  --color-row-selected: #e6f4d6;
+  --color-header-bg: rgb(255 255 255 / 0.94);
   --color-warn: #8a5a00;
-  --color-loss: #b7191c;
+  --color-loss: #a30310;
   /* Mejor y peor del plantel o de la liga (valor del panel de contexto) */
-  --color-best: #1e7801;
-  --color-worst: #b7191c;
-  --shadow-card: 0 1px 2px rgb(16 40 12 / 0.06), 0 10px 28px -14px rgb(16 40 12 / 0.22);
-  --bg-glow: radial-gradient(1100px 520px at 12% -8%, rgb(100 204 79 / 0.18), transparent 62%);
+  --color-best: #328336;
+  --color-worst: #a30310;
+  --shadow-card: 0 1px 2px rgb(34 34 34 / 0.06), 0 10px 28px -14px rgb(34 34 34 / 0.2);
+  --bg-glow: none;
   --glow-neon: 0 0 0 transparent;
 
   /* Movimiento: curvas de salida exponenciales (sin rebote) y duraciones de 9.10 */
@@ -69,45 +69,47 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     color-scheme: dark;
-    --color-bg: #0a0f09;
-    --color-surface: #131911;
-    --color-surface-2: #1b2319;
-    --color-text: #eef4ed;
-    --color-text-muted: #a7b6a4;
-    --color-link: #7fe86b;
-    --color-border: #283426;
-    --color-accent-motion: #7fe86b;
-    --color-row-hover: #182116;
-    --color-row-selected: #1c2e18;
-    --color-header-bg: rgb(10 15 9 / 0.86);
+    --color-bg: #222222;
+    --color-surface: #2b2b2b;
+    --color-surface-2: #333533;
+    --color-table-head: #2d412e;
+    --color-text: #f4f5f4;
+    --color-text-muted: #b4b8b4;
+    --color-link: #b2e05b;
+    --color-border: #3d3f3d;
+    --color-accent-motion: #b2e05b;
+    --color-row-hover: #313631;
+    --color-row-selected: #2d412e;
+    --color-header-bg: rgb(26 26 26 / 0.94);
     --color-warn: #f2b33d;
     --color-loss: #fe897d;
     --color-best: #64cc4f;
     --color-worst: #fe897d;
-    --shadow-card: inset 0 1px 0 rgb(255 255 255 / 0.04), 0 14px 34px -18px rgb(0 0 0 / 0.8);
-    --bg-glow: radial-gradient(1100px 520px at 12% -8%, rgb(100 204 79 / 0.16), transparent 62%);
-    --glow-neon: 0 0 18px rgb(100 204 79 / 0.35);
+    --shadow-card: inset 0 1px 0 rgb(255 255 255 / 0.04), 0 12px 30px -16px rgb(0 0 0 / 0.65);
+    --bg-glow: none;
+    --glow-neon: 0 0 16px rgb(100 204 79 / 0.35);
   }
 }
 
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --color-bg: #0a0f09;
-  --color-surface: #131911;
-  --color-surface-2: #1b2319;
-  --color-text: #eef4ed;
-  --color-text-muted: #a7b6a4;
-  --color-link: #7fe86b;
-  --color-border: #283426;
-  --color-accent-motion: #7fe86b;
-  --color-row-hover: #182116;
-  --color-row-selected: #1c2e18;
-  --color-header-bg: rgb(10 15 9 / 0.86);
+  --color-bg: #222222;
+  --color-surface: #2b2b2b;
+  --color-surface-2: #333533;
+  --color-table-head: #2d412e;
+  --color-text: #f4f5f4;
+  --color-text-muted: #b4b8b4;
+  --color-link: #b2e05b;
+  --color-border: #3d3f3d;
+  --color-accent-motion: #b2e05b;
+  --color-row-hover: #313631;
+  --color-row-selected: #2d412e;
+  --color-header-bg: rgb(26 26 26 / 0.94);
   --color-warn: #f2b33d;
   --color-loss: #fe897d;
   --color-best: #64cc4f;
   --color-worst: #fe897d;
-  --shadow-card: inset 0 1px 0 rgb(255 255 255 / 0.04), 0 14px 34px -18px rgb(0 0 0 / 0.8);
-  --bg-glow: radial-gradient(1100px 520px at 12% -8%, rgb(100 204 79 / 0.16), transparent 62%);
-  --glow-neon: 0 0 18px rgb(100 204 79 / 0.35);
+  --shadow-card: inset 0 1px 0 rgb(255 255 255 / 0.04), 0 12px 30px -16px rgb(0 0 0 / 0.65);
+  --bg-glow: none;
+  --glow-neon: 0 0 16px rgb(100 204 79 / 0.35);
 }

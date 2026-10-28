@@ -378,7 +378,11 @@ export function TeamTableView({
                   >
                     {view === 'partido'
                       ? 'Fecha y rival'
-                      : (TEAM_VIEWS.find((v) => v.id === view)?.label.replace('Por ', '') ?? 'Grupo')}
+                      : view === 'rival'
+                        ? 'Rival'
+                        : view === 'mes'
+                          ? 'Mes'
+                          : 'Competición'}
                     {sort?.id === GROUP_SORT ? (
                       <CaretDownIcon
                         size={12}

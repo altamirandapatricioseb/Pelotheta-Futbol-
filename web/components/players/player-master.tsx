@@ -20,6 +20,14 @@ import { StatReading } from '@/components/stats/stat-reading';
 
 const NAME_SORT = '__nombre';
 const POSITIONS = ['Todas', 'Arquero', 'Defensor', 'Mediocampista', 'Delantero'] as const;
+// Encabezado de la primera columna según el filtro de posición.
+const POSITION_HEADER: Record<(typeof POSITIONS)[number], string> = {
+  Todas: 'Jugadores',
+  Arquero: 'Arqueros',
+  Defensor: 'Defensores',
+  Mediocampista: 'Mediocampistas',
+  Delantero: 'Delanteros',
+};
 const ROW_LAYOUT = { type: 'spring', stiffness: 520, damping: 44 } as const;
 const CUSTOM_SET = 'personalizado';
 // Sección 6: por debajo de 900 minutos las métricas propias se muestran con aviso.
@@ -462,7 +470,7 @@ export function PlayerMasterView({
                 aria-sort={sort?.id === NAME_SORT ? (sort.dir === 'asc' ? 'ascending' : 'descending') : 'none'}
               >
                 <button type="button" className="sort-button focus-ring" onClick={onNameHeaderClick}>
-                  Jugador
+                  {POSITION_HEADER[position]}
                   {sort?.id === NAME_SORT ? (
                     <CaretDownIcon
                       size={12}

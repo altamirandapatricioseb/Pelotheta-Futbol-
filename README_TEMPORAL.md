@@ -158,6 +158,12 @@ violeta y está prohibido); la franja «Última actualización» quedó solo en 
 oscuro en el header (cookie `tema`, sin destello); fondo con tinte verde y brillo, tarjetas un escalón más claras
 y con sombra en los dos modos. Tipografía confirmada: Montserrat 400 a 800 servida por el propio sitio.
 
+Paleta del dueño (28-oct, segunda ronda): fondo liso #fbfbfd o #222222, verdes #328336, #64cc4f y #b2e05b,
+header más oscuro en modo oscuro y encabezados de tabla con tinte verde. Gráficos en orden verde, rojo, azul,
+amarillo y rosa (validado con daltonismo: el rojo va más oscuro que el verde para distinguirse). Encabezados:
+«Rival», «Mes», «Competición» con mayúscula y, en Jugadores, «Arqueros», «Defensores», «Mediocampistas» o
+«Delanteros» según el filtro («Jugadores» con todos).
+
 Sin datos (8): 03 evolución de la tabla (solo hay tabla final), 14 primer gol (etapa 6), 26 pases progresivos y
 33 presiones (ninguna fuente gratuita los publica), 66 marcador por minuto (etapa 6), 80, 81 y 82 de 6.1 (serie
 por partido, componentes del índice y desglose del Potencial: etapa 6).

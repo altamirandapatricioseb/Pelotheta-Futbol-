@@ -37,13 +37,13 @@ export interface ChartContext {
 export type ChartOutput = { node: ReactNode; table: ChartTable; coverage?: string } | { empty: string };
 export type ChartRender = (ctx: ChartContext) => ChartOutput;
 
-const RESULT_SLOT: Record<string, Slot> = { G: 1, E: 3, P: 5 };
+const RESULT_SLOT: Record<string, Slot> = { G: 1, E: 4, P: 2 };
 // Color por posición en las dispersiones de jugadores: tres colores como máximo (slots 1, 2 y 4).
-const positionSlot = (p: PlayerRow): Slot => (p.position === 'Delantero' ? 1 : p.position === 'Mediocampista' ? 2 : 4);
+const positionSlot = (p: PlayerRow): Slot => (p.position === 'Delantero' ? 1 : p.position === 'Mediocampista' ? 3 : 2);
 const POSITION_GROUPS: { label: string; slot: Slot }[] = [
   { label: 'Delanteros', slot: 1 },
-  { label: 'Mediocampistas', slot: 2 },
-  { label: 'Defensores y arqueros', slot: 4 },
+  { label: 'Mediocampistas', slot: 3 },
+  { label: 'Defensores y arqueros', slot: 2 },
 ];
 const RESULT_NAME: Record<string, string> = { G: 'Ganado', E: 'Empatado', P: 'Perdido' };
 
@@ -200,7 +200,7 @@ export const CHARTS: Record<string, ChartRender> = {
         <>
           <LineChart
             labels={matches.map(day)}
-            series={[{ id: 'pts', label: 'Puntos acumulados', slot: 4, values: acc }]}
+            series={[{ id: 'pts', label: 'Puntos acumulados', slot: 2, values: acc }]}
             pointSlots={matches.map((m) => RESULT_SLOT[result(m)] ?? null)}
             label="Puntos acumulados partido a partido"
           />
@@ -223,7 +223,7 @@ export const CHARTS: Record<string, ChartRender> = {
           labels={matches.map(day)}
           series={[
             { id: 'boca', label: 'Boca', slot: 1, values: acc },
-            { id: 'liga', label: 'Promedio de la liga', slot: 4, values: league },
+            { id: 'liga', label: 'Promedio de la liga', slot: 2, values: league },
           ]}
           label="Puntos acumulados de Boca contra el promedio de la liga"
         />
@@ -311,7 +311,7 @@ export const CHARTS: Record<string, ChartRender> = {
         { label: 'Puntos reales', slot: 1, value: (g) => sum(g.map(points)) },
         {
           label: 'Puntos pitagóricos',
-          slot: 4,
+          slot: 2,
           value: (g) =>
             sum(g.map((m) => s(m, 'eq_puntos_pitagoricos'))) ||
             data.windowValues[g[0]?.competitionCode ?? '']?.eq_puntos_pitagoricos ||
@@ -333,7 +333,7 @@ export const CHARTS: Record<string, ChartRender> = {
           labels={labels}
           series={[
             { id: 'gf', label: 'A favor', slot: 1, values: gf },
-            { id: 'ga', label: 'En contra', slot: 5, values: ga },
+            { id: 'ga', label: 'En contra', slot: 2, values: ga },
           ]}
           label="Goles por tramo de minutos"
         />
@@ -348,7 +348,7 @@ export const CHARTS: Record<string, ChartRender> = {
         labels={matches.map(day)}
         series={[
           { id: 'gf', label: 'A favor', slot: 1, values: matches.map((m) => m.goalsFor) },
-          { id: 'ga', label: 'En contra', slot: 5, values: matches.map((m) => -m.goalsAgainst) },
+          { id: 'ga', label: 'En contra', slot: 2, values: matches.map((m) => -m.goalsAgainst) },
         ]}
         format={(v) => String(Math.abs(v))}
         label="Goles a favor (arriba) y en contra (abajo) por partido"
@@ -366,8 +366,8 @@ export const CHARTS: Record<string, ChartRender> = {
       matches,
       [
         { label: 'Ganando', slot: 1, value: (g) => sum(g.map((m) => s(m, 'minutes_leading'))) },
-        { label: 'Empatando', slot: 3, value: (g) => sum(g.map((m) => s(m, 'minutes_level'))) },
-        { label: 'Perdiendo', slot: 5, value: (g) => sum(g.map((m) => s(m, 'minutes_trailing'))) },
+        { label: 'Empatando', slot: 4, value: (g) => sum(g.map((m) => s(m, 'minutes_level'))) },
+        { label: 'Perdiendo', slot: 2, value: (g) => sum(g.map((m) => s(m, 'minutes_trailing'))) },
       ],
       'Minutos con ventaja, empate y desventaja',
       true,
@@ -379,7 +379,7 @@ export const CHARTS: Record<string, ChartRender> = {
         { label: 'Puntos ganados desde atrás', slot: 1, value: (g) => sum(g.map((m) => s(m, 'points_from_behind'))) },
         {
           label: 'Puntos perdidos desde la ventaja',
-          slot: 5,
+          slot: 2,
           value: (g) => sum(g.map((m) => s(m, 'points_dropped_from_ahead'))),
         },
       ],
@@ -397,7 +397,7 @@ export const CHARTS: Record<string, ChartRender> = {
       matches.filter((m) => s(m, 'xg') !== null),
       [
         { key: 'xg', label: 'xG a favor', slot: 1 },
-        { key: 'xg_against', label: 'xG en contra', slot: 5 },
+        { key: 'xg_against', label: 'xG en contra', slot: 2 },
       ],
     ),
   g18: ({ matches }) => {
@@ -435,7 +435,7 @@ export const CHARTS: Record<string, ChartRender> = {
   },
   g20: ({ matches }) =>
     perMatchLine(matches, [
-      { key: 'shots_total', label: 'Remates', slot: 4 },
+      { key: 'shots_total', label: 'Remates', slot: 2 },
       { key: 'shots_on_target', label: 'Remates al arco', slot: 1 },
     ]),
   g21: ({ matches }) => {
@@ -503,7 +503,7 @@ export const CHARTS: Record<string, ChartRender> = {
     perMatchLine(
       matches,
       [
-        { key: 'possession_lost_players', label: 'Pérdidas', slot: 5 },
+        { key: 'possession_lost_players', label: 'Pérdidas', slot: 2 },
         { key: 'recoveries_players', label: 'Recuperaciones', slot: 1 },
       ],
       5,
@@ -512,7 +512,7 @@ export const CHARTS: Record<string, ChartRender> = {
     byCompetition(
       matches,
       [
-        { label: 'Goles tras centro', slot: 4, value: (g) => sum(g.map((m) => s(m, 'goals_from_cross'))) },
+        { label: 'Goles tras centro', slot: 2, value: (g) => sum(g.map((m) => s(m, 'goals_from_cross'))) },
         { label: 'Goles de cabeza', slot: 1, value: (g) => sum(g.map((m) => s(m, 'goals_header'))) },
       ],
       'Goles tras centro y de cabeza (liga)',
@@ -530,7 +530,7 @@ export const CHARTS: Record<string, ChartRender> = {
       matches,
       [
         { key: 'tackles', label: 'Entradas', slot: 1 },
-        { key: 'interceptions', label: 'Intercepciones', slot: 4 },
+        { key: 'interceptions', label: 'Intercepciones', slot: 2 },
       ],
       5,
     ),
@@ -554,7 +554,7 @@ export const CHARTS: Record<string, ChartRender> = {
       matches,
       [
         { key: 'corners', label: 'Córners a favor', slot: 1 },
-        { key: 'corners_against', label: 'Córners en contra', slot: 5 },
+        { key: 'corners_against', label: 'Córners en contra', slot: 2 },
       ],
       5,
     ),
@@ -563,8 +563,8 @@ export const CHARTS: Record<string, ChartRender> = {
       matches.filter((m) => s(m, 'goals_corner') !== null),
       [
         { label: 'Córner', slot: 1, value: (g) => sum(g.map((m) => s(m, 'goals_corner'))) },
-        { label: 'Tiro libre', slot: 4, value: (g) => sum(g.map((m) => s(m, 'goals_free_kick'))) },
-        { label: 'Penal', slot: 3, value: (g) => sum(g.map((m) => s(m, 'goals_penalty'))) },
+        { label: 'Tiro libre', slot: 2, value: (g) => sum(g.map((m) => s(m, 'goals_free_kick'))) },
+        { label: 'Penal', slot: 4, value: (g) => sum(g.map((m) => s(m, 'goals_penalty'))) },
       ],
       'Goles de pelota parada por tipo (liga)',
       true,
@@ -584,7 +584,7 @@ export const CHARTS: Record<string, ChartRender> = {
         <BarChart
           labels={rows.map((r) => r[0])}
           series={[
-            { id: 'a', label: 'Pateados', slot: 4, values: rows.map((r) => r[1]) },
+            { id: 'a', label: 'Pateados', slot: 2, values: rows.map((r) => r[1]) },
             { id: 'c', label: 'Convertidos', slot: 1, values: rows.map((r) => r[2]) },
           ]}
           label="Penales a favor y en contra (liga)"
@@ -599,7 +599,7 @@ export const CHARTS: Record<string, ChartRender> = {
       matches.filter((m) => s(m, 'xg_set_pieces') !== null),
       [
         { key: 'xg_set_pieces', label: 'xG de pelota parada a favor', slot: 1 },
-        { key: 'xg_set_pieces_against', label: 'En contra', slot: 5 },
+        { key: 'xg_set_pieces_against', label: 'En contra', slot: 2 },
       ],
     ),
 
@@ -648,7 +648,7 @@ export const CHARTS: Record<string, ChartRender> = {
           return b.length ? (
             <BarChart
               labels={b.map((x) => `${x.from.toFixed(1)}-${x.to.toFixed(1)}`)}
-              series={[{ id: 'n', label: 'Jugadores', slot: 4, values: b.map((x) => x.count) }]}
+              series={[{ id: 'n', label: 'Jugadores', slot: 2, values: b.map((x) => x.count) }]}
               label="Distribución en el plantel"
             />
           ) : (
@@ -696,7 +696,7 @@ export const CHARTS: Record<string, ChartRender> = {
                 {
                   id: 's',
                   label: 'Desde el banco',
-                  slot: 3,
+                  slot: 4,
                   values: ms.map((m) => (!byMatch[m.matchId]?.starts ? (byMatch[m.matchId]?.minutes ?? 0) : null)),
                 },
               ]}
@@ -758,7 +758,7 @@ export const CHARTS: Record<string, ChartRender> = {
           labels={list.map((x) => x.p.name)}
           series={[
             { id: 'g', label: 'Goles', slot: 1, values: list.map((x) => x.g) },
-            { id: 'a', label: 'Asistencias', slot: 4, values: list.map((x) => x.a) },
+            { id: 'a', label: 'Asistencias', slot: 2, values: list.map((x) => x.a) },
           ]}
           label="Goles y asistencias por jugador"
         />
@@ -801,7 +801,7 @@ export const CHARTS: Record<string, ChartRender> = {
         <BarChart
           horizontal
           labels={ages.map((a) => `${String(a)} años`)}
-          series={[{ id: 'm', label: 'Minutos', slot: 4, values: minutes }]}
+          series={[{ id: 'm', label: 'Minutos', slot: 2, values: minutes }]}
           label="Minutos jugados por edad"
         />
       ),
@@ -821,7 +821,7 @@ export const CHARTS: Record<string, ChartRender> = {
           series={ids.map((id, k) => ({
             id,
             label: `${['7', '14', '28'][k] ?? ''} días`,
-            slot: ([1, 4, 3] as const)[k] ?? 1,
+            slot: ([1, 2, 4] as const)[k] ?? 1,
             values: list.map((p) => pv(p, data.playerCatalog, id)),
           }))}
           label="Minutos en los últimos 7, 14 y 28 días"
@@ -847,7 +847,7 @@ export const CHARTS: Record<string, ChartRender> = {
       node: (
         <BarChart
           labels={ms.map(day)}
-          series={[{ id: 'r', label: 'Cambios en el once', slot: 4, values: ms.map((m) => s(m, 'eq_rotacion')) }]}
+          series={[{ id: 'r', label: 'Cambios en el once', slot: 2, values: ms.map((m) => s(m, 'eq_rotacion')) }]}
           label="Titulares nuevos respecto del partido anterior"
         />
       ),
@@ -873,7 +873,7 @@ export const CHARTS: Record<string, ChartRender> = {
           labels={positions}
           series={[
             { id: 't', label: 'Como titular', slot: 1, values: starters.map((t, i) => t - (subs[i] ?? 0)) },
-            { id: 's', label: 'Desde el banco', slot: 3, values: subs },
+            { id: 's', label: 'Desde el banco', slot: 4, values: subs },
           ]}
           label="Minutos por posición"
         />
@@ -926,7 +926,7 @@ export const CHARTS: Record<string, ChartRender> = {
         <BarChart
           labels={ms.map(day)}
           series={[
-            { id: 'e', label: 'Elo del rival', slot: 4, values: ms.map((m) => (s(m, 'eq_elo_rival') ?? 1500) - 1500) },
+            { id: 'e', label: 'Elo del rival', slot: 2, values: ms.map((m) => (s(m, 'eq_elo_rival') ?? 1500) - 1500) },
           ]}
           format={(v) => String(Math.round(v + 1500))}
           label="Elo del rival (las barras parten de 1500, el promedio)"
@@ -940,7 +940,7 @@ export const CHARTS: Record<string, ChartRender> = {
     const pts = data.clubs.flatMap((c): ScatterPoint[] =>
       c.stats.goals_for === undefined || c.stats.goals_against === undefined
         ? []
-        : [{ x: c.stats.goals_for, y: c.stats.goals_against, label: c.team, slot: c.team === 'Boca Juniors' ? 1 : 4 }],
+        : [{ x: c.stats.goals_for, y: c.stats.goals_against, label: c.team, slot: c.team === 'Boca Juniors' ? 1 : 2 }],
     );
     if (!pts.length) return { empty: 'Sin promedios de la liga.' };
     return {
@@ -950,7 +950,7 @@ export const CHARTS: Record<string, ChartRender> = {
           points={pts}
           groups={[
             { label: 'Boca', slot: 1 },
-            { label: 'Resto de la liga', slot: 4 },
+            { label: 'Resto de la liga', slot: 2 },
           ]}
           xLabel="Goles a favor por partido"
           yLabel="Goles en contra por partido"
@@ -978,8 +978,8 @@ export const CHARTS: Record<string, ChartRender> = {
     perMatchLine(
       matches,
       [
-        { key: 'yellow_cards', label: 'Amarillas de Boca', slot: 3 },
-        { key: 'yellow_cards_against', label: 'Amarillas del rival', slot: 4 },
+        { key: 'yellow_cards', label: 'Amarillas de Boca', slot: 4 },
+        { key: 'yellow_cards_against', label: 'Amarillas del rival', slot: 2 },
       ],
       5,
     ),
@@ -1004,8 +1004,8 @@ export const CHARTS: Record<string, ChartRender> = {
           stacked
           labels={list.map((x) => x.p.name)}
           series={[
-            { id: 'y', label: 'Amarillas', slot: 3, values: list.map((x) => x.y) },
-            { id: 'r', label: 'Rojas', slot: 5, values: list.map((x) => x.r) },
+            { id: 'y', label: 'Amarillas', slot: 4, values: list.map((x) => x.y) },
+            { id: 'r', label: 'Rojas', slot: 2, values: list.map((x) => x.r) },
           ]}
           label="Tarjetas por jugador"
         />
@@ -1032,7 +1032,7 @@ export const CHARTS: Record<string, ChartRender> = {
             {
               id: 'ela',
               label: 'ELA (derrotas que suma; negativo es bueno)',
-              slot: 5,
+              slot: 2,
               values: list.map((p) => pv(p, data.playerCatalog, 'ela')),
             },
           ]}
@@ -1165,8 +1165,8 @@ export const CHARTS: Record<string, ChartRender> = {
           labels={ms.map((m) => `${day(m)} ${result(m)}`)}
           series={[
             { id: 'v', label: 'Victoria', slot: 1, values: ms.map((m) => s(m, 'eq_prob_victoria')) },
-            { id: 'e', label: 'Empate', slot: 3, values: ms.map((m) => s(m, 'eq_prob_empate')) },
-            { id: 'd', label: 'Derrota', slot: 5, values: ms.map((m) => s(m, 'eq_prob_derrota')) },
+            { id: 'e', label: 'Empate', slot: 4, values: ms.map((m) => s(m, 'eq_prob_empate')) },
+            { id: 'd', label: 'Derrota', slot: 2, values: ms.map((m) => s(m, 'eq_prob_derrota')) },
           ]}
           format={(v) => `${String(Math.round(v))} %`}
           label="Probabilidades del Elo antes de cada partido; la letra es el resultado real"
@@ -1228,7 +1228,7 @@ export const CHARTS: Record<string, ChartRender> = {
       matches,
       [
         { label: 'Local', slot: 1, value: (g) => avg(g.filter((m) => m.home).map(points)) },
-        { label: 'Visitante', slot: 4, value: (g) => avg(g.filter((m) => !m.home).map(points)) },
+        { label: 'Visitante', slot: 2, value: (g) => avg(g.filter((m) => !m.home).map(points)) },
       ],
       'Puntos por partido de local y de visitante',
     ),
@@ -1271,8 +1271,8 @@ export const CHARTS: Record<string, ChartRender> = {
           <Legend
             items={[
               { label: 'Goleada a favor', slot: 1 },
-              { label: 'Goleada en contra', slot: 5 },
-              { label: 'Expulsión de Boca', slot: 2 },
+              { label: 'Goleada en contra', slot: 2 },
+              { label: 'Expulsión de Boca', slot: 3 },
             ]}
           />
         </>
@@ -1297,7 +1297,7 @@ export const CHARTS: Record<string, ChartRender> = {
       node: (
         <BarChart
           labels={ids.map(([, l]) => l)}
-          series={[{ id: 'm', label: '% de los minutos', slot: 4, values }]}
+          series={[{ id: 'm', label: '% de los minutos', slot: 2, values }]}
           format={(v) => `${String(Math.round(v))} %`}
           label="Reparto de los minutos por edad"
         />
@@ -1323,7 +1323,7 @@ export const CHARTS: Record<string, ChartRender> = {
           labels={labels}
           series={[
             { id: '2026', label: '2026', slot: 1, values: labels.map((_, i) => current[i] ?? null) },
-            { id: '2025', label: '2025', slot: 4, values: labels.map((_, i) => previous[i] ?? null) },
+            { id: '2025', label: '2025', slot: 2, values: labels.map((_, i) => previous[i] ?? null) },
           ]}
           label="Puntos acumulados en la liga por partido jugado: 2026 contra 2025"
         />
@@ -1370,7 +1370,7 @@ export const CHARTS: Record<string, ChartRender> = {
         <LineChart
           labels={ms.map(day)}
           series={[
-            { id: 'p', label: 'PPDA', slot: 4, values: ppda },
+            { id: 'p', label: 'PPDA', slot: 2, values: ppda },
             { id: 'r', label: 'Media de 5', slot: 1, values: rolling(ppda, 5) },
           ]}
           label="PPDA por partido con promedio móvil"
@@ -1398,7 +1398,7 @@ export const CHARTS: Record<string, ChartRender> = {
           axes={axes.map(([l]) => l)}
           series={[
             { id: 'b', label: 'Boca', slot: 1, values: boca.map(norm) },
-            { id: 'r', label: 'Sus rivales', slot: 4, values: rival.map(norm) },
+            { id: 'r', label: 'Sus rivales', slot: 2, values: rival.map(norm) },
           ]}
           label="Perfil de estilo: Boca frente al promedio de sus rivales (100 = el mayor de los dos)"
         />
@@ -1418,7 +1418,7 @@ export const CHARTS: Record<string, ChartRender> = {
           labels={ms.map(day)}
           series={[
             { id: 'j', label: 'De jugada', slot: 1, values: ms.map((m) => s(m, 'xg_open_play')) },
-            { id: 'p', label: 'De pelota parada', slot: 3, values: ms.map((m) => s(m, 'xg_set_pieces')) },
+            { id: 'p', label: 'De pelota parada', slot: 4, values: ms.map((m) => s(m, 'xg_set_pieces')) },
           ]}
           label="xG de jugada y de pelota parada por partido"
         />
@@ -1446,7 +1446,7 @@ export const CHARTS: Record<string, ChartRender> = {
             {
               id: 'e',
               label: 'Goles evitados (xGOT rival − GC)',
-              slot: 4,
+              slot: 2,
               values: ms.map((m) => (s(m, 'xgot_against') ?? 0) - m.goalsAgainst),
             },
           ]}
@@ -1469,8 +1469,8 @@ export const CHARTS: Record<string, ChartRender> = {
       matches.filter((m) => s(m, 'big_chances') !== null),
       [
         { label: 'Creadas', slot: 1, value: (g) => avg(g.map((m) => s(m, 'big_chances'))) },
-        { label: 'Falladas', slot: 3, value: (g) => avg(g.map((m) => s(m, 'big_chances_missed'))) },
-        { label: 'Concedidas', slot: 5, value: (g) => avg(g.map((m) => s(m, 'big_chances_against'))) },
+        { label: 'Falladas', slot: 4, value: (g) => avg(g.map((m) => s(m, 'big_chances_missed'))) },
+        { label: 'Concedidas', slot: 2, value: (g) => avg(g.map((m) => s(m, 'big_chances_against'))) },
       ],
       'Ocasiones claras por partido',
     ),
@@ -1479,7 +1479,7 @@ export const CHARTS: Record<string, ChartRender> = {
       matches.filter((m) => s(m, 'shots_inside_box') !== null),
       [
         { label: 'Dentro del área', slot: 1, value: (g) => avg(g.map((m) => s(m, 'shots_inside_box'))) },
-        { label: 'Fuera del área', slot: 4, value: (g) => avg(g.map((m) => s(m, 'shots_outside_box'))) },
+        { label: 'Fuera del área', slot: 2, value: (g) => avg(g.map((m) => s(m, 'shots_outside_box'))) },
       ],
       'Remates por partido según la zona',
       true,
@@ -1582,14 +1582,14 @@ export const CHARTS: Record<string, ChartRender> = {
                     x,
                     y,
                     label: p.name,
-                    slot: p.position === 'Delantero' ? 1 : p.position === 'Mediocampista' ? 2 : 4,
+                    slot: p.position === 'Delantero' ? 1 : p.position === 'Mediocampista' ? 3 : 2,
                   },
                 ];
           })}
         groups={[
           { label: 'Delanteros', slot: 1 },
-          { label: 'Mediocampistas', slot: 2 },
-          { label: 'Defensores', slot: 4 },
+          { label: 'Mediocampistas', slot: 3 },
+          { label: 'Defensores', slot: 2 },
         ]}
         xLabel="Pases clave cada 90"
         yLabel="Remates cada 90"
@@ -1633,7 +1633,7 @@ export const CHARTS: Record<string, ChartRender> = {
             {
               id: 'c',
               label: 'xG en contra por partido',
-              slot: 5,
+              slot: 2,
               values: sides.map((x) => avg(x.rows.map((m) => s(m, 'xg_against')))),
             },
           ]}
@@ -1660,8 +1660,8 @@ export const CHARTS: Record<string, ChartRender> = {
     const pct = (rows: TeamMatchRow[], test: (m: TeamMatchRow) => boolean) =>
       rows.length ? (rows.filter(test).length / rows.length) * 100 : null;
     const tests = [
-      { label: 'Ambos marcan', slot: 4 as Slot, test: (m: TeamMatchRow) => m.goalsFor > 0 && m.goalsAgainst > 0 },
-      { label: 'Más de 2,5 goles', slot: 3 as Slot, test: (m: TeamMatchRow) => m.goalsFor + m.goalsAgainst > 2.5 },
+      { label: 'Ambos marcan', slot: 2 as Slot, test: (m: TeamMatchRow) => m.goalsFor > 0 && m.goalsAgainst > 0 },
+      { label: 'Más de 2,5 goles', slot: 4 as Slot, test: (m: TeamMatchRow) => m.goalsFor + m.goalsAgainst > 2.5 },
       { label: 'Valla invicta', slot: 1 as Slot, test: (m: TeamMatchRow) => m.goalsAgainst === 0 },
     ];
     return {
@@ -1744,7 +1744,7 @@ export const CHARTS: Record<string, ChartRender> = {
           groups={POSITION_GROUPS}
           curve={{
             label: `Margen esperado hasta el pico (${String(growth).replace('.', ',')} por año hasta los ${String(peak)})`,
-            slot: 3,
+            slot: 4,
             points: curve,
           }}
           xLabel="Edad"
@@ -1929,7 +1929,7 @@ function playerSeries(
     <LineChart
       labels={played.map(day)}
       series={[
-        { id: 'v', label, slot: 4, values },
+        { id: 'v', label, slot: 2, values },
         { id: 'r', label: 'Media de 5', slot: 1, values: rolling(values, 5) },
       ]}
       label={smooth ? `${label} por partido` : label}
@@ -1980,7 +1980,7 @@ function ScatterConfig({ players, catalog }: { players: PlayerRow[]; catalog: St
             x,
             y,
             label: p.name,
-            slot: p.position === 'Delantero' ? 1 : p.position === 'Mediocampista' ? 2 : 4,
+            slot: p.position === 'Delantero' ? 1 : p.position === 'Mediocampista' ? 3 : 2,
             size: Math.min(1, p.minutes / 3500),
           },
         ]
@@ -2016,8 +2016,8 @@ function ScatterConfig({ players, catalog }: { players: PlayerRow[]; catalog: St
         points={pts}
         groups={[
           { label: 'Delanteros', slot: 1 },
-          { label: 'Mediocampistas', slot: 2 },
-          { label: 'Defensores y arqueros', slot: 4 },
+          { label: 'Mediocampistas', slot: 3 },
+          { label: 'Defensores y arqueros', slot: 2 },
         ]}
         xLabel={`${xs?.short ?? xId}${xs?.per90 ? ' /90' : ''}`}
         yLabel={`${ys?.short ?? yId}${ys?.per90 ? ' /90' : ''}`}

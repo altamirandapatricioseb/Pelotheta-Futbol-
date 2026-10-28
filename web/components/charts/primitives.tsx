@@ -753,7 +753,7 @@ export function ShotMap({
             cy={py(s.x)}
             r={3 + Math.sqrt(s.xg) * 12}
             className={s.goal ? 'chart-dot' : 'chart-dot chart-dot--open'}
-            style={s.goal ? { fill: color(1) } : { stroke: color(4) }}
+            style={s.goal ? { fill: color(1) } : { stroke: color(2) }}
             onPointerEnter={() => {
               setTip({ x: px(s.y), y: py(s.x), content: <span>{s.title}</span> });
             }}
@@ -766,7 +766,7 @@ export function ShotMap({
       <Legend
         items={[
           { label: 'Gol', slot: 1 },
-          { label: 'Sin gol', slot: 4 },
+          { label: 'Sin gol', slot: 2 },
         ]}
       />
     </Frame>

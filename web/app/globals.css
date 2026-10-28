@@ -360,14 +360,14 @@ h3 {
   position: sticky;
   top: 0;
   z-index: 2;
-  background: var(--color-surface-2);
+  background: var(--color-table-head);
   color: var(--color-text-muted);
   font-size: 0.75rem;
   font-weight: 700;
 }
 .data-table thead th:first-child {
   z-index: 3;
-  background: var(--color-surface-2);
+  background: var(--color-table-head);
 }
 .data-table tbody th {
   font-weight: 600;
@@ -749,43 +749,43 @@ h3 {
 }
 
 /* Gráficos (etapa 5). Paleta categórica validada con scripts/validate_palette.js de la skill
-   dataviz: verde de marca, rosa, amarillo, azul y naranja (sin violeta). Pasa todos los pares
-   vecinos en claro (#ffffff) y oscuro (#131911); en dispersiones se usan solo los slots 1, 2 y 4
-   (todos los pares). Rosa y amarillo quedan bajo 3:1 en claro: cada gráfico tiene tabla. */
+   dataviz: verde, rojo, azul, amarillo y rosa (sin violeta), en ese orden de prioridad. Pasa todos los pares
+   vecinos en claro (#ffffff) y oscuro (#2b2b2b); verde, rojo y azul pasan todos los pares (dispersiones). El
+   rojo oscuro es más oscuro que el verde para separarlos con daltonismo. Amarillo y rosa (claro) y rojo (oscuro) quedan bajo 3:1: cada gráfico tiene tabla. */
 :root {
-  --series-1: #279301;
-  --series-2: #e87ba4;
-  --series-3: #eda100;
-  --series-4: #2a78d6;
-  --series-5: #eb6834;
+  --series-1: #328336;
+  --series-2: #a30310;
+  --series-3: #2a78d6;
+  --series-4: #eda100;
+  --series-5: #e87ba4;
   --chart-surface: #ffffff;
-  --chart-grid: #e1e5e0;
-  --chart-axis: #c3c9c2;
-  --chart-empty: #e8ece7;
+  --chart-grid: #e6e8e6;
+  --chart-axis: #c9cdc9;
+  --chart-empty: #eef0ee;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     --series-1: #43ad2c;
-    --series-2: #d55181;
-    --series-3: #c98500;
-    --series-4: #3987e5;
-    --series-5: #d95926;
-    --chart-surface: #131911;
-    --chart-grid: #222c20;
-    --chart-axis: #3a4a37;
-    --chart-empty: #1b2319;
+    --series-2: #bb0916;
+    --series-3: #3987e5;
+    --series-4: #c98500;
+    --series-5: #d55181;
+    --chart-surface: #2b2b2b;
+    --chart-grid: #3a3c3a;
+    --chart-axis: #4a4d4a;
+    --chart-empty: #333533;
   }
 }
 :root[data-theme='dark'] {
   --series-1: #43ad2c;
-  --series-2: #d55181;
-  --series-3: #c98500;
-  --series-4: #3987e5;
-  --series-5: #d95926;
-  --chart-surface: #131911;
-  --chart-grid: #222c20;
-  --chart-axis: #3a4a37;
-  --chart-empty: #1b2319;
+  --series-2: #bb0916;
+  --series-3: #3987e5;
+  --series-4: #c98500;
+  --series-5: #d55181;
+  --chart-surface: #2b2b2b;
+  --chart-grid: #3a3c3a;
+  --chart-axis: #4a4d4a;
+  --chart-empty: #333533;
 }
 .chart-card {
   display: flex;

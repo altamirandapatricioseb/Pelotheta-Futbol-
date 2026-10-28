@@ -26,7 +26,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from pipeline import enrich, load
+from pipeline import catalog, enrich, load
 from pipeline.models import (
     CompetitionMetricRecord,
     LeagueResultRecord,
@@ -588,6 +588,10 @@ def run_pipeline(dry_run: bool, url: str, key: str) -> int:
     player_stats = batch.pop("player_stats")
     try:
         result = load.send_batch(batch, url, key)
+        # El catálogo viaja en cada corrida: es la fuente de verdad de las tablas de la web.
+        result["catalog"] = load.send_catalog(
+            catalog.to_payload(catalog.load_catalog(), catalog.load_sets()), url, key
+        )
         result["player_stats"] = load.send_player_stats(player_stats, url, key)
         if weather:
             result["weather"] = load.send_weather(weather, url, key)
@@ -596,6 +600,8 @@ def run_pipeline(dry_run: bool, url: str, key: str) -> int:
             result["feet"] = load.send_player_foot(feet, url, key)
         if competition_metrics:
             result["competition_metrics"] = load.send_competition_metrics(competition_metrics, url, key)
+        # Al final: las tablas maestras de la web se recalculan con todo lo que se cargó.
+        load.refresh_stats(url, key)
     except load.LoadError as exc:
         # El mensaje de LoadError nunca incluye la clave: se puede registrar en la base.
         print(f"Fallo de la carga: {exc}", file=sys.stderr)

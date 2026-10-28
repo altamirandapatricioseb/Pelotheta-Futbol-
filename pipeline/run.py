@@ -16,6 +16,7 @@ Todo con el mismo cliente respetuoso (3 s entre requests, caché y User-Agent id
 from __future__ import annotations
 
 import argparse
+import contextlib
 import json
 import os
 import sys
@@ -577,10 +578,8 @@ def main(argv: list[str] | None = None) -> int:
     except load.LoadError as exc:
         # El mensaje de LoadError nunca incluye la clave: se puede registrar en la base.
         print(f"Fallo de la carga: {exc}", file=sys.stderr)
-        try:
+        with contextlib.suppress(load.LoadError):
             load.log_failure(pd.SOURCE, f"Fallo de la carga: {exc}", url, key)
-        except load.LoadError:
-            pass
         return 1
     seconds = (datetime.now() - started).total_seconds()
     print(f"Carga {status} en {seconds:.0f} s: {result}")

@@ -149,6 +149,13 @@ def send_charts(payload: dict[str, Any], url: str, key: str, client: httpx.Clien
     return _rpc("load_charts", body, url, key, client)
 
 
+def send_situations(
+    cards: list[dict[str, Any]], url: str, key: str, client: httpx.Client | None = None
+) -> Any:
+    """Catálogo de tarjetas de Situaciones (`data/situational_catalog.csv`)."""
+    return _rpc("load_situations", {"p_cards": cards}, url, key, client)
+
+
 def send_stat_values(
     stat_ids: list[str],
     values: list[dict[str, Any]],

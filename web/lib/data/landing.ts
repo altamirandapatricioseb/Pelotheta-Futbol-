@@ -40,6 +40,13 @@ export interface LandingData {
   leaguePpg: number | null;
   /** Parámetros vigentes de los modelos propios (`api.projection_param`). */
   params: Record<string, number>;
+  /** Filas de algunas tarjetas de Situaciones (gráficos 14 y 66): {tarjeta: filas}. */
+  situations: Record<
+    string,
+    { param: string; order: number; n: number; w: number; d: number; l: number; ppg: number }[]
+  >;
+  /** Mejoría α y β de cada jugador partido a partido (gráfico 80): {jugador: {partido: {métrica: valor}}}. */
+  metricSeries: Record<number, Record<number, Record<string, number>>>;
   updated: string | null;
 }
 
@@ -71,53 +78,70 @@ export async function getLandingData(): Promise<LandingData | null> {
   ]);
   if (!matches.ok || !players.ok || !playerCatalog.ok || !teamCatalog.ok) return null;
 
-  const [shots, formations, momentum, series, leaders, referees, previous, table, params] = await Promise.all([
-    api
-      .from('boca_shot')
-      .select('match_id, boca_shot, player_name, minute, outcome, body_part, zone, xg, x, y')
-      .limit(2000),
-    api.from('boca_formation').select('match_id, boca_formation, opponent_formation').limit(500),
-    all((a, b) =>
-      api.from('boca_momentum').select('match_id, minute, boca_value').order('match_id').order('minute').range(a, b),
-    ),
-    all((a, b) =>
+  const [shots, formations, momentum, series, leaders, referees, previous, table, params, situ, metric] =
+    await Promise.all([
       api
-        .from('player_match_value')
-        .select('player_id, match_id, key, value')
-        .in('key', ['minutes', 'starts', 'rating', 'goals', 'assists'])
-        .order('match_id')
-        .order('player_id')
-        .order('key')
-        .range(a, b),
-    ),
-    api
-      .from('league_leader')
-      .select('player_name, team_name, value, rank')
-      .eq('season', 2026)
-      .eq('stat', 'goals')
-      .order('rank')
-      .limit(15),
-    api
-      .from('referee_stats')
-      .select('referee, games, yellow_per_game, red_per_game, fouls_per_game')
-      .eq('season', 2026)
-      .gte('games', 5)
-      .limit(100),
-    api
-      .from('league_result')
-      .select('match_date, home_team, away_team, home_goals, away_goals, source')
-      .eq('season', 2025)
-      .or('home_team.eq.Boca Juniors,away_team.eq.Boca Juniors')
-      .order('match_date')
-      .limit(100),
-    api
-      .from('league_standing')
-      .select('table_name, played, points')
-      .eq('season', 2026)
-      .like('table_name', 'Tabla Anual%')
-      .limit(60),
-    api.from('projection_param').select('param, value').limit(100),
-  ]);
+        .from('boca_shot')
+        .select('match_id, boca_shot, player_name, minute, outcome, body_part, zone, xg, x, y')
+        .limit(2000),
+      api.from('boca_formation').select('match_id, boca_formation, opponent_formation').limit(500),
+      all((a, b) =>
+        api.from('boca_momentum').select('match_id, minute, boca_value').order('match_id').order('minute').range(a, b),
+      ),
+      all((a, b) =>
+        api
+          .from('player_match_value')
+          .select('player_id, match_id, key, value')
+          .in('key', ['minutes', 'starts', 'rating', 'goals', 'assists'])
+          .order('match_id')
+          .order('player_id')
+          .order('key')
+          .range(a, b),
+      ),
+      api
+        .from('league_leader')
+        .select('player_name, team_name, value, rank')
+        .eq('season', 2026)
+        .eq('stat', 'goals')
+        .order('rank')
+        .limit(15),
+      api
+        .from('referee_stats')
+        .select('referee, games, yellow_per_game, red_per_game, fouls_per_game')
+        .eq('season', 2026)
+        .gte('games', 5)
+        .limit(100),
+      api
+        .from('league_result')
+        .select('match_date, home_team, away_team, home_goals, away_goals, source')
+        .eq('season', 2025)
+        .or('home_team.eq.Boca Juniors,away_team.eq.Boca Juniors')
+        .order('match_date')
+        .limit(100),
+      api
+        .from('league_standing')
+        .select('table_name, played, points')
+        .eq('season', 2026)
+        .like('table_name', 'Tabla Anual%')
+        .limit(60),
+      api.from('projection_param').select('param, value').limit(100),
+      api
+        .from('situational_result')
+        .select('card_id, param_value, param_order, n, w, d, l, ppg')
+        .in('card_id', ['s132', 's006', 's007', 's008', 's009', 's010', 's011'])
+        .limit(100),
+      all((a, b) =>
+        api
+          .from('stat_match_value')
+          .select('entity_id, match_id, stat_id, value')
+          .eq('entity', 'player')
+          .in('stat_id', ['mejoria_alpha', 'mejoria_beta'])
+          .order('entity_id')
+          .order('match_id')
+          .order('stat_id')
+          .range(a, b),
+      ),
+    ]);
 
   const momentumByMinute = new Map<number, number[]>();
   for (const r of momentum) {
@@ -203,6 +227,26 @@ export async function getLandingData(): Promise<LandingData | null> {
         r.param && r.value !== null && Number.isFinite(r.value) ? [[r.param, r.value]] : [],
       ),
     ),
+    situations: (situ.data ?? []).reduce<LandingData['situations']>((acc, r) => {
+      if (r.card_id && r.param_value) {
+        (acc[r.card_id] ??= []).push({
+          param: r.param_value,
+          order: r.param_order ?? 0,
+          n: r.n ?? 0,
+          w: r.w ?? 0,
+          d: r.d ?? 0,
+          l: r.l ?? 0,
+          ppg: r.ppg ?? 0,
+        });
+      }
+      return acc;
+    }, {}),
+    metricSeries: metric.reduce<LandingData['metricSeries']>((acc, r) => {
+      if (r.entity_id !== null && r.match_id !== null && r.stat_id && r.value !== null) {
+        ((acc[r.entity_id] ??= {})[r.match_id] ??= {})[r.stat_id] = r.value;
+      }
+      return acc;
+    }, {}),
     updated: freshness.lastUpdate,
   };
 }

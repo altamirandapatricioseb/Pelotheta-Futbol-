@@ -13,7 +13,7 @@ Para retomar en un chat nuevo: leer este archivo, `PROMPT-1-BOCA-FUTBOL.md` (ya 
 | 3. Pipeline completo | Hecha (28-oct): workflow corrido desde el botón con éxito y fecha nueva visible en la web |
 | 4. Estadísticas, métricas propias y tablas | **Desplegada** (28-oct): Interfaces 2 y 3 en producción; quedan pendientes menores (ver abajo) |
 | 5. Gráficos (Interfaz 1) | **Desplegada** (28-oct): 103 gráficos en producción, 95 con datos y 8 «sin datos» con motivo |
-| 6. Situaciones y estadística desglosada | Pendiente |
+| 6. Situaciones y estadística desglosada | **En curso** (28-oct): tablero, desglosada y doble clic desplegados; faltan pendientes menores (ver abajo) |
 | 7. Comparación directa | Pendiente |
 | 8. Excel | Pendiente |
 | 9. Power BI | Pendiente |
@@ -171,8 +171,30 @@ por partido, componentes del índice y desglose del Potencial: etapa 6).
 Pendientes que no bloquean: el interruptor propio para reducir animaciones (9.10) llega en la etapa 10; mientras
 tanto se respeta la preferencia del sistema. El doble clic hacia la estadística desglosada llega con la etapa 6.
 
-## Próxima etapa (6: Situaciones y estadística desglosada)
+## Etapa 6: estado (28-oct-2026)
 
-Skills: `impeccable` (`shape` y `animate`) antes de escribir el tablero tipo Miro,
-`animation-components:animated-component-libraries` al implementar el lienzo, cierre con `impeccable` (`audit` y
-`polish`). Al terminarla se completan los gráficos 14, 66, 80, 81 y 82.
+- **Situaciones (`/situaciones`, 9.6):** 132 tarjetas (las 131 del pedido y «Quién marca primero»), 123 con datos
+  reales y 9 n/d con el dato que falta (pases al último tercio, progresivos, recuperaciones por zona, Field Tilt,
+  duelos aéreos disputados, presiones, remates de pelota parada, bajas por suspensión y acumulación de amarillas).
+  Todo se calcula en SQL (`sql/situational/*.sql`, una vista por categoría) y `core.refresh_situations` arma las
+  filas al final de cada corrida. Lienzo con zoom (Ctrl + rueda, pellizco, botones), arrastre con inercia,
+  minimapa, ajustar a pantalla, índice que centra cada marco, búsqueda, filtros, orden «Destacados» (sin filas
+  de muestra pequeña) y «Ver los partidos» en cada fila.
+- **Estadística desglosada (`/estadistica/[stat]`, 9.8):** serie y ventanas resueltas en SQL
+  (`api.stat_series`, `api.stat_windows`, sin precalcular): último partido, últimos 3/5/10, 7 a 90 días desde el
+  último partido cargado, mes, temporada, competición, localía, resultado y rival; gráficos partido a partido
+  con promedios, media móvil, distribución, comparación con plantel/posición o liga y racha; lista de partidos
+  ordenable y filtrable; contra quién; relacionadas.
+- **Doble clic:** celdas de Jugadores y Equipo (también la tecla D), y 30 gráficos de la landing (más el enlace
+  «Desglosada» al pie).
+- **Serie de 6.1 partido a partido** «a la fecha» (sin datos futuros, con test): habilita el gráfico 80 y la
+  desglosada de Mejoría y Potencial. Los gráficos 14 y 66 salen de las tarjetas de Situaciones. Landing: 98 de
+  103 gráficos con datos.
+
+Pendientes de la etapa 6: gráficos 81 y 82 (componentes del índice y desglose del Potencial: hay que guardar los
+componentes en el cálculo de 6.1); doble clic desde Comparar (la interfaz llega en la etapa 7); página de partido
+(los enlaces «al partido» de 9.8 todavía no tienen destino); revisión de diseño de cierre del tablero.
+
+## Próxima etapa (7: Comparar)
+
+Skills: `impeccable` (`shape`) para el comparador, `dataviz` para radar y barras de diferencia.

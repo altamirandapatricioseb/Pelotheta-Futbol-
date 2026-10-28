@@ -372,6 +372,29 @@ export const CHARTS: Record<string, ChartRender> = {
       'Minutos con ventaja, empate y desventaja',
       true,
     ),
+  g14: ({ data }) => {
+    const rows = [...(data.situations.s132 ?? [])].sort((a, b) => a.order - b.order);
+    if (!rows.length) return { empty: 'Sin goles con minuto cargados.' };
+    return {
+      node: (
+        <BarChart
+          stacked
+          labels={rows.map((r) => r.param)}
+          series={['G', 'E', 'P'].map((k) => ({
+            id: k,
+            label: RESULT_NAME[k] ?? k,
+            slot: RESULT_SLOT[k] ?? 1,
+            values: rows.map((r) => (k === 'G' ? r.w : k === 'E' ? r.d : r.l)),
+          }))}
+          label="Resultado final según quién marcó el primer gol"
+        />
+      ),
+      table: {
+        head: ['Primer gol', 'Partidos', 'Ganados', 'Empatados', 'Perdidos', 'Puntos por partido'],
+        rows: rows.map((r) => [r.param, r.n, r.w, r.d, r.l, r.ppg]),
+      },
+    };
+  },
   g15: ({ matches }) =>
     byCompetition(
       matches,
@@ -1135,6 +1158,38 @@ export const CHARTS: Record<string, ChartRender> = {
       },
     };
   },
+  g66: ({ data }) => {
+    // Puntos por partido según cómo iba Boca en el 60, el 75 y el 85 (tarjetas s006 a s011).
+    const ppg = (ids: string[], filter: (param: string) => boolean = () => true) => {
+      const rows = ids.flatMap((id) => (data.situations[id] ?? []).filter((r) => filter(r.param)));
+      const n = rows.reduce((a, r) => a + r.n, 0);
+      return n ? rows.reduce((a, r) => a + r.ppg * r.n, 0) / n : null;
+    };
+    const minutes = ['Minuto 60', 'Minuto 75', 'Minuto 85'];
+    const ahead = [ppg(['s006']), ppg(['s007']), ppg(['s008'])];
+    const level = [null, ppg(['s011'], (p) => p.endsWith('75')), ppg(['s011'], (p) => p.endsWith('85'))];
+    const behind = [ppg(['s009']), ppg(['s010']), null];
+    if ([...ahead, ...level, ...behind].every((v) => v === null)) return { empty: 'Sin goles con minuto cargados.' };
+    return {
+      node: (
+        <BarChart
+          labels={minutes}
+          series={[
+            { id: 'g', label: 'Ganando', slot: 1, values: ahead },
+            { id: 'e', label: 'Empatando', slot: 4, values: level },
+            { id: 'p', label: 'Perdiendo', slot: 2, values: behind },
+          ]}
+          format={(v) => v.toFixed(2).replace('.', ',')}
+          label="Puntos por partido según el marcador en los minutos 60, 75 y 85"
+        />
+      ),
+      table: {
+        head: ['Momento', 'Ganando', 'Empatando', 'Perdiendo'],
+        rows: minutes.map((m, i) => [m, ahead[i] ?? null, level[i] ?? null, behind[i] ?? null]),
+      },
+      coverage: 'empate en el 60 y desventaja en el 85: sin tarjeta',
+    };
+  },
   g67: ({ matches }) => {
     const order = ['G', 'E', 'P'];
     const pairs = matches.slice(1).map((m, i) => [result(matches[i] ?? m), result(m)] as [string, string]);
@@ -1755,6 +1810,49 @@ export const CHARTS: Record<string, ChartRender> = {
       table: {
         head: ['Jugador', 'Edad', 'Potencial α', 'Mínimo', 'Máximo'],
         rows: pts.map((p) => [p.label, p.x, p.y, p.low, p.high]),
+      },
+    };
+  },
+  g80: ({ data, matches, regulars }) => {
+    const withSeries = regulars.filter((p) => data.metricSeries[p.playerId]);
+    if (!withSeries.length) return { empty: 'La serie partido a partido de 6.1 todavía no se cargó.' };
+    return {
+      node: (
+        <Selectable
+          label="Jugador"
+          options={playerOptions(withSeries)}
+          initial={String(withSeries[0]?.playerId ?? '')}
+          render={(id) => {
+            const byMatch = data.metricSeries[Number(id)] ?? {};
+            const ms = matches.filter((m) => byMatch[m.matchId]);
+            if (ms.length < 2) return <p className="text-sm text-muted">Sin datos: menos de dos partidos con valor.</p>;
+            return (
+              <LineChart
+                labels={ms.map(day)}
+                series={[
+                  {
+                    id: 'a',
+                    label: 'Mejoría α',
+                    slot: 1,
+                    values: ms.map((m) => byMatch[m.matchId]?.mejoria_alpha ?? null),
+                  },
+                  {
+                    id: 'b',
+                    label: 'Mejoría β',
+                    slot: 3,
+                    values: ms.map((m) => byMatch[m.matchId]?.mejoria_beta ?? null),
+                  },
+                ]}
+                includeZero={false}
+                label="Mejoría α y β a la fecha de cada partido (sin datos futuros). Estimado."
+              />
+            );
+          }}
+        />
+      ),
+      table: {
+        head: ['Jugador', 'Partidos con serie'],
+        rows: withSeries.map((p) => [p.name, Object.keys(data.metricSeries[p.playerId] ?? {}).length]),
       },
     };
   },

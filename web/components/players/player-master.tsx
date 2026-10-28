@@ -2,6 +2,7 @@
 
 import { CaretDownIcon, InfoIcon, MagnifyingGlassIcon } from '@phosphor-icons/react';
 import { motion } from 'motion/react';
+import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { AnimatedNumber } from '@/components/animated-number';
@@ -175,6 +176,11 @@ export function PlayerMasterView({
     [visible, selectedId],
   );
 
+  const router = useRouter();
+  const openDetail = (statId: string, playerId: number) => {
+    router.push(`/estadistica/${statId}?entidad=jugador&id=${String(playerId)}`);
+  };
+
   const onKeyDown = (event: React.KeyboardEvent) => {
     const colIndex = columns.findIndex((c) => c.id === column?.id);
     const keyActions: Record<string, () => void> = {
@@ -191,6 +197,11 @@ export function PlayerMasterView({
         setStatId((columns[colIndex - 1] ?? column)?.id ?? '');
       },
     };
+    if ((event.key === 'd' || event.key === 'D') && column && selectedId !== null) {
+      event.preventDefault();
+      openDetail(column.id, selectedId);
+      return;
+    }
     const action = keyActions[event.key];
     if (action) {
       event.preventDefault();
@@ -448,10 +459,16 @@ export function PlayerMasterView({
           role="grid"
           aria-readonly="true"
           onKeyDown={onKeyDown}
+          onDoubleClick={(e) => {
+            // Doble clic en una celda: la estadística desglosada de ese jugador (9.8).
+            const cell = (e.target as HTMLElement).closest<HTMLElement>('td[data-stat]');
+            const row = cell?.closest<HTMLElement>('tr[data-player]');
+            if (cell?.dataset.stat && row?.dataset.player) openDetail(cell.dataset.stat, Number(row.dataset.player));
+          }}
         >
           <caption className="sr-only">
-            {activeSet?.name ?? 'Personalizado'}, {competitionName}. Flechas arriba y abajo cambian el jugador;
-            izquierda y derecha, la estadística.
+            {activeSet?.name ?? 'Personalizado'}, {competitionName}. Doble clic en una celda o la tecla D abre la
+            estadística desglosada. Flechas arriba y abajo cambian el jugador; izquierda y derecha, la estadística.
           </caption>
           <thead>
             {bands.length ? (
@@ -560,6 +577,7 @@ export function PlayerMasterView({
                     return (
                       <td
                         key={c.id}
+                        data-stat={c.id}
                         data-current-stat={c.id === column?.id || undefined}
                         className={pct !== null ? 'pct-cell' : undefined}
                         style={pct !== null ? ({ '--pct': `${String(pct)}%` } as React.CSSProperties) : undefined}

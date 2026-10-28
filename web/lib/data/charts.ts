@@ -13,6 +13,8 @@ export interface ChartDef {
   reason: string;
   /** Destino del botón «Ver origen de los datos» (9.9) y su tooltip; null si no tiene. */
   origin: { href: string; label: string } | null;
+  /** Estadística desglosada a la que lleva el doble clic (9.8); null si el gráfico no tiene una. */
+  detail: { href: string; label: string } | null;
 }
 
 function fail(cause: unknown): { ok: false; code: 'PEL-DB-001'; detail: string } {
@@ -33,19 +35,26 @@ export async function getChartCatalog(): Promise<DataResult<ChartDef[]>> {
         .select('chart_id, category, title_es, chart_type, available, reason_es, sort_order')
         .order('sort_order')
         .limit(300),
-      api.from('chart_source_map').select('chart_id, target_ref, params, label_es').limit(600),
+      api.from('chart_source_map').select('chart_id, target_type, target_ref, params, label_es').limit(600),
     ]);
     if (charts.error) return fail(charts.error.message);
     const origin = new Map<string, { href: string; label: string }>();
+    const detail = new Map<string, { href: string; label: string }>();
     for (const s of sources.data ?? []) {
-      if (
-        !s.chart_id ||
-        !s.target_ref ||
-        !PAGES.has(s.target_ref) ||
-        !PARAMS.test(s.params ?? '') ||
-        origin.has(s.chart_id)
-      )
+      if (!s.chart_id || !s.target_ref || !PARAMS.test(s.params ?? '')) continue;
+      const params = new URLSearchParams(s.params ?? '');
+      if (s.target_type === 'desglosada') {
+        const stat = params.get('stat');
+        params.delete('stat');
+        if (stat && !detail.has(s.chart_id)) {
+          detail.set(s.chart_id, {
+            href: `/estadistica/${stat}?${params.toString()}`,
+            label: s.label_es ?? 'Desglosada',
+          });
+        }
         continue;
+      }
+      if (!PAGES.has(s.target_ref) || origin.has(s.chart_id)) continue;
       origin.set(s.chart_id, {
         href: s.params ? `/${s.target_ref}?${s.params}` : `/${s.target_ref}`,
         label: s.label_es ?? 'Origen',
@@ -64,6 +73,7 @@ export async function getChartCatalog(): Promise<DataResult<ChartDef[]>> {
                 available: c.available ?? false,
                 reason: c.reason_es ?? '',
                 origin: origin.get(c.chart_id) ?? null,
+                detail: detail.get(c.chart_id) ?? null,
               },
             ]
           : [],

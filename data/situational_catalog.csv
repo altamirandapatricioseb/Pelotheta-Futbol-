@@ -13,6 +13,7 @@ s011,A,Empatando en el final,Empate en el minuto 75 o en el 85,75 y 85,Resultado
 s012,A,Gol en los últimos 10 minutos,Gol desde el minuto 81,a favor o en contra,Resultado del partido,goles con minuto (Promiedos),A,true,false,
 s013,A,Gol en los primeros 10 minutos,Gol hasta el minuto 10,a favor o en contra,Resultado del partido,goles con minuto (Promiedos),A,true,false,
 s014,A,Gol en tiempo agregado,Gol en el descuento,a favor o en contra,Resultado del partido,goles con minuto (Promiedos),A,true,false,
+s132,A,Quién marca primero,Primer gol del partido,"Boca, el rival o sin goles",Resultado del partido,goles con minuto (Promiedos),A,true,false,
 s015,B,Goleadas,Diferencia de 3 o más goles,a favor o en contra,Resultado del partido,resultado,A,true,false,
 s016,B,Partidos decididos por un gol,Diferencia de un gol,ganados o perdidos,Resultado del partido,resultado,A,true,false,
 s017,B,Marcadores más repetidos,Marcador final exacto,un marcador por fila,Resultado del partido,resultado,A,true,false,

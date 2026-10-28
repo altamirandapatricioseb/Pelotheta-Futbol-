@@ -73,6 +73,12 @@ class ChartSource(BaseModel):
     etiqueta_es: str = Field(min_length=3)
 
     def href(self) -> str:
+        params = dict(p.split("=") for p in self.parametros.split("&") if p)
+        if self.destino_tipo == "desglosada":
+            # La estadística va en la ruta: /estadistica/<stat>?entidad=...
+            stat = params.pop("stat", "")
+            rest = "&".join(f"{k}={v}" for k, v in params.items())
+            return f"/estadistica/{stat}" + (f"?{rest}" if rest else "")
         return f"/{self.destino_ref}?{self.parametros}" if self.parametros else f"/{self.destino_ref}"
 
 

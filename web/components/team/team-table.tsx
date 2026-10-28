@@ -2,6 +2,7 @@
 
 import { CaretDownIcon, InfoIcon, MagnifyingGlassIcon } from '@phosphor-icons/react';
 import { motion } from 'motion/react';
+import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 
 import { NOT_AVAILABLE } from '@/lib/format';
@@ -131,6 +132,11 @@ export function TeamTableView({
     setSort(nextSort(sort, GROUP_SORT, GROUP_SORT).sort);
   };
 
+  const router = useRouter();
+  const openDetail = (statId: string) => {
+    router.push(`/estadistica/${statId}?entidad=equipo`);
+  };
+
   const onKeyDown = (event: React.KeyboardEvent) => {
     const rowIndex = groups.findIndex((g) => g.key === current?.key);
     const colIndex = columns.findIndex((c) => c.id === column?.id);
@@ -148,6 +154,11 @@ export function TeamTableView({
         setStatId((columns[colIndex - 1] ?? column)?.id ?? '');
       },
     };
+    if ((event.key === 'd' || event.key === 'D') && column) {
+      event.preventDefault();
+      openDetail(column.id);
+      return;
+    }
     const action = actions[event.key];
     if (action) {
       event.preventDefault();
@@ -359,10 +370,20 @@ export function TeamTableView({
         />
       ) : (
         <div className="data-table-wrap">
-          <table className="data-table tabular" role="grid" aria-readonly="true" onKeyDown={onKeyDown}>
+          <table
+            className="data-table tabular"
+            role="grid"
+            aria-readonly="true"
+            onKeyDown={onKeyDown}
+            onDoubleClick={(e) => {
+              // Doble clic en una celda: la estadística desglosada del equipo (9.8).
+              const stat = (e.target as HTMLElement).closest<HTMLElement>('td[data-stat]')?.dataset.stat;
+              if (stat) openDetail(stat);
+            }}
+          >
             <caption className="sr-only">
-              Tabla del equipo, {sets.find((s) => s.id === setId)?.name}. Flechas arriba y abajo cambian la fila;
-              izquierda y derecha, la estadística.
+              Tabla del equipo, {sets.find((s) => s.id === setId)?.name}. Doble clic en una celda o la tecla D abre la
+              estadística desglosada. Flechas arriba y abajo cambian la fila; izquierda y derecha, la estadística.
             </caption>
             <thead>
               <tr>
@@ -466,7 +487,7 @@ export function TeamTableView({
                     {columns.map((c) => {
                       const v = valueOf(g, c);
                       return (
-                        <td key={c.id} data-current-stat={c.id === column?.id || undefined}>
+                        <td key={c.id} data-stat={c.id} data-current-stat={c.id === column?.id || undefined}>
                           {v === null ? (
                             <span
                               className="text-muted"

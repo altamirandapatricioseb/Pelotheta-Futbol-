@@ -124,3 +124,59 @@ def test_elo_before_each_league_match() -> None:
     assert elo[1] == pytest.approx(m.ELO_START)
     assert elo[2] > m.ELO_START  # ganó el primero
     assert elo[3] == elo[2] or elo[3] > elo[2]  # la copa usa el último Elo conocido
+
+
+def season_inputs(n_matches: int) -> om.Inputs:
+    """Temporada sintética: 4 delanteros que juegan todo, con estadísticas que varían por partido."""
+    matches = [
+        match(i, f"2026-{2 + i // 4:02d}-{1 + (i % 4) * 7:02d}", f"Rival {i}", i % 3, 1)
+        for i in range(1, n_matches + 1)
+    ]
+    pv: dict[tuple[int, int], dict[str, float]] = {}
+    for mt in matches:
+        for k, pid in enumerate((10, 11, 12, 13)):
+            seed = (mt.match_id * (k + 3)) % 7
+            pv[(pid, mt.match_id)] = {
+                "minutes": 90,
+                "starts": 1,
+                "goals": seed % 2,
+                "npg": seed % 2,
+                "assists": seed % 3 == 0,
+                "npxg": 0.1 * seed,
+                "xg": 0.1 * seed,
+                "xa": 0.05 * seed,
+                "shots_on_target": seed,
+                "shots_total": seed + 2,
+                "key_passes": seed % 4,
+                "rating": 6 + seed / 7,
+                "passes": 30 + seed,
+                "passes_accurate": 24 + seed,
+                "goal_contributions": seed % 2,
+                "team_goals_on": seed % 2,
+                "team_goals_against_on": 0,
+            }
+    return om.Inputs(
+        matches=matches,
+        team_values={mt.match_id: {} for mt in matches},
+        player_values=pv,
+        players={pid: om.Player(position="Delantero", age=20 + pid % 10) for pid in (10, 11, 12, 13)},
+        league_games=[],
+        table=[],
+        zone_rank={},
+        referee_yellows={},
+    )
+
+
+def test_projection_series_has_no_future_data() -> None:
+    # Lo que se guarda para un partido no cambia si se agregan partidos posteriores.
+    full, partial = season_inputs(18), season_inputs(16)
+    series_full = {
+        (r["entity_id"], r["match_id"], r["stat_id"]): r["value"] for r in om.projection_series(full)
+    }
+    series_cut = {
+        (r["entity_id"], r["match_id"], r["stat_id"]): r["value"] for r in om.projection_series(partial)
+    }
+    assert {k[2] for k in series_cut} >= {"rendimiento_indice", "mejoria_alpha"}
+    for k, v in series_cut.items():
+        assert series_full[k] == v
+    assert all(r["entity"] == "player" and r["stat_id"] in om.SERIES_IDS for r in om.projection_series(full))

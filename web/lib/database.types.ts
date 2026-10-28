@@ -219,6 +219,68 @@ export type Database = {
         };
         Relationships: [];
       };
+      situational_catalog: {
+        Row: {
+          available: boolean | null;
+          card_id: string | null;
+          category: string | null;
+          condition_es: string | null;
+          estimated: boolean | null;
+          level: string | null;
+          measured_es: string | null;
+          params_es: string | null;
+          reason_es: string | null;
+          required_data: string | null;
+          sort_order: number | null;
+          title_es: string | null;
+        };
+        Relationships: [];
+      };
+      situational_result: {
+        Row: {
+          base_win_pct: number | null;
+          card_id: string | null;
+          computed_at: string | null;
+          d: number | null;
+          delta: number | null;
+          goal_diff: number | null;
+          l: number | null;
+          n: number | null;
+          param_order: number | null;
+          param_value: string | null;
+          ppg: number | null;
+          w: number | null;
+          win_pct: number | null;
+        };
+        Relationships: [];
+      };
+      situational_match: {
+        Row: {
+          card_id: string | null;
+          competition_name: string | null;
+          goals_against: number | null;
+          goals_for: number | null;
+          home: boolean | null;
+          match_date: string | null;
+          match_id: number | null;
+          opponent: string | null;
+          param_value: string | null;
+          result: string | null;
+        };
+        Relationships: [];
+      };
+      stat_match_value: {
+        Row: {
+          entity: string | null;
+          entity_id: number | null;
+          high: number | null;
+          low: number | null;
+          match_id: number | null;
+          stat_id: string | null;
+          value: number | null;
+        };
+        Relationships: [];
+      };
       projection_param: {
         Row: {
           description_es: string | null;
@@ -305,7 +367,39 @@ export type Database = {
       };
     };
     Functions: {
-      [_ in never]: never;
+      stat_series: {
+        Args: { p_stat: string; p_entity: string; p_id?: number | null };
+        Returns: {
+          match_id: number;
+          match_date: string;
+          competition_code: string;
+          competition_name: string;
+          opponent: string;
+          home: boolean;
+          result: string;
+          goals_for: number;
+          goals_against: number;
+          minutes: number | null;
+          num: number | null;
+          den: number | null;
+          value: number | null;
+        }[];
+      };
+      stat_windows: {
+        Args: { p_stat: string; p_entity: string; p_id?: number | null };
+        Returns: {
+          window_key: string;
+          label: string;
+          sort_order: number;
+          n: number;
+          value: number | null;
+          total: number | null;
+          best: number | null;
+          worst: number | null;
+          season: number | null;
+          delta: number | null;
+        }[];
+      };
     };
     Enums: {
       [_ in never]: never;

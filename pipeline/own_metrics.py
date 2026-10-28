@@ -461,7 +461,50 @@ def compute(inp: Inputs) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
         {pid: (p.position, p.age) for pid, p in inp.players.items()},
     )
     window += pdata.projection_rows(seasons, len(inp.matches))
+    per_match += projection_series(inp)
     return [r for r in window if r["value"] is not None], [r for r in per_match if r["value"] is not None]
+
+
+# Métricas de 6.1 que también se guardan partido a partido (gráfico 80 y estadística desglosada).
+SERIES_IDS = frozenset(
+    {"rendimiento_indice", "mejoria_alpha", "mejoria_beta", "potencial_alpha", "potencial_beta"}
+)
+
+
+def projection_series(inp: Inputs) -> list[dict[str, Any]]:
+    """Serie de 6.1 «a la fecha»: en cada partido, el valor con los datos hasta ese partido.
+
+    Sin datos futuros: el cálculo del partido N solo ve los partidos 1 a N. Se guarda solo para
+    los jugadores que jugaron ese partido. La edad es la actual (la base no guarda la edad a cada
+    fecha), una aproximación de menos de un año para la temporada.
+    """
+    ordered = sorted(inp.matches, key=lambda x: x.date)
+    positions = {pid: (p.position, p.age) for pid, p in inp.players.items()}
+    rows: list[dict[str, Any]] = []
+    for i, mt in enumerate(ordered):
+        dates = {x.match_id: x.date for x in ordered[: i + 1]}
+        played = {
+            pid
+            for (pid, mid), v in inp.player_values.items()
+            if mid == mt.match_id and v.get("minutes", 0) > 0
+        }
+        if not played:
+            continue
+        seasons = pdata.seasons_from(inp.player_values, dates, positions)
+        for r in pdata.projection_rows(seasons, i + 1):
+            if r["entity_id"] in played and r["stat_id"] in SERIES_IDS:
+                rows.append(
+                    {
+                        "entity": "player",
+                        "entity_id": r["entity_id"],
+                        "match_id": mt.match_id,
+                        "stat_id": r["stat_id"],
+                        "value": r["value"],
+                        "low": r.get("low"),
+                        "high": r.get("high"),
+                    }
+                )
+    return rows
 
 
 # --- Lectura de la base y carga --------------------------------------------------------------

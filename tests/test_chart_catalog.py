@@ -17,6 +17,7 @@ ROOT = Path(__file__).resolve().parent.parent
 CHARTS = charts.load_charts()
 SOURCES = charts.load_sources()
 SETS = {s.id: s for s in catalog.load_sets()}
+STATS = {s.id: s for s in catalog.load_catalog()}
 
 
 def test_at_least_fifty_charts_with_unique_ids() -> None:
@@ -43,8 +44,16 @@ def test_every_source_destination_exists() -> None:
     for s in SOURCES:
         assert s.chart_id in chart_ids, s.chart_id
         assert s.destino_ref in charts.TARGET_PAGES[s.destino_tipo], s
-        assert (ROOT / "web" / "app" / s.destino_ref / "page.tsx").exists(), s
         params = dict(p.split("=") for p in s.parametros.split("&") if p)
+        if s.destino_tipo == "desglosada":
+            # Página dinámica /estadistica/[stat] y estadística que existe para esa entidad.
+            assert (ROOT / "web" / "app" / "estadistica" / "[stat]" / "page.tsx").exists(), s
+            stat = STATS.get(params.get("stat", ""))
+            assert stat is not None and stat.available, s
+            assert stat.entidad == ("jugador" if params.get("entidad") == "jugador" else "equipo"), s
+            assert s.href().startswith(f"/estadistica/{stat.id}")
+            continue
+        assert (ROOT / "web" / "app" / s.destino_ref / "page.tsx").exists(), s
         if "conjunto" in params:
             stat_set = SETS.get(params["conjunto"])
             assert stat_set is not None, s
@@ -53,8 +62,9 @@ def test_every_source_destination_exists() -> None:
 
 def test_source_label_names_its_origin() -> None:
     for s in SOURCES:
-        assert s.etiqueta_es.startswith("Origen: "), s.chart_id
-        assert s.href().startswith(f"/{s.destino_ref}")
+        prefix = "Desglosada: " if s.destino_tipo == "desglosada" else "Origen: "
+        assert s.etiqueta_es.startswith(prefix), s.chart_id
+        assert s.href().startswith("/")
 
 
 def test_unavailable_chart_without_reason_is_rejected() -> None:

@@ -415,6 +415,7 @@ export function Landing({ data, charts }: { data: LandingData; charts: ChartDef[
                 updated,
                 origin: c.origin?.href,
                 originLabel: c.origin?.label,
+                detailHref: c.detail?.href,
               };
               return 'empty' in out ? (
                 <ChartCard key={c.id} {...common} empty={out.empty} />

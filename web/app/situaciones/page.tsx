@@ -1,15 +1,25 @@
 import type { Metadata } from 'next';
 
-import { UnderConstruction } from '@/components/under-construction';
+import { SituationsBoard } from '@/components/situations/board';
+import { getSituations } from '@/lib/data/situations';
 
-export const metadata: Metadata = { title: 'Situaciones' };
+export const metadata: Metadata = {
+  title: 'Situaciones',
+  description:
+    'Más de 100 situaciones de partido de Boca Juniors 2026: qué pasa cuando empieza perdiendo, cuando convierte primero, con uno menos o según el rival.',
+};
 
-export default function Page() {
+export default async function Page() {
+  const result = await getSituations();
+  if (!result.ok) {
+    return (
+      <div role="alert" className="under-construction">
+        <p className="font-bold">{result.code}: la base de datos no responde.</p>
+        <p className="text-muted">Puede estar pausada por inactividad. Probá de nuevo en unos minutos.</p>
+      </div>
+    );
+  }
   return (
-    <UnderConstruction
-      title="Situaciones"
-      stage={6}
-      description="Un tablero con más de 100 estadísticas de situaciones de partido: qué pasa cuando Boca empieza perdiendo, cuando convierte primero o cuando juega con uno menos."
-    />
+    <SituationsBoard cards={result.data.cards} matches={result.data.matches} baseWinPct={result.data.baseWinPct} />
   );
 }

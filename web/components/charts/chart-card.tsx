@@ -2,7 +2,8 @@
 
 import { ArrowSquareOutIcon, DownloadSimpleIcon, ImageIcon, TableIcon, WarningCircleIcon } from '@phosphor-icons/react';
 import Link from 'next/link';
-import { useRef, useState, type ReactNode } from 'react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 
 import { formatValue } from './primitives';
 
@@ -21,6 +22,8 @@ interface ChartCardProps {
   origin?: string;
   /** Tooltip del botón de origen, por ejemplo «Origen: Equipo › Ataque». */
   originLabel?: string;
+  /** Estadística desglosada (9.8): se abre con doble clic sobre el gráfico o con el enlace. */
+  detailHref?: string;
   table?: ChartTable;
   empty?: string;
   children?: ReactNode;
@@ -92,12 +95,28 @@ export function ChartCard({
   coverage,
   origin,
   originLabel,
+  detailHref,
   table,
   empty,
   children,
 }: ChartCardProps) {
   const [showTable, setShowTable] = useState(false);
   const ref = useRef<HTMLElement>(null);
+  const router = useRouter();
+  // Doble clic (o doble toque) sobre el gráfico: la estadística desglosada. Con el teclado, el
+  // enlace «Desglosada» del pie hace lo mismo.
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || !detailHref || empty) return;
+    const open = (e: MouseEvent) => {
+      if ((e.target as HTMLElement).closest('button, a, select')) return;
+      router.push(detailHref);
+    };
+    el.addEventListener('dblclick', open);
+    return () => {
+      el.removeEventListener('dblclick', open);
+    };
+  }, [detailHref, empty, router]);
   const name = `pelotheta-${id}`;
   return (
     <article ref={ref} className={`chart-card${empty ? ' chart-card--empty' : ''}`} aria-labelledby={`${id}-title`}>
@@ -173,6 +192,15 @@ export function ChartCard({
           {updated ? ` · actualizado ${updated}` : ''}
           {coverage ? ` · ${coverage}` : ''}
         </span>
+        {detailHref && !empty ? (
+          <Link
+            href={detailHref}
+            className="inline-flex items-center gap-1 font-semibold text-link focus-ring"
+            title="También con doble clic sobre el gráfico"
+          >
+            Desglosada
+          </Link>
+        ) : null}
         {origin && !empty ? (
           <Link
             href={origin}

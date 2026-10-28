@@ -234,6 +234,8 @@ export function BarChart({
   horizontal = false,
   label,
   format = formatValue,
+  references = [],
+  highlight,
 }: {
   labels: string[];
   series: Series[];
@@ -241,6 +243,10 @@ export function BarChart({
   horizontal?: boolean;
   label: string;
   format?: (v: number) => string;
+  /** Líneas de referencia (promedio de la temporada, del período...) en barras verticales. */
+  references?: { value: number; label: string }[];
+  /** Índice de la barra a destacar (por ejemplo, el último partido); las demás se atenúan. */
+  highlight?: number;
 }) {
   const [tip, setTip] = useState<Tip | null>(null);
   const totals = labels.map((_, i) =>
@@ -249,7 +255,7 @@ export function BarChart({
       : Math.max(...series.map((s) => s.values[i] ?? 0)),
   );
   const mins = labels.map((_, i) => Math.min(0, ...series.map((s) => s.values[i] ?? 0)));
-  const [lo, hi] = domain([...totals, ...mins]);
+  const [lo, hi] = domain([...totals, ...mins, ...references.map((r) => r.value)]);
   const n = labels.length;
   const height = horizontal ? Math.max(H, M.t + M.b + n * 22) : H;
   const plotH = height - M.t - M.b;
@@ -351,7 +357,7 @@ export function BarChart({
                 {...rect}
                 rx={2}
                 className="chart-bar"
-                style={{ fill: color(s.slot) }}
+                style={{ fill: color(s.slot), opacity: highlight !== undefined && highlight !== i ? 0.45 : 1 }}
                 onPointerEnter={() => {
                   show(i, s, rect.x + rect.width / 2, rect.y);
                 }}
@@ -362,6 +368,22 @@ export function BarChart({
             );
           });
         })}
+        {!horizontal
+          ? references.map((r) => (
+              <g key={r.label}>
+                <line
+                  x1={left}
+                  x2={W - M.r}
+                  y1={M.t + plotH - scale(r.value)}
+                  y2={M.t + plotH - scale(r.value)}
+                  className="chart-reference"
+                />
+                <text x={W - M.r} y={M.t + plotH - scale(r.value) - 4} textAnchor="end" className="chart-axis-title">
+                  {r.label}: {format(r.value)}
+                </text>
+              </g>
+            ))
+          : null}
       </svg>
       <Legend items={series.map((s) => ({ label: s.label, slot: s.slot }))} />
     </Frame>

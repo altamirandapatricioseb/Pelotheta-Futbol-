@@ -123,6 +123,13 @@ def test_minutes_in_window() -> None:
     assert m.minutes_in_last_days(played, days=28) == 180
 
 
+def test_minutes_window_counts_from_the_as_of_date() -> None:
+    # Un jugador que no juega desde marzo no tiene carga en octubre.
+    played = [("2026-03-01", 90), ("2026-03-05", 60)]
+    assert m.minutes_in_last_days(played, days=28, as_of="2026-10-25") == 0
+    assert m.minutes_in_last_days(played, days=7, as_of="2026-03-05") == 150
+
+
 def test_standard_deviation_needs_two_values() -> None:
     assert m.stdev([1.0]) is None
     assert m.stdev([2.0, 4.0]) == pytest.approx(math.sqrt(2))

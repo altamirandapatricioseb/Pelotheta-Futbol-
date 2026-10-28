@@ -167,13 +167,17 @@ def stdev(values: Sequence[float]) -> float | None:
     return statistics.stdev(values) if len(values) >= 2 else None
 
 
-def minutes_in_last_days(played: Sequence[tuple[str, float]], days: int) -> float:
-    """Minutos de los últimos `days` días contados hasta el último partido (incluido)."""
+def minutes_in_last_days(played: Sequence[tuple[str, float]], days: int, as_of: str | None = None) -> float:
+    """Minutos de los últimos `days` días hasta `as_of` incluido (por defecto, su último partido).
+
+    La web usa como `as_of` el último partido del equipo en la ventana: un jugador que no juega
+    hace dos meses tiene carga 0, no la de su último partido.
+    """
     if not played:
         return 0.0
-    last = max(date.fromisoformat(d) for d, _ in played)
+    last = date.fromisoformat(as_of) if as_of else max(date.fromisoformat(d) for d, _ in played)
     start = last - timedelta(days=days)
-    return sum(minutes for d, minutes in played if date.fromisoformat(d) > start)
+    return sum(minutes for d, minutes in played if start < date.fromisoformat(d) <= last)
 
 
 # --- NR, EWA y ELA (sección 6) -------------------------------------------------------------

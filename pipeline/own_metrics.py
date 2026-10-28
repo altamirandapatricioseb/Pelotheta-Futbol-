@@ -24,7 +24,7 @@ from typing import Any
 
 import httpx
 
-from pipeline import load
+from pipeline import catalog, load
 from pipeline import metrics as m
 from pipeline import projection_data as pdata
 
@@ -339,19 +339,23 @@ def player_window_values(inp: Inputs) -> list[dict[str, Any]]:
                 sum(v.get("team_goals_on", 0) for _, v in games),
                 sum(v.get("team_goals_against_on", 0) for _, v in games),
             )
+        # Minutos posibles: 90 por partido, o lo que duró si hubo prórroga (el máximo jugado).
+        longest: dict[int, float] = defaultdict(lambda: 90.0)
+        for (_, mid), v in inp.player_values.items():
+            if mid in date_of:
+                longest[mid] = max(longest[mid], v.get("minutes", 0))
+        possible = sum(longest[mid] for mid in ids)
+        as_of = ms[-1].date  # la carga se mide hasta el último partido del equipo en la ventana
         for pid, games in per_player.items():
             mins, gf_on, ga_on = on[pid]
             ga_total = sum(v.get("goal_contributions", 0) for _, v in games)
             ratings = [v["rating"] for _, v in games if "rating" in v]
+            played = [(d, v["minutes"]) for d, v in games]
             rows += [
-                _row("pct_minutos", mins / (90 * len(ids)) * 100, code, pid),
-                _row("carga_7d", m.minutes_in_last_days([(d, v["minutes"]) for d, v in games], 7), code, pid),
-                _row(
-                    "carga_14d", m.minutes_in_last_days([(d, v["minutes"]) for d, v in games], 14), code, pid
-                ),
-                _row(
-                    "carga_28d", m.minutes_in_last_days([(d, v["minutes"]) for d, v in games], 28), code, pid
-                ),
+                _row("pct_minutos", mins / possible * 100, code, pid),
+                _row("carga_7d", m.minutes_in_last_days(played, 7, as_of), code, pid),
+                _row("carga_14d", m.minutes_in_last_days(played, 14, as_of), code, pid),
+                _row("carga_28d", m.minutes_in_last_days(played, 28, as_of), code, pid),
                 _row("dependencia_goleador", ga_total / team_goals * 100 if team_goals else None, code, pid),
                 _row(
                     "racha_goles",
@@ -569,14 +573,13 @@ def fetch_inputs(url: str, key: str) -> Inputs:
 def run(url: str, key: str) -> dict[str, Any]:
     inp = fetch_inputs(url, key)
     window, per_match = compute(inp)
-    stat_ids = sorted({r["stat_id"] for r in window + per_match})
-    result = load._rpc(
-        "load_stat_values",
-        {"p_stat_ids": stat_ids, "p_values": window, "p_match_values": per_match},
-        url,
-        key,
-        None,
+    # Todas las métricas propias del catálogo, aunque esta vez no den valores: así se borran las
+    # filas viejas de una métrica que dejó de poder calcularse (no queda un valor desactualizado).
+    stat_ids = sorted(
+        {s.id for s in catalog.load_catalog() if s.agregacion in ("metrica", "especial")}
+        | {r["stat_id"] for r in window + per_match}
     )
+    result = load.send_stat_values(stat_ids, window, per_match, url, key)
     load.refresh_stats(url, key)
     return {"params": inp.params, **(result or {})}
 

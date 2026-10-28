@@ -600,22 +600,22 @@ def run_pipeline(dry_run: bool, url: str, key: str) -> int:
             result["feet"] = load.send_player_foot(feet, url, key)
         if competition_metrics:
             result["competition_metrics"] = load.send_competition_metrics(competition_metrics, url, key)
-        # Al final: las tablas maestras de la web se recalculan con todo lo que se cargó.
-        load.refresh_stats(url, key)
     except load.LoadError as exc:
         # El mensaje de LoadError nunca incluye la clave: se puede registrar en la base.
         print(f"Fallo de la carga: {exc}", file=sys.stderr)
         with contextlib.suppress(load.LoadError):
             load.log_failure(pd.SOURCE, f"Fallo de la carga: {exc}", url, key)
         return 1
-    # Métricas propias (5.7 y 6) con todo lo cargado. Si fallan, los datos ya están en la base:
-    # se registra el fallo y la corrida sigue siendo válida.
+    # Métricas propias (5.7 y 6) con todo lo cargado; al terminar recalculan las tablas maestras
+    # de la web. Si fallan, los datos ya están en la base: se registra el fallo, se recalculan las
+    # tablas igual y la corrida sigue siendo válida.
     try:
         result["metricas_propias"] = own_metrics.run(url, key)
     except load.LoadError as exc:
         print(f"Aviso: métricas propias no calculadas: {exc}", file=sys.stderr)
         with contextlib.suppress(load.LoadError):
             load.log_failure("metricas_propias", f"Métricas propias: {exc}", url, key)
+            load.refresh_stats(url, key)
     seconds = (datetime.now() - started).total_seconds()
     print(f"Carga {status} en {seconds:.0f} s: {result}")
     return 0

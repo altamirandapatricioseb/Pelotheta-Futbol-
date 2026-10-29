@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { z } from 'zod';
 
+import { ExcelDownloads } from '@/components/excel-downloads';
 import { PlayerMasterView } from '@/components/players/player-master';
 import { getCatalog, getStatSets } from '@/lib/data/catalog';
 import { getCompetitions, getPlayerMaster } from '@/lib/data/players';
@@ -62,6 +63,7 @@ export default async function JugadoresPage({ searchParams }: PageProps) {
           </h1>
           <p className="mt-2 text-muted">Plantel 2026 · partidos oficiales · una categoría por vez</p>
         </div>
+        <ExcelDownloads />
         <nav aria-label="Competición" className="flex flex-wrap gap-2">
           <CompetitionChip code="todas" label="Todas" active={params.comp === 'todas'} />
           {options.map((c) => (

@@ -39,6 +39,17 @@ jobs:
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY || secrets.API_SUPABASE_SECRET_KEY }}
           STRIKER_API_KEY: ${{ secrets.STRIKER_API_KEY }}
           BZZOIRO_API_KEY: ${{ secrets.BZZOIRO_API_KEY }}
+      # Libros de Excel (sección 10): se arman con los datos recién cargados y se suben al bucket
+      # público `exports`, sobrescribiendo los anteriores. Si fallan, los datos ya quedaron cargados:
+      # el paso avisa en el resumen sin marcar la corrida como fallida.
+      - name: Libros de Excel
+        id: excel
+        continue-on-error: true
+        run: uv run python -m pipeline.excel 2>&1 | tee excel.log; exit ${PIPESTATUS[0]}
+        shell: bash
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY || secrets.API_SUPABASE_SECRET_KEY }}
       # La caché se guarda aunque la carga falle: lo ya bajado no se vuelve a pedir.
       - uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         if: always()
@@ -51,4 +62,6 @@ jobs:
         if: always()
         run: |
           echo "### Pipeline" >> "$GITHUB_STEP_SUMMARY"
+          echo "### Libros de Excel (${{ steps.excel.outcome }})" >> "$GITHUB_STEP_SUMMARY"
+          tail -10 excel.log 2>/dev/null | sed 's/^/    /' >> "$GITHUB_STEP_SUMMARY" || true
           grep -vE "sin pareja" pipeline.log | tail -40 | sed 's/^/    /' >> "$GITHUB_STEP_SUMMARY" || true

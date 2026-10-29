@@ -15,7 +15,7 @@ Para retomar en un chat nuevo: leer este archivo, `PROMPT-1-BOCA-FUTBOL.md` (ya 
 | 5. Gráficos (Interfaz 1) | **Desplegada** (28-oct): 103 gráficos en producción, 95 con datos y 8 «sin datos» con motivo |
 | 6. Situaciones y estadística desglosada | **Desplegada** (28-oct): tablero, conclusiones, desglosada y doble clic; queda la página de partido (ver abajo) |
 | 7. Comparación directa | **Desplegada** (28-oct): `/comparar` contra plantel, zona, carril, posición y otro jugador |
-| 8. Excel | Pendiente |
+| 8. Excel | **Desplegada** (28-oct): 6 libros (global y uno por competición) que se descargan desde la web |
 | 9. Power BI | Pendiente |
 | 10. Pulido | Pendiente |
 | 11. Documentación y entrega | Pendiente |
@@ -275,7 +275,32 @@ Juan Barinaga) que vienen así de la fuente.
   localía, titularidad y mes) y los partidos de los dos con «no jugó» y la flecha de quién rindió mejor.
 - La desglosada suelta (`/estadistica`) aclara de quién son las tarjetas y los partidos cuando se compara.
 
-## Próxima etapa (8: Excel)
+## Etapa 8: estado (28-oct-2026)
 
-Skills: `anthropic-skills:xlsx` antes de escribir el generador (libros con gráficos nativos, hojas interactivas
-con validación de datos y estilos), `dataviz` para los colores de los gráficos.
+- **Libros** (`pipeline/excel.py`, `xlsxwriter`): uno global y uno por competición (6), ~110 a 225 KB. Hojas:
+  `Índice` (enlaces a todas), `Metadatos`, `Tabla maestra` (paneles congelados, autofiltro, `n/d` en gris,
+  escala de color por percentil según el sentido de cada estadística), `Catálogo`, `Comparador` (2 a 4 jugadores
+  o medias y un conjunto con listas desplegables; `INDEX`/`MATCH` alimentan un radar de percentiles y barras
+  nativos), `Dispersión` (eje X y eje Y a elección), `Comparación` (medias de equipo y de cada línea por
+  categoría), `Equipo` (partido a partido) y, en el global, `Situaciones`. Gráficos nativos de la tabla 9.4:
+  ranking por conjunto, distribución con cuartiles, evolución con media móvil, forma (combinado), goles por tramo,
+  xG a favor y en contra, puntos contra xPts (con diagonal), minutos apilados, NR por signo y correlación con
+  escala de color. Las hojas de la evolución de la tabla y del mapa de tiros explican por qué no hay gráfico.
+  Cada hoja de gráfico lleva «Ver datos de origen» y «Volver al índice». Textos siempre como texto (lo que
+  empieza con `=`, `+`, `-` o `@` lleva apóstrofo). Montserrat y la paleta de la web.
+- **Storage:** bucket público `exports` (10 MB, solo xlsx, csv y png); se escribe solo con la clave secreta.
+  El workflow mensual arma y sube los libros después del pipeline (si falla, avisa en el resumen sin marcar la
+  corrida como fallida). Prueba de RLS: la clave pública no puede escribir y sí descargar (39/39).
+- **Web:** botón «Descargar Excel» en Equipo, Jugadores y Comparar con los 6 libros. Las exportaciones de la
+  vista actual (tablas y Comparar) ya existían.
+- **Tests:** `tests/test_excel.py` (hojas, índice, gráficos nativos con radar y dispersión, interactividad,
+  texto seguro, percentiles y medias).
+- **No verificado:** el recálculo de fórmulas con Excel o LibreOffice (no hay ninguno instalado acá). Las
+  fórmulas son de Excel 2007 (`INDEX`, `MATCH`, `IFERROR`, `NA`) y el libro pide recalcular al abrir.
+- **Pendiente:** hoja `Proyección` con el cálculo paso a paso en fórmulas vivas (6.1) y hoja `Desglosada` con
+  listas de estadística, entidad y ventana.
+
+## Próxima etapa (9: Power BI)
+
+Skills: las del plan para Power BI (`docs/skills_plan.md`); tema con la paleta nueva (verde, violeta
+secundario, rojo solo para lo negativo).

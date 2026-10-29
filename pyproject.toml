@@ -11,6 +11,7 @@ dependencies = [
     "pydantic>=2.9",
     "beautifulsoup4>=4.12",
     "defusedxml>=0.7",
+    "xlsxwriter>=3.3.1",
 ]
 
 [dependency-groups]
@@ -19,6 +20,7 @@ dev = [
     "hypothesis>=6.112",
     "ruff>=0.8",
     "mypy>=1.13",
+    "openpyxl>=3.1.5",
 ]
 
 [tool.uv]

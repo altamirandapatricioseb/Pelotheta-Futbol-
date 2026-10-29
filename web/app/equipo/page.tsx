@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { z } from 'zod';
 
+import { ExcelDownloads } from '@/components/excel-downloads';
 import { TeamTableView } from '@/components/team/team-table';
 import { getCatalog, getStatSets } from '@/lib/data/catalog';
 import { getLeagueClubs, getTeamMatches, getTeamWindowValues } from '@/lib/data/team';
@@ -39,11 +40,14 @@ export default async function EquipoPage({ searchParams }: PageProps) {
 
   return (
     <div className="grid gap-6">
-      <div>
-        <h1 className="page-title">
-          <span className="title-trace">Equipo</span>
-        </h1>
-        <p className="mt-2 text-muted">Boca Juniors 2026 · partidos oficiales · una categoría por vez</p>
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="page-title">
+            <span className="title-trace">Equipo</span>
+          </h1>
+          <p className="mt-2 text-muted">Boca Juniors 2026 · partidos oficiales · una categoría por vez</p>
+        </div>
+        <ExcelDownloads />
       </div>
       {failed ? (
         <div role="alert" className="under-construction">

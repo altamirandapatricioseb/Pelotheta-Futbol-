@@ -2111,3 +2111,47 @@ h3 {
   min-width: 0;
   max-width: 100%;
 }
+
+/* --- Descargar Excel (sección 10) ---------------------------------------------------- */
+.downloads {
+  position: relative;
+}
+.downloads > summary {
+  list-style: none;
+  cursor: pointer;
+}
+.downloads > summary::-webkit-details-marker {
+  display: none;
+}
+.downloads__menu {
+  position: absolute;
+  z-index: var(--z-menu);
+  right: 0;
+  top: calc(100% + 6px);
+  display: grid;
+  gap: 8px;
+  width: min(320px, calc(100vw - 32px));
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-surface);
+  padding: 12px;
+  box-shadow: var(--shadow-card);
+}
+.downloads__menu ul {
+  display: grid;
+  gap: 2px;
+}
+.downloads__menu a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 8px;
+  padding: 6px 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+.downloads__menu a:hover {
+  background: var(--color-row-hover);
+  color: var(--color-link);
+}

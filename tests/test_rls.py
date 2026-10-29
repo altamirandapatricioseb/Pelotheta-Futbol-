@@ -126,3 +126,24 @@ def test_anon_lee_las_vistas_avanzadas(client: httpx.Client, view: str) -> None:
 def test_anon_no_lee_fecha_de_nacimiento_aunque_la_pida(client: httpx.Client) -> None:
     response = client.get("/player_summary", params={"select": "birth_date"})
     assert response.status_code == 400
+
+
+def test_anon_no_escribe_en_exports() -> None:
+    # El bucket de los libros de Excel es de lectura pública; escribir solo con la clave secreta.
+    response = httpx.post(
+        f"{URL}/storage/v1/object/exports/intruso.xlsx",
+        content=b"x",
+        headers={
+            "apikey": KEY,
+            "Authorization": f"Bearer {KEY}",
+            "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        },
+        timeout=15,
+    )
+    assert response.status_code >= 400
+
+
+def test_anon_descarga_el_libro_global() -> None:
+    response = httpx.get(f"{URL}/storage/v1/object/public/exports/pelotheta-global.xlsx", timeout=30)
+    assert response.status_code == 200
+    assert response.content[:2] == b"PK"

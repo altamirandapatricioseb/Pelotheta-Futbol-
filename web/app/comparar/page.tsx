@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { z } from 'zod';
 
+import { ExcelDownloads } from '@/components/excel-downloads';
 import { CompareView, type BreakdownData } from '@/components/compare/compare-view';
 import { parseRefs, PERIODS, windowCode, type Period } from '@/lib/compare/compare';
 import { getCatalog } from '@/lib/data/catalog';
@@ -87,13 +88,16 @@ export default async function CompararPage({ searchParams }: PageProps) {
 
   return (
     <div className="grid gap-6">
-      <div>
-        <h1 className="page-title">
-          <span className="title-trace">Comparar</span>
-        </h1>
-        <p className="mt-2 text-muted">
-          Un jugador contra la media del equipo, de una línea, de su posición u otro jugador, por categoría
-        </p>
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="page-title">
+            <span className="title-trace">Comparar</span>
+          </h1>
+          <p className="mt-2 text-muted">
+            Un jugador contra la media del equipo, de una línea, de su posición u otro jugador, por categoría
+          </p>
+        </div>
+        <ExcelDownloads />
       </div>
       {failed ? (
         <div role="alert" className="under-construction">

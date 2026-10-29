@@ -1,6 +1,7 @@
 import 'server-only';
 
-import { periodMatchIds, type Period, type PlayerPosition, type WindowMatch } from '@/lib/compare/compare';
+import type { BreakdownPoint } from '@/lib/compare/breakdown';
+import type { PlayerPosition } from '@/lib/compare/compare';
 import type { DataResult } from '@/lib/data/players';
 import { createApiClient } from '@/lib/supabase/server';
 
@@ -38,60 +39,61 @@ export async function getPlayerPositions(): Promise<DataResult<PlayerPosition[]>
   }
 }
 
-export interface ComparePoint {
-  matchId: number;
-  date: string;
-  opponent: string;
-  competition: string;
-  value: number | null;
-}
-
-/** Valor partido a partido de una estadística del jugador, solo con los partidos del período. */
-export async function getCompareSeries(
+/**
+ * Serie partido a partido de una estadística para uno o dos jugadores (desglose de Comparar), con
+ * la titularidad de cada partido y la fecha del último partido cargado de Boca.
+ */
+export async function getBreakdown(
   statId: string,
-  playerId: number,
-  period: Period,
-  competition: string,
-): Promise<DataResult<ComparePoint[]>> {
+  playerIds: readonly number[],
+): Promise<DataResult<{ lastDate: string; series: Record<number, BreakdownPoint[]> }>> {
   try {
     const api = createApiClient();
-    const [series, matches] = await Promise.all([
-      api
-        .rpc('stat_series', { p_stat: statId, p_entity: 'jugador', p_id: playerId })
-        .select('match_id, match_date, competition_name, opponent, value'),
+    const [last, lineup, ...series] = await Promise.all([
       api
         .from('boca_match')
-        .select('match_id, match_date, kickoff_at, competition_code')
+        .select('match_date')
         .eq('status', 'jugado')
+        .order('match_date', { ascending: false })
+        .limit(1),
+      api
+        .from('match_lineup')
+        .select('match_id, player_id, started')
+        .in('player_id', [...playerIds])
         .limit(500),
+      ...playerIds.map((id) =>
+        api
+          .rpc('stat_series', { p_stat: statId, p_entity: 'jugador', p_id: id })
+          .select(
+            'match_id, match_date, competition_code, competition_name, opponent, home, result, minutes, num, den, value',
+          ),
+      ),
     ]);
-    if (series.error) return fail(series.error.message);
-    if (matches.error) return fail(matches.error.message);
-    const played = matches.data.flatMap((m): WindowMatch[] =>
-      m.match_id === null || m.match_date === null
-        ? []
-        : [
-            {
-              matchId: m.match_id,
-              date: m.match_date,
-              kickoff: m.kickoff_at ?? m.match_date,
-              competitionCode: m.competition_code ?? '',
-            },
-          ],
+    if (last.error) return fail(last.error.message);
+    if (lineup.error) return fail(lineup.error.message);
+    const started = new Map(
+      lineup.data.map((l) => [`${String(l.player_id)}-${String(l.match_id)}`, l.started ?? null]),
     );
-    const ids = periodMatchIds(played, period, competition);
-    return {
-      ok: true,
-      data: series.data
-        .filter((r) => ids.has(r.match_id))
-        .map((r) => ({
-          matchId: r.match_id,
-          date: r.match_date,
-          opponent: r.opponent,
-          competition: r.competition_name,
-          value: r.value,
-        })),
-    };
+    const out: Record<number, BreakdownPoint[]> = {};
+    for (const [k, id] of playerIds.entries()) {
+      const r = series[k];
+      if (!r || r.error) return fail(r?.error.message ?? 'sin serie');
+      out[id] = r.data.map((m) => ({
+        matchId: m.match_id,
+        date: m.match_date,
+        competitionCode: m.competition_code,
+        competition: m.competition_name,
+        opponent: m.opponent,
+        home: m.home,
+        result: m.result,
+        minutes: m.minutes,
+        started: started.get(`${String(id)}-${String(m.match_id)}`) ?? null,
+        num: m.num,
+        den: m.den,
+        value: m.value,
+      }));
+    }
+    return { ok: true, data: { lastDate: last.data[0]?.match_date ?? '', series: out } };
   } catch (cause) {
     return fail(cause);
   }

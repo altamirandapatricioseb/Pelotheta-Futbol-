@@ -249,6 +249,30 @@ Pendientes que no bloquean: el dato de penales del equipo tiene partidos con má
 200 % en `eq_pct_penales`); revisar la fuente en la etapa 10. Hay dos registros del mismo jugador (J. Barinaga y
 Juan Barinaga) que vienen así de la fuente.
 
+## Etapa 7, segunda vuelta y fase 7.5 (28-oct-2026, pedidos del dueño)
+
+- **Con qué comparar:** se elige un jugador y UNA opción: media del equipo (sin arqueros), media de
+  arqueros, defensores, mediocampistas o delanteros, media de su posición específica u otro jugador. Con otro
+  jugador aparecen casillas para sumar medias. Colores fijos por entidad: jugador verde, otro jugador rojo,
+  equipo azul, posición amarillo, arqueros rosa, defensores naranja, mediocampistas verde azulado y delanteros
+  oliva (series 6 a 8 nuevas, validadas con la skill dataviz en claro y oscuro). Arranca vacía y tiene «Limpiar».
+- **Selector único con búsqueda** (combobox): se escribe el nombre sin importar tildes y la lista sale agrupada
+  por línea (arqueros, defensores, mediocampistas, delanteros). Enner Valencia aparece con «enner».
+- **Estadísticas según las posiciones:** columna `lineas` en `data/stat_catalog.csv` (qué líneas usan cada
+  estadística; base: `stat_catalog.lines`). Por defecto se ven las de las líneas que se comparan (arquero contra
+  arquero, mediocampista contra delantero, etc.); «Todas» muestra el resto. Cruzar un arquero con un jugador de
+  campo se permite y se avisa. Las categorías se ordenan según la línea del jugador.
+- **Categorías de a una**, con un selector como Tarjetas/Conclusiones: Resumen, cada categoría y Desglose.
+  Cada categoría tiene hasta tres radares de percentiles (lo principal, eficacia y volumen; las principales
+  salen de la columna `clave` del catálogo), un gráfico a elección (diferencia %, barras lado a lado o sobre el
+  rango del grupo) dibujado al ancho real del recuadro, con leyenda que dice qué es el punto y qué es la línea.
+- **Fase 7.5: Desglose dentro de Comparar.** Se elige una estadística (o doble clic en una fila): el jugador y
+  el otro jugador lado a lado, las medias como líneas, filtro propio (competición, localía, resultado),
+  ventanas en grupos (últimos partidos, días, mes, competición, localía, resultado, titular o suplente, minutos
+  jugados y rival), 8 gráficos (partido a partido, promedio móvil, distribución, por competición, resultado,
+  localía, titularidad y mes) y los partidos de los dos con «no jugó» y la flecha de quién rindió mejor.
+- La desglosada suelta (`/estadistica`) aclara de quién son las tarjetas y los partidos cuando se compara.
+
 ## Próxima etapa (8: Excel)
 
 Skills: `anthropic-skills:xlsx` antes de escribir el generador (libros con gráficos nativos, hojas interactivas

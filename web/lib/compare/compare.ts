@@ -1,15 +1,26 @@
 // Interfaz 5 (9.7): comparación de un jugador contra referencias.
 //
-// Reglas: el jugador principal nunca entra en su propia referencia; los arqueros solo se
-// comparan con arqueros y los de campo con los de campo; cada estadística respeta su sentido
-// (`higher_is_better`): «mejor» no es «más alto». La zona, el carril y la posición salen de
-// `api.player_position`, que usa el mapeo de la tabla `position_zone_map` (no del código).
+// Se compara un jugador con UNA de estas opciones: la media del equipo, la media de una línea
+// (arqueros, defensores, mediocampistas o delanteros), la media de su posición específica u otro
+// jugador; con otro jugador se pueden sumar medias. Reglas: el jugador principal nunca entra en
+// una media; cada estadística respeta su sentido (`higher_is_better`): «mejor» no es «más alto».
+// La línea y la posición salen de `api.player_position` (mapeo en la tabla `position_zone_map`).
 
+import type { Slot } from '@/components/charts/primitives';
 import { playerValue, rankAndPercentile, type PlayerRow, type StatDef } from '@/lib/stats/catalog';
 
-export type RefKind = 'plantel' | 'zona' | 'carril' | 'posicion' | 'jugador';
+export type Line = 'arquero' | 'defensor' | 'mediocampista' | 'delantero';
+export const LINES: { id: Line; plural: string; token: string }[] = [
+  { id: 'arquero', plural: 'Arqueros', token: 'arqueros' },
+  { id: 'defensor', plural: 'Defensores', token: 'defensores' },
+  { id: 'mediocampista', plural: 'Mediocampistas', token: 'mediocampistas' },
+  { id: 'delantero', plural: 'Delanteros', token: 'delanteros' },
+];
+
+export type RefKind = 'equipo' | 'linea' | 'posicion' | 'jugador';
 export interface RefSpec {
   kind: RefKind;
+  line?: Line;
   playerId?: number;
 }
 export type AverageMode = 'simple' | 'ponderado';
@@ -22,41 +33,71 @@ export const PERIODS: { id: Period; label: string }[] = [
   { id: 'ultimo_mes', label: 'Último mes' },
 ];
 
-export const MAX_REFS = 3;
-const DEFAULT_REFS: RefSpec[] = [{ kind: 'plantel' }, { kind: 'posicion' }];
-const GROUP_KINDS = new Set<RefKind>(['plantel', 'zona', 'carril', 'posicion']);
-
 export interface PlayerPosition {
   playerId: number;
   positionRaw: string;
   zone: string | null;
   lane: string | null;
   role: string | null;
-  /** 'linea': la fuente solo da la línea general y zona y posición coinciden. */
+  /** 'linea': la fuente solo da la línea general y la posición coincide con la línea. */
   level: 'posicion' | 'linea';
 }
 
-/** Referencias de la URL («plantel,posicion,jugador-22»): hasta 3, sin repetir. */
+/** Las medias, en el orden fijo en que se muestran: equipo, posición y las cuatro líneas. */
+export const MEDIAS: RefSpec[] = [
+  { kind: 'equipo' },
+  { kind: 'posicion' },
+  ...LINES.map((l): RefSpec => ({ kind: 'linea', line: l.id })),
+];
+
+export const sameRef = (a: RefSpec, b: RefSpec) => a.kind === b.kind && a.line === b.line && a.playerId === b.playerId;
+
+function token(r: RefSpec): string {
+  if (r.kind === 'jugador') return `jugador-${String(r.playerId)}`;
+  if (r.kind === 'linea') return LINES.find((l) => l.id === r.line)?.token ?? 'equipo';
+  return r.kind;
+}
+
+function fromToken(part: string): RefSpec | null {
+  const player = /^jugador-(\d{1,9})$/.exec(part);
+  if (player) return { kind: 'jugador', playerId: Number(player[1]) };
+  if (part === 'equipo' || part === 'posicion') return { kind: part };
+  const line = LINES.find((l) => l.token === part);
+  return line ? { kind: 'linea', line: line.id } : null;
+}
+
+/** Ordena: primero el otro jugador, después las medias en su orden fijo. */
+function canonical(refs: readonly RefSpec[]): RefSpec[] {
+  const rank = (r: RefSpec) => (r.kind === 'jugador' ? -1 : MEDIAS.findIndex((m) => sameRef(m, r)));
+  return refs.toSorted((a, b) => rank(a) - rank(b));
+}
+
+/**
+ * Referencias de la URL («jugador-22,equipo,defensores»). Sin otro jugador, una sola media; con
+ * otro jugador, él más las medias que se tilden. Vacío = todavía no se eligió con qué comparar.
+ */
 export function parseRefs(raw: string | undefined): RefSpec[] {
   const out: RefSpec[] = [];
   for (const part of (raw ?? '').split(',')) {
-    const player = /^jugador-(\d{1,9})$/.exec(part);
-    const spec: RefSpec | null = player
-      ? { kind: 'jugador', playerId: Number(player[1]) }
-      : GROUP_KINDS.has(part as RefKind)
-        ? { kind: part as RefKind }
-        : null;
+    const spec = fromToken(part);
     if (!spec || out.some((r) => sameRef(r, spec))) continue;
+    if (spec.kind === 'jugador' && out.some((r) => r.kind === 'jugador')) continue;
     out.push(spec);
-    if (out.length === MAX_REFS) break;
   }
-  return out.length ? out : DEFAULT_REFS;
+  const sorted = canonical(out);
+  return sorted.some((r) => r.kind === 'jugador') ? sorted : sorted.slice(0, 1);
 }
 
-export const sameRef = (a: RefSpec, b: RefSpec) => a.kind === b.kind && a.playerId === b.playerId;
-
 export function refsToParam(refs: readonly RefSpec[]): string {
-  return refs.map((r) => (r.kind === 'jugador' ? `jugador-${String(r.playerId)}` : r.kind)).join(',');
+  return canonical(refs).map(token).join(',');
+}
+
+/** Color fijo de cada referencia: el otro jugador rojo, el equipo azul y así (el principal es verde). */
+export function refSlot(r: RefSpec): Slot {
+  if (r.kind === 'jugador') return 2;
+  if (r.kind === 'equipo') return 3;
+  if (r.kind === 'posicion') return 4;
+  return (5 + LINES.findIndex((l) => l.id === r.line)) as Slot;
 }
 
 const ZONE_LINE: Record<string, string> = {
@@ -71,13 +112,16 @@ export function lineOf(row: PlayerRow, position: PlayerPosition | undefined): st
   return row.position ?? (position?.zone ? (ZONE_LINE[position.zone] ?? null) : null);
 }
 
+const lineKey = (row: PlayerRow, position: PlayerPosition | undefined): Line | null =>
+  (lineOf(row, position)?.toLocaleLowerCase('es-AR') as Line | undefined) ?? null;
+
 export function isGoalkeeper(row: PlayerRow, position: PlayerPosition | undefined): boolean {
   return position?.zone === 'Arco' || row.position === 'Arquero';
 }
 
 /**
- * Grupo base de las medias: los del mismo tipo (arqueros o de campo), sin el jugador principal
- * y con al menos `minMinutes` minutos.
+ * Grupo de los percentiles: los del mismo tipo (arqueros o de campo), sin el jugador principal y
+ * con al menos `minMinutes` minutos.
  */
 export function referencePool(
   players: readonly PlayerRow[],
@@ -92,35 +136,31 @@ export function referencePool(
   );
 }
 
-/** Jugadores que forman una referencia. Un jugador elegido a mano tiene que ser del mismo tipo. */
+/**
+ * Jugadores que forman una referencia, sin el principal y con el mínimo de minutos. El equipo son
+ * los jugadores de campo (los arqueros tienen su propia media). Un jugador elegido a mano puede
+ * ser de cualquier línea: compararlo con otra es decisión del usuario.
+ */
 export function referenceMembers(
   spec: RefSpec,
   main: PlayerRow,
-  pool: readonly PlayerRow[],
-  positions: ReadonlyMap<number, PlayerPosition>,
   players: readonly PlayerRow[],
+  positions: ReadonlyMap<number, PlayerPosition>,
+  minMinutes: number,
 ): PlayerRow[] {
+  if (spec.kind === 'jugador') {
+    const other = players.find((p) => p.playerId === spec.playerId);
+    return other && other.playerId !== main.playerId ? [other] : [];
+  }
   const mine = positions.get(main.playerId);
+  const base = players.filter((p) => p.playerId !== main.playerId && p.minutes >= minMinutes);
   switch (spec.kind) {
-    case 'plantel':
-      return [...pool];
-    case 'zona':
-      return mine?.zone ? pool.filter((p) => positions.get(p.playerId)?.zone === mine.zone) : [];
-    case 'carril':
-      return mine?.zone && mine.lane
-        ? pool.filter((p) => {
-            const other = positions.get(p.playerId);
-            return other?.zone === mine.zone && other.lane === mine.lane;
-          })
-        : [];
+    case 'equipo':
+      return base.filter((p) => !isGoalkeeper(p, positions.get(p.playerId)));
+    case 'linea':
+      return base.filter((p) => lineKey(p, positions.get(p.playerId)) === spec.line);
     case 'posicion':
-      return mine?.role ? pool.filter((p) => positions.get(p.playerId)?.role === mine.role) : [];
-    case 'jugador': {
-      const other = players.find((p) => p.playerId === spec.playerId);
-      if (!other || other.playerId === main.playerId) return [];
-      const same = isGoalkeeper(other, positions.get(other.playerId)) === isGoalkeeper(main, mine);
-      return same ? [other] : [];
-    }
+      return mine?.role ? base.filter((p) => positions.get(p.playerId)?.role === mine.role) : [];
   }
 }
 
@@ -131,28 +171,12 @@ export function refProblem(
   positions: ReadonlyMap<number, PlayerPosition>,
   players: readonly PlayerRow[],
 ): string | null {
-  const mine = positions.get(main.playerId);
-  switch (spec.kind) {
-    case 'plantel':
-      return null;
-    case 'zona':
-      return mine?.zone ? null : 'su zona no está informada';
-    case 'carril':
-      return mine?.zone && mine.lane ? null : 'la fuente no informa su carril';
-    case 'posicion':
-      return mine?.role ? null : 'su posición no está informada';
-    case 'jugador': {
-      const other = players.find((p) => p.playerId === spec.playerId);
-      if (!other) return 'el otro jugador no jugó en este período';
-      if (other.playerId === main.playerId) return 'es el mismo jugador';
-      return isGoalkeeper(other, positions.get(other.playerId)) === isGoalkeeper(main, mine)
-        ? null
-        : 'los arqueros solo se comparan con arqueros';
-    }
-  }
+  if (spec.kind === 'posicion') return positions.get(main.playerId)?.role ? null : 'su posición no está informada';
+  if (spec.kind !== 'jugador') return null;
+  const other = players.find((p) => p.playerId === spec.playerId);
+  if (!other) return 'el otro jugador no jugó en este período';
+  return other.playerId === main.playerId ? 'es el mismo jugador' : null;
 }
-
-const LANE: Record<string, string> = { izquierda: 'por izquierda', centro: 'por el centro', derecha: 'por derecha' };
 
 /** Nombre largo (tarjetas) y corto (leyendas) de una referencia. */
 export function referenceLabel(
@@ -161,25 +185,42 @@ export function referenceLabel(
   players: readonly PlayerRow[],
 ): { long: string; short: string } {
   switch (spec.kind) {
-    case 'plantel':
-      // Un arquero solo se compara con arqueros: el «plantel» son los otros arqueros.
-      return mine?.zone === 'Arco'
-        ? { long: 'Media de los arqueros del plantel', short: 'Arqueros' }
-        : { long: 'Media del plantel', short: 'Plantel' };
-    case 'zona':
-      return { long: `Media de la zona (${mine?.zone ?? 'n/d'})`, short: mine?.zone ?? 'Zona' };
-    case 'carril': {
-      const lane = mine?.lane ? (LANE[mine.lane] ?? mine.lane) : 'n/d';
-      return { long: `Media de ${mine?.zone ?? 'la zona'} ${lane}`, short: `${mine?.zone ?? 'Zona'} ${lane}` };
+    case 'equipo':
+      return { long: 'Media del equipo (sin arqueros)', short: 'Equipo' };
+    case 'linea': {
+      const plural = LINES.find((l) => l.id === spec.line)?.plural ?? 'Línea';
+      return { long: `Media de ${plural.toLocaleLowerCase('es-AR')}`, short: plural };
     }
     case 'posicion':
       return { long: `Media de la posición (${mine?.role ?? 'n/d'})`, short: mine?.role ?? 'Posición' };
     case 'jugador': {
       const other = players.find((p) => p.playerId === spec.playerId);
-      const name = other?.shortName ?? other?.name ?? 'Jugador';
-      return { long: other?.name ?? 'Jugador', short: name };
+      return { long: other?.name ?? 'Jugador', short: other?.shortName ?? other?.name ?? 'Jugador' };
     }
   }
+}
+
+/** Texto para buscar sin tildes ni mayúsculas («Énner» se encuentra con «enner»). */
+export function searchable(text: string): string {
+  return text.normalize('NFD').replace(/[̀-ͯ]/g, '').toLocaleLowerCase('es-AR').trim();
+}
+
+/** Jugadores agrupados por línea (arqueros, defensores, mediocampistas, delanteros), por minutos. */
+export function playersByLine(
+  players: readonly PlayerRow[],
+  positions: ReadonlyMap<number, PlayerPosition>,
+  query = '',
+): { line: string; players: PlayerRow[] }[] {
+  const q = searchable(query);
+  const match = (p: PlayerRow) =>
+    !q || searchable(p.name).includes(q) || (p.shortName ? searchable(p.shortName).includes(q) : false);
+  const groups = [...LINES.map((l) => ({ line: l.plural, id: l.id })), { line: 'Sin posición', id: '' }];
+  return groups.flatMap((g) => {
+    const list = players
+      .filter((p) => (lineKey(p, positions.get(p.playerId)) ?? '') === g.id && match(p))
+      .toSorted((a, b) => b.minutes - a.minutes);
+    return list.length ? [{ line: g.line, players: list }] : [];
+  });
 }
 
 const numberOf = (v: unknown): number | null => (typeof v === 'number' && Number.isFinite(v) ? v : null);
@@ -368,12 +409,95 @@ export function sectionOf(stat: StatDef): Section | undefined {
   return SECTION_OF.get(stat.group);
 }
 
-/** Estadísticas numéricas con sección; la de porteros, solo si el principal es arquero. */
-export function comparableStats(catalog: readonly StatDef[], goalkeeper: boolean): StatDef[] {
+/**
+ * Estadísticas numéricas con sección. Por defecto, solo las de las líneas que se comparan (según
+ * la columna `lineas` del catálogo); con `all`, todas (la de porteros, solo si hay un arquero).
+ */
+export function comparableStats(catalog: readonly StatDef[], lines: ReadonlySet<string>, all = false): StatDef[] {
   return catalog.filter((s) => {
     const section = sectionOf(s);
-    return s.available && s.rule !== 'perfil' && s.rule !== 'nd' && section && (goalkeeper || !section.goalkeepersOnly);
+    if (!s.available || s.rule === 'perfil' || s.rule === 'nd' || !section) return false;
+    if (section.goalkeepersOnly && !lines.has('arquero')) return false;
+    return all || s.lines.includes('todas') || s.lines.some((l) => lines.has(l));
   });
+}
+
+/**
+ * Líneas que se comparan: la del principal, la del otro jugador y la de cada media de línea (las
+ * medias del equipo y de la posición no suman línea), en minúscula como en el catálogo.
+ */
+export function comparedLines(
+  main: PlayerRow,
+  refs: readonly RefSpec[],
+  positions: ReadonlyMap<number, PlayerPosition>,
+  players: readonly PlayerRow[],
+): Set<string> {
+  const out = new Set<string>();
+  const add = (row: PlayerRow | undefined) => {
+    const line = row ? lineOf(row, positions.get(row.playerId)) : null;
+    if (line) out.add(line.toLocaleLowerCase('es-AR'));
+  };
+  add(main);
+  for (const r of refs) {
+    if (r.kind === 'jugador') add(players.find((p) => p.playerId === r.playerId));
+    if (r.kind === 'linea' && r.line) out.add(r.line);
+  }
+  return out;
+}
+
+// Orden de las secciones según la línea del principal: primero lo propio del puesto.
+const SECTION_ORDER: Record<string, string[]> = {
+  arquero: [
+    'porteros',
+    'participacion',
+    'creacion',
+    'impacto',
+    'disciplina',
+    'defensa',
+    'fisico',
+    'ataque',
+    'esperado',
+  ],
+  defensor: [
+    'defensa',
+    'creacion',
+    'participacion',
+    'impacto',
+    'disciplina',
+    'ataque',
+    'esperado',
+    'fisico',
+    'porteros',
+  ],
+  mediocampista: [
+    'creacion',
+    'defensa',
+    'ataque',
+    'participacion',
+    'impacto',
+    'esperado',
+    'disciplina',
+    'fisico',
+    'porteros',
+  ],
+  delantero: [
+    'ataque',
+    'esperado',
+    'creacion',
+    'participacion',
+    'impacto',
+    'defensa',
+    'disciplina',
+    'fisico',
+    'porteros',
+  ],
+};
+
+/** Secciones en el orden de la línea del jugador principal. */
+export function sectionsFor(line: string | null): Section[] {
+  const order = SECTION_ORDER[line ?? ''];
+  if (!order) return [...SECTIONS];
+  return order.flatMap((id) => SECTIONS.filter((s) => s.id === id));
 }
 
 /** Valor por partido (conteos divididos por partidos; cocientes y promedios tal cual). */

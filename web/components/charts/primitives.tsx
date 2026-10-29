@@ -8,7 +8,7 @@
 
 import { useId, useState, type ReactNode } from 'react';
 
-export type Slot = 1 | 2 | 3 | 4 | 5;
+export type Slot = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 export interface Series {
   id: string;
   label: string;

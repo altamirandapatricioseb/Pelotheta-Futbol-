@@ -35,6 +35,10 @@ export interface StatDef {
   arg1: string;
   arg2: string;
   factor: number;
+  /** Líneas que la usan en Comparar: «todas» o arquero, defensor, mediocampista, delantero. */
+  lines: string[];
+  /** Estadística principal de su categoría (radar de la categoría en Comparar). */
+  key: boolean;
 }
 
 export interface StatSet {

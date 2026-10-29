@@ -760,6 +760,10 @@ h3 {
   --series-3: #2a78d6;
   --series-4: #eda100;
   --series-5: #e87ba4;
+  /* 6 a 8 (Comparar: medias de líneas), validadas con la skill dataviz. */
+  --series-6: #c2560c;
+  --series-7: #0f9b8e;
+  --series-8: #7a6a00;
   --chart-surface: #ffffff;
   --chart-grid: #e6e8e6;
   --chart-axis: #c9cdc9;
@@ -772,6 +776,12 @@ h3 {
     --series-3: #3987e5;
     --series-4: #c98500;
     --series-5: #d55181;
+    --series-6: #d9741c;
+    --series-7: #1aa99b;
+    --series-8: #a09016;
+    --series-6: #d9741c;
+    --series-7: #1aa99b;
+    --series-8: #a09016;
     --chart-surface: #2b2b2b;
     --chart-grid: #3a3c3a;
     --chart-axis: #4a4d4a;
@@ -1446,6 +1456,7 @@ h3 {
     grid-row: 2;
   }
   .cmp-bar--stuck:not(.cmp-bar--open) .cmp-bar__row--compact,
+  .cmp-bar--stuck:not(.cmp-bar--open) .cmp-medias,
   .cmp-bar--stuck .cmp-field legend {
     display: none;
   }
@@ -1735,10 +1746,8 @@ h3 {
   font-size: 10px;
   font-variant-numeric: tabular-nums;
 }
-/* Los gráficos de la comparación no se estiran a todo el ancho: crecerían las letras y el alto. */
-.cmp-section .chart-frame,
-.cmp-wide-chart {
-  max-width: 760px;
+.cmp-dot-key {
+  border-radius: 999px;
 }
 
 /* --- Página de partido ---------------------------------------------------------------- */
@@ -1870,4 +1879,232 @@ h3 {
   max-height: 320px;
   overflow-y: auto;
   font-size: 0.875rem;
+}
+
+/* --- Comparar: selectores, categorías y desglose ------------------------------------- */
+.cmp-bar__row--pick {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 10px 14px;
+}
+.cmp-bar__row--pick > .cmp-field {
+  flex: 1 1 240px;
+  max-width: 360px;
+}
+.cmp-field__label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+}
+.cmp-clear {
+  margin-left: auto;
+}
+.cmp-bar--stuck .cmp-field__label {
+  display: none;
+}
+.cmp-medias {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 14px;
+  font-size: 0.875rem;
+}
+.cmp-medias legend {
+  float: left;
+  margin-right: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+}
+.cmp-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.cmp-check input {
+  accent-color: var(--color-brand);
+}
+.cmp-check--off {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.cmp-empty {
+  display: grid;
+  gap: 8px;
+}
+
+/* Selector de jugador con búsqueda (combobox). */
+.picker {
+  position: relative;
+  min-width: 0;
+}
+.picker__field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface-2);
+  padding: 0 10px 0 14px;
+}
+.picker__field:focus-within {
+  outline: 2px solid var(--color-link);
+  outline-offset: 2px;
+}
+.picker__input {
+  min-width: 0;
+  flex: 1;
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  outline: none;
+}
+.picker__input::placeholder {
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+.picker__clear {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  color: var(--color-text-muted);
+}
+.picker__clear:hover {
+  color: var(--color-text);
+  background: var(--color-surface);
+}
+.picker__caret {
+  color: var(--color-text-muted);
+}
+.picker__list {
+  position: absolute;
+  z-index: var(--z-menu);
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  min-width: 260px;
+  max-height: min(360px, 60vh);
+  overflow-y: auto;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-surface);
+  padding: 6px;
+  box-shadow: var(--shadow-card);
+}
+.picker__group {
+  position: sticky;
+  top: -6px;
+  z-index: 1;
+  background: var(--color-surface);
+  padding: 8px 10px 4px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.picker__option {
+  display: grid;
+  gap: 1px;
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+.picker__option--active {
+  background: var(--color-row-hover);
+}
+.picker__option[aria-selected='true'] {
+  box-shadow: inset 3px 0 0 var(--color-brand);
+}
+.picker__empty {
+  padding: 10px;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+/* Categorías de a una (como Tarjetas y Conclusiones). */
+.cmp-cats__switch {
+  display: flex;
+  flex-wrap: wrap;
+}
+.cmp-cats__count {
+  min-width: 1.5em;
+  border-radius: 999px;
+  background: var(--color-surface-2);
+  padding: 0 6px;
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+}
+.view-switch__button[aria-pressed='true'] .cmp-cats__count {
+  background: var(--color-surface);
+}
+.cmp-radars {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+  gap: 12px;
+}
+.cmp-radars > *,
+.cmp-breakdown-charts > *,
+.cmp-windows > * {
+  min-width: 0;
+}
+
+/* Desglose dentro de Comparar. */
+.cmp-breakdown-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 16px 28px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: var(--color-surface);
+  padding: 16px 18px;
+  box-shadow: var(--shadow-card);
+}
+@media (max-width: 860px) {
+  .cmp-breakdown-head {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.cmp-who {
+  display: grid;
+  gap: 6px;
+}
+.cmp-who li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: baseline;
+  gap: 8px;
+}
+.cmp-breakdown-charts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+  gap: 12px;
+}
+.cmp-breakdown-wide {
+  grid-column: 1 / -1;
+}
+.cmp-windows {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr));
+  gap: 12px;
+  align-items: start;
+}
+/* Un desplegable con opciones largas no ensancha la página en el celular. */
+.cmp-inline {
+  flex-wrap: wrap;
+  max-width: 100%;
+  min-width: 0;
+}
+.cmp-inline > select {
+  min-width: 0;
+  max-width: 100%;
 }

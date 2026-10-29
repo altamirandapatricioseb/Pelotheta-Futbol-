@@ -209,3 +209,55 @@ def test_every_player_stat_belongs_to_some_set() -> None:
     in_sets = {stat_id for st in SETS for stat_id in st.stats}
     missing = [s.id for s in STATS if s.id not in in_sets]
     assert not missing, missing
+
+
+LINES = {"arquero", "defensor", "mediocampista", "delantero"}
+
+
+def test_every_player_stat_says_which_lines_use_it() -> None:
+    # Comparar (9.7) muestra por defecto las estadísticas de las líneas que se comparan.
+    for s in STATS:
+        assert s.lineas, s.id
+        if s.entidad == "equipo":
+            assert s.lineas == ("todas",), s.id
+        else:
+            assert s.lineas == ("todas",) or set(s.lineas) <= LINES, s.id
+
+
+def test_goalkeeper_stats_are_only_for_goalkeepers() -> None:
+    for s in STATS:
+        if s.entidad == "jugador" and s.grupo == "Porteros":
+            assert s.lineas == ("arquero",), s.id
+
+
+def test_each_line_has_enough_relevant_stats() -> None:
+    for line in LINES:
+        relevant = [
+            s
+            for s in STATS
+            if s.entidad == "jugador" and s.available and ("todas" in s.lineas or line in s.lineas)
+        ]
+        assert len(relevant) >= 40, (line, len(relevant))
+
+
+def test_lines_travel_in_the_payload() -> None:
+    payload = catalog.to_payload(STATS, SETS)
+    row = next(r for r in payload["stats"] if r["stat_id"] == "atajadas")
+    assert row["lines"] == ["arquero"]
+
+
+def test_key_stats_feed_one_radar_per_category() -> None:
+    # Comparar dibuja un radar por categoría con sus estadísticas clave: de 3 a 9 por grupo con clave.
+    groups: dict[str, int] = {}
+    for s in STATS:
+        if s.entidad == "jugador" and s.clave:
+            assert s.available, s.id
+            groups[s.grupo] = groups.get(s.grupo, 0) + 1
+    for group in ("Ataque", "Creación", "Defensa", "Porteros", "Métricas propias", "Participación"):
+        assert 3 <= groups.get(group, 0) <= 9, (group, groups.get(group))
+
+
+def test_key_flag_travels_in_the_payload() -> None:
+    payload = catalog.to_payload(STATS, SETS)
+    row = next(r for r in payload["stats"] if r["stat_id"] == "xg")
+    assert row["key_stat"] is True

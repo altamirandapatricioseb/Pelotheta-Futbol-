@@ -24,7 +24,13 @@ function fail(cause: unknown): { ok: false; code: 'PEL-DB-001'; detail: string }
 /** Catálogo de estadísticas de una entidad (jugador o equipo), indexado por id. */
 export async function getCatalog(entity: 'player' | 'team'): Promise<DataResult<StatDef[]>> {
   try {
-    const { data, error } = await createApiClient().from('stat_catalog').select('*').eq('entity', entity);
+    // Columnas explícitas: piden la versión con `lines` sin esperar la caché.
+    const { data, error } = await createApiClient()
+      .from('stat_catalog')
+      .select(
+        'stat_id, entity, name_es, short_name, description_es, reading_es, stat_group, category, unit, source, level, formula, higher_is_better, available, estimated, per90, rule, arg1, arg2, factor, lines, key_stat',
+      )
+      .eq('entity', entity);
     if (error) return fail(error.message);
     // Lo que viene de la base se valida antes de usarlo: una fila rara se descarta (14.3).
     const stats = data.flatMap((r): StatDef[] =>
@@ -51,6 +57,8 @@ export async function getCatalog(entity: 'player' | 'team'): Promise<DataResult<
               arg1: r.arg1 ?? '',
               arg2: r.arg2 ?? '',
               factor: r.factor ?? 1,
+              lines: r.lines?.length ? r.lines : ['todas'],
+              key: r.key_stat ?? false,
             },
           ]
         : [],

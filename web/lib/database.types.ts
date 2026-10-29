@@ -79,6 +79,8 @@ export type Database = {
           formula: string | null;
           higher_is_better: boolean | null;
           level: string | null;
+          key_stat: boolean | null;
+          lines: string[] | null;
           name_es: string | null;
           per90: boolean | null;
           reading_es: string | null;

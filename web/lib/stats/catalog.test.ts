@@ -33,6 +33,8 @@ function stat(overrides: Partial<StatDef>): StatDef {
     arg1: 'goals',
     arg2: '',
     factor: 1,
+    lines: ['todas'],
+    key: false,
     ...overrides,
   };
 }

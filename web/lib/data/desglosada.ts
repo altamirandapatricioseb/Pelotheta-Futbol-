@@ -4,7 +4,6 @@ import {
   referenceLabel,
   referenceMembers,
   referencePerMatch,
-  referencePool,
   referenceValue,
   refProblem,
   type AverageMode,
@@ -125,12 +124,11 @@ export async function getStatDetail(
           standing = { rank: r.rank, of: all.length, percentile: r.percentile, group: 'en el plantel' };
         }
         if (chosen && me && positions?.ok) {
-          // Las mismas referencias que en Comparar, sin el jugador y con arqueros solo contra arqueros.
+          // Las mismas referencias que en Comparar, sin el jugador en ninguna media.
           const byId = new Map(positions.data.map((p) => [p.playerId, p]));
-          const pool = referencePool(players.data, me, byId, chosen.minMinutes);
           for (const ref of chosen.refs) {
             if (refProblem(ref, me, byId, players.data)) continue;
-            const members = referenceMembers(ref, me, pool, byId, players.data);
+            const members = referenceMembers(ref, me, players.data, byId, chosen.minMinutes);
             const label = referenceLabel(ref, byId.get(me.playerId), players.data).long;
             const value = referenceValue(members, stat, stat.per90, chosen.mode).value;
             if (value !== null) references.push({ label, value });

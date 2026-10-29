@@ -286,11 +286,21 @@ class Stat(BaseModel):
     arg1: str
     arg2: str
     factor: float = 1.0
+    # Líneas que usan la estadística en Comparar (9.7): «todas» o arquero, defensor, mediocampista
+    # y delantero separadas por espacios. El equipo siempre es «todas».
+    lineas: tuple[Literal["todas", "arquero", "defensor", "mediocampista", "delantero"], ...]
+    # Estadística principal de su categoría: entra en el radar de la categoría en Comparar.
+    clave: bool = False
 
     @field_validator("factor", mode="before")
     @classmethod
     def _empty_factor(cls, value: object) -> object:
         return 1.0 if value in ("", None) else value
+
+    @field_validator("lineas", mode="before")
+    @classmethod
+    def _split_lines(cls, value: object) -> object:
+        return tuple(value.split()) if isinstance(value, str) else value
 
 
 class StatSet(BaseModel):
@@ -314,7 +324,7 @@ def _bool(value: str) -> bool:
 def load_catalog(path: Path = CATALOG_PATH) -> list[Stat]:
     with path.open(encoding="utf-8", newline="") as handle:
         rows = list(csv.DictReader(handle))
-    flags = ("higher_is_better", "available", "estimada", "por90")
+    flags = ("higher_is_better", "available", "estimada", "por90", "clave")
     return [Stat.model_validate({**row, **{f: _bool(row[f]) for f in flags}}) for row in rows]
 
 
@@ -343,6 +353,8 @@ def to_payload(stats: list[Stat], sets: list[StatSet]) -> dict[str, list[dict[st
                 "estimated": s.estimada,
                 "per90": s.por90,
                 "rule": s.agregacion,
+                "lines": list(s.lineas),
+                "key_stat": s.clave,
                 "arg1": s.arg1,
                 "arg2": s.arg2,
                 "factor": s.factor,

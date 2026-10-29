@@ -5,6 +5,7 @@ import type { PlayerRow, StatDef } from '@/lib/stats/catalog';
 import {
   compareStat,
   comparableStats,
+  comparedLines,
   lineOf,
   parseRefs,
   perMatchValue,
@@ -17,9 +18,13 @@ import {
   refProblem,
   referenceValue,
   refsToParam,
+  refSlot,
+  playersByLine,
+  sectionsFor,
   strengths,
   summarize,
   type PlayerPosition,
+  type RefSpec,
 } from './compare';
 
 function stat(id: string, over: Partial<StatDef> = {}): StatDef {
@@ -44,6 +49,8 @@ function stat(id: string, over: Partial<StatDef> = {}): StatDef {
     arg1: id,
     arg2: '',
     factor: 1,
+    lines: ['todas'],
+    key: false,
     ...over,
   };
 }
@@ -94,46 +101,60 @@ const positions = [
 const byId = new Map(positions.map((p) => [p.playerId, p]));
 
 describe('referencias en la URL', () => {
-  it('lee hasta 3 referencias sin repetir y con plantel y posición por defecto', () => {
-    expect(parseRefs(undefined)).toEqual([{ kind: 'plantel' }, { kind: 'posicion' }]);
-    expect(parseRefs('zona,zona,jugador-7,carril,posicion')).toEqual([
-      { kind: 'zona' },
+  it('vacío por defecto: nada elegido todavía', () => {
+    expect(parseRefs(undefined)).toEqual([]);
+    expect(parseRefs('cualquiera')).toEqual([]);
+  });
+
+  it('sin otro jugador, una sola media', () => {
+    expect(parseRefs('defensores,equipo')).toEqual([{ kind: 'equipo' }]);
+  });
+
+  it('con otro jugador, él primero y las medias tildadas en su orden fijo', () => {
+    expect(parseRefs('delanteros,jugador-7,equipo,jugador-9,posicion')).toEqual([
       { kind: 'jugador', playerId: 7 },
-      { kind: 'carril' },
+      { kind: 'equipo' },
+      { kind: 'posicion' },
+      { kind: 'linea', line: 'delantero' },
     ]);
-    expect(parseRefs('cualquiera')).toEqual([{ kind: 'plantel' }, { kind: 'posicion' }]);
   });
 
   it('vuelve a escribir las referencias en el mismo formato', () => {
-    expect(refsToParam([{ kind: 'plantel' }, { kind: 'jugador', playerId: 22 }])).toBe('plantel,jugador-22');
+    expect(
+      refsToParam([
+        { kind: 'linea', line: 'arquero' },
+        { kind: 'jugador', playerId: 22 },
+      ]),
+    ).toBe('jugador-22,arqueros');
+  });
+
+  it('cada referencia tiene su color fijo', () => {
+    expect(refSlot({ kind: 'jugador', playerId: 1 })).toBe(2);
+    expect(refSlot({ kind: 'equipo' })).toBe(3);
+    expect(refSlot({ kind: 'posicion' })).toBe(4);
+    expect(refSlot({ kind: 'linea', line: 'arquero' })).toBe(5);
+    expect(refSlot({ kind: 'linea', line: 'delantero' })).toBe(8);
   });
 });
 
 describe('grupo de referencia', () => {
-  it('nunca incluye al jugador principal y respeta el mínimo de minutos', () => {
-    const pool = referencePool(players, p1, byId, 450);
-    expect(pool.map((p) => p.playerId)).toEqual([2, 3]);
-  });
-
-  it('separa arqueros de jugadores de campo', () => {
+  it('percentiles: nunca el principal, con mínimo de minutos y del mismo tipo', () => {
+    expect(referencePool(players, p1, byId, 450).map((p) => p.playerId)).toEqual([2, 3]);
     expect(referencePool(players, p4, byId, 0).map((p) => p.playerId)).toEqual([]);
-    expect(referencePool(players, p1, byId, 0).map((p) => p.playerId)).not.toContain(4);
   });
 
-  it('filtra por zona, carril y posición según el mapeo', () => {
-    const pool = referencePool(players, p1, byId, 0);
-    const main = p1;
-    expect(referenceMembers({ kind: 'zona' }, main, pool, byId, players).map((p) => p.playerId)).toEqual([2, 5]);
-    expect(referenceMembers({ kind: 'carril' }, main, pool, byId, players).map((p) => p.playerId)).toEqual([5]);
-    expect(referenceMembers({ kind: 'posicion' }, main, pool, byId, players).map((p) => p.playerId)).toEqual([5]);
-    expect(
-      referenceMembers({ kind: 'jugador', playerId: 3 }, main, pool, byId, players).map((p) => p.playerId),
-    ).toEqual([3]);
+  it('medias: equipo sin arqueros, cada línea y la posición; nunca el principal', () => {
+    const ids = (spec: RefSpec, min = 0) => referenceMembers(spec, p1, players, byId, min).map((p) => p.playerId);
+    expect(ids({ kind: 'equipo' })).toEqual([2, 3, 5]);
+    expect(ids({ kind: 'equipo' }, 450)).toEqual([2, 3]);
+    expect(ids({ kind: 'linea', line: 'delantero' })).toEqual([2, 5]);
+    expect(ids({ kind: 'linea', line: 'arquero' })).toEqual([4]);
+    expect(ids({ kind: 'posicion' })).toEqual([5]);
+    expect(ids({ kind: 'jugador', playerId: 3 })).toEqual([3]);
   });
 
-  it('no compara un arquero con un jugador de campo elegido a mano', () => {
-    const pool = referencePool(players, p1, byId, 0);
-    expect(referenceMembers({ kind: 'jugador', playerId: 4 }, p1, pool, byId, players)).toEqual([]);
+  it('un arquero elegido a mano contra un jugador de campo es decisión del usuario: se permite', () => {
+    expect(referenceMembers({ kind: 'jugador', playerId: 4 }, p1, players, byId, 0)).toEqual([p4]);
   });
 });
 
@@ -200,16 +221,50 @@ describe('resumen', () => {
 
 describe('estadísticas comparables', () => {
   const catalog = [
-    goles,
+    stat('goles', { lines: ['mediocampista', 'delantero'] }),
+    stat('pases', { group: 'Creación', lines: ['todas'] }),
+    stat('entradas', { group: 'Defensa', lines: ['defensor', 'mediocampista'] }),
+    stat('offsides', { lines: ['delantero'] }),
     stat('edad', { rule: 'perfil' }),
     stat('presiones', { rule: 'nd' }),
-    stat('atajadas', { group: 'Porteros' }),
+    stat('atajadas', { group: 'Porteros', lines: ['arquero'] }),
     stat('raro', { group: 'Sin sección' }),
   ];
+  const ids = (lines: string[], all = false) => comparableStats(catalog, new Set(lines), all).map((s) => s.id);
 
-  it('deja afuera perfil, n/d y lo que no tiene sección; porteros solo para arqueros', () => {
-    expect(comparableStats(catalog, false).map((s) => s.id)).toEqual(['goles']);
-    expect(comparableStats(catalog, true).map((s) => s.id)).toEqual(['goles', 'atajadas']);
+  it('por defecto, solo las de las líneas que se comparan', () => {
+    expect(ids(['arquero'])).toEqual(['pases', 'atajadas']);
+    expect(ids(['mediocampista'])).toEqual(['goles', 'pases', 'entradas']);
+    expect(ids(['delantero', 'mediocampista'])).toEqual(['goles', 'pases', 'entradas', 'offsides']);
+  });
+
+  it('«todas» muestra todo menos perfil, n/d y lo sin sección; porteros solo si hay un arquero', () => {
+    expect(ids(['delantero'], true)).toEqual(['goles', 'pases', 'entradas', 'offsides']);
+    expect(ids(['delantero', 'arquero'], true)).toEqual(['goles', 'pases', 'entradas', 'offsides', 'atajadas']);
+  });
+});
+
+describe('líneas que se comparan', () => {
+  it('la del principal, la del otro jugador y la de cada media de línea', () => {
+    expect([...comparedLines(p1, [{ kind: 'equipo' }], byId, players)]).toEqual(['delantero']);
+    expect([...comparedLines(p1, [{ kind: 'jugador', playerId: 3 }], byId, players)].sort()).toEqual([
+      'delantero',
+      'mediocampista',
+    ]);
+    expect([...comparedLines(p1, [{ kind: 'linea', line: 'arquero' }], byId, players)].sort()).toEqual([
+      'arquero',
+      'delantero',
+    ]);
+  });
+});
+
+describe('orden de las secciones', () => {
+  it('primero lo propio de la línea del jugador principal', () => {
+    expect(sectionsFor('arquero')[0]?.id).toBe('porteros');
+    expect(sectionsFor('defensor')[0]?.id).toBe('defensa');
+    expect(sectionsFor('mediocampista')[0]?.id).toBe('creacion');
+    expect(sectionsFor('delantero')[0]?.id).toBe('ataque');
+    expect(sectionsFor(null).map((s) => s.id)).toHaveLength(9);
   });
 });
 
@@ -254,14 +309,12 @@ describe('rango y media por partido de la referencia', () => {
 });
 
 describe('referencias que no se pueden usar', () => {
-  it('avisa el motivo: arquero contra jugador de campo, carril sin dato, jugador ausente', () => {
-    const noLane = new Map(byId);
-    noLane.set(1, { ...pos(1, 'Ataque', 'Delantero centro'), lane: null });
-    expect(refProblem({ kind: 'plantel' }, p1, byId, players)).toBeNull();
-    expect(refProblem({ kind: 'carril' }, p1, noLane, players)).toBe('la fuente no informa su carril');
-    expect(refProblem({ kind: 'jugador', playerId: 4 }, p1, byId, players)).toBe(
-      'los arqueros solo se comparan con arqueros',
-    );
+  it('avisa el motivo: posición sin dato o jugador ausente', () => {
+    const noRole = new Map(byId);
+    noRole.set(1, { ...pos(1, 'Ataque', 'Delantero centro'), role: null });
+    expect(refProblem({ kind: 'equipo' }, p1, byId, players)).toBeNull();
+    expect(refProblem({ kind: 'posicion' }, p1, noRole, players)).toBe('su posición no está informada');
+    expect(refProblem({ kind: 'jugador', playerId: 4 }, p1, byId, players)).toBeNull();
     expect(refProblem({ kind: 'jugador', playerId: 99 }, p1, byId, players)).toBe(
       'el otro jugador no jugó en este período',
     );
@@ -288,9 +341,21 @@ describe('línea del jugador', () => {
 });
 
 describe('nombres de las referencias', () => {
-  it('para un arquero, el plantel son los otros arqueros', () => {
-    expect(referenceLabel({ kind: 'plantel' }, byId.get(4), players).short).toBe('Arqueros');
-    expect(referenceLabel({ kind: 'plantel' }, byId.get(1), players).short).toBe('Plantel');
+  it('equipo, línea, posición y jugador', () => {
+    expect(referenceLabel({ kind: 'equipo' }, byId.get(1), players).long).toBe('Media del equipo (sin arqueros)');
+    expect(referenceLabel({ kind: 'linea', line: 'defensor' }, byId.get(1), players).long).toBe('Media de defensores');
+    expect(referenceLabel({ kind: 'posicion' }, byId.get(1), players).short).toBe('Delantero centro');
     expect(referenceLabel({ kind: 'jugador', playerId: 3 }, byId.get(1), players).long).toBe('Jugador 3');
+  });
+});
+
+describe('buscador de jugadores', () => {
+  it('sin tildes ni mayúsculas, agrupado por línea y por minutos', () => {
+    const named = [{ ...p2, name: 'Énner Valencia' }, p1, p3, p4, p5];
+    expect(playersByLine(named, byId, 'enner').map((g) => [g.line, g.players.map((p) => p.playerId)])).toEqual([
+      ['Delanteros', [2]],
+    ]);
+    expect(playersByLine(named, byId).map((g) => g.line)).toEqual(['Arqueros', 'Mediocampistas', 'Delanteros']);
+    expect(playersByLine(named, byId)[2]?.players.map((p) => p.playerId)).toEqual([2, 1, 5]);
   });
 });

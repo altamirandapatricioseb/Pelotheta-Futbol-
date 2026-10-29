@@ -26,6 +26,8 @@ function stat(id: string, over: Partial<StatDef> = {}): StatDef {
     arg1: id,
     arg2: '',
     factor: 1,
+    lines: ['todas'],
+    key: false,
     ...over,
   };
 }

@@ -148,9 +148,18 @@ export function StatDetailView({ detail, backHref, query }: { detail: StatDetail
         </section>
       </header>
 
+      {detail.matchReferences.length ? (
+        <p className="rounded-xl border border-line bg-surface px-4 py-3 text-sm">
+          <span className="font-bold">{detail.entityName}</span> comparado con{' '}
+          {detail.matchReferences.map((r) => r.label).join(', ')}: las tarjetas y la lista de partidos son de{' '}
+          {detail.entityName}; las referencias aparecen como líneas en «Partido a partido» y como barras en «Contra la
+          referencia». Para ver a los dos jugadores lado a lado, usá el Desglose de Comparar.
+        </p>
+      ) : null}
+
       <section aria-labelledby="ventanas" className="grid gap-3">
         <h2 id="ventanas" className="text-xl font-bold">
-          Ventanas de tiempo
+          Ventanas de tiempo de {detail.entityName}
         </h2>
         <ul className="window-grid">
           {TIME_WINDOWS.map(([key, label]) => (
@@ -282,7 +291,7 @@ export function StatDetailView({ detail, backHref, query }: { detail: StatDetail
       {withValue.length ? (
         <section aria-labelledby="partidos" className="grid gap-3">
           <h2 id="partidos" className="text-xl font-bold">
-            Partidos
+            Partidos de {detail.entityName}
           </h2>
           <div className="flex flex-wrap gap-2">
             <select

@@ -2,25 +2,42 @@
 
 // Gráficos de la comparación (9.7): barras divergentes, barras agrupadas y gráfico de bala.
 // Mismas reglas que las primitivas de la landing (skill dataviz): marcas finas, grilla tenue,
-// texto con tinta de texto, color por entidad (jugador verde, referencias azul, amarillo y
-// rosa) y tooltip al pasar el mouse. En las divergentes y en la bala la derecha es «mejor»
-// siempre: si la estadística es de «menos es mejor», el eje se da vuelta y se avisa.
+// texto con tinta de texto, color fijo por entidad (jugador verde, otro jugador rojo, equipo
+// azul...) y tooltip al pasar el mouse. Se dibujan al ancho real del contenedor (sin escalar las
+// letras ni dejar bordes vacíos). En las divergentes y en la bala la derecha es «mejor» siempre:
+// si la estadística es de «menos es mejor», el eje se da vuelta y se avisa.
 
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 
 import type { Slot } from '@/components/charts/primitives';
 
-const W = 560;
-const LABEL_W = 156;
 const PAD_R = 58;
 const TOP = 22;
-const PLOT_W = W - LABEL_W - PAD_R;
 
-/** Colores de las referencias: azul, amarillo y rosa (el verde es del jugador principal). */
-export const REF_SLOTS: Slot[] = [3, 4, 5];
+/** Ancho real del contenedor, para dibujar en píxeles (ref de callback: mide al montar y al cambiar). */
+function useWidth(): [(el: HTMLDivElement | null) => void, number] {
+  const [width, setWidth] = useState(560);
+  const observer = useRef<ResizeObserver | null>(null);
+  const measure = useCallback((el: HTMLDivElement | null) => {
+    observer.current?.disconnect();
+    if (!el) return;
+    const apply = (w: number) => {
+      if (w > 0) setWidth(Math.max(300, Math.round(w)));
+    };
+    apply(el.getBoundingClientRect().width);
+    observer.current = new ResizeObserver(([entry]) => {
+      apply(entry?.contentRect.width ?? 0);
+    });
+    observer.current.observe(el);
+  }, []);
+  return [measure, width];
+}
+
+/** Columna de los nombres: más angosta en el celular. */
+const labelWidth = (w: number) => (w < 480 ? 112 : 176);
 
 const color = (slot: Slot) => `var(--series-${String(slot)})`;
-const short = (s: string, n = 24) => (s.length > n ? `${s.slice(0, n - 1)}…` : s);
+const short = (s: string, n: number) => (s.length > n ? `${s.slice(0, n - 1)}…` : s);
 
 export interface ChartRef {
   label: string;
@@ -35,21 +52,32 @@ interface Tip {
 
 /** Marco con tooltip y doble clic sobre una fila (data-stat) para abrir la desglosada. */
 function Frame({
+  box,
+  width,
   height,
   tip,
   label,
   onOpen,
   children,
 }: {
+  box: (el: HTMLDivElement | null) => void;
+  width: number;
   height: number;
   tip: Tip | null;
   label: string;
   onOpen?: (statId: string) => void;
   children: ReactNode;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
+  const own = useRef<HTMLDivElement | null>(null);
+  const setRef = useCallback(
+    (el: HTMLDivElement | null) => {
+      own.current = el;
+      box(el);
+    },
+    [box],
+  );
   useEffect(() => {
-    const el = ref.current;
+    const el = own.current;
     if (!el || !onOpen) return;
     const open = (e: MouseEvent) => {
       const row = (e.target as Element).closest('[data-stat]');
@@ -62,13 +90,13 @@ function Frame({
     };
   }, [onOpen]);
   return (
-    <div ref={ref} className="chart-frame">
+    <div ref={setRef} className="chart-frame">
       {children}
       {tip ? (
         <div
           className="chart-tip"
           aria-hidden="true"
-          style={{ left: `${String((tip.x / W) * 100)}%`, top: `${String((tip.y / height) * 100)}%` }}
+          style={{ left: `${String((tip.x / width) * 100)}%`, top: `${String((tip.y / height) * 100)}%` }}
         >
           {tip.content}
         </div>
@@ -116,6 +144,10 @@ export function DivergingBars({
   onOpen?: (statId: string) => void;
 }) {
   const [tip, setTip] = useState<Tip | null>(null);
+  const [box, W] = useWidth();
+  const LABEL_W = labelWidth(W);
+  const PLOT_W = W - LABEL_W - PAD_R;
+  const chars = Math.floor(LABEL_W / 6.4);
   const bar = 6;
   const rowH = refs.length * (bar + 4) + 10;
   const height = TOP + rows.length * rowH + 8;
@@ -126,7 +158,7 @@ export function DivergingBars({
   const x0 = LABEL_W + PLOT_W / 2;
   const x = (v: number) => x0 + (Math.max(-max, Math.min(max, v)) / max) * (PLOT_W / 2);
   return (
-    <Frame height={height} tip={tip} label={label} onOpen={onOpen}>
+    <Frame box={box} width={W} height={height} tip={tip} label={label} onOpen={onOpen}>
       <svg viewBox={`0 0 ${String(W)} ${String(height)}`} className="chart-svg" role="img" aria-label={label}>
         <g className="chart-axis">
           <text x={LABEL_W + 4} y={12}>
@@ -174,7 +206,7 @@ export function DivergingBars({
             >
               <rect x={0} y={y} width={W} height={rowH} className="cmp-chart-hit" />
               <text x={LABEL_W - 8} y={y + rowH / 2} dy="0.32em" textAnchor="end" className="cmp-label">
-                {short(r.label)}
+                {short(r.label, chars)}
                 {!r.higherIsBetter ? ' ↓' : ''}
               </text>
               {r.cells.map((c, k) => {
@@ -246,12 +278,16 @@ export function GroupedBars({
   onOpen?: (statId: string) => void;
 }) {
   const [tip, setTip] = useState<Tip | null>(null);
+  const [box, W] = useWidth();
+  const LABEL_W = labelWidth(W);
+  const PLOT_W = W - LABEL_W - PAD_R;
+  const chars = Math.floor(LABEL_W / 6.4);
   const series: ChartRef[] = [{ label: player, slot: 1 }, ...refs];
   const bar = 6;
   const rowH = series.length * (bar + 4) + 10;
   const height = TOP + rows.length * rowH;
   return (
-    <Frame height={height} tip={tip} label={label} onOpen={onOpen}>
+    <Frame box={box} width={W} height={height} tip={tip} label={label} onOpen={onOpen}>
       <svg viewBox={`0 0 ${String(W)} ${String(height)}`} className="chart-svg" role="img" aria-label={label}>
         <text x={LABEL_W} y={12} className="cmp-value">
           Cada fila con su propia escala
@@ -291,7 +327,7 @@ export function GroupedBars({
             >
               <rect x={0} y={y} width={W} height={rowH} className="cmp-chart-hit" />
               <text x={LABEL_W - 8} y={y + rowH / 2} dy="0.32em" textAnchor="end" className="cmp-label">
-                {short(r.label)}
+                {short(r.label, chars)}
               </text>
               <line x1={x(0)} x2={x(0)} y1={y + 3} y2={y + rowH - 5} className="chart-baseline" />
               {r.values.map((v, k) => {
@@ -357,10 +393,14 @@ export function BulletChart({
   onOpen?: (statId: string) => void;
 }) {
   const [tip, setTip] = useState<Tip | null>(null);
+  const [box, W] = useWidth();
+  const LABEL_W = labelWidth(W);
+  const PLOT_W = W - LABEL_W - PAD_R;
+  const chars = Math.floor(LABEL_W / 6.4);
   const rowH = 26;
   const height = TOP + rows.length * rowH + 6;
   return (
-    <Frame height={height} tip={tip} label={label} onOpen={onOpen}>
+    <Frame box={box} width={W} height={height} tip={tip} label={label} onOpen={onOpen}>
       <svg viewBox={`0 0 ${String(W)} ${String(height)}`} className="chart-svg" role="img" aria-label={label}>
         <g className="chart-axis">
           <text x={LABEL_W} y={12}>
@@ -415,7 +455,7 @@ export function BulletChart({
             >
               <rect x={0} y={y} width={W} height={rowH} className="cmp-chart-hit" />
               <text x={LABEL_W - 8} y={mid} dy="0.32em" textAnchor="end" className="cmp-label">
-                {short(r.label)}
+                {short(r.label, chars)}
                 {!r.higherIsBetter ? ' ↓' : ''}
               </text>
               {nums.length === 0 ? (
@@ -468,17 +508,19 @@ export function BulletChart({
       </svg>
       <ul className="chart-legend">
         <li>
-          <span className="chart-key chart-key--box" style={{ background: color(1) }} />
-          {player}
+          <span className="chart-key cmp-dot-key" style={{ background: color(1) }} />
+          Punto: {player}
         </li>
         <li>
           <span className="chart-key chart-key--line" style={{ background: color(reference.slot) }} />
-          {reference.label}
+          Línea: {reference.label}
         </li>
-        <li>
-          <span className="chart-key chart-key--box cmp-bullet-key" />
-          Rango del grupo (más oscuro: la mitad del medio)
-        </li>
+        {reference.slot !== 2 ? (
+          <li>
+            <span className="chart-key chart-key--box cmp-bullet-key" />
+            Banda: rango de {reference.label} (más oscura, la mitad del medio)
+          </li>
+        ) : null}
       </ul>
     </Frame>
   );

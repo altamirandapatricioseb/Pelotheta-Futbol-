@@ -130,10 +130,10 @@ describe('referencias en la URL', () => {
 
   it('cada referencia tiene su color fijo', () => {
     expect(refSlot({ kind: 'jugador', playerId: 1 })).toBe(2);
-    expect(refSlot({ kind: 'equipo' })).toBe(3);
-    expect(refSlot({ kind: 'posicion' })).toBe(4);
-    expect(refSlot({ kind: 'linea', line: 'arquero' })).toBe(5);
-    expect(refSlot({ kind: 'linea', line: 'delantero' })).toBe(8);
+    expect(refSlot({ kind: 'equipo' })).toBe(4);
+    expect(refSlot({ kind: 'posicion' })).toBe(5);
+    expect(refSlot({ kind: 'linea', line: 'arquero' })).toBe(6);
+    expect(refSlot({ kind: 'linea', line: 'delantero' })).toBe(9);
   });
 });
 

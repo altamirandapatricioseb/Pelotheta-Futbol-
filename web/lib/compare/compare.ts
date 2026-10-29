@@ -92,12 +92,16 @@ export function refsToParam(refs: readonly RefSpec[]): string {
   return canonical(refs).map(token).join(',');
 }
 
-/** Color fijo de cada referencia: el otro jugador rojo, el equipo azul y así (el principal es verde). */
+/**
+ * Color fijo de cada referencia: el otro jugador violeta (el secundario, siempre junto al verde
+ * del principal), el equipo azul, la posición amarilla y las líneas con los colores 6 a 9. El
+ * rojo queda solo para lo negativo.
+ */
 export function refSlot(r: RefSpec): Slot {
   if (r.kind === 'jugador') return 2;
-  if (r.kind === 'equipo') return 3;
-  if (r.kind === 'posicion') return 4;
-  return (5 + LINES.findIndex((l) => l.id === r.line)) as Slot;
+  if (r.kind === 'equipo') return 4;
+  if (r.kind === 'posicion') return 5;
+  return (6 + LINES.findIndex((l) => l.id === r.line)) as Slot;
 }
 
 const ZONE_LINE: Record<string, string> = {

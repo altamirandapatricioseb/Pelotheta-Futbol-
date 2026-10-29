@@ -44,7 +44,7 @@ const fullDate = (iso: string) => iso.split('-').reverse().join('/');
 
 /**
  * Desglose de una estadística dentro de Comparar (9.7 y 9.8): el jugador principal (verde) y, si
- * se eligió, el otro jugador (rojo), con las medias elegidas como líneas de referencia. Tiene su
+ * se eligió, el otro jugador (violeta), con las medias elegidas como líneas de referencia. Tiene su
  * propio filtro (competición, localía, resultado), ventanas lado a lado, gráficos y los partidos
  * de los dos (cada columna dice de quién es).
  */

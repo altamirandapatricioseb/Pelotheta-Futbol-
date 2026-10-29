@@ -246,7 +246,7 @@ export function CompareSection({ section, rows, labels, groups, pool, main, per9
               ? 'Cuánto más (verde) o menos (rojo) que cada referencia, en %. A la derecha siempre es mejor.'
               : chart === 'agrupadas'
                 ? `Verde: ${playerName}. Cada referencia con su color. Cada fila con su propia escala.`
-                : `Punto verde: ${playerName}. Línea: ${vs?.long ?? 'la referencia'}${vs?.player ? ' (rojo)' : ''}. A la derecha siempre es mejor.`}{' '}
+                : `Punto verde: ${playerName}. Línea: ${vs?.long ?? 'la referencia'}${vs?.player ? ' (violeta)' : ''}. A la derecha siempre es mejor.`}{' '}
             Doble clic en una fila: el desglose de esa estadística.
           </p>
           <div ref={chartRef}>
@@ -295,7 +295,7 @@ export function CompareSection({ section, rows, labels, groups, pool, main, per9
                     range: vs?.player ? null : quartiles(values),
                   };
                 })}
-                reference={refs[0] ?? { label: 'Referencia', slot: 3 }}
+                reference={refs[0] ?? { label: 'Referencia', slot: 4 }}
                 player={playerName}
                 onOpen={onOpen}
                 label={`${main.name} sobre el rango de ${vs?.long ?? 'la referencia'} en ${section.name}`}

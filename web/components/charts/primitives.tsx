@@ -4,11 +4,12 @@
 // (líneas de 2px, barras de hasta 24px con punta redondeada, puntos de 8px con aro de superficie),
 // grilla de una línea fina, un solo eje Y, leyenda desde dos series, texto siempre con tinta de
 // texto (nunca con el color de la serie) y tooltip al pasar el cursor. Los colores son variables
-// CSS (--series-1 a --series-5) validadas en modo claro y oscuro.
+// CSS (--series-1 a --series-9) validadas en modo claro y oscuro: verde, violeta, rojo (lo negativo),
+// azul, amarillo y después el resto.
 
 import { useId, useState, type ReactNode } from 'react';
 
-export type Slot = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+export type Slot = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 export interface Series {
   id: string;
   label: string;
@@ -546,6 +547,9 @@ export function ScatterChart({
 }
 
 /** Anillo de partes de un total (pocas categorías; la tabla da los valores exactos). */
+// Porciones sin el rojo: en una torta ninguna parte es «la mala».
+const DONUT_SLOTS: Slot[] = [1, 2, 4, 5, 6, 7, 8, 9];
+
 export function DonutChart({ slices, label }: { slices: { label: string; value: number }[]; label: string }) {
   const [tip, setTip] = useState<Tip | null>(null);
   const total = slices.reduce((a, s) => a + s.value, 0);
@@ -575,7 +579,7 @@ export function DonutChart({ slices, label }: { slices: { label: string; value: 
               key={s.label}
               d={d}
               className="chart-bar"
-              style={{ fill: color(((i % 5) + 1) as Slot) }}
+              style={{ fill: color(DONUT_SLOTS[i % DONUT_SLOTS.length] ?? 1) }}
               onPointerEnter={() => {
                 setTip({
                   x: cx,
@@ -601,7 +605,10 @@ export function DonutChart({ slices, label }: { slices: { label: string; value: 
         </text>
       </svg>
       <Legend
-        items={slices.map((s, i) => ({ label: `${s.label} (${formatValue(s.value)})`, slot: ((i % 5) + 1) as Slot }))}
+        items={slices.map((s, i) => ({
+          label: `${s.label} (${formatValue(s.value)})`,
+          slot: DONUT_SLOTS[i % DONUT_SLOTS.length] ?? 1,
+        }))}
       />
     </Frame>
   );
@@ -650,7 +657,7 @@ export function Heatmap({
               v === null
                 ? 'var(--chart-empty)'
                 : diverging && v < 0
-                  ? `color-mix(in oklab, var(--series-5) ${String(Math.round(15 + t * 85))}%, var(--chart-surface))`
+                  ? `color-mix(in oklab, var(--series-2) ${String(Math.round(15 + t * 85))}%, var(--chart-surface))`
                   : `color-mix(in oklab, var(--series-1) ${String(Math.round(15 + t * 85))}%, var(--chart-surface))`;
             return (
               <rect

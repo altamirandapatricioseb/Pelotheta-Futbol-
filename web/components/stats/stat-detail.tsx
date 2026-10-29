@@ -204,7 +204,7 @@ export function StatDetailView({ detail, backHref, query }: { detail: StatDetail
               <LineChart
                 labels={withValue.map((p) => day(p.date))}
                 series={[
-                  { id: 'v', label: 'Partido', slot: 3, values: withValue.map((p) => p.value) },
+                  { id: 'v', label: 'Partido', slot: 4, values: withValue.map((p) => p.value) },
                   {
                     id: 'r',
                     label: 'Media de 5',

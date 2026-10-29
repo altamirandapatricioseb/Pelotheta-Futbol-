@@ -506,7 +506,7 @@ export function CompareView({ players, catalog, positions, competitions, initial
           <p className="text-muted">
             Podés compararlo con la media del equipo, con la media de una línea (arqueros, defensores, mediocampistas o
             delanteros), con la media de su posición o con otro jugador; con otro jugador también podés sumar medias.
-            Cada uno tiene su color: el jugador en verde, el otro jugador en rojo, el equipo en azul.
+            Cada uno tiene su color: el jugador en verde, el otro jugador en violeta, el equipo en azul.
           </p>
         </div>
       ) : (

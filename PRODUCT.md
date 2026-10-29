@@ -26,7 +26,7 @@ Precise, broadcast, confident. Spanish (Argentina) voice, direct and explanatory
 
 ## Anti-references
 
-Generic SaaS admin templates, "toy dashboard" card grids, betting sites (no odds shown), anything violet, emojis.
+Generic SaaS admin templates, "toy dashboard" card grids, betting sites (no odds shown), violet except the two allowed secondary violets (#734f9a, #965fd4, always next to green), emojis.
 
 ## Design Principles
 

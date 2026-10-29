@@ -2,7 +2,7 @@
 
 // Gráficos de la comparación (9.7): barras divergentes, barras agrupadas y gráfico de bala.
 // Mismas reglas que las primitivas de la landing (skill dataviz): marcas finas, grilla tenue,
-// texto con tinta de texto, color fijo por entidad (jugador verde, otro jugador rojo, equipo
+// texto con tinta de texto, color fijo por entidad (jugador verde, otro jugador violeta, equipo
 // azul...) y tooltip al pasar el mouse. Se dibujan al ancho real del contenedor (sin escalar las
 // letras ni dejar bordes vacíos). En las divergentes y en la bala la derecha es «mejor» siempre:
 // si la estadística es de «menos es mejor», el eje se da vuelta y se avisa.

@@ -750,20 +750,21 @@ h3 {
   vector-effect: non-scaling-stroke;
 }
 
-/* Gráficos (etapa 5). Paleta categórica validada con scripts/validate_palette.js de la skill
-   dataviz: verde, rojo, azul, amarillo y rosa (sin violeta), en ese orden de prioridad. Pasa todos los pares
-   vecinos en claro (#ffffff) y oscuro (#2b2b2b); verde, rojo y azul pasan todos los pares (dispersiones). El
-   rojo oscuro es más oscuro que el verde para separarlos con daltonismo. Amarillo y rosa (claro) y rojo (oscuro) quedan bajo 3:1: cada gráfico tiene tabla. */
+/* Gráficos. Paleta categórica validada con scripts/validate_palette.js de la skill dataviz, en este
+   orden de prioridad: verde (principal), violeta (secundario, siempre junto al verde), rojo (solo lo
+   negativo, lo peor o lo malo), azul y amarillo; después rosa, naranja, verde azulado y oliva. Pasa los
+   pares vecinos en claro (#ffffff) y oscuro (#2b2b2b). Amarillo y rosa (claro) y rojo (oscuro) quedan bajo
+   3:1: cada gráfico tiene tabla o etiquetas. */
 :root {
   --series-1: #328336;
-  --series-2: #a30310;
-  --series-3: #2a78d6;
-  --series-4: #eda100;
-  --series-5: #e87ba4;
-  /* 6 a 8 (Comparar: medias de líneas), validadas con la skill dataviz. */
-  --series-6: #c2560c;
-  --series-7: #0f9b8e;
-  --series-8: #7a6a00;
+  --series-2: #734f9a;
+  --series-3: #a30310;
+  --series-4: #2a78d6;
+  --series-5: #eda100;
+  --series-6: #e87ba4;
+  --series-7: #c2560c;
+  --series-8: #0f9b8e;
+  --series-9: #7a6a00;
   --chart-surface: #ffffff;
   --chart-grid: #e6e8e6;
   --chart-axis: #c9cdc9;
@@ -772,16 +773,14 @@ h3 {
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     --series-1: #43ad2c;
-    --series-2: #bb0916;
-    --series-3: #3987e5;
-    --series-4: #c98500;
-    --series-5: #d55181;
-    --series-6: #d9741c;
-    --series-7: #1aa99b;
-    --series-8: #a09016;
-    --series-6: #d9741c;
-    --series-7: #1aa99b;
-    --series-8: #a09016;
+    --series-2: #965fd4;
+    --series-3: #bb0916;
+    --series-4: #3987e5;
+    --series-5: #c98500;
+    --series-6: #d55181;
+    --series-7: #d9741c;
+    --series-8: #1aa99b;
+    --series-9: #a09016;
     --chart-surface: #2b2b2b;
     --chart-grid: #3a3c3a;
     --chart-axis: #4a4d4a;
@@ -790,10 +789,14 @@ h3 {
 }
 :root[data-theme='dark'] {
   --series-1: #43ad2c;
-  --series-2: #bb0916;
-  --series-3: #3987e5;
-  --series-4: #c98500;
-  --series-5: #d55181;
+  --series-2: #965fd4;
+  --series-3: #bb0916;
+  --series-4: #3987e5;
+  --series-5: #c98500;
+  --series-6: #d55181;
+  --series-7: #d9741c;
+  --series-8: #1aa99b;
+  --series-9: #a09016;
   --chart-surface: #2b2b2b;
   --chart-grid: #3a3c3a;
   --chart-axis: #4a4d4a;
@@ -1341,7 +1344,7 @@ h3 {
   gap: 12px;
 }
 .concl {
-  --tone: var(--series-3);
+  --tone: var(--series-4);
   display: grid;
   align-content: start;
   gap: 6px;
@@ -1371,7 +1374,7 @@ h3 {
   line-height: 1.45;
 }
 .concl-count {
-  --tone: var(--series-3);
+  --tone: var(--series-4);
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -1825,7 +1828,7 @@ h3 {
   padding-left: 10px;
 }
 .match-goals .match-goal--rival {
-  border-left-color: var(--series-3);
+  border-left-color: var(--series-2);
 }
 .match-faceoff {
   display: grid;
@@ -1853,7 +1856,7 @@ h3 {
   background: var(--series-1);
 }
 .match-faceoff__rival {
-  background: var(--series-3);
+  background: var(--series-2);
 }
 .match-table .match-sub > * {
   background: color-mix(in oklab, var(--color-surface) 70%, var(--color-surface-2));

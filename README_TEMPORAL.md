@@ -253,9 +253,11 @@ Juan Barinaga) que vienen así de la fuente.
 
 - **Con qué comparar:** se elige un jugador y UNA opción: media del equipo (sin arqueros), media de
   arqueros, defensores, mediocampistas o delanteros, media de su posición específica u otro jugador. Con otro
-  jugador aparecen casillas para sumar medias. Colores fijos por entidad: jugador verde, otro jugador rojo,
+  jugador aparecen casillas para sumar medias. Colores fijos por entidad: jugador verde, otro jugador violeta,
   equipo azul, posición amarillo, arqueros rosa, defensores naranja, mediocampistas verde azulado y delanteros
-  oliva (series 6 a 8 nuevas, validadas con la skill dataviz en claro y oscuro). Arranca vacía y tiene «Limpiar».
+  oliva. Paleta (pedido del dueño, 28-oct): verde principal, violeta secundario (solo junto al verde; #734f9a en
+  claro y #965fd4 en oscuro), rojo solo para lo negativo, después azul y amarillo; validada con la skill dataviz.
+  El verde #8bd450 queda fuera de las series: en oscuro es demasiado claro para la banda de luminosidad. Arranca vacía y tiene «Limpiar».
 - **Selector único con búsqueda** (combobox): se escribe el nombre sin importar tildes y la lista sale agrupada
   por línea (arqueros, defensores, mediocampistas, delanteros). Enner Valencia aparece con «enner».
 - **Estadísticas según las posiciones:** columna `lineas` en `data/stat_catalog.csv` (qué líneas usan cada

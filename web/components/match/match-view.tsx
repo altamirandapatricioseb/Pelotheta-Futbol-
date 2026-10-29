@@ -274,7 +274,7 @@ export function MatchView({ data }: { data: MatchPage }) {
             </ul>
             <p className="text-xs text-muted">
               <span className="chart-key chart-key--box" style={{ background: 'var(--series-1)' }} /> Boca ·{' '}
-              <span className="chart-key chart-key--box" style={{ background: 'var(--series-3)' }} /> {match.opponent}
+              <span className="chart-key chart-key--box" style={{ background: 'var(--series-2)' }} /> {match.opponent}
             </p>
           </section>
         ) : null}

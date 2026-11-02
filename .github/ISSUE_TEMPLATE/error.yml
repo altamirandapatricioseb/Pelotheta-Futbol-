@@ -1,0 +1,49 @@
+name: Algo no funciona
+description: Una página con error, un botón que no responde o un gráfico que no se dibuja.
+title: 'Error: '
+labels: [defecto, triage]
+body:
+  - type: input
+    id: pagina
+    attributes:
+      label: Página
+    validations:
+      required: true
+  - type: input
+    id: codigo
+    attributes:
+      label: Código de error, si apareció
+      placeholder: PEL-DB-001
+  - type: textarea
+    id: pasos
+    attributes:
+      label: Pasos para reproducirlo
+      placeholder: |
+        1. Abrir ...
+        2. Elegir ...
+    validations:
+      required: true
+  - type: textarea
+    id: esperado
+    attributes:
+      label: Resultado esperado
+    validations:
+      required: true
+  - type: textarea
+    id: obtenido
+    attributes:
+      label: Resultado obtenido
+    validations:
+      required: true
+  - type: input
+    id: entorno
+    attributes:
+      label: Navegador y dispositivo
+  - type: dropdown
+    id: severidad
+    attributes:
+      label: Severidad (la confirma el triage)
+      options:
+        - Baja (cosmético)
+        - Media (una página o una función)
+        - Alta (el sitio o una interfaz no carga)

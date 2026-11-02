@@ -6,6 +6,7 @@ import { ExcelDownloads } from '@/components/excel-downloads';
 import { PlayerMasterView } from '@/components/players/player-master';
 import { getCatalog, getStatSets } from '@/lib/data/catalog';
 import { getCompetitions, getPlayerMaster } from '@/lib/data/players';
+import { ErrorNotice } from '@/components/error-notice';
 
 export const metadata: Metadata = {
   title: 'Jugadores',
@@ -79,10 +80,7 @@ export default async function JugadoresPage({ searchParams }: PageProps) {
       </div>
 
       {failed ? (
-        <div role="alert" className="under-construction">
-          <p className="font-bold">{failed.code}: la base de datos no responde.</p>
-          <p className="text-muted">Puede estar pausada por inactividad. Probá de nuevo en unos minutos.</p>
-        </div>
+        <ErrorNotice code={failed.code} />
       ) : players.ok && catalog.ok && sets.ok && players.data.length > 0 ? (
         <PlayerMasterView
           key={params.comp}

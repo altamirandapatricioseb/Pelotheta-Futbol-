@@ -21,8 +21,8 @@ const MESSAGES: Record<PanelState, string> = {
   idle: 'Listo para actualizar.',
   running: 'Actualizando: scraping, carga en la base y página. Tarda unos minutos.',
   cooldown: 'Hubo una actualización hace menos de una hora.',
-  unconfigured: 'El botón todavía no está habilitado en este despliegue.',
-  unavailable: 'No se pudo consultar el estado. Probá de nuevo en un rato.',
+  unconfigured: 'PEL-UPD-001: el botón todavía no está habilitado en este despliegue.',
+  unavailable: 'PEL-UPD-002: no se pudo consultar el estado. Probá de nuevo en un rato.',
 };
 
 /** Botón de la Interfaz 6: dispara el workflow y refresca la página al terminar. */
@@ -100,7 +100,7 @@ export function UpdatePanel({ lastUpdate, initial }: { lastUpdate: string | null
         {failed ? (
           <>
             <WarningCircleIcon size={18} weight="fill" aria-hidden="true" className="text-warn" />
-            La última corrida falló
+            PEL-UPD-003: la última corrida falló
             {status.lastRun?.failedStep ? ` en el paso «${status.lastRun.failedStep}»` : ''}. Se puede volver a
             intentar.
           </>

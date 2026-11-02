@@ -7,6 +7,7 @@ import { parseRefs, PERIODS, windowCode, type Period } from '@/lib/compare/compa
 import { getCatalog } from '@/lib/data/catalog';
 import { getBreakdown, getPlayerPositions } from '@/lib/data/compare';
 import { getCompetitions, getPlayerMaster } from '@/lib/data/players';
+import { ErrorNotice } from '@/components/error-notice';
 
 export const metadata: Metadata = {
   title: 'Comparar',
@@ -100,10 +101,7 @@ export default async function CompararPage({ searchParams }: PageProps) {
         <ExcelDownloads />
       </div>
       {failed ? (
-        <div role="alert" className="under-construction">
-          <p className="font-bold">{failed.code}: la base de datos no responde.</p>
-          <p className="text-muted">Puede estar pausada por inactividad. Probá de nuevo en unos minutos.</p>
-        </div>
+        <ErrorNotice code={failed.code} />
       ) : players.ok && catalog.ok && positions.ok && players.data.length ? (
         <CompareView
           players={players.data}

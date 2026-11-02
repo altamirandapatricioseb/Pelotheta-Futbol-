@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { SystemMark, TeamMark } from '@/components/header/brand-marks';
 import { SiteHeader } from '@/components/header/site-header';
 import { MotionProvider } from '@/components/motion-provider';
+import { ReportDataLink } from '@/components/report-data-link';
 import { THEME_COOKIE } from '@/lib/theme';
 import { SITE_DESCRIPTION, SYSTEM_NAME } from '@/config/brand';
 
@@ -63,7 +64,8 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           ·{' '}
           <Link href="/estado" className="focus-ring underline">
             Estado
-          </Link>
+          </Link>{' '}
+          · <ReportDataLink />
         </footer>
       </body>
     </html>

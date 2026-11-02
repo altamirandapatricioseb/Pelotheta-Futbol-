@@ -1,0 +1,45 @@
+name: Dato incorrecto
+description: Un número, un nombre o un resultado del sitio que no coincide con la realidad.
+title: 'Dato incorrecto: '
+labels: [dato, triage]
+body:
+  - type: input
+    id: pagina
+    attributes:
+      label: Página
+      description: Se completa sola desde el enlace «Reportar un dato incorrecto».
+      placeholder: https://pelotheta-futbol.vercel.app/...
+    validations:
+      required: true
+  - type: input
+    id: dato
+    attributes:
+      label: Qué dato está mal
+      placeholder: Por ejemplo, goles de un jugador en un partido
+    validations:
+      required: true
+  - type: input
+    id: esperado
+    attributes:
+      label: Valor esperado
+    validations:
+      required: true
+  - type: input
+    id: obtenido
+    attributes:
+      label: Valor que muestra el sitio
+    validations:
+      required: true
+  - type: input
+    id: fuente
+    attributes:
+      label: Dónde se ve el valor correcto
+      description: Un enlace a la fuente (sitio oficial, Promiedos, otra).
+  - type: dropdown
+    id: severidad
+    attributes:
+      label: Severidad (la confirma el triage)
+      options:
+        - Baja (cosmético o una estadística secundaria)
+        - Media (una estadística o una página)
+        - Alta (resultado, goles o una métrica principal)

@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { Landing } from '@/components/charts/landing';
 import { getChartCatalog } from '@/lib/data/charts';
 import { getLandingData } from '@/lib/data/landing';
+import { ErrorNotice } from '@/components/error-notice';
 
 export const metadata: Metadata = {
   title: 'Gráficos',
@@ -13,12 +14,7 @@ export const metadata: Metadata = {
 export default async function Page() {
   const [data, charts] = await Promise.all([getLandingData(), getChartCatalog()]);
   if (!data || !charts.ok) {
-    return (
-      <div role="alert" className="under-construction">
-        <p className="font-bold">PEL-DB-001: la base de datos no responde.</p>
-        <p className="text-muted">Puede estar pausada por inactividad. Probá de nuevo en unos minutos.</p>
-      </div>
-    );
+    return <ErrorNotice code={'PEL-DB-001'} />;
   }
   return <Landing data={data} charts={charts.data} />;
 }

@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { StatDetailView } from '@/components/stats/stat-detail';
 import { parseRefs, refsToParam } from '@/lib/compare/compare';
 import { getStatDetail } from '@/lib/data/desglosada';
+import { ErrorNotice } from '@/components/error-notice';
 
 export const metadata: Metadata = { title: 'Estadística desglosada' };
 
@@ -55,12 +56,7 @@ export default async function Page({ params, searchParams }: PageProps) {
   const detail = await getStatDetail(parsed.data.stat, search.entidad, search.id ?? null, chosen);
   if (detail === null) notFound();
   if (!detail.ok) {
-    return (
-      <div role="alert" className="under-construction">
-        <p className="font-bold">{detail.code}: la base de datos no responde.</p>
-        <p className="text-muted">Puede estar pausada por inactividad. Probá de nuevo en unos minutos.</p>
-      </div>
-    );
+    return <ErrorNotice code={detail.code} />;
   }
   // Las relacionadas conservan las referencias y la vuelta a Comparar.
   const fromCompare = chosen

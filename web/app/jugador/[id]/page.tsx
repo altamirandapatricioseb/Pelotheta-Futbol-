@@ -4,6 +4,7 @@ import { z } from 'zod';
 
 import { PlayerDetailView } from '@/components/players/player-detail';
 import { getPlayerDetail } from '@/lib/data/player';
+import { ErrorNotice } from '@/components/error-notice';
 
 export const metadata: Metadata = {
   title: 'Jugador',
@@ -23,12 +24,7 @@ export default async function JugadorPage({ params }: PageProps) {
   const detail = await getPlayerDetail(parsed.data.id);
   if (detail === null) notFound();
   if (!detail.ok) {
-    return (
-      <div role="alert" className="under-construction">
-        <p className="font-bold">{detail.code}: la base de datos no responde.</p>
-        <p className="text-muted">Puede estar pausada por inactividad. Probá de nuevo en unos minutos.</p>
-      </div>
-    );
+    return <ErrorNotice code={detail.code} />;
   }
   return <PlayerDetailView data={detail.data} />;
 }

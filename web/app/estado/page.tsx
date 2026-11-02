@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 
+import { ErrorNotice } from '@/components/error-notice';
+import { articleUrl } from '@/lib/errors';
 import { formatDateTime } from '@/lib/format';
 import { createApiClient } from '@/lib/supabase/server';
 
@@ -26,7 +28,7 @@ export default async function Page() {
         , que un control automático consulta cada 6 horas.
       </p>
       {error ? (
-        <p role="alert">La base no respondió. Puede estar pausada: volvé a intentar en unos minutos.</p>
+        <ErrorNotice code="PEL-DB-001" />
       ) : (
         // Con foco y nombre: en el celular la tabla se desplaza de costado y hay que poder hacerlo con teclado
         // (axe: scrollable-region-focusable).
@@ -47,7 +49,17 @@ export default async function Page() {
                 <tr key={s.source}>
                   <th scope="row">{s.source}</th>
                   <td>{formatDateTime(s.last_run_at)}</td>
-                  <td className="text-left">{s.last_status ? (STATUS[s.last_status] ?? s.last_status) : '—'}</td>
+                  <td className="text-left">
+                    {s.last_status ? (STATUS[s.last_status] ?? s.last_status) : '—'}
+                    {s.last_status === 'error' ? (
+                      <>
+                        {' · '}
+                        <a href={articleUrl('PEL-SRC-003')} className="focus-ring underline">
+                          PEL-SRC-003
+                        </a>
+                      </>
+                    ) : null}
+                  </td>
                   <td>{formatDateTime(s.last_success_at)}</td>
                 </tr>
               ))}

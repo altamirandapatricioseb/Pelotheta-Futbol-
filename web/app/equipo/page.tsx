@@ -5,6 +5,7 @@ import { ExcelDownloads } from '@/components/excel-downloads';
 import { TeamTableView } from '@/components/team/team-table';
 import { getCatalog, getStatSets } from '@/lib/data/catalog';
 import { getLeagueClubs, getTeamMatches, getTeamWindowValues } from '@/lib/data/team';
+import { ErrorNotice } from '@/components/error-notice';
 
 export const metadata: Metadata = {
   title: 'Equipo',
@@ -50,10 +51,7 @@ export default async function EquipoPage({ searchParams }: PageProps) {
         <ExcelDownloads />
       </div>
       {failed ? (
-        <div role="alert" className="under-construction">
-          <p className="font-bold">{failed.code}: la base de datos no responde.</p>
-          <p className="text-muted">Puede estar pausada por inactividad. Probá de nuevo en unos minutos.</p>
-        </div>
+        <ErrorNotice code={failed.code} />
       ) : matches.ok && catalog.ok && sets.ok && windowValues.ok ? (
         <TeamTableView
           matches={matches.data}

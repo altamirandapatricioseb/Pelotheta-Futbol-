@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 
 import { SituationsBoard } from '@/components/situations/board';
 import { getSituations } from '@/lib/data/situations';
+import { ErrorNotice } from '@/components/error-notice';
 
 export const metadata: Metadata = {
   title: 'Situaciones',
@@ -12,12 +13,7 @@ export const metadata: Metadata = {
 export default async function Page() {
   const result = await getSituations();
   if (!result.ok) {
-    return (
-      <div role="alert" className="under-construction">
-        <p className="font-bold">{result.code}: la base de datos no responde.</p>
-        <p className="text-muted">Puede estar pausada por inactividad. Probá de nuevo en unos minutos.</p>
-      </div>
-    );
+    return <ErrorNotice code={result.code} />;
   }
   return (
     <SituationsBoard

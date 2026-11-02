@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Vulnerabilidad de seguridad
+    url: https://github.com/altamirandapatricioseb/Pelotheta-Futbol-/security/advisories/new
+    about: Nunca en un issue público. Aviso privado según SECURITY.md.
+  - name: Qué significa un código de error
+    url: https://github.com/altamirandapatricioseb/Pelotheta-Futbol-/blob/main/docs/soporte/README.md
+    about: Base de conocimiento con un artículo por código.

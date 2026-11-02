@@ -4,6 +4,7 @@ import { z } from 'zod';
 
 import { MatchView } from '@/components/match/match-view';
 import { getMatchPage } from '@/lib/data/match';
+import { ErrorNotice } from '@/components/error-notice';
 
 export const metadata: Metadata = {
   title: 'Partido',
@@ -23,12 +24,7 @@ export default async function PartidoPage({ params }: PageProps) {
   const page = await getMatchPage(parsed.data.id);
   if (page === null) notFound();
   if (!page.ok) {
-    return (
-      <div role="alert" className="under-construction">
-        <p className="font-bold">{page.code}: la base de datos no responde.</p>
-        <p className="text-muted">Puede estar pausada por inactividad. Probá de nuevo en unos minutos.</p>
-      </div>
-    );
+    return <ErrorNotice code={page.code} />;
   }
   return <MatchView data={page.data} />;
 }

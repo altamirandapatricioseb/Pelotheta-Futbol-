@@ -50,6 +50,8 @@ export interface MatchPage {
   formation: { boca: string | null; rival: string | null } | null;
   absences: { name: string; reason: string | null }[];
   weather: { temperature: number | null; rain: number | null; wind: number | null; place: string | null } | null;
+  /** DT de cada equipo y capacidad del estadio (ELNINE). */
+  context: { bocaCoach: string | null; rivalCoach: string | null; capacity: number | null } | null;
   situations: { cardId: string; title: string; param: string }[];
   prev: { id: number; label: string } | null;
   next: { id: number; label: string } | null;
@@ -59,7 +61,7 @@ export interface MatchPage {
 export async function getMatchPage(matchId: number): Promise<DataResult<MatchPage> | null> {
   try {
     const api = createApiClient();
-    const [teams, teamCatalog, playerCatalog, head, lineup, shots, momentum, formation, absences, weather, situ] =
+    const [teams, teamCatalog, playerCatalog, head, lineup, shots, momentum, formation, absences, weather, situ, ctx] =
       await Promise.all([
         getTeamMatches(),
         getCatalog('team'),
@@ -87,11 +89,12 @@ export async function getMatchPage(matchId: number): Promise<DataResult<MatchPag
           .eq('match_id', matchId)
           .limit(1),
         api.from('situational_match').select('card_id, param_value').eq('match_id', matchId).limit(500),
+        api.from('match_context').select('boca_coach, rival_coach, stadium_capacity').eq('match_id', matchId).limit(1),
       ]);
     if (!teams.ok) return teams;
     if (!teamCatalog.ok) return teamCatalog;
     if (!playerCatalog.ok) return playerCatalog;
-    for (const r of [head, lineup, shots, momentum, formation, absences, weather, situ]) {
+    for (const r of [head, lineup, shots, momentum, formation, absences, weather, situ, ctx]) {
       if (r.error) return fail(r.error.message);
     }
     const match = teams.data.find((m) => m.matchId === matchId);
@@ -133,6 +136,7 @@ export async function getMatchPage(matchId: number): Promise<DataResult<MatchPag
     };
     const f = (formation.data ?? [])[0];
     const w = (weather.data ?? [])[0];
+    const c = (ctx.data ?? [])[0];
     const shotRows = shots.data ?? [];
 
     return {
@@ -195,6 +199,7 @@ export async function getMatchPage(matchId: number): Promise<DataResult<MatchPag
         absences: (absences.data ?? []).flatMap((a) =>
           a.boca_absence && a.player_name ? [{ name: a.player_name, reason: a.reason }] : [],
         ),
+        context: c ? { bocaCoach: c.boca_coach, rivalCoach: c.rival_coach, capacity: c.stadium_capacity } : null,
         weather: w
           ? { temperature: w.temperature_c, rain: w.precipitation_mm, wind: w.wind_kmh, place: w.place }
           : null,

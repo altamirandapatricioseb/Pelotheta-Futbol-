@@ -15,7 +15,7 @@ import { useMemo } from 'react';
 
 import { LineChart, ShotMap } from '@/components/charts/primitives';
 import type { MatchPage } from '@/lib/data/match';
-import { formatDateTime, NOT_AVAILABLE } from '@/lib/format';
+import { formatDateTime, formatNumber, NOT_AVAILABLE } from '@/lib/format';
 import { playerMatchValue, teamVsSeason, type TeamStatLine } from '@/lib/match/match';
 import { formatStat, type StatDef } from '@/lib/stats/catalog';
 
@@ -189,11 +189,22 @@ export function MatchView({ data }: { data: MatchPage }) {
         <dl className="match-facts">
           <div>
             <dt>Estadio</dt>
-            <dd>{match.venue ?? NOT_AVAILABLE}</dd>
+            <dd>
+              {match.venue ?? NOT_AVAILABLE}
+              {data.context?.capacity ? ` · ${formatNumber(data.context.capacity)} lugares` : ''}
+            </dd>
           </div>
           <div>
             <dt>Árbitro</dt>
             <dd>{match.referee ?? NOT_AVAILABLE}</dd>
+          </div>
+          <div>
+            <dt>Directores técnicos</dt>
+            <dd>
+              {data.context?.bocaCoach || data.context?.rivalCoach
+                ? `Boca ${data.context.bocaCoach ?? NOT_AVAILABLE} · rival ${data.context.rivalCoach ?? NOT_AVAILABLE}`
+                : NOT_AVAILABLE}
+            </dd>
           </div>
           <div>
             <dt>Formación</dt>

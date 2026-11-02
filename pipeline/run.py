@@ -30,10 +30,12 @@ from pipeline import catalog, charts, conclusions, enrich, load, own_metrics, si
 from pipeline.models import (
     CompetitionMetricRecord,
     LeagueResultRecord,
+    MatchContextRecord,
     PlayerProfileRecord,
     WeatherRecord,
 )
 from sources import bzzoiro as bz
+from sources import elnine as en
 from sources import nofluffpicks as nfp
 from sources import openmeteo as om
 from sources import promiedos as pd
@@ -188,6 +190,52 @@ def crawl_nofluffpicks(
             continue
         result.append((fixture, stats))
     return result
+
+
+def crawl_elnine(games: list[pd.ParsedGame], warnings: list[str]) -> list[MatchContextRecord]:
+    """DT de cada equipo y estadio con su capacidad de cada partido de Boca (ELNINE).
+
+    Dos páginas por partido: el día (para encontrar el id) y el partido. El árbitro se compara con
+    el de Promiedos y una diferencia queda como aviso (validación cruzada). Si la fuente falla, se
+    sigue sin estos datos.
+    """
+    rows: list[MatchContextRecord] = []
+    with PoliteClient(source=en.SOURCE) as client:
+        for game in games:
+            match = game.match
+            try:
+                day_html = en.check_challenge(client.get(en.BASE_URL + en.day_path(match.match_date)).text())
+                found = en.boca_match(en.parse_day(day_html), match.match_date)
+                if found is None:
+                    continue
+                info = en.parse_match(en.check_challenge(client.get(en.BASE_URL + found.path).text()))
+            except en.ChallengeError as exc:
+                # Un desafío vale para toda la corrida: no se insiste partido por partido.
+                warnings.append(str(exc))
+                return rows
+            except (FetchError, RetryableFetchError) as exc:
+                warnings.append(f"ELNINE {match.match_date}: {exc}")
+                continue
+            boca, rival = ("home", "away") if found.boca_home else ("away", "home")
+            if (
+                match.referee
+                and info["referee"]
+                and pd.player_key(str(info["referee"])) != pd.player_key(match.referee)
+            ):
+                warnings.append(
+                    f"ELNINE {match.match_date}: árbitro {info['referee']} (Promiedos: {match.referee})"
+                )
+            rows.append(
+                MatchContextRecord(
+                    match_source_id=match.source_id,
+                    boca_coach=info[f"{boca}_coach"],  # type: ignore[arg-type]
+                    rival_coach=info[f"{rival}_coach"],  # type: ignore[arg-type]
+                    stadium=info["stadium"],  # type: ignore[arg-type]
+                    stadium_capacity=info["capacity"],  # type: ignore[arg-type]
+                    source=en.SOURCE,
+                )
+            )
+    return rows
 
 
 def crawl_scoutingstats(client: PoliteClient, warnings: list[str]) -> list[ss.ParsedMatch]:
@@ -540,6 +588,8 @@ def run_pipeline(dry_run: bool, url: str, key: str) -> int:
             with_xg = enrich.attach_nofluffpicks(games, crawl_nofluffpicks(client, warnings), warnings)
         print(f"Partidos con datos de NoFluffPicks: {with_xg}.")
         weather = crawl_weather(games, ss_matches, warnings)
+        match_context = crawl_elnine(games, warnings)
+        print(f"Partidos con datos de ELNINE: {len(match_context)}.")
         print(f"Partidos con clima de Open-Meteo: {len(weather)}.")
         known = sorted(
             {p.source_id for p in players} | {lu.player_source_id for g in games for lu in g.lineups}
@@ -602,6 +652,8 @@ def run_pipeline(dry_run: bool, url: str, key: str) -> int:
         result["player_stats"] = load.send_player_stats(player_stats, url, key)
         if weather:
             result["weather"] = load.send_weather(weather, url, key)
+        if match_context:
+            result["match_context"] = load.send_match_context(match_context, url, key)
         result.update(load.send_extras(extras, url, key) or {})
         if feet:
             result["feet"] = load.send_player_foot(feet, url, key)

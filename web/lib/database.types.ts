@@ -146,6 +146,17 @@ export type Database = {
         };
         Relationships: [];
       };
+      match_context: {
+        Row: {
+          match_id: number;
+          boca_coach: string | null;
+          rival_coach: string | null;
+          stadium: string | null;
+          stadium_capacity: number | null;
+          source: string;
+        };
+        Relationships: [];
+      };
       boca_weather: {
         Row: {
           match_id: number | null;

@@ -167,6 +167,17 @@ class WeatherRecord(Record):
     source: str = Field(pattern=r"^[a-z_]+$")
 
 
+class MatchContextRecord(Record):
+    """DT de cada equipo y estadio con su capacidad (ELNINE)."""
+
+    match_source_id: str
+    boca_coach: str | None = Field(default=None, max_length=80)
+    rival_coach: str | None = Field(default=None, max_length=80)
+    stadium: str | None = Field(default=None, max_length=120)
+    stadium_capacity: int | None = Field(default=None, gt=0, le=200_000)
+    source: str = Field(pattern=r"^[a-z_]+$")
+
+
 AbsenceReason = Literal["lesion", "suspension_roja", "suspension_amarillas", "seleccion", "personal", "otro"]
 
 

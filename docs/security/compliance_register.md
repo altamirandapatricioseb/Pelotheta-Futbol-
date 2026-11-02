@@ -6,6 +6,7 @@ Revisión inicial: 27-oct-2026 (Fase 0). Próxima revisión: al cerrar la etapa 
 |---|---|---|---|
 | Promiedos | activa (principal) | citar «Promiedos» y «Opta»; solo páginas HTML públicas; no mostrar cuotas ni datos crudos; 3 s entre requests | `data/raw/phase0/promiedos.json`, ADR 0004 |
 | NoFluffPicks | activa (xG por partido) | citar «NoFluffPicks (datos de FootyStats)» con enlace; no republicar partes sustanciales ni textos; 3 s entre requests | `docs/source_audit.md`, segunda ronda |
+| ELNINE | bloqueada por Cloudflare (2-nov-2026) | robots permite; si el desafío desaparece: dos páginas por partido, pausa de PoliteClient, citar «ELNINE»; nunca evadir el desafío | `docs/source_audit.md`, fila ELNINE |
 | ScoutingStats | activa (estadísticas avanzadas de equipo y jugador, formaciones) | citar «ScoutingStats (datos de Sportmonks)» con enlace; solo páginas de partido; no pedir `/api/` ni páginas de jugador (Cloudflare); no republicar textos, previas ni predicciones; 3 s entre requests | `docs/source_audit.md`, tercera ronda |
 | StrikerAPI | activa (tiros ubicados, xG por tiro, faltas y despejes; solo Liga Profesional) | clave solo en GitHub Secrets; no revender ni redistribuir como dataset; 500 créditos por mes | `docs/source_audit.md`, tercera ronda |
 | PitchMath, GoalPulz, MatchPulseStats, ESPN | descartadas | términos prohíben scraping | `docs/source_audit.md`, tercera ronda |

@@ -8,7 +8,8 @@ suben al bucket público `exports`, sobrescribiendo la versión anterior. Cada l
   gráficos nativos), `Comparación` (medias de equipo, líneas y posición por categoría);
 - una hoja por gráfico de la tabla 9.4 con su tabla de datos, su gráfico nativo y el enlace
   «Ver datos de origen» (9.9); los que Excel no puede dibujar lo dicen en su hoja;
-- `Equipo` (partido a partido) y, en el global, `Situaciones`.
+- `Equipo` (partido a partido) y, en el global, `Situaciones`, `Proyección` y `Desglosada` (9.8:
+  entidad, estadística y ventana en listas, con fórmulas sobre la serie por partido).
 
 Los textos se escriben siempre como texto (`write_string`): una celda que empiece con `=`, `+`,
 `-` o `@` nunca se ejecuta como fórmula (14.3).
@@ -24,7 +25,7 @@ import statistics
 import sys
 from collections.abc import Sequence
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from typing import Any
 
 import httpx
@@ -107,6 +108,28 @@ class Data:
     situations: list[dict[str, Any]] = field(default_factory=list)
     # Detalle de las métricas de 6.1 por jugador: {player_id: {stat_id: {"value", "detail"}}}.
     projection: dict[int, dict[str, dict[str, Any]]] = field(default_factory=dict)
+    # Hoja Desglosada: estadísticas de las dos entidades, valores base de cada jugador por partido
+    # ({player_id: {match_id: {clave: valor}}}) y métricas por partido
+    # ({(entidad, id, stat): {match_id: valor}}).
+    series_stats: list[SeriesStat] = field(default_factory=list)
+    player_values: dict[int, dict[int, dict[str, float]]] = field(default_factory=dict)
+    metric_values: dict[tuple[str, int, str], dict[int, float]] = field(default_factory=dict)
+
+
+@dataclass
+class SeriesStat:
+    """Una estadística con lo que hace falta para calcularla partido a partido (api.stat_series)."""
+
+    entity: str  # "player" o "team"
+    id: str
+    name: str
+    unit: str
+    description: str
+    rule: str
+    arg1: str | None
+    arg2: str | None
+    factor: float
+    higher_is_better: bool
 
 
 def _get(
@@ -171,6 +194,9 @@ def fetch(url: str, key: str) -> Data:
             r["card_id"]: r
             for r in _get(c, url, key, "situational_catalog", "card_id,category,title_es,sort_order")
         }
+        team_catalog = _get(c, url, key, "stat_catalog", "*", entity="eq.team", available="eq.true")
+        match_values = _get(c, url, key, "player_match_value", "match_id,player_id,key,value")
+        metrics = _get(c, url, key, "stat_match_value", "entity,entity_id,match_id,stat_id,value")
     zone_line = {
         "Arco": "Arquero",
         "Defensa": "Defensor",
@@ -231,6 +257,19 @@ def fetch(url: str, key: str) -> Data:
                 {**r, "category": card["category"], "title": card["title_es"], "order": card["sort_order"]}
             )
     situ.sort(key=lambda r: (r["order"], r["param_order"] or 0))
+    player_values: dict[int, dict[int, dict[str, float]]] = {}
+    for v in match_values:
+        if isinstance(v["value"], int | float):
+            player_values.setdefault(v["player_id"], {}).setdefault(v["match_id"], {})[v["key"]] = float(
+                v["value"]
+            )
+    metric_values: dict[tuple[str, int, str], dict[int, float]] = {}
+    for m in metrics:
+        if isinstance(m["value"], int | float):
+            ent_id = m["entity_id"] if m["entity"] == "player" else 0
+            metric_values.setdefault((m["entity"], ent_id, m["stat_id"]), {})[m["match_id"]] = float(
+                m["value"]
+            )
     return Data(
         updated=str(updated)[:16].replace("T", " "),
         competitions=[(c["code"], c["name_es"]) for c in comps],
@@ -240,7 +279,38 @@ def fetch(url: str, key: str) -> Data:
         team=team,
         situations=situ,
         projection=projection,
+        series_stats=series_stats([*catalog, *team_catalog]),
+        player_values=player_values,
+        metric_values=metric_values,
     )
+
+
+def series_stats(catalog: Sequence[dict[str, Any]]) -> list[SeriesStat]:
+    """Estadísticas calculables por partido. En los compuestos, un argumento que es una suma o un
+    promedio del catálogo se reemplaza por su clave base, como en api.stat_series."""
+    base = {(r["entity"], r["stat_id"]): r["arg1"] for r in catalog if r["rule"] in ("suma", "promedio")}
+    out = []
+    for r in catalog:
+        if r["rule"] in ("perfil", "nd"):
+            continue
+        a1, a2 = r.get("arg1"), r.get("arg2")
+        if r["rule"] in ("cociente", "diferencia", "adicion"):
+            a1, a2 = base.get((r["entity"], a1)) or a1, base.get((r["entity"], a2)) or a2
+        out.append(
+            SeriesStat(
+                entity=r["entity"],
+                id=r["stat_id"],
+                name=r["name_es"],
+                unit=r.get("unit") or "",
+                description=r.get("description_es") or "",
+                rule=r["rule"],
+                arg1=a1,
+                arg2=a2,
+                factor=float(r.get("factor") or 1),
+                higher_is_better=bool(r["higher_is_better"]),
+            )
+        )
+    return out
 
 
 # --------------------------------------------------------------------------------------------
@@ -280,6 +350,54 @@ def pearson(x: Sequence[float], y: Sequence[float]) -> float | None:
     if sx == 0 or sy == 0:
         return None
     return sum((a - mx) * (b - my) for a, b in zip(x, y, strict=True)) / (sx * sy)
+
+
+def series_value(
+    stat: SeriesStat, base: dict[str, float], metric: float | None
+) -> tuple[float, float, float] | None:
+    """(valor, numerador, denominador) de un partido con las reglas de api.stat_series. Fuera de los
+    cocientes el numerador es el valor y el denominador 1, así una ventana es suma / suma en todos."""
+    a1 = base.get(stat.arg1) if stat.arg1 else None
+    a2 = base.get(stat.arg2) if stat.arg2 else None
+    if stat.rule == "cociente":
+        if a1 is None or a2 is None or a2 <= 0:
+            return None
+        return a1 / a2 * stat.factor, a1, a2
+    if stat.rule in ("suma", "promedio"):
+        value = a1
+    elif stat.rule == "diferencia":
+        value = None if a1 is None or a2 is None else a1 - a2
+    elif stat.rule == "adicion":
+        value = None if a1 is None or a2 is None else a1 + a2
+    else:
+        value = metric
+    return None if value is None else (value, value, 1.0)
+
+
+def series_rows(data: Data, player_ids: Sequence[int]) -> list[tuple[str, int, float, float, float]]:
+    """Filas de la serie por partido: clave «entidad|stat|n» (n = 1 es el partido más reciente con
+    dato), partido, valor, numerador y denominador. La entidad es «e» (Boca) o el id del jugador."""
+    team = {
+        m["match_id"]: {k: float(v) for k, v in (m.get("stats") or {}).items() if isinstance(v, int | float)}
+        for m in data.team
+    }
+    recent = [m["match_id"] for m in sorted(data.team, key=lambda m: m["match_date"], reverse=True)]
+    entities: list[tuple[str, str, int, dict[int, dict[str, float]]]] = [("e", "team", 0, team)]
+    entities += [(str(p), "player", p, data.player_values[p]) for p in player_ids if p in data.player_values]
+    rows = []
+    for code, kind, ent_id, matches in entities:
+        for stat in data.series_stats:
+            if stat.entity != kind:
+                continue
+            metrics = data.metric_values.get((kind, ent_id, stat.id), {})
+            n = 0
+            for match_id in recent:
+                base = matches.get(match_id)
+                got = None if base is None else series_value(stat, base, metrics.get(match_id))
+                if got is not None:
+                    n += 1
+                    rows.append((f"{code}|{stat.id}|{n}", match_id, *got))
+    return rows
 
 
 def safe_text(value: str) -> str:
@@ -1177,6 +1295,10 @@ def build(data: Data, code: str, scope: str) -> bytes:
     if code == "todas" and data.projection:
         projection_sheets(book, players, data.projection)
 
+    # Desglosada (9.8): solo en el global, con la serie de todas las competiciones.
+    if code == "todas":
+        breakdown_sheets(book, data, players)
+
     # Situaciones (solo en el global: las tarjetas mezclan competiciones).
     if code == "todas" and data.situations:
         si = book.sheet(
@@ -1505,6 +1627,394 @@ def projection_sheets(
         freeze=False,
     )
     ws.autofilter(0, 0, 0, 0)
+
+
+# --------------------------------------------------------------------------------------------
+# Desglosada (9.8): una estadística de Boca o de un jugador por ventanas, con fórmulas vivas
+
+TEAM_NAME = "Boca Juniors"
+EXCEL_EPOCH = date(1899, 12, 30)
+# Columnas auxiliares (ocultas) de la lista de partidos de la hoja Desglosada.
+AUX = 23
+
+
+def breakdown_windows(competitions: Sequence[str]) -> list[tuple[str, str, Any]]:
+    """Ventanas de 9.8 como (nombre, tipo, parámetro). Por rival y por tiempo quedan en la web."""
+    return [
+        ("Último partido", "n", 1),
+        ("Últimos 3 partidos", "n", 3),
+        ("Últimos 5 partidos", "n", 5),
+        ("Últimos 10 partidos", "n", 10),
+        *[(f"Últimos {d} días", "dias", d) for d in (7, 14, 30, 60, 90)],
+        ("Mes en curso", "mes", ""),
+        ("Mes anterior", "mes_ant", ""),
+        ("Temporada", "todo", ""),
+        ("Local", "local", ""),
+        ("Visitante", "visitante", ""),
+        ("En victorias", "resultado", "G"),
+        ("En empates", "resultado", "E"),
+        ("En derrotas", "resultado", "P"),
+        *[(name, "comp", name) for name in competitions],
+    ]
+
+
+def breakdown_sheets(book: Book, data: Data, players: Sequence[Player]) -> None:
+    """`Desglosada`: se elige entidad, estadística y ventana en listas, y fórmulas sobre la serie por
+    partido (hoja oculta) dan n, valor, total, mejor, peor y la diferencia contra la temporada, más la
+    lista de partidos y un gráfico nativo que marca los de la ventana. Las mismas reglas que la web."""
+    rows = series_rows(data, [p.id for p in players])
+    if not rows:
+        return
+    wb = book.wb
+
+    def name_range(name: str, sheet: str, c: int, first: int, last: int) -> None:
+        letter = xl_col_to_name(c)
+        wb.define_name(name, f"='{sheet}'!${letter}${first + 1}:${letter}${last + 1}")
+
+    # Serie por partido (oculta).
+    serie = book.sheet(
+        "Serie por partido", "Valor de cada estadística en cada partido (oculta, para Desglosada)"
+    )
+    for c, h in enumerate(["Clave", "Partido", "Valor", "Numerador", "Denominador"]):
+        serie.write_string(0, c, h)
+    for i, (clave, match_id, value, num, den) in enumerate(rows, start=1):
+        serie.write_string(i, 0, clave)
+        serie.write_row(i, 1, [match_id, value, num, den])
+    serie.hide()
+    for c, name in enumerate(["SERIE_CLAVE", "SERIE_PARTIDO", "SERIE_VALOR", "SERIE_NUM", "SERIE_DEN"]):
+        name_range(name, "Serie por partido", c, 1, len(rows))
+
+    # Listas (oculta): partidos, entidades, estadísticas y ventanas.
+    lists = book.sheet(
+        "Listas desglosada", "Partidos, entidades, estadísticas y ventanas (oculta, para Desglosada)"
+    )
+    lists.hide()
+    matches = sorted(data.team, key=lambda m: m["match_date"])
+    for i, m in enumerate(matches, start=1):
+        gf, ga = m["goals_for"] or 0, m["goals_against"] or 0
+        lists.write_number(i, 0, m["match_id"])
+        lists.write_number(i, 1, (date.fromisoformat(str(m["match_date"])[:10]) - EXCEL_EPOCH).days)
+        lists.write_string(i, 2, safe_text(m["opponent"] or ""))
+        lists.write_string(i, 3, "Local" if m["boca_home"] else "Visitante")
+        lists.write_string(i, 4, "G" if gf > ga else "E" if gf == ga else "P")
+        lists.write_string(i, 5, safe_text(m["competition_name"] or ""))
+        lists.write_string(i, 6, f"{gf}-{ga}")
+    for c, name in enumerate(("ID", "FECHA", "RIVAL", "LOCALIA", "RES", "COMP", "MARCADOR")):
+        name_range(f"PARTIDO_{name}", "Listas desglosada", c, 1, len(matches))
+    present = {tuple(clave.split("|")[:2]) for clave, *_ in rows}
+    with_rows = {code for code, _ in present}
+    stats_with_rows = {(code == "e", stat_id) for code, stat_id in present}
+    entities = [(TEAM_NAME, "e")] + [(p.name, str(p.id)) for p in players if str(p.id) in with_rows]
+    for i, (name, code) in enumerate(entities, start=1):
+        lists.write_string(i, 8, safe_text(name))
+        lists.write_string(i, 9, code)
+    name_range("ENT_NOM", "Listas desglosada", 8, 1, len(entities))
+    name_range("ENT_COD", "Listas desglosada", 9, 1, len(entities))
+    blocks: dict[str, list[SeriesStat]] = {"e": [], "j": []}
+    for s in data.series_stats:
+        if (s.entity == "team", s.id) in stats_with_rows:
+            blocks["e" if s.entity == "team" else "j"].append(s)
+    i = 1
+    for kind, label in (("e", "EST_EQUIPO"), ("j", "EST_JUGADOR")):
+        first, seen = i, set()
+        for s in blocks[kind]:
+            # Un nombre repetido dentro de la misma entidad lleva el id para que la lista no sea ambigua.
+            name = s.name if s.name not in seen else f"{s.name} ({s.id})"
+            seen.add(name)
+            lists.write_string(i, 11, f"{kind}|{name}")
+            lists.write_string(i, 12, s.id)
+            lists.write_string(i, 13, safe_text(name))
+            lists.write_string(i, 14, s.unit)
+            lists.write_number(i, 15, s.factor if s.rule == "cociente" else 1)
+            lists.write_number(i, 16, 1 if s.higher_is_better else 0)
+            lists.write_number(i, 17, 1 if s.rule in ("suma", "diferencia", "adicion") else 0)
+            lists.write_string(i, 18, safe_text(s.description))
+            i += 1
+        if i > first:
+            name_range(label, "Listas desglosada", 13, first, i - 1)
+    for c, name in zip(
+        range(11, 19),
+        [
+            "EST_CLAVE",
+            "EST_ID",
+            "EST_NOMBRE",
+            "EST_UNIDAD",
+            "EST_FACTOR",
+            "EST_MAYOR",
+            "EST_TOTAL",
+            "EST_DESC",
+        ],
+        strict=True,
+    ):
+        name_range(name, "Listas desglosada", c, 1, i - 1)
+    windows = breakdown_windows(
+        list(dict.fromkeys(m["competition_name"] for m in matches if m["competition_name"]))
+    )
+    for k, (name, kind, param) in enumerate(windows, start=1):
+        lists.write_string(k, 20, safe_text(name))
+        lists.write_string(k, 21, kind)
+        if param != "":
+            book.write(lists, k, 22, param)
+    for c, name in zip(range(20, 23), ["VEN_NOM", "VEN_TIPO", "VEN_PARAM"], strict=True):
+        name_range(name, "Listas desglosada", c, 1, len(windows))
+
+    # Desglosada.
+    ws = book.sheet(
+        "Desglosada", "Elegí entidad, estadística y ventana: resumen, partidos y gráfico con fórmulas vivas"
+    )
+    r = book.header(
+        ws, "Estadística desglosada (9.8)", "stat_match_value, player_match_value y team_match_master"
+    )
+    ws.set_column(0, 0, 30)
+    ws.set_column(1, 1, 34)
+    ws.set_column(2, 8, 13)
+    ws.set_column(AUX, AUX + 10, None, None, {"hidden": True})
+    f = wb.add_format
+    base = {"font_name": FONT, "font_size": 10}
+    date_fmt = f({**base, "num_format": "dd/mm/yyyy"})
+    flag_fmt = f({**base, "num_format": '"sí";"sí";"no"', "align": "center"})
+    aux_fmt = f({**base, "font_color": "#9AA09A"})
+    # Arranca en Boca con xG (o la primera que haya); si el equipo no tiene serie, en el primer jugador.
+    team_first = bool(blocks["e"])
+    default = next((s for s in blocks["e"] if s.id == "eq_xg"), (blocks["e"] or blocks["j"])[0])
+    inputs = [
+        ("Entidad (elegí en la lista)", TEAM_NAME if team_first else entities[1][0]),
+        ("Estadística (cambia con la entidad)", default.name),
+        ("Ventana", "Últimos 5 partidos"),
+    ]
+    for k, (label, value) in enumerate(inputs):
+        ws.write_string(r + k, 0, label, book.bold)
+        ws.write_string(r + k, 1, safe_text(value), book.input)
+
+    def abs_cell(row: int, c: int) -> str:
+        return xl_rowcol_to_cell(row, c, row_abs=True, col_abs=True)
+
+    ent, est, ven = (abs_cell(r + k, 1) for k in range(3))
+    aux = [
+        ("Código de la entidad", f'=IFERROR(INDEX(ENT_COD,MATCH({ent},ENT_NOM,0)),"")'),
+        ("Fila de la estadística", f'=IFERROR(MATCH(IF(E{r + 1}="e","e","j")&"|"&{est},EST_CLAVE,0),"")'),
+        ("Id de la estadística", f'=IF(E{r + 2}="","",INDEX(EST_ID,E{r + 2}))'),
+        ("Factor (cocientes)", f'=IF(E{r + 2}="",1,INDEX(EST_FACTOR,E{r + 2}))'),
+        ("Más es mejor", f'=IF(E{r + 2}="",TRUE,INDEX(EST_MAYOR,E{r + 2})=1)'),
+        ("Tiene total", f'=IF(E{r + 2}="",FALSE,INDEX(EST_TOTAL,E{r + 2})=1)'),
+        ("Partidos con dato", f'=IF(E{r + 3}="",0,COUNTIF(SERIE_CLAVE,E{r + 1}&"|"&E{r + 3}&"|*"))'),
+        ("Tipo de ventana", f'=IFERROR(INDEX(VEN_TIPO,MATCH({ven},VEN_NOM,0)),"todo")'),
+        ("Parámetro de la ventana", f'=IFERROR(INDEX(VEN_PARAM,MATCH({ven},VEN_NOM,0)),"")'),
+        ("Último partido cargado", None),
+    ]
+    ws.write_string(r - 1, 3, "Cálculos auxiliares", book.note)
+    for k, (label, formula) in enumerate(aux):
+        ws.write_string(r + k, 3, label, aux_fmt)
+        if formula:
+            ws.write_formula(r + k, 4, formula, aux_fmt)
+    code_c, row_c, id_c, factor_c, better_c, total_c, count_c, kind_c, param_c, last_c = (
+        abs_cell(r + k, 4) for k in range(len(aux))
+    )
+    ws.data_validation(r, 1, r, 1, {"validate": "list", "source": "=ENT_NOM"})
+    ws.data_validation(
+        r + 1, 1, r + 1, 1, {"validate": "list", "source": f'=IF({code_c}="e",EST_EQUIPO,EST_JUGADOR)'}
+    )
+    ws.data_validation(r + 2, 1, r + 2, 1, {"validate": "list", "source": "=VEN_NOM"})
+    ws.write_string(r + 3, 0, "Descripción")
+    ws.write_formula(r + 3, 1, f'=IF({row_c}="","",INDEX(EST_DESC,{row_c}))', book.note)
+    ws.write_string(r + 4, 0, "Unidad")
+    ws.write_formula(r + 4, 1, f'=IF({row_c}="","",INDEX(EST_UNIDAD,{row_c}))')
+
+    # Lista de partidos (de más viejo a más nuevo) con sus columnas auxiliares.
+    size = max(int(k.rsplit("|", 1)[1]) for k, *_ in rows)
+    s = r + 12
+    head_row = s + 11
+    first, last = head_row + 1, head_row + size
+    for c, h in enumerate(
+        [
+            "#",
+            "Fecha",
+            "Rival",
+            "Localía",
+            "Resultado",
+            "Competición",
+            "Valor",
+            "Dif. vs temporada",
+            "En la ventana",
+        ]
+    ):
+        ws.write_string(head_row, c, h, book.head)
+    ws.write_string(head_row - 1, 0, "Partidos con dato (de más viejo a más nuevo)", book.bold)
+
+    def rng(c: int) -> str:
+        letter = xl_col_to_name(c)
+        return f"${letter}${first + 1}:${letter}${last + 1}"
+
+    season_c = abs_cell(s + 6, 1)
+    rn_col, pos_col, match_col, num_col, den_col = (xl_col_to_name(AUX + k) for k in range(5))
+    for k in range(size):
+        row = first + k
+        x = row + 1
+        # Celdas auxiliares de esta fila: n del partido, fila en la serie y fila en la lista de partidos.
+        nrow, srow, mrow = f"{rn_col}{x}", f"{pos_col}{x}", f"{match_col}{x}"
+        cond = (
+            f'IF({kind_c}="n",{nrow}<={param_c},'
+            f'IF({kind_c}="dias",B{x}>{last_c}-{param_c},'
+            f'IF({kind_c}="mes",AND(YEAR(B{x})=YEAR({last_c}),MONTH(B{x})=MONTH({last_c})),'
+            f'IF({kind_c}="mes_ant",AND(B{x}>=DATE(YEAR({last_c}),MONTH({last_c})-1,1),'
+            f"B{x}<DATE(YEAR({last_c}),MONTH({last_c}),1)),"
+            f'IF({kind_c}="local",D{x}="Local",'
+            f'IF({kind_c}="visitante",D{x}="Visitante",'
+            f'IF({kind_c}="resultado",INDEX(PARTIDO_RES,{mrow})={param_c},'
+            f'IF({kind_c}="comp",F{x}={param_c},TRUE))))))))'
+        )
+        formulas = {
+            0: (f"={k + 1}", book.int),
+            1: (f'=IF({mrow}="","",INDEX(PARTIDO_FECHA,{mrow}))', date_fmt),
+            2: (f'=IF({mrow}="","",INDEX(PARTIDO_RIVAL,{mrow}))', book.text),
+            3: (f'=IF({mrow}="","",INDEX(PARTIDO_LOCALIA,{mrow}))', book.text),
+            4: (
+                f'=IF({mrow}="","",INDEX(PARTIDO_RES,{mrow})&" "&INDEX(PARTIDO_MARCADOR,{mrow}))',
+                book.text,
+            ),
+            5: (f'=IF({mrow}="","",INDEX(PARTIDO_COMP,{mrow}))', book.text),
+            6: (f'=IF({srow}="","",INDEX(SERIE_VALOR,{srow}))', book.cell),
+            7: (f'=IF(OR(G{x}="",NOT(ISNUMBER({season_c}))),"",G{x}-{season_c})', book.cell),
+            8: (f'=IF({srow}="","",IF({cond},1,0))', flag_fmt),
+            AUX: (f'=IF(A{x}>{count_c},"",{count_c}-A{x}+1)', None),
+            AUX + 1: (
+                f'=IF({nrow}="","",MATCH({code_c}&"|"&{id_c}&"|"&{nrow},SERIE_CLAVE,0))',
+                None,
+            ),
+            AUX + 2: (f'=IF({srow}="","",MATCH(INDEX(SERIE_PARTIDO,{srow}),PARTIDO_ID,0))', None),
+            AUX + 3: (f'=IF({srow}="","",INDEX(SERIE_NUM,{srow}))', None),
+            AUX + 4: (f'=IF({srow}="","",INDEX(SERIE_DEN,{srow}))', None),
+            AUX + 5: (f'=IF(I{x}=1,G{x},"")', None),
+            AUX + 6: (f"=IF(I{x}=1,{num_col}{x},0)", None),
+            AUX + 7: (f"=IF(I{x}=1,{den_col}{x},0)", None),
+            AUX + 8: (f'=IF({srow}="",NA(),G{x})', None),
+            AUX + 9: (f'=IF({srow}="",NA(),{season_c})', None),
+            AUX + 10: (f"=IF(I{x}=1,G{x},NA())", None),
+        }
+        for c, (formula, fmt) in formulas.items():
+            ws.write_formula(row, c, formula, fmt)
+    ws.write_formula(r + 9, 4, f"=MAX({rng(1)})", date_fmt)
+    green = f({"font_color": GREEN_DARK, "bold": True})
+    red = f({"font_color": RED, "bold": True})
+    h1 = f"H{first + 1}"
+    ws.conditional_format(
+        f"H{first + 1}:H{last + 1}",
+        {"type": "formula", "criteria": f"=AND(ISNUMBER({h1}),{h1}<>0,({h1}>0)={better_c})", "format": green},
+    )
+    ws.conditional_format(
+        f"H{first + 1}:H{last + 1}",
+        {"type": "formula", "criteria": f"=AND(ISNUMBER({h1}),{h1}<>0,({h1}>0)<>{better_c})", "format": red},
+    )
+    ws.conditional_format(
+        f"A{first + 1}:I{last + 1}",
+        {"type": "formula", "criteria": f"=$I{first + 1}=1", "format": f({"bg_color": ZEBRA})},
+    )
+    ws.freeze_panes(r + 3, 0)
+
+    # Resumen de la ventana.
+    ws.write_string(s, 0, "Resumen de la ventana", book.title_fmt)
+    n_c, value_c = abs_cell(s + 1, 1), abs_cell(s + 2, 1)
+    summary = [
+        ("Partidos en la ventana", f"=SUM({rng(8)})", book.int),
+        (
+            "Valor (promedio; en los cocientes, suma sobre suma)",
+            f'=IF({n_c}=0,"sin partidos en este período",IF(SUM({rng(AUX + 7)})=0,"n/d",'
+            f"SUM({rng(AUX + 6)})/SUM({rng(AUX + 7)})*{factor_c}))",
+            book.cell,
+        ),
+        ("Total", f'=IF(AND({total_c},{n_c}>0),SUM({rng(AUX + 5)}),"—")', book.cell),
+        (
+            "Mejor partido",
+            f'=IF({n_c}=0,"—",IF({better_c},MAX({rng(AUX + 5)}),MIN({rng(AUX + 5)})))',
+            book.cell,
+        ),
+        (
+            "Peor partido",
+            f'=IF({n_c}=0,"—",IF({better_c},MIN({rng(AUX + 5)}),MAX({rng(AUX + 5)})))',
+            book.cell,
+        ),
+        (
+            "Temporada (todas las competiciones)",
+            f'=IF(SUM({rng(AUX + 4)})=0,"n/d",SUM({rng(AUX + 3)})/SUM({rng(AUX + 4)})*{factor_c})',
+            book.cell,
+        ),
+        (
+            "Diferencia contra la temporada",
+            f'=IF(AND(ISNUMBER({value_c}),ISNUMBER({season_c})),{value_c}-{season_c},"—")',
+            book.cell,
+        ),
+        (
+            "Aviso",
+            f'=IF({id_c}="","Elegí una estadística de la lista (cambia con la entidad).",'
+            f'IF({count_c}=0,"Sin partidos con dato para esta estadística.",'
+            f'IF({n_c}=0,"Sin partidos en este período.",'
+            f'IF({n_c}<3,"Muestra pequeña: menos de 3 partidos.",""))))',
+            book.note,
+        ),
+        ("Último partido cargado", f'=IF({last_c}=0,"",{last_c})', date_fmt),
+    ]
+    for k, (label, formula, fmt) in enumerate(summary, start=1):
+        ws.write_string(s + k, 0, label, book.bold if k <= 7 else book.text)
+        ws.write_formula(s + k, 1, formula, fmt)
+    diff_c = f"B{s + 8}"
+    ws.conditional_format(
+        diff_c,
+        {
+            "type": "formula",
+            "criteria": f"=AND(ISNUMBER({diff_c}),{diff_c}<>0,({diff_c}>0)={better_c})",
+            "format": green,
+        },
+    )
+    ws.conditional_format(
+        diff_c,
+        {
+            "type": "formula",
+            "criteria": f"=AND(ISNUMBER({diff_c}),{diff_c}<>0,({diff_c}>0)<>{better_c})",
+            "format": red,
+        },
+    )
+    ws.write_string(
+        s + 10,
+        0,
+        "Las ventanas de días y de meses se cuentan hacia atrás desde el último partido cargado, "
+        "no desde hoy.",
+        book.note,
+    )
+
+    # Gráfico nativo: todos los partidos, los de la ventana en verde y la línea de la temporada.
+    cats = ["Desglosada", first, 2, last, 2]
+    bars = wb.add_chart({"type": "column"})
+    bars.add_series(
+        {
+            "name": "Partido",
+            "categories": cats,
+            "values": ["Desglosada", first, AUX + 8, last, AUX + 8],
+            "fill": {"color": "#C9E8BE"},
+            "overlap": 100,
+            "gap": 60,
+        }
+    )
+    bars.add_series(
+        {
+            "name": "En la ventana",
+            "categories": cats,
+            "values": ["Desglosada", first, AUX + 10, last, AUX + 10],
+            "fill": {"color": GREEN_DARK},
+        }
+    )
+    season_line = wb.add_chart({"type": "line"})
+    season_line.add_series(
+        {
+            "name": "Temporada",
+            "categories": cats,
+            "values": ["Desglosada", first, AUX + 9, last, AUX + 9],
+            "line": {"color": VIOLET, "width": 2, "dash_type": "dash"},
+        }
+    )
+    bars.combine(season_line)
+    style_chart(bars, "Partido a partido", "Rival", "Valor")
+    bars.set_title({"name": f"=Desglosada!{est}", "name_font": {"name": FONT, "size": 12, "bold": True}})
+    ws.insert_chart(r, 10, bars)
 
 
 # --------------------------------------------------------------------------------------------

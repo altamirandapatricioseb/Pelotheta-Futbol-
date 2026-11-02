@@ -304,7 +304,15 @@ Juan Barinaga) que vienen así de la fuente.
   factor de edad, 0,60/0,25/0,15). Al lado de cada resultado, el valor del pipeline para comparar, y abajo la
   tabla del plantel. Las tasas de la Mejoría α y el nivel del Potencial α se guardan desde ahora en el detalle
   (`stat_value_detail`): aparecen con la próxima carga (botón Actualizar); hasta entonces esos dos bloques dicen n/d.
-- **Pendiente:** hoja `Desglosada` con listas de estadística, entidad y ventana.
+- **Hoja `Desglosada` (2-nov, solo en el global):** listas de entidad (Boca o un jugador), estadística (la lista
+  cambia con la entidad) y ventana (último partido; últimos 3, 5 y 10; últimos 7 a 90 días; mes en curso y anterior;
+  temporada; local y visitante; victorias, empates y derrotas; cada competición). Fórmulas vivas dan partidos, valor
+  (suma sobre suma en los cocientes), total, mejor, peor, temporada, diferencia con color según el sentido y el aviso
+  de muestra pequeña o de período sin partidos; abajo, la lista de partidos con «En la ventana» y un gráfico nativo
+  (todos los partidos, los de la ventana en verde y la línea de la temporada). Lee dos hojas ocultas: `Serie por
+  partido` (82 mil filas, calculadas con las mismas reglas que `api.stat_series`: 30 de 30 casos al azar iguales) y
+  `Listas desglosada`. Por rival y por tiempo quedan solo en la web. El global pasa de ~225 KB a 2,3 MB.
+  Fórmulas probadas con el evaluador `formulas` en 7 casos; no se abrió en Excel.
 
 ## Pedidos del 2-nov
 
@@ -349,7 +357,7 @@ Juan Barinaga) que vienen así de la fuente.
 ## Etapa 10.1: endurecimiento de seguridad (2-nov-2026)
 
 La etapa 10 se parte en tres: **10.1 seguridad** (esta), 10.2 accesibilidad, responsive y rendimiento de las
-animaciones, y 10.3 extras de la sección 16 más la hoja `Desglosada` del Excel.
+animaciones, y 10.3 extras de la sección 16. La hoja `Desglosada` del Excel ya está (etapa 8).
 
 - **Web:** `/api/health` (base en vivo, última carga y versión; 503 si la base no responde), `/estado` (última
   corrida de cada fuente), `/privacidad` (Ley 25.326) y `/.well-known/security.txt` (vence el 1-nov-2027). Enlaces

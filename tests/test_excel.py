@@ -121,7 +121,60 @@ def _data() -> excel.Data:
                 "potencial_beta": {"value": 60.0, "detail": {}},
             }
         },
+        series_stats=[
+            _series("team", "eq_xg", "suma", "xg"),
+            _series("team", "eq_pct_arco", "cociente", "xg", "shots_total", 100),
+            _series("player", "goles", "suma", "goals"),
+            _series("player", "goles_por_remate", "cociente", "goals", "shots"),
+        ],
+        player_values={
+            2: {m: {"goals": m % 2, "shots": 2.0, "minutes": 90} for m in range(8)},
+            3: {m: {"shots": 1.0, "minutes": 30} for m in range(3)},
+        },
     )
+
+
+def _series(
+    entity: str, sid: str, rule: str, arg1: str, arg2: str | None = None, factor: float = 1
+) -> excel.SeriesStat:
+    return excel.SeriesStat(entity, sid, sid.title(), "", "", rule, arg1, arg2, factor, True)
+
+
+def test_series_value_follows_stat_series_rules() -> None:
+    ratio = _series("player", "r", "cociente", "a", "b", 100)
+    assert excel.series_value(ratio, {"a": 1, "b": 4}, None) == (25, 1, 4)
+    assert excel.series_value(ratio, {"a": 1, "b": 0}, None) is None
+    assert excel.series_value(_series("player", "d", "diferencia", "a", "b"), {"a": 3, "b": 1}, None) == (
+        2,
+        2,
+        1,
+    )
+    assert excel.series_value(_series("player", "s", "suma", "a"), {"b": 1}, None) is None
+    assert excel.series_value(_series("player", "m", "metrica", "a"), {}, 7.5) == (7.5, 7.5, 1)
+
+
+def test_series_rows_number_matches_from_the_most_recent() -> None:
+    data = _data()
+    rows = excel.series_rows(data, [2, 3])
+    goals = [r for r in rows if r[0].startswith("2|goles|")]
+    latest = max(data.team, key=lambda m: m["match_date"])["match_id"]
+    assert goals[0] == ("2|goles|1", latest, latest % 2, latest % 2, 1.0)
+    assert len(goals) == 8
+    # Sin goles cargados no hay serie de goles ni del cociente; los remates solos no alcanzan.
+    assert not [r for r in rows if r[0].startswith("3|goles")]
+    assert len([r for r in rows if r[0].startswith("e|eq_pct_arco|")]) == 8
+
+
+def test_desglosada_has_three_lists_and_live_formulas() -> None:
+    _, wb = _book()
+    ws = wb["Desglosada"]
+    assert len(ws.data_validations.dataValidation) == 3
+    assert {"ENT_NOM", "VEN_NOM", "EST_EQUIPO", "EST_JUGADOR", "SERIE_CLAVE"} <= set(wb.defined_names)
+    assert wb["Serie por partido"].sheet_state == "hidden"
+    formulas = [c.value for row in ws.iter_rows() for c in row if isinstance(c.value, str)]
+    assert any("COUNTIF(SERIE_CLAVE" in f for f in formulas)
+    assert any("MATCH(" in f and "SERIE_CLAVE" in f for f in formulas)
+    assert ws["B5"].value == "Boca Juniors" and ws["B6"].value == "Eq_Xg"
 
 
 def test_projection_sheet_has_live_formulas_and_named_parameters() -> None:

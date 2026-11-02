@@ -1,0 +1,147 @@
+﻿stat_id,nombre,abrev,grupo,unidad,descripcion_es,formula,nivel,mas_es_mejor,estimada,por90,clave
+pct_minutos,Porcentaje de minutos,%Min,Participación,%,Parte de los minutos posibles del equipo en la ventana elegida que estuvo en cancha.,Minutos / (90 × partidos del equipo) × 100,B,1,0,0,1
+goles_anulados,Goles anulados por el VAR,VAR,Participación,goles,Goles que le anularon después de la revisión del VAR.,Eventos de gol anulado,B,0,0,1,0
+goles_sin_penal,Goles sin penal,nPG,Ataque,goles,Goles sin contar los de penal: mide la definición en jugada.,Goles − Goles de penal,B,1,0,1,1
+goles_cabeza,Goles de cabeza,G.cab,Ataque,goles,Goles convertidos de cabeza. Solo partidos de liga.,Tiros de cabeza que fueron gol,A,1,0,1,1
+goles_fuera_area,Goles desde fuera del área,G.afu,Ataque,goles,Goles convertidos con remates desde fuera del área. Solo partidos de liga.,Tiros desde fuera del área que fueron gol,A,1,0,1,0
+remates,Remates,Rem.,Ataque,remates,"Remates totales: al arco, afuera y bloqueados.",Suma por partido,A,1,0,1,1
+remates_arco,Remates al arco,R.arco,Ataque,remates,Remates que iban al arco: los que fueron gol y los que atajó el arquero.,Suma por partido,A,1,0,1,1
+remates_no_arco,Remates desviados o bloqueados,R.desv,Ataque,remates,"Remates que no fueron al arco, incluidos los que bloqueó un rival.",Remates − Remates al arco,B,0,0,1,0
+remates_bloqueados,Remates bloqueados,R.bloq,Ataque,remates,Remates suyos que un rival bloqueó antes de que llegaran al arco.,Suma por partido,A,0,0,1,0
+pct_remates_arco,Precisión de remate,%Arco,Ataque,%,Porcentaje de sus remates que fueron al arco.,Remates al arco / Remates × 100,B,1,0,0,1
+goles_por_remate,Goles por remate,G/Rem,Ataque,goles por remate,Goles por cada remate: eficacia de la definición.,Goles / Remates,B,1,0,0,0
+goles_por_remate_arco,Goles por remate al arco,G/RA,Ataque,goles por remate,Goles por cada remate que fue al arco.,Goles / Remates al arco,B,1,0,0,0
+remates_cabeza,Remates de cabeza,R.cab,Ataque,remates,Remates de cabeza. Solo partidos de liga.,Tiros con la cabeza,A,1,0,1,0
+remates_fuera_area,Remates desde fuera del área,R.afu,Ataque,remates,Remates desde fuera del área. Solo partidos de liga.,Tiros desde fuera del área,A,1,0,1,0
+xg,Goles esperados,xG,Ataque,xG,Suma de la probabilidad de gol de cada remate según el modelo de la fuente.,Suma por partido,A,1,0,1,1
+npxg,Goles esperados sin penales,npxG,Ataque,xG,"xG sin los penales. Estimado: resta 0,76 por cada penal pateado, el valor convencional de un penal.","xG − 0,76 × Penales lanzados",B,1,1,1,1
+xg_por_remate,xG por remate,xG/Rem,Ataque,xG por remate,Calidad media de sus ocasiones: el xG de cada remate en promedio.,xG / Remates,B,1,0,0,0
+goles_menos_xg,Goles menos xG,G−xG,Rendimiento vs esperado,goles,Goles por encima o por debajo de lo esperado por la calidad de sus remates.,Goles − xG,B,1,0,1,1
+npg_menos_npxg,Goles sin penal menos npxG,nPG−npxG,Rendimiento vs esperado,goles,Goles sin penal por encima o por debajo de lo esperado sin contar penales.,nPG − npxG,B,1,1,1,1
+partidos_completos,Partidos completos,Compl.,Participación,partidos,"Partidos que jugó enteros, del arranque al final.",Titular sin salida antes del final,B,1,0,0,1
+xgot,xG al arco,xGOT,Ataque,xG,xG de sus remates al arco medido después del remate: premia colocarla lejos del arquero.,Suma por partido,A,1,0,1,0
+ocasiones_claras_falladas,Ocasiones claras falladas,OC.F,Ataque,ocasiones,Ocasiones claras de gol que tuvo y no convirtió.,Suma por partido,A,0,0,1,0
+remates_palo,Remates al palo,Palo,Ataque,remates,Remates que dieron en un palo o en el travesaño.,Suma por partido,A,1,0,1,0
+fueras_de_juego,Fueras de juego,Off,Ataque,veces,Veces que quedó en posición adelantada. Solo partidos de liga.,Suma por partido,A,0,0,1,0
+faltas_recibidas,Faltas recibidas,F.rec,Ataque,faltas,Faltas que le cometieron. Solo partidos de liga.,Suma por partido,A,1,0,1,0
+penales_provocados,Penales provocados,Pen.P,Ataque,penales,Penales a favor que se cobraron por una falta sobre él. Solo partidos de liga.,Suma por partido,A,1,0,1,0
+regates_exitosos,Regates exitosos,Reg,Ataque,regates,Regates en los que superó al rival con la pelota.,Suma por partido,A,1,0,1,1
+regates_intentados,Regates intentados,Reg.I,Ataque,regates,"Regates que intentó, le salieran bien o no.",Suma por partido,A,1,0,1,0
+pct_regates,Efectividad en regates,%Reg,Ataque,%,Porcentaje de regates que le salieron bien.,Regates exitosos / Regates intentados × 100,B,1,0,0,0
+toques,Toques,Toq.,Ataque,toques,Veces que tocó la pelota: mide cuánto participa del juego.,Suma por partido,A,1,0,1,0
+pases,Pases intentados,Pases,Creación,pases,"Pases que intentó, completados o no.",Suma por partido,A,1,0,1,0
+pases_completos,Pases completados,P.comp,Creación,pases,Pases que llegaron a un compañero.,Suma por partido,A,1,0,1,0
+pct_pases,Precisión de pase,%Pase,Creación,%,Porcentaje de sus pases que llegaron a destino.,Pases completados / Pases intentados × 100,B,1,0,0,1
+pases_clave,Pases clave,P.clave,Creación,pases,Pases que terminaron en un remate de un compañero.,Suma por partido,A,1,0,1,1
+ocasiones_claras_creadas,Ocasiones claras creadas,OC.C,Creación,ocasiones,Pases que dejaron a un compañero ante una ocasión clara de gol.,Suma por partido,A,1,0,1,0
+ocasiones_creadas,Ocasiones creadas,Ocas.,Creación,ocasiones,Acciones que generaron un remate de un compañero. Solo partidos de liga con relato completo.,Suma por partido,A,1,0,1,1
+xa,Asistencias esperadas,xA,Creación,xA,"Probabilidad de que sus pases terminen en gol, sin importar cómo definió el compañero.",Suma por partido,A,1,0,1,1
+npxg_xa,npxG más xA,npxG+xA,Rendimiento vs esperado,xG,Aporte esperado total al ataque: sus ocasiones sin penales más las que generó para otros.,npxG + xA,B,1,1,1,1
+asistencias_menos_xa,Asistencias menos xA,A−xA,Rendimiento vs esperado,asistencias,Asistencias por encima o por debajo de lo esperado por la calidad de sus pases.,Asistencias − xA,B,1,0,1,1
+pases_largos,Pases largos,P.larg,Creación,pases,Pases largos que intentó.,Suma por partido,A,1,0,1,0
+pases_largos_completos,Pases largos completados,PL.comp,Creación,pases,Pases largos que llegaron a un compañero.,Suma por partido,A,1,0,1,0
+pct_pases_largos,Precisión de pase largo,%PL,Creación,%,Porcentaje de pases largos que llegaron a destino.,Pases largos completados / Pases largos × 100,B,1,0,0,1
+centros,Centros,Cent.,Creación,centros,Centros que intentó hacia el área.,Suma por partido,A,1,0,1,0
+centros_completos,Centros completados,C.comp,Creación,centros,Centros que encontraron a un compañero.,Suma por partido,A,1,0,1,1
+pct_centros,Precisión de centro,%Cent,Creación,%,Porcentaje de centros que encontraron a un compañero.,Centros completados / Centros × 100,B,1,0,0,0
+pases_campo_rival,Pases en campo rival,P.riv,Creación,pases,Pases que intentó en el campo del rival.,Suma por partido,A,1,0,1,0
+pases_campo_rival_completos,Pases completados en campo rival,PR.comp,Creación,pases,Pases que completó en el campo del rival.,Suma por partido,A,1,0,1,1
+pct_pases_campo_rival,Precisión en campo rival,%PR,Creación,%,"Precisión de pase en el campo del rival, donde hay menos espacio.",Pases completados en campo rival / Pases en campo rival × 100,B,1,0,0,0
+perdidas,Pérdidas de posesión,Pérd.,Creación,pérdidas,"Veces que perdió la pelota por un pase errado, un mal control o un quite.",Suma por partido,A,0,0,1,0
+desposesiones,Desposesiones,Despos.,Creación,veces,Veces que un rival le sacó la pelota mientras la llevaba.,Suma por partido,A,0,0,1,0
+malos_controles,Malos controles,M.ctrl,Creación,veces,Controles fallidos que le hicieron perder la pelota.,Suma por partido,A,0,0,1,0
+conducciones,Conducciones,Cond.,Creación,conducciones,Veces que avanzó llevando la pelota.,Suma por partido,A,1,0,1,0
+conducciones_progresivas,Conducciones progresivas,C.prog,Creación,conducciones,Conducciones que acercaron la pelota de forma clara al arco rival.,Suma por partido,A,1,0,1,1
+distancia_conduccion,Metros en conducción,D.cond,Creación,metros,Metros que recorrió con la pelota en sus conducciones.,Suma por partido,A,1,0,1,0
+progresion,Metros de progresión,Prog.,Creación,metros,"Metros que hizo avanzar la pelota hacia el arco rival, con pases y conducciones.",Suma por partido,A,1,0,1,1
+asistencias_filtrado,Asistencias con pase filtrado,A.filt,Creación,asistencias,Asistencias que fueron un pase filtrado entre defensores. Solo partidos de liga.,Suma por partido,A,1,0,1,0
+asistencias_cabeza,Asistencias de cabeza,A.cab,Creación,asistencias,Asistencias de cabeza. Solo partidos de liga.,Suma por partido,A,1,0,1,0
+asistencias_pase,Asistencias con pase común,A.pase,Creación,asistencias,Asistencias con un pase que no fue centro ni filtrado. Solo partidos de liga.,Suma por partido,A,1,0,1,0
+entradas,Entradas,Ent.,Defensa,entradas,Entradas que registra la fuente principal del partido.,Suma por partido,A,1,0,1,0
+entradas_intentadas,Entradas intentadas,Ent.I,Defensa,entradas,"Entradas que intentó, las ganara o no.",Suma por partido,A,1,0,1,0
+entradas_ganadas,Entradas ganadas,Ent.G,Defensa,entradas,Entradas en las que se quedó con la pelota o se la sacó al rival.,Suma por partido,A,1,0,1,1
+pct_entradas,Efectividad en entradas,%Ent,Defensa,%,Porcentaje de entradas ganadas sobre las que intentó.,Entradas ganadas / Entradas intentadas × 100,B,1,0,0,0
+intercepciones,Intercepciones,Int.,Defensa,intercepciones,Pases del rival que cortó leyendo la jugada.,Suma por partido,A,1,0,1,1
+despejes,Despejes,Desp.,Defensa,despejes,Pelotas que alejó de su área sin buscar a un compañero.,Suma por partido,A,1,0,1,1
+despejes_linea,Despejes sobre la línea,D.lín,Defensa,despejes,Pelotas que sacó sobre la línea del arco.,Suma por partido,A,1,0,1,0
+bloqueos,Bloqueos,Bloq.,Defensa,bloqueos,Remates o pases del rival que bloqueó con el cuerpo.,Suma por partido,A,1,0,1,1
+acciones_defensivas,Acciones defensivas,A.def,Defensa,acciones,Entradas más intercepciones: las acciones con las que recuperó o cortó la pelota.,Entradas + Intercepciones,B,1,0,1,0
+recuperaciones,Recuperaciones,Recup.,Defensa,recuperaciones,Pelotas sueltas o del rival que recuperó para su equipo.,Suma por partido,A,1,0,1,1
+duelos_ganados,Duelos ganados,Duel.G,Defensa,duelos,"Disputas uno contra uno que ganó, por abajo o por arriba.",Suma por partido,A,1,0,1,1
+duelos_perdidos,Duelos perdidos,Duel.P,Defensa,duelos,Disputas uno contra uno que perdió.,Suma por partido,A,0,0,1,0
+duelos_disputados,Duelos disputados,Duel.,Defensa,duelos,"Duelos que disputó, ganados o perdidos.",Duelos ganados + Duelos perdidos,B,1,0,1,0
+pct_duelos,Duelos ganados (%),%Duel,Defensa,%,Porcentaje de duelos que ganó.,Duelos ganados / Duelos disputados × 100,B,1,0,0,1
+aereos_ganados,Duelos aéreos ganados,Aér.G,Defensa,duelos,Duelos por arriba que ganó.,Suma por partido,A,1,0,1,1
+aereos_perdidos,Duelos aéreos perdidos,Aér.P,Defensa,duelos,Duelos por arriba que perdió.,Suma por partido,A,0,0,1,0
+aereos_disputados,Duelos aéreos disputados,Aér.,Defensa,duelos,"Duelos por arriba que disputó, ganados o perdidos.",Aéreos ganados + Aéreos perdidos,B,1,0,1,0
+veces_regateado,Veces regateado,Reg.s,Defensa,veces,Veces que un rival lo superó con un regate.,Suma por partido,A,0,0,1,1
+entradas_ultimo_hombre,Entradas de último hombre,E.últ,Defensa,entradas,Entradas como último defensor antes del arquero.,Suma por partido,A,1,0,1,0
+errores_remate,Errores que terminan en remate,Err.R,Defensa,errores,Errores propios que terminaron en un remate del rival.,Suma por partido,A,0,0,1,0
+errores_gol,Errores que terminan en gol,Err.G,Defensa,errores,Errores propios que terminaron en un gol del rival.,Suma por partido,A,0,0,1,0
+faltas_cometidas,Faltas cometidas,F.com,Disciplina,faltas,Faltas que cometió. Solo partidos de liga.,Suma por partido,A,0,0,1,1
+goles_recibidos,Goles recibidos,GC,Porteros,goles,Goles que recibió Boca mientras el jugador estaba en cancha. Clave para arqueros.,Goles del rival entre la entrada y la salida,B,0,0,1,1
+vallas_invictas,Vallas invictas,VI,Porteros,partidos,Partidos que jugó completos sin que Boca recibiera goles.,Partidos completos con 0 goles en contra,B,1,0,0,1
+atajadas,Atajadas,Ataj.,Porteros,atajadas,Remates al arco que atajó.,Suma por partido,A,1,0,1,1
+remates_arco_recibidos,Remates al arco recibidos,RA.rec,Porteros,remates,Remates al arco del rival mientras estaba en el arco.,Remates al arco del rival con el arquero en cancha,A,0,0,1,0
+xgot_recibido,xG al arco recibido,xGOT.r,Porteros,xG,"Peligro de los remates al arco que recibió, según el xG medido después del remate.",xGOT del rival con el arquero en cancha,A,0,0,1,1
+pct_atajadas,Porcentaje de atajadas,%Ataj,Porteros,%,Porcentaje de remates al arco que atajó.,Atajadas / Remates al arco recibidos × 100,B,1,0,0,1
+goles_evitados,Goles evitados,G.evit,Porteros,goles,Goles que evitó frente a lo esperado por los remates al arco que recibió.,xGOT recibido − Goles recibidos,B,1,0,1,1
+penales_enfrentados,Penales enfrentados,Pen.E,Porteros,penales,Penales en contra que le patearon. Solo partidos de liga.,Penales del rival con el arquero en cancha,A,0,0,0,0
+penales_atajados,Penales atajados,Pen.A,Porteros,penales,Penales que atajó. Solo partidos de liga.,Suma por partido,A,1,0,0,0
+centros_atrapados,Centros atrapados,C.atr,Porteros,centros,Centros que cortó atrapando la pelota en el aire.,Suma por partido,A,1,0,1,1
+despejes_punos,Despejes de puños,Puños,Porteros,despejes,Pelotas que despejó con los puños.,Suma por partido,A,1,0,1,0
+salidas,Salidas,Salid.,Porteros,salidas,Veces que salió de su área para anticipar al rival.,Suma por partido,A,1,0,1,0
+salidas_exitosas,Salidas exitosas,S.ex,Porteros,salidas,Salidas que terminaron bien para su equipo.,Suma por partido,A,1,0,1,0
+pct_salidas,Salidas exitosas (%),%Sal,Porteros,%,Porcentaje de salidas que terminaron bien.,Salidas exitosas / Salidas × 100,B,1,0,0,1
+amarillas,Tarjetas amarillas,Amar.,Disciplina,tarjetas,Amonestaciones. La segunda amarilla de un mismo partido cuenta como expulsión.,Eventos de amarilla,B,0,0,1,1
+rojas,Expulsiones,Rojas,Disciplina,tarjetas,Rojas directas y dobles amarillas.,Eventos de roja o segunda amarilla,B,0,0,1,1
+penales_cometidos,Penales cometidos,Pen.C,Disciplina,penales,Penales en contra que se cobraron por una falta suya. Solo partidos de liga.,Suma por partido,A,0,0,1,1
+manos,Manos sancionadas,Manos,Disciplina,veces,Manos que le cobraron. Solo partidos de liga.,Suma por partido,A,0,0,1,0
+carga_7d,Carga de 7 días,C.7d,Físico y carga,minutos,"Minutos que jugó en los 7 días anteriores a su último partido, incluido ese partido.",Σ minutos en los últimos 7 días,B,0,0,0,1
+carga_14d,Carga de 14 días,C.14d,Físico y carga,minutos,"Minutos que jugó en los 14 días anteriores a su último partido, incluido ese partido.",Σ minutos en los últimos 14 días,B,0,0,0,1
+carga_28d,Carga de 28 días,C.28d,Físico y carga,minutos,"Minutos que jugó en los 28 días anteriores a su último partido, incluido ese partido.",Σ minutos en los últimos 28 días,B,0,0,0,1
+goles_equipo_en_cancha,Goles de Boca con él en cancha,GF.on,Métricas propias,goles,Goles que hizo Boca mientras el jugador estaba en cancha.,Goles de Boca entre la entrada y la salida,B,1,0,1,0
+goles_contra_en_cancha,Goles en contra con él en cancha,GA.on,Métricas propias,goles,Goles que recibió Boca mientras el jugador estaba en cancha.,Goles del rival entre la entrada y la salida,B,0,0,1,0
+gf_en_cancha,Goles a favor cada 90 en cancha,GF/90.on,Métricas propias,goles cada 90,Goles de Boca cada 90 minutos con el jugador en cancha.,Goles de Boca en cancha × 90 / Minutos,B,1,0,0,1
+gc_en_cancha,Goles en contra cada 90 en cancha,GA/90.on,Métricas propias,goles cada 90,Goles en contra cada 90 minutos con el jugador en cancha.,Goles en contra en cancha × 90 / Minutos,B,0,0,0,1
+nr,Net Rating,NR,Métricas propias,goles cada 90,"Diferencia de gol de Boca cada 90 minutos con el jugador en cancha. Es resultado del equipo, no producción individual.",GF_on − GA_on,B,1,0,0,1
+nr_relativo,Net Rating relativo,NR.rel,Métricas propias,goles cada 90,NR del jugador menos el de los suplentes de su posición: lo que suma frente al reemplazo.,NR − (GF_rep − GA_rep),B,1,0,0,0
+nr_xg,Net Rating con xG,NR.xG,Métricas propias,xG cada 90,NR con goles esperados en lugar de goles: tiene menos ruido que el NR común. Solo partidos de liga.,xG_on − xGA_on,B,1,0,0,1
+ewa,Expected Wins Added,EWA,Métricas propias,victorias,Victorias esperadas que aporta frente al reemplazo por los goles a favor con él en cancha. Estimado.,(Min / 90) × [P(GF_on) − P(GF_rep)],B,1,1,0,1
+ela,Expected Losses Added,ELA,Métricas propias,derrotas,Derrotas esperadas que suma frente al reemplazo por los goles en contra. Negativo es bueno. Estimado.,(Min / 90) × [Q(GA_on) − Q(GA_rep)],B,0,1,0,1
+participacion_goles,Participación en goles,%PartG,Métricas propias,%,Porcentaje de los goles de Boca con él en cancha en los que hizo el gol o la asistencia.,G+A / Goles de Boca en cancha × 100,B,1,0,0,1
+dependencia_goleador,Dependencia del goleador,%Dep,Métricas propias,%,Porcentaje de todos los goles de Boca en la ventana elegida que marcó o asistió.,G+A / Goles de Boca × 100,B,1,0,0,0
+ga_como_suplente,G+A entrando desde el banco,G+A.s,Métricas propias,participaciones,Goles más asistencias en los partidos en que entró desde el banco.,Suma por partido como suplente,B,1,0,0,0
+minutos_como_suplente,Minutos entrando desde el banco,Min.s,Métricas propias,minutos,Minutos que jugó en los partidos en que entró desde el banco.,Suma por partido como suplente,B,1,0,0,0
+racha_goles,Racha goleadora,Rch.G,Métricas propias,partidos,Mayor cantidad de partidos seguidos en los que convirtió.,Máximo de partidos consecutivos con gol,B,1,0,0,0
+racha_asistencias,Racha de asistencias,Rch.A,Métricas propias,partidos,Mayor cantidad de partidos seguidos con al menos una asistencia.,Máximo de partidos consecutivos con asistencia,B,1,0,0,0
+racha_vallas,Racha de vallas invictas,Rch.VI,Porteros,partidos,Arqueros: mayor cantidad de partidos seguidos sin recibir goles.,Máximo de partidos consecutivos con valla invicta,B,1,0,0,0
+consistencia_calificacion,Consistencia de la calificación,σCalif,Métricas propias,puntos,"Desvío estándar de su nota por partido: cuanto más bajo, más parejo rinde.",Desvío estándar de la nota por partido,B,0,0,0,1
+rendimiento_indice,Índice de rendimiento,Índ.,Evolución y proyección,puntos,Rendimiento global de 0 a 100 frente a los jugadores de su posición. Estimado.,Σ peso × componente (promedio de percentiles),B,1,1,0,1
+rendimiento_cobertura,Cobertura del índice,Cob.,Evolución y proyección,proporción,"Parte de los pesos del índice que tienen datos. Con menos de 0,6 el índice queda n/d.",Σ pesos de los componentes con datos,B,1,0,0,0
+mejoria_alpha,Mejoría α,Mej.α,Evolución y proyección,puntos,"Cuánto cambió su rendimiento reciente frente al resto de su temporada, en sus propias estadísticas. 50 = sin cambio.","50 + 16,7 × w × Z",B,1,1,0,0
+mejoria_beta,Mejoría β,Mej.β,Evolución y proyección,puntos,Puntos que subió o bajó su índice de rendimiento entre sus últimas 10 apariciones y las 10 anteriores.,R_reciente − R_anterior,B,1,1,0,0
+potencial_alpha,Potencial α,Pot.α,Evolución y proyección,percentil,Percentil que puede alcanzar en su pico de edad según su nivel y su tendencia. Proyección con rango de 8 puntos.,"min(100, N + G × años × (1 + λ × M))",B,1,1,0,0
+potencial_beta,Potencial β,Pot.β,Evolución y proyección,puntos,"Índice de 0 a 100 que combina nivel actual, tendencia y edad para ordenar el plantel.","min(100, 0,60 × R* + 0,25 × T + 0,15 × 100 × F_edad)",B,1,1,0,0
+penales_fallados,Penales fallados,Pen.F,Participación,penales,"Penales que pateó y no convirtió: atajados, desviados o al palo.",Penales lanzados − Goles de penal,B,0,0,1,0
+pct_penales,Efectividad en penales,%Pen,Participación,%,Porcentaje de penales convertidos sobre los que pateó.,Goles de penal / Penales lanzados × 100,B,1,0,0,0
+sustituido,Veces sustituido,Sust.,Participación,partidos,Veces que lo reemplazaron después de empezar como titular.,Titular con minuto de salida por cambio,B,0,0,0,0
+capitan,Partidos como capitán,Cap.,Participación,partidos,Partidos en los que llevó la cinta de capitán.,Suma por partido,A,1,0,0,0
+calificacion,Calificación media,Calif.,Resumen,puntos,"Nota por partido que publica la fuente, de 0 a 10, promediada sobre los partidos con nota.",Promedio de la nota de cada partido,A,1,0,0,1
+goles,Goles,Goles,Resumen,goles,"Goles convertidos, de jugada o de penal. La tanda de penales no cuenta.",Eventos de gol del jugador,B,1,0,1,1
+asistencias,Asistencias,Asist.,Resumen,asistencias,"Último pase antes de un gol de Boca, según el registro de la fuente.",Eventos de gol con el jugador como asistidor,B,1,0,1,1
+goles_asistencias,Goles más asistencias,G+A,Resumen,participaciones,Participación directa en goles: los que hizo más los que asistió.,Goles + Asistencias,B,1,0,1,1
+goles_penal,Goles de penal,G.pen,Participación,goles,"Penales convertidos en el tiempo de juego, sin la tanda.",Eventos de penal convertido,B,1,0,1,0
+penales_lanzados,Penales lanzados,Pen.,Participación,penales,"Penales que pateó en el tiempo de juego, convertidos o no.",Penales convertidos + penales fallados,B,1,0,1,0
+partidos,Partidos jugados,PJ,Participación,partidos,"Partidos oficiales en los que estuvo en cancha, como titular o entrando desde el banco.",Partidos con minuto de entrada registrado,B,1,0,0,1
+titularidades,Titularidades,Tit.,Participación,partidos,Partidos que empezó desde el arranque.,Partidos con titular = sí,B,1,0,0,1
+convocado_suplente,Partidos en el banco,Banco,Participación,partidos,"Partidos en los que empezó en el banco de suplentes, haya entrado o no.",Partidos en la lista de suplentes,B,0,0,0,0
+entradas_banco,Entradas desde el banco,Ingr.,Participación,partidos,Veces que entró a la cancha desde el banco de suplentes.,Suplentes con minuto de entrada,B,1,0,0,0
+minutos,Minutos jugados,Min.,Participación,minutos,"Minutos en cancha sin contar el descuento: de la entrada a la salida por cambio, expulsión o final.",Σ (minuto de salida − minuto de entrada),B,1,0,0,1
+minutos_por_partido,Minutos por partido,Min/PJ,Participación,minutos,Promedio de minutos que jugó en cada partido en el que estuvo en cancha.,Minutos / Partidos jugados,B,1,0,0,1
+autogoles,Goles en contra,AG,Participación,goles,Goles que metió en su propio arco.,Eventos de gol en contra,B,0,0,1,0
+asistencias_centro,Asistencias de centro,A.cent,Creación,asistencias,Asistencias que fueron un centro. Solo partidos de liga.,Suma por partido,A,1,0,1,0
+pct_aereos,Duelos aéreos ganados (%),%Aér,Defensa,%,Porcentaje de duelos aéreos que ganó.,Aéreos ganados / Aéreos disputados × 100,B,1,0,0,0
+atajadas_dentro_area,Atajadas de remates en el área,At.área,Porteros,atajadas,Atajadas de remates hechos desde dentro del área.,Suma por partido,A,1,0,1,0
+partidos_suspendido,Partidos por suspensión,Susp.,Disciplina,partidos,"Partidos que se perdió por estar suspendido, por roja o por acumulación de amarillas.",Bajas por suspensión en cada partido,A,0,0,0,0
+ga_suplente_90,Eficiencia como suplente,G+A/90.s,Métricas propias,participaciones cada 90,Goles más asistencias cada 90 minutos cuando entró desde el banco.,G+A como suplente × 90 / Minutos como suplente,B,1,0,0,0

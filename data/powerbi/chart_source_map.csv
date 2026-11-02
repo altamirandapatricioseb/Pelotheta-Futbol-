@@ -1,0 +1,134 @@
+﻿chart_id,destino_tipo,destino_ref,parametros,etiqueta_es
+g01,tabla,equipo,conjunto=eq_resultados,Origen: Equipo › Resultados
+g01,desglosada,estadistica,stat=eq_puntos&entidad=equipo,Desglosada: Puntos
+g02,tabla,equipo,conjunto=eq_tabla,Origen: Equipo › Tabla de posiciones y Boca vs liga
+g02,desglosada,estadistica,stat=eq_puntos&entidad=equipo,Desglosada: Puntos
+g03,tabla,equipo,conjunto=eq_tabla,Origen: Equipo › Tabla de posiciones y Boca vs liga
+g04,tabla,equipo,conjunto=eq_local_visitante,Origen: Equipo › Local y visitante
+g05,tabla,equipo,conjunto=eq_forma,Origen: Equipo › Forma y rachas
+g06,tabla,equipo,conjunto=eq_resultados,Origen: Equipo › Resultados
+g07,tabla,equipo,conjunto=eq_resultados,Origen: Equipo › Resultados
+g07,desglosada,estadistica,stat=eq_diferencia_gol&entidad=equipo,Desglosada: Diferencia de gol
+g08,tabla,equipo,conjunto=eq_metricas,Origen: Equipo › Métricas propias
+g08,desglosada,estadistica,stat=eq_puntos_pitagoricos&entidad=equipo,Desglosada: Puntos pitagóricos
+g09,tabla,equipo,conjunto=eq_tramos,Origen: Equipo › Tramos de minutos
+g10,tabla,equipo,conjunto=eq_goles,Origen: Equipo › Goles
+g10,desglosada,estadistica,stat=eq_goles_favor&entidad=equipo,Desglosada: Goles a favor
+g11,tabla,equipo,conjunto=eq_goles,Origen: Equipo › Goles
+g12,tabla,equipo,conjunto=eq_goles,Origen: Equipo › Goles
+g13,tabla,equipo,conjunto=eq_forma,Origen: Equipo › Forma y rachas
+g14,tabla,equipo,conjunto=eq_goles,Origen: Equipo › Goles
+g15,tabla,equipo,conjunto=eq_forma,Origen: Equipo › Forma y rachas
+g15,desglosada,estadistica,stat=eq_puntos_desde_atras&entidad=equipo,Desglosada: Puntos remontados
+g16,tabla,jugadores,conjunto=ataque,Origen: Jugadores › Ataque
+g17,tabla,equipo,conjunto=eq_esperado,Origen: Equipo › Rendimiento vs esperado (xG)
+g17,desglosada,estadistica,stat=eq_xg&entidad=equipo,Desglosada: Goles esperados
+g18,tabla,equipo,conjunto=eq_esperado,Origen: Equipo › Rendimiento vs esperado (xG)
+g18,desglosada,estadistica,stat=eq_xg_diferencia&entidad=equipo,Desglosada: Diferencia de xG
+g19,tabla,equipo,conjunto=eq_ataque,Origen: Equipo › Ataque y tiros
+g20,tabla,equipo,conjunto=eq_ataque,Origen: Equipo › Ataque y tiros
+g20,desglosada,estadistica,stat=eq_remates&entidad=equipo,Desglosada: Remates
+g21,tabla,equipo,conjunto=eq_ataque,Origen: Equipo › Ataque y tiros
+g21,desglosada,estadistica,stat=eq_remates_arco&entidad=equipo,Desglosada: Remates al arco
+g22,tabla,equipo,conjunto=eq_esperado,Origen: Equipo › Rendimiento vs esperado (xG)
+g23,tabla,equipo,conjunto=eq_esperado,Origen: Equipo › Rendimiento vs esperado (xG)
+g23,desglosada,estadistica,stat=eq_xg&entidad=equipo,Desglosada: Goles esperados
+g24,tabla,equipo,conjunto=eq_posesion,Origen: Equipo › Posesión y circulación
+g24,desglosada,estadistica,stat=eq_posesion&entidad=equipo,Desglosada: Posesión
+g25,tabla,equipo,conjunto=eq_posesion,Origen: Equipo › Posesión y circulación
+g25,desglosada,estadistica,stat=eq_pct_pases&entidad=equipo,Desglosada: Precisión de pase
+g26,tabla,equipo,conjunto=eq_posesion,Origen: Equipo › Posesión y circulación
+g27,tabla,equipo,conjunto=eq_posesion,Origen: Equipo › Posesión y circulación
+g27,desglosada,estadistica,stat=eq_ppda&entidad=equipo,Desglosada: PPDA
+g28,tabla,equipo,conjunto=eq_posesion,Origen: Equipo › Posesión y circulación
+g28,desglosada,estadistica,stat=eq_perdidas&entidad=equipo,Desglosada: Pérdidas de posesión
+g29,tabla,equipo,conjunto=eq_ataque,Origen: Equipo › Ataque y tiros
+g30,tabla,equipo,conjunto=eq_resultados,Origen: Equipo › Resultados
+g30,desglosada,estadistica,stat=eq_vallas_invictas&entidad=equipo,Desglosada: Vallas invictas
+g31,tabla,equipo,conjunto=eq_defensa,Origen: Equipo › Defensa
+g31,desglosada,estadistica,stat=eq_entradas&entidad=equipo,Desglosada: Entradas
+g32,tabla,jugadores,conjunto=defensa,Origen: Jugadores › Defensa
+g33,tabla,equipo,conjunto=eq_defensa,Origen: Equipo › Defensa
+g34,tabla,equipo,conjunto=eq_defensa,Origen: Equipo › Defensa
+g34,desglosada,estadistica,stat=eq_goles_contra&entidad=equipo,Desglosada: Goles en contra
+g35,tabla,equipo,conjunto=eq_balon_parado,Origen: Equipo › Balón parado
+g35,desglosada,estadistica,stat=eq_corners&entidad=equipo,Desglosada: Córners a favor
+g36,tabla,equipo,conjunto=eq_balon_parado,Origen: Equipo › Balón parado
+g37,tabla,equipo,conjunto=eq_balon_parado,Origen: Equipo › Balón parado
+g38,tabla,equipo,conjunto=eq_balon_parado,Origen: Equipo › Balón parado
+g39,tabla,jugadores,conjunto=resumen,Origen: Jugadores › Resumen
+g40,tabla,jugadores,conjunto=resumen,Origen: Jugadores › Resumen
+g41,tabla,jugadores,conjunto=resumen,Origen: Jugadores › Resumen
+g42,tabla,jugadores,conjunto=resumen,Origen: Jugadores › Resumen
+g43,tabla,jugadores,conjunto=fisico_carga,Origen: Jugadores › Físico y carga
+g44,tabla,jugadores,conjunto=resumen,Origen: Jugadores › Resumen
+g45,tabla,jugadores,conjunto=resumen,Origen: Jugadores › Resumen
+g46,tabla,jugadores,conjunto=resumen,Origen: Jugadores › Resumen
+g47,tabla,jugadores,conjunto=rendimiento_esperado,Origen: Jugadores › Rendimiento vs esperado
+g48,tabla,jugadores,conjunto=participacion,Origen: Jugadores › Participación
+g49,tabla,jugadores,conjunto=fisico_carga,Origen: Jugadores › Físico y carga
+g50,tabla,equipo,conjunto=eq_rivales,Origen: Equipo › Rivales y calendario
+g51,tabla,equipo,conjunto=eq_forma,Origen: Equipo › Forma y rachas
+g51,desglosada,estadistica,stat=eq_rotacion&entidad=equipo,Desglosada: Rotación
+g52,tabla,jugadores,conjunto=participacion,Origen: Jugadores › Participación
+g53,tabla,equipo,conjunto=eq_tabla,Origen: Equipo › Tabla de posiciones y Boca vs liga
+g54,tabla,equipo,conjunto=eq_rivales,Origen: Equipo › Rivales y calendario
+g54,desglosada,estadistica,stat=eq_elo&entidad=equipo,Desglosada: Elo de Boca
+g55,tabla,equipo,conjunto=eq_rivales,Origen: Equipo › Rivales y calendario
+g56,tabla,equipo,conjunto=eq_tabla,Origen: Equipo › Tabla de posiciones y Boca vs liga
+g57,tabla,equipo,conjunto=eq_tabla,Origen: Equipo › Tabla de posiciones y Boca vs liga
+g58,tabla,equipo,conjunto=eq_disciplina,Origen: Equipo › Disciplina y árbitros
+g59,tabla,equipo,conjunto=eq_disciplina,Origen: Equipo › Disciplina y árbitros
+g59,desglosada,estadistica,stat=eq_amarillas&entidad=equipo,Desglosada: Tarjetas amarillas
+g60,tabla,equipo,conjunto=eq_disciplina,Origen: Equipo › Disciplina y árbitros
+g60,desglosada,estadistica,stat=eq_faltas&entidad=equipo,Desglosada: Faltas cometidas
+g61,tabla,jugadores,conjunto=disciplina,Origen: Jugadores › Disciplina
+g62,tabla,jugadores,conjunto=metricas_propias,Origen: Jugadores › Métricas propias
+g63,tabla,equipo,conjunto=eq_metricas,Origen: Equipo › Métricas propias
+g63,desglosada,estadistica,stat=eq_diferencia_gol&entidad=equipo,Desglosada: Diferencia de gol
+g64,tabla,jugadores,conjunto=resumen,Origen: Jugadores › Resumen
+g65,tabla,equipo,conjunto=eq_resultados,Origen: Equipo › Resultados
+g66,tabla,equipo,conjunto=eq_forma,Origen: Equipo › Forma y rachas
+g67,tabla,equipo,conjunto=eq_forma,Origen: Equipo › Forma y rachas
+g68,tabla,equipo,conjunto=eq_rivales,Origen: Equipo › Rivales y calendario
+g69,tabla,equipo,conjunto=eq_rivales,Origen: Equipo › Rivales y calendario
+g70,tabla,equipo,conjunto=eq_local_visitante,Origen: Equipo › Local y visitante
+g71,tabla,equipo,conjunto=eq_resultados,Origen: Equipo › Resultados
+g72,tabla,equipo,conjunto=eq_resultados,Origen: Equipo › Resultados
+g73,tabla,equipo,conjunto=eq_forma,Origen: Equipo › Forma y rachas
+g73,desglosada,estadistica,stat=eq_estabilidad_once&entidad=equipo,Desglosada: Estabilidad del once
+g74,tabla,equipo,conjunto=eq_forma,Origen: Equipo › Forma y rachas
+g75,tabla,jugadores,conjunto=metricas_propias,Origen: Jugadores › Métricas propias
+g76,tabla,equipo,conjunto=eq_resultados,Origen: Equipo › Resultados
+g77,tabla,equipo,conjunto=eq_rivales,Origen: Equipo › Rivales y calendario
+g78,tabla,jugadores,conjunto=evolucion_proyeccion,Origen: Jugadores › Evolución y proyección
+g79,tabla,jugadores,conjunto=evolucion_proyeccion,Origen: Jugadores › Evolución y proyección
+g80,tabla,jugadores,conjunto=evolucion_proyeccion,Origen: Jugadores › Evolución y proyección
+g81,tabla,jugadores,conjunto=evolucion_proyeccion,Origen: Jugadores › Evolución y proyección
+g82,tabla,jugadores,conjunto=evolucion_proyeccion,Origen: Jugadores › Evolución y proyección
+g83,tabla,jugadores,conjunto=evolucion_proyeccion,Origen: Jugadores › Evolución y proyección
+g84,tabla,jugadores,conjunto=evolucion_proyeccion,Origen: Jugadores › Evolución y proyección
+g85,tabla,equipo,conjunto=eq_resultados,Origen: Equipo › Resultados
+g86,tabla,equipo,conjunto=eq_resultados,Origen: Equipo › Resultados
+g87,tabla,equipo,conjunto=eq_posesion,Origen: Equipo › Posesión y circulación
+g88,tabla,equipo,conjunto=eq_posesion,Origen: Equipo › Posesión y circulación
+g88,desglosada,estadistica,stat=eq_ppda&entidad=equipo,Desglosada: PPDA
+g89,tabla,equipo,conjunto=eq_posesion,Origen: Equipo › Posesión y circulación
+g90,tabla,equipo,conjunto=eq_esperado,Origen: Equipo › Rendimiento vs esperado (xG)
+g91,tabla,equipo,conjunto=eq_esperado,Origen: Equipo › Rendimiento vs esperado (xG)
+g92,tabla,equipo,conjunto=eq_ataque,Origen: Equipo › Ataque y tiros
+g92,desglosada,estadistica,stat=eq_ocasiones_claras&entidad=equipo,Desglosada: Ocasiones claras
+g93,tabla,equipo,conjunto=eq_ataque,Origen: Equipo › Ataque y tiros
+g94,tabla,equipo,conjunto=eq_posesion,Origen: Equipo › Posesión y circulación
+g95,tabla,equipo,conjunto=eq_defensa,Origen: Equipo › Defensa
+g95,desglosada,estadistica,stat=eq_duelos_ganados&entidad=equipo,Desglosada: Duelos ganados
+g96,tabla,equipo,conjunto=eq_esperado,Origen: Equipo › Rendimiento vs esperado (xG)
+g96,desglosada,estadistica,stat=eq_xpts&entidad=equipo,Desglosada: Puntos esperados
+g97,tabla,jugadores,conjunto=resumen,Origen: Jugadores › Resumen
+g98,tabla,jugadores,conjunto=resumen,Origen: Jugadores › Resumen
+g99,tabla,jugadores,conjunto=creacion,Origen: Jugadores › Creación
+g100,tabla,jugadores,conjunto=defensa,Origen: Jugadores › Defensa
+g101,tabla,equipo,conjunto=eq_local_visitante,Origen: Equipo › Local y visitante
+g101,desglosada,estadistica,stat=eq_xg&entidad=equipo,Desglosada: Goles esperados
+g102,tabla,equipo,conjunto=eq_local_visitante,Origen: Equipo › Local y visitante
+g107,tabla,jugadores,conjunto=evolucion_proyeccion,Origen: Jugadores › Evolución y proyección

@@ -50,6 +50,15 @@ jobs:
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY || secrets.API_SUPABASE_SECRET_KEY }}
+      # Modelo de Power BI (sección 11): CSV en estrella a `exports/powerbi/`, igual que los libros.
+      - name: CSV de Power BI
+        id: powerbi
+        continue-on-error: true
+        run: uv run python -m pipeline.powerbi --upload 2>&1 | tee powerbi.log; exit ${PIPESTATUS[0]}
+        shell: bash
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY || secrets.API_SUPABASE_SECRET_KEY }}
       # La caché se guarda aunque la carga falle: lo ya bajado no se vuelve a pedir.
       - uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         if: always()
@@ -64,4 +73,6 @@ jobs:
           echo "### Pipeline" >> "$GITHUB_STEP_SUMMARY"
           echo "### Libros de Excel (${{ steps.excel.outcome }})" >> "$GITHUB_STEP_SUMMARY"
           tail -10 excel.log 2>/dev/null | sed 's/^/    /' >> "$GITHUB_STEP_SUMMARY" || true
+          echo "### CSV de Power BI (${{ steps.powerbi.outcome }})" >> "$GITHUB_STEP_SUMMARY"
+          tail -5 powerbi.log 2>/dev/null | sed 's/^/    /' >> "$GITHUB_STEP_SUMMARY" || true
           grep -vE "sin pareja" pipeline.log | tail -40 | sed 's/^/    /' >> "$GITHUB_STEP_SUMMARY" || true

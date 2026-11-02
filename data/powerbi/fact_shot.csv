@@ -1,0 +1,751 @@
+﻿shot_id,match_id,boca_shot,player_id,player_name,minute,outcome,body_part,penalty,zone,xg,x,y
+6751,1,1,5,Lautaro Di Lollo,3,missed,header,0,six_yard_box,0.135,0.058,0.579
+6752,1,1,19,Tomás Belmonte,17,saved,header,0,penalty_area,0.05,0.226,0.523
+6753,1,1,16,Leandro Paredes,18,blocked,right_foot,0,outside_box,0.022,0.436,0.188
+6754,1,1,5,Lautaro Di Lollo,20,saved,header,0,penalty_area,0.103,0.168,0.496
+6755,1,1,19,Tomás Belmonte,21,missed,header,0,penalty_area,0.046,0.184,0.6
+6756,1,1,34,Ander Herrera,23,blocked,right_foot,0,outside_box,0.021,0.538,0.419
+6757,1,1,35,Exequiel Zeballos,32,missed,right_foot,0,outside_box,0.01,0.576,0.313
+6758,1,1,5,Lautaro Di Lollo,35,missed,header,0,penalty_area,0.103,0.198,0.478
+6759,1,1,16,Leandro Paredes,45,blocked,right_foot,0,outside_box,0.023,0.474,0.329
+6760,1,1,6,Lautaro Blanco,49,missed,left_foot,0,outside_box,0.023,0.462,0.323
+6761,1,1,16,Leandro Paredes,57,blocked,right_foot,0,outside_box,0.011,0.55,0.253
+6762,1,1,34,Ander Herrera,61,blocked,right_foot,0,outside_box,0.021,0.548,0.446
+6763,1,1,19,Tomás Belmonte,61,blocked,left_foot,0,outside_box,0.023,0.48,0.393
+6764,1,1,16,Leandro Paredes,66,blocked,right_foot,0,outside_box,0.017,0.422,0.697
+6765,1,1,16,Leandro Paredes,71,missed,right_foot,0,outside_box,0.032,0.458,0.611
+6766,1,1,37,Brian Aguirre,73,blocked,left_foot,0,penalty_area,0.019,0.266,0.738
+6767,1,1,19,Tomás Belmonte,74,missed,left_foot,0,penalty_area,0.123,0.296,0.524
+6768,1,1,5,Lautaro Di Lollo,77,goal,header,0,six_yard_box,0.338,0.086,0.506
+6769,1,0,,,9,missed,left_foot,0,outside_box,0.055,0.428,0.538
+6770,1,0,,,85,blocked,right_foot,0,outside_box,0.028,0.508,0.497
+6771,1,0,,,86,saved,right_foot,0,penalty_area,0.019,0.238,0.25
+6772,1,0,,,90,blocked,right_foot,0,outside_box,0.021,0.58,0.533
+6773,2,1,21,Williams Alarcón,20,missed,right_foot,0,penalty_area,0.124,0.244,0.603
+6774,2,1,12,Ayrton Costa,31,missed,left_foot,0,penalty_area,0.253,0.184,0.44
+6775,2,1,6,Lautaro Blanco,37,blocked,left_foot,0,outside_box,0.028,0.382,0.293
+6776,2,1,35,Exequiel Zeballos,67,saved,left_foot,0,penalty_area,0.149,0.202,0.401
+6777,2,1,35,Exequiel Zeballos,76,blocked,right_foot,0,outside_box,0.021,0.57,0.528
+6778,2,1,35,Exequiel Zeballos,81,goal,header,0,six_yard_box,0.566,0.058,0.489
+6779,2,1,38,Iker Zufiaurre,83,blocked,right_foot,0,outside_box,0.017,0.42,0.303
+6780,2,1,20,Tomás Aranda,89,saved,right_foot,0,outside_box,0.028,0.414,0.327
+6781,2,1,34,Ander Herrera,89,blocked,right_foot,0,six_yard_box,0.228,0.102,0.415
+6782,2,1,12,Ayrton Costa,90,blocked,left_foot,0,penalty_area,0.154,0.252,0.448
+6783,2,0,,,13,blocked,right_foot,0,penalty_area,0.146,0.252,0.51
+6784,2,0,,,13,missed,right_foot,0,penalty_area,0.032,0.264,0.714
+6785,2,0,,,27,saved,right_foot,0,outside_box,0.017,0.594,0.636
+6786,2,0,,,28,goal,left_foot,0,six_yard_box,0.397,0.066,0.54
+6787,2,0,,,33,blocked,right_foot,0,penalty_area,0.113,0.234,0.634
+6788,2,0,,,33,missed,,0,outside_box,0.017,0.592,0.615
+6789,2,0,,,36,saved,right_foot,0,penalty_area,0.149,0.16,0.395
+6790,2,0,,,38,saved,right_foot,0,penalty_area,0.095,0.326,0.445
+6791,2,0,,,39,goal,header,0,penalty_area,0.214,0.166,0.511
+6792,2,0,,,45,missed,right_foot,0,outside_box,0.017,0.554,0.313
+6793,2,0,,,47,saved,left_foot,0,penalty_area,0.149,0.184,0.405
+6794,2,0,,,47,saved,left_foot,0,penalty_area,0.149,0.178,0.399
+6795,2,0,,,65,missed,header,0,penalty_area,0.121,0.176,0.556
+6796,3,1,42,Gonzalo Gelini,2,missed,left_foot,0,penalty_area,0.039,0.332,0.705
+6797,3,1,12,Ayrton Costa,6,missed,header,0,penalty_area,0.043,0.282,0.542
+6798,3,1,24,Santiago Ascacibar,19,missed,left_foot,0,outside_box,0.023,0.486,0.603
+6799,3,1,34,Ander Herrera,29,saved,left_foot,0,penalty_area,0.146,0.268,0.459
+6800,3,1,6,Lautaro Blanco,40,goal,left_foot,0,penalty_area,0.149,0.162,0.389
+6801,3,1,33,Juan Barinaga,45,saved,right_foot,0,outside_box,0.032,0.458,0.63
+6802,3,1,16,Leandro Paredes,56,goal,right_foot,1,penalty,0.739,0.23,0.5
+6803,3,1,26,Angel Romero,85,saved,right_foot,0,outside_box,0.023,0.492,0.363
+6804,3,0,,,11,blocked,left_foot,0,outside_box,0.028,0.42,0.683
+6805,3,0,,,11,missed,header,0,penalty_area,0.046,0.166,0.409
+6806,3,0,,,30,missed,header,0,six_yard_box,0.337,0.08,0.44
+6807,3,0,,,64,saved,left_foot,0,outside_box,0.017,0.524,0.648
+6808,3,0,,,90,missed,left_foot,0,penalty_area,0.113,0.272,0.38
+6809,4,1,12,Ayrton Costa,6,missed,left_foot,0,penalty_area,0.115,0.06,0.638
+6810,4,1,16,Leandro Paredes,8,saved,right_foot,0,outside_box,0.055,0.436,0.468
+6811,4,1,41,Kevin Zenon,19,saved,right_foot,0,penalty_area,0.09,0.3,0.382
+6812,4,1,33,Juan Barinaga,33,blocked,right_foot,0,outside_box,0.028,0.388,0.72
+6813,4,1,41,Kevin Zenon,41,missed,left_foot,0,outside_box,0.021,0.558,0.546
+6814,4,1,38,Iker Zufiaurre,47,missed,header,0,penalty_area,0.04,0.296,0.523
+6815,4,1,20,Tomás Aranda,85,missed,right_foot,0,outside_box,0.037,0.464,0.444
+6816,4,1,38,Iker Zufiaurre,90,goal,right_foot,0,outside_box,0.032,0.474,0.601
+6817,4,0,,,9,missed,left_foot,0,penalty_area,0.1,0.272,0.421
+6818,4,0,,,9,missed,right_foot,0,outside_box,0.07,0.396,0.585
+6819,4,0,,,24,missed,left_foot,0,outside_box,0.037,0.482,0.43
+6820,4,0,,,29,missed,header,0,penalty_area,0.103,0.196,0.505
+6821,4,0,,,45,missed,header,0,penalty_area,0.103,0.2,0.5
+6822,4,0,,,50,missed,header,0,penalty_area,0.05,0.238,0.497
+6823,4,0,,,54,missed,header,0,penalty_area,0.05,0.236,0.535
+6824,4,0,,,58,missed,right_foot,0,penalty_area,0.128,0.168,0.342
+6825,4,0,,,60,saved,right_foot,0,outside_box,0.023,0.488,0.642
+6826,4,0,,,63,goal,header,0,penalty_area,0.05,0.216,0.54
+6827,4,0,,,66,goal,left_foot,0,outside_box,0.095,0.364,0.494
+6828,4,0,,,68,saved,right_foot,0,penalty_area,0.123,0.312,0.499
+6829,4,0,,,82,missed,left_foot,0,penalty_area,0.146,0.26,0.532
+6830,4,0,,,86,missed,right_foot,0,outside_box,0.037,0.482,0.513
+6831,4,0,,,90,blocked,right_foot,0,outside_box,0.023,0.494,0.65
+6832,5,1,28,Miguel Merentiel,1,missed,right_foot,0,penalty_area,0.039,0.296,0.292
+6833,5,1,21,Williams Alarcón,18,saved,left_foot,0,outside_box,0.021,0.558,0.495
+6834,5,1,28,Miguel Merentiel,24,blocked,left_foot,0,outside_box,0.028,0.394,0.702
+6835,5,1,36,Lucas Janson,33,saved,header,0,six_yard_box,0.135,0.056,0.421
+6836,5,1,36,Lucas Janson,46,saved,left_foot,0,penalty_area,0.146,0.278,0.485
+6837,5,1,28,Miguel Merentiel,47,missed,right_foot,0,penalty_area,0.053,0.256,0.693
+6838,5,1,16,Leandro Paredes,52,missed,right_foot,0,outside_box,0.017,0.616,0.422
+6839,5,1,46,G. Gelini,67,missed,header,0,six_yard_box,0.162,0.098,0.579
+6840,5,1,46,G. Gelini,82,blocked,left_foot,0,outside_box,0.039,0.362,0.65
+6841,5,0,,,11,blocked,header,0,penalty_area,0.034,0.266,0.412
+6842,5,0,,,12,missed,right_foot,0,outside_box,0.017,0.556,0.61
+6843,5,0,,,22,missed,right_foot,0,six_yard_box,0.228,0.096,0.573
+6844,5,0,,,26,missed,right_foot,0,outside_box,0.023,0.48,0.37
+6845,5,0,,,32,saved,right_foot,0,outside_box,0.014,0.428,0.246
+6846,5,0,,,40,missed,left_foot,0,outside_box,0.023,0.468,0.331
+6847,5,0,,,44,blocked,left_foot,0,outside_box,0.095,0.364,0.498
+6848,5,0,,,44,missed,left_foot,0,outside_box,0.059,0.402,0.617
+6849,5,0,,,49,missed,left_foot,0,outside_box,0.032,0.43,0.37
+6850,5,0,,,49,blocked,left_foot,0,penalty_area,0.062,0.292,0.373
+6851,5,0,,,54,missed,right_foot,0,outside_box,0.023,0.462,0.678
+6852,5,0,,,63,missed,left_foot,0,outside_box,0.017,0.422,0.267
+6853,5,0,,,74,missed,left_foot,0,outside_box,0.023,0.458,0.34
+6854,5,0,,,75,missed,left_foot,0,outside_box,0.023,0.502,0.395
+6855,6,1,5,Lautaro Di Lollo,49,missed,right_foot,0,penalty_area,0.186,0.198,0.57
+6856,6,1,19,Tomás Belmonte,50,blocked,header,0,six_yard_box,0.088,0.064,0.611
+6857,6,1,19,Tomás Belmonte,68,blocked,right_foot,0,six_yard_box,0.228,0.086,0.573
+6858,6,1,20,Tomás Aranda,90,missed,right_foot,0,outside_box,0.032,0.44,0.667
+6859,6,0,,,23,blocked,right_foot,0,outside_box,0.032,0.456,0.364
+6860,6,0,,,69,missed,right_foot,0,outside_box,0.008,0.67,0.741
+6861,6,0,,,78,missed,right_foot,0,penalty_area,0.146,0.246,0.458
+6862,6,0,,,86,saved,right_foot,0,outside_box,0.028,0.406,0.677
+6863,6,0,,,87,saved,header,0,penalty_area,0.05,0.21,0.47
+6864,6,0,,,90,blocked,left_foot,0,outside_box,0.032,0.414,0.658
+6865,7,1,32,Adam Bareiro,4,saved,right_foot,0,outside_box,0.023,0.488,0.626
+6866,7,1,21,Williams Alarcón,9,blocked,right_foot,0,outside_box,0.037,0.476,0.485
+6867,7,1,28,Miguel Merentiel,10,saved,right_foot,0,outside_box,0.095,0.364,0.498
+6868,7,1,5,Lautaro Di Lollo,21,blocked,header,0,penalty_area,0.103,0.202,0.472
+6869,7,1,21,Williams Alarcón,31,missed,right_foot,0,outside_box,0.059,0.382,0.654
+6870,7,1,36,Lucas Janson,39,missed,header,0,penalty_area,0.121,0.176,0.434
+6871,7,1,28,Miguel Merentiel,41,goal,left_foot,0,penalty_area,0.062,0.254,0.654
+6872,7,1,20,Tomás Aranda,56,missed,right_foot,0,penalty_area,0.154,0.26,0.552
+6873,7,1,5,Lautaro Di Lollo,60,blocked,header,0,penalty_area,0.044,0.2,0.438
+6874,7,1,24,Santiago Ascacibar,60,blocked,left_foot,0,penalty_area,0.154,0.266,0.558
+6875,7,1,20,Tomás Aranda,68,missed,left_foot,0,penalty_area,0.124,0.246,0.607
+6876,7,1,24,Santiago Ascacibar,74,missed,header,0,penalty_area,0.121,0.182,0.438
+6877,7,1,5,Lautaro Di Lollo,76,missed,header,0,penalty_area,0.05,0.216,0.51
+6878,7,1,20,Tomás Aranda,83,missed,right_foot,0,outside_box,0.064,0.406,0.552
+6879,7,1,41,Kevin Zenon,84,missed,header,0,penalty_area,0.021,0.232,0.607
+6880,7,1,32,Adam Bareiro,85,missed,header,0,six_yard_box,0.338,0.098,0.511
+6881,7,1,20,Tomás Aranda,89,missed,header,0,penalty_area,0.121,0.176,0.544
+6882,7,1,5,Lautaro Di Lollo,90,saved,header,0,penalty_area,0.103,0.206,0.503
+6883,7,1,6,Lautaro Blanco,90,saved,left_foot,0,outside_box,0.034,0.176,0.203
+6884,7,0,,,15,blocked,left_foot,0,outside_box,0.017,0.58,0.399
+6885,7,0,,,15,goal,header,0,six_yard_box,0.162,0.086,0.577
+6886,7,0,,,31,saved,right_foot,0,outside_box,0.055,0.424,0.567
+6887,7,0,,,34,blocked,right_foot,0,penalty_area,0.019,0.296,0.734
+6888,7,0,,,45,saved,right_foot,0,outside_box,0.021,0.78,0.458
+6889,7,0,,,50,missed,left_foot,0,outside_box,0.023,0.47,0.325
+6890,8,1,6,Lautaro Blanco,5,blocked,left_foot,0,outside_box,0.021,0.554,0.434
+6891,8,1,28,Miguel Merentiel,7,missed,header,0,penalty_area,0.05,0.238,0.489
+6892,8,1,24,Santiago Ascacibar,15,goal,right_foot,0,outside_box,0.055,0.432,0.454
+6893,8,1,28,Miguel Merentiel,30,goal,header,0,penalty_area,0.103,0.19,0.472
+6894,8,1,16,Leandro Paredes,39,missed,right_foot,0,outside_box,0.008,0.682,0.276
+6895,8,1,24,Santiago Ascacibar,41,blocked,right_foot,0,outside_box,0.017,0.61,0.568
+6896,8,1,32,Adam Bareiro,42,saved,header,0,penalty_area,0.103,0.176,0.515
+6897,8,1,20,Tomás Aranda,50,saved,left_foot,0,penalty_area,0.062,0.302,0.364
+6898,8,1,20,Tomás Aranda,61,missed,right_foot,0,outside_box,0.037,0.492,0.521
+6899,8,1,12,Ayrton Costa,63,missed,header,0,penalty_area,0.121,0.19,0.538
+6900,8,1,28,Miguel Merentiel,64,goal,left_foot,0,penalty_area,0.1,0.294,0.444
+6901,8,0,,,52,saved,left_foot,0,outside_box,0.021,0.544,0.442
+6902,8,0,,,73,missed,right_foot,0,outside_box,0.023,0.462,0.642
+6903,8,0,,,77,blocked,right_foot,0,penalty_area,0.128,0.166,0.346
+6904,8,0,,,81,blocked,left_foot,0,outside_box,0.055,0.438,0.558
+6905,8,0,,,86,saved,header,0,penalty_area,0.043,0.276,0.479
+6906,8,0,,,87,missed,header,0,penalty_area,0.214,0.138,0.474
+6907,8,0,,,90,missed,right_foot,0,outside_box,0.095,0.356,0.497
+6908,9,1,32,Adam Bareiro,7,saved,right_foot,0,penalty_area,0.1,0.286,0.564
+6909,9,1,20,Tomás Aranda,33,missed,header,0,penalty_area,0.04,0.31,0.45
+6910,9,1,28,Miguel Merentiel,36,missed,left_foot,0,penalty_area,0.091,0.188,0.34
+6911,9,1,32,Adam Bareiro,41,woodwork,right_foot,0,penalty_area,0.248,0.202,0.468
+6912,9,1,24,Santiago Ascacibar,55,goal,left_foot,0,penalty_area,0.146,0.282,0.472
+6913,9,1,28,Miguel Merentiel,68,missed,header,0,penalty_area,0.103,0.184,0.493
+6914,9,1,43,Marcelo Weigandt,69,missed,right_foot,0,penalty_area,0.113,0.254,0.621
+6915,9,1,16,Leandro Paredes,75,saved,right_foot,0,outside_box,0.017,0.588,0.646
+6916,9,1,6,Lautaro Blanco,86,missed,left_foot,0,outside_box,0.055,0.426,0.456
+6917,9,1,32,Adam Bareiro,90,missed,header,0,penalty_area,0.038,0.226,0.577
+6918,9,1,20,Tomás Aranda,90,missed,right_foot,0,penalty_area,0.113,0.278,0.379
+6919,9,0,,,45,missed,header,0,penalty_area,0.021,0.198,0.364
+6920,9,0,,,45,woodwork,header,0,six_yard_box,0.379,0.096,0.526
+6921,9,0,,,65,goal,right_foot,0,six_yard_box,0.323,0.102,0.558
+6922,9,0,,,87,saved,left_foot,0,outside_box,0.07,0.37,0.423
+6923,10,1,28,Miguel Merentiel,14,blocked,left_foot,0,penalty_area,0.123,0.302,0.53
+6924,10,1,28,Miguel Merentiel,20,blocked,right_foot,0,penalty_area,0.154,0.222,0.589
+6925,10,1,43,Marcelo Weigandt,40,saved,right_foot,0,outside_box,0.014,0.468,0.695
+6926,10,1,22,Milton Delgado,45,missed,right_foot,0,outside_box,0.028,0.538,0.485
+6927,10,1,32,Adam Bareiro,50,saved,right_foot,0,six_yard_box,0.192,0.088,0.606
+6928,10,1,34,Ander Herrera,51,missed,header,0,penalty_area,0.103,0.196,0.487
+6929,10,1,16,Leandro Paredes,56,saved,right_foot,0,outside_box,0.022,0.402,0.19
+6930,10,1,32,Adam Bareiro,57,woodwork,right_foot,0,penalty_area,0.248,0.198,0.505
+6931,10,1,28,Miguel Merentiel,57,goal,right_foot,0,penalty_area,0.149,0.188,0.601
+6932,10,1,16,Leandro Paredes,63,blocked,right_foot,0,outside_box,0.021,0.548,0.58
+6933,10,1,32,Adam Bareiro,66,saved,right_foot,0,penalty_area,0.248,0.184,0.521
+6934,10,1,20,Tomás Aranda,67,missed,left_foot,0,penalty_area,0.124,0.216,0.364
+6935,10,1,30,Alan Velasco,86,missed,right_foot,0,outside_box,0.039,0.358,0.34
+6936,10,1,32,Adam Bareiro,89,blocked,right_foot,0,penalty_area,0.113,0.278,0.626
+6937,10,1,30,Alan Velasco,90,missed,right_foot,0,penalty_area,0.118,0.108,0.646
+6938,10,0,,,3,saved,right_foot,0,outside_box,0.017,0.512,0.364
+6939,10,0,,,4,blocked,right_foot,0,penalty_area,0.123,0.32,0.509
+6940,10,0,,,29,missed,header,0,penalty_area,0.043,0.264,0.472
+6941,10,0,,,37,blocked,right_foot,0,outside_box,0.011,0.564,0.266
+6942,10,0,,,37,missed,right_foot,0,penalty_area,0.113,0.226,0.642
+6943,10,0,,,39,missed,left_foot,0,penalty_area,0.123,0.314,0.513
+6944,10,0,,,41,goal,right_foot,0,penalty_area,0.095,0.328,0.549
+6945,10,0,,,43,missed,right_foot,0,outside_box,0.059,0.4,0.603
+6946,10,0,,,49,missed,right_foot,0,penalty_area,0.248,0.188,0.503
+6947,10,0,,,64,blocked,header,0,penalty_area,0.043,0.252,0.464
+6948,10,0,,,77,saved,right_foot,0,outside_box,0.037,0.452,0.427
+6949,10,0,,,78,missed,right_foot,0,penalty_area,0.055,0.15,0.309
+6950,10,0,,,89,blocked,header,0,penalty_area,0.043,0.278,0.479
+6951,10,0,,,90,missed,right_foot,0,penalty_area,0.062,0.296,0.655
+6952,11,1,28,Miguel Merentiel,1,blocked,right_foot,0,outside_box,0.059,0.4,0.364
+6953,11,1,32,Adam Bareiro,11,saved,left_foot,0,penalty_area,0.186,0.216,0.558
+6954,11,1,32,Adam Bareiro,21,missed,header,0,penalty_area,0.214,0.16,0.528
+6955,11,1,28,Miguel Merentiel,27,saved,left_foot,0,penalty_area,0.186,0.214,0.564
+6956,11,1,16,Leandro Paredes,27,missed,right_foot,0,outside_box,0.011,0.514,0.725
+6957,11,1,16,Leandro Paredes,28,missed,right_foot,0,outside_box,0.028,0.532,0.489
+6958,11,1,20,Tomás Aranda,34,blocked,right_foot,0,penalty_area,0.042,0.312,0.348
+6959,11,1,22,Milton Delgado,34,saved,right_foot,0,outside_box,0.059,0.424,0.591
+6960,11,1,28,Miguel Merentiel,36,missed,right_foot,0,penalty_area,0.149,0.174,0.614
+6961,11,1,43,Marcelo Weigandt,42,missed,header,0,penalty_area,0.103,0.188,0.509
+6962,11,1,28,Miguel Merentiel,45,blocked,right_foot,0,penalty_area,0.146,0.258,0.532
+6963,11,1,28,Miguel Merentiel,45,blocked,right_foot,0,penalty_area,0.124,0.222,0.634
+6964,11,1,32,Adam Bareiro,47,woodwork,header,0,penalty_area,0.214,0.152,0.507
+6965,11,1,20,Tomás Aranda,50,blocked,right_foot,0,outside_box,0.095,0.358,0.552
+6966,11,1,20,Tomás Aranda,51,goal,right_foot,0,penalty_area,0.042,0.322,0.319
+6967,11,1,32,Adam Bareiro,56,goal,left_foot,0,penalty_area,0.377,0.138,0.477
+6968,11,1,28,Miguel Merentiel,89,missed,left_foot,0,six_yard_box,0.364,0.058,0.436
+6969,11,0,,,18,missed,left_foot,0,penalty_area,0.053,0.24,0.303
+6970,11,0,,,23,saved,right_foot,0,penalty_area,0.113,0.232,0.628
+6971,11,0,,,29,saved,right_foot,0,outside_box,0.01,0.606,0.638
+6972,11,0,,,42,saved,header,0,penalty_area,0.043,0.27,0.477
+6973,11,0,,,54,missed,header,0,penalty_area,0.046,0.19,0.419
+6974,11,0,,,54,saved,left_foot,0,six_yard_box,0.37,0.048,0.43
+6975,11,0,,,70,blocked,right_foot,0,outside_box,0.028,0.514,0.442
+6976,11,0,,,70,missed,left_foot,0,outside_box,0.01,0.636,0.38
+6977,11,0,,,81,saved,right_foot,0,outside_box,0.028,0.512,0.509
+6978,11,0,,,86,missed,header,0,penalty_area,0.121,0.166,0.444
+6979,11,0,,,90,missed,right_foot,0,penalty_area,0.149,0.194,0.415
+6980,11,0,,,90,missed,right_foot,0,penalty_area,0.113,0.258,0.609
+6981,12,1,7,Nicolás Figal,10,missed,header,0,penalty_area,0.214,0.154,0.489
+6982,12,1,34,Ander Herrera,14,blocked,left_foot,0,outside_box,0.059,0.394,0.37
+6983,12,1,20,Tomás Aranda,31,saved,right_foot,0,outside_box,0.032,0.444,0.64
+6984,12,1,7,Nicolás Figal,32,blocked,header,0,penalty_area,0.214,0.128,0.511
+6985,12,1,19,Tomás Belmonte,43,missed,right_foot,0,outside_box,0.064,0.392,0.503
+6986,12,1,32,Adam Bareiro,71,goal,right_foot,0,six_yard_box,0.459,0.09,0.476
+6987,12,1,20,Tomás Aranda,81,missed,right_foot,0,penalty_area,0.042,0.302,0.327
+6988,12,1,26,Angel Romero,84,missed,right_foot,0,outside_box,0.07,0.39,0.581
+6989,12,0,,,5,missed,right_foot,0,outside_box,0.028,0.526,0.583
+6990,12,0,,,22,missed,right_foot,0,outside_box,0.028,0.542,0.479
+6991,12,0,,,34,missed,right_foot,0,penalty_area,0.053,0.232,0.303
+6992,12,0,,,38,blocked,right_foot,0,outside_box,0.023,0.508,0.366
+6993,12,0,,,41,missed,right_foot,0,penalty_area,0.123,0.31,0.534
+6994,12,0,,,45,missed,right_foot,0,penalty_area,0.042,0.31,0.686
+6995,12,0,,,48,missed,left_foot,0,outside_box,0.095,0.368,0.523
+6996,12,0,,,50,missed,right_foot,0,outside_box,0.023,0.5,0.387
+6997,12,0,,,57,missed,header,0,penalty_area,0.044,0.218,0.545
+6998,12,0,,,70,saved,header,0,penalty_area,0.05,0.208,0.536
+6999,12,0,,,78,blocked,right_foot,0,outside_box,0.064,0.394,0.519
+7000,12,0,,,82,blocked,header,0,penalty_area,0.05,0.204,0.464
+7001,12,0,,,83,missed,header,0,penalty_area,0.043,0.258,0.464
+7002,12,0,,,90,missed,header,0,penalty_area,0.05,0.21,0.481
+7003,14,1,26,Angel Romero,5,saved,header,0,penalty_area,0.103,0.194,0.469
+7004,14,1,25,Milton Giménez,23,missed,right_foot,0,penalty_area,0.186,0.214,0.429
+7005,14,1,10,Marco Pellegrino,30,missed,header,0,penalty_area,0.214,0.142,0.505
+7006,14,1,19,Tomás Belmonte,45,missed,header,0,six_yard_box,0.566,0.066,0.474
+7007,14,1,25,Milton Giménez,45,goal,right_foot,1,penalty,0.739,0.23,0.5
+7008,14,1,30,Alan Velasco,47,blocked,right_foot,0,penalty_area,0.053,0.17,0.295
+7009,14,1,30,Alan Velasco,49,blocked,right_foot,0,outside_box,0.028,0.418,0.679
+7010,14,1,28,Miguel Merentiel,63,saved,right_foot,0,penalty_area,0.113,0.22,0.646
+7011,14,1,35,Exequiel Zeballos,79,missed,right_foot,0,outside_box,0.01,0.634,0.357
+7012,14,1,32,Adam Bareiro,83,missed,header,0,penalty_area,0.043,0.258,0.501
+7013,14,1,32,Adam Bareiro,90,saved,right_foot,0,outside_box,0.032,0.458,0.613
+7014,14,0,,,9,missed,right_foot,0,penalty_area,0.248,0.198,0.509
+7015,14,0,,,9,goal,right_foot,0,penalty_area,0.085,0.078,0.329
+7016,14,0,,,15,missed,right_foot,0,outside_box,0.01,0.582,0.683
+7017,14,0,,,20,missed,header,0,penalty_area,0.04,0.296,0.504
+7018,14,0,,,42,blocked,left_foot,0,penalty_area,0.154,0.258,0.585
+7019,14,0,,,50,missed,header,0,penalty_area,0.05,0.222,0.468
+7020,14,0,,,57,blocked,left_foot,0,outside_box,0.023,0.476,0.354
+7021,14,0,,,66,missed,right_foot,0,outside_box,0.017,0.508,0.329
+7022,16,1,28,Miguel Merentiel,45,missed,right_foot,0,penalty_area,0.1,0.28,0.438
+7023,16,1,28,Miguel Merentiel,45,blocked,right_foot,0,penalty_area,0.124,0.196,0.368
+7024,16,1,16,Leandro Paredes,45,goal,right_foot,1,penalty,0.739,0.23,0.5
+7025,16,1,28,Miguel Merentiel,51,blocked,right_foot,0,outside_box,0.095,0.352,0.499
+7026,16,1,24,Santiago Ascacibar,52,saved,right_foot,0,penalty_area,0.062,0.314,0.63
+7027,16,1,22,Milton Delgado,66,missed,right_foot,0,outside_box,0.023,0.5,0.595
+7028,16,1,35,Exequiel Zeballos,74,saved,left_foot,0,penalty_area,0.128,0.142,0.331
+7029,16,1,35,Exequiel Zeballos,80,saved,left_foot,0,penalty_area,0.053,0.226,0.301
+7030,16,1,25,Milton Giménez,84,missed,header,0,penalty_area,0.103,0.198,0.474
+7031,16,1,35,Exequiel Zeballos,90,saved,left_foot,0,penalty_area,0.128,0.184,0.352
+7032,16,0,,,6,blocked,left_foot,0,outside_box,0.023,0.438,0.327
+7033,16,0,,,14,blocked,header,0,penalty_area,0.046,0.208,0.595
+7034,16,0,,,14,blocked,right_foot,0,outside_box,0.017,0.544,0.38
+7035,16,0,,,20,missed,right_foot,0,outside_box,0.017,0.542,0.346
+7036,16,0,,,44,missed,left_foot,0,outside_box,0.095,0.356,0.452
+7037,16,0,,,57,blocked,right_foot,0,outside_box,0.014,0.644,0.517
+7038,16,0,,,57,saved,header,0,penalty_area,0.05,0.228,0.521
+7039,16,0,,,58,blocked,right_foot,0,penalty_area,0.091,0.216,0.658
+7040,16,0,,,75,blocked,right_foot,0,outside_box,0.055,0.426,0.548
+7041,16,0,,,77,missed,right_foot,0,outside_box,0.059,0.43,0.611
+7042,16,0,,,78,blocked,left_foot,0,penalty_area,0.149,0.166,0.391
+7043,16,0,,,81,blocked,right_foot,0,outside_box,0.021,0.554,0.558
+7044,16,0,,,85,saved,right_foot,0,outside_box,0.017,0.606,0.499
+7045,17,1,25,Milton Giménez,14,missed,right_foot,0,penalty_area,0.042,0.32,0.642
+7046,17,1,25,Milton Giménez,22,goal,right_foot,0,outside_box,0.055,0.438,0.559
+7047,17,1,11,Malcom Braida,49,missed,right_foot,0,outside_box,0.011,0.516,0.229
+7048,17,1,35,Exequiel Zeballos,51,missed,right_foot,0,penalty_area,0.128,0.19,0.363
+7049,17,1,24,Santiago Ascacibar,52,saved,left_foot,0,penalty_area,0.186,0.184,0.429
+7050,17,1,25,Milton Giménez,53,saved,right_foot,0,penalty_area,0.019,0.29,0.726
+7051,17,1,24,Santiago Ascacibar,58,blocked,right_foot,0,penalty_area,0.091,0.166,0.692
+7052,17,1,30,Alan Velasco,77,goal,right_foot,0,penalty_area,0.124,0.236,0.621
+7053,17,1,32,Adam Bareiro,81,goal,right_foot,0,six_yard_box,0.47,0.098,0.518
+7054,17,1,7,Nicolás Figal,83,saved,header,0,penalty_area,0.051,0.144,0.36
+7055,17,1,28,Miguel Merentiel,90,goal,left_foot,0,six_yard_box,0.37,0.054,0.423
+7056,17,0,,,4,missed,header,0,penalty_area,0.233,0.134,0.447
+7057,17,0,,,10,missed,left_foot,0,outside_box,0.021,0.574,0.495
+7058,17,0,,,35,missed,right_foot,0,penalty_area,0.118,0.088,0.651
+7059,17,0,,,77,blocked,header,0,penalty_area,0.121,0.192,0.459
+7060,17,0,,,84,blocked,right_foot,0,outside_box,0.011,0.45,0.772
+7061,17,0,,,85,missed,right_foot,0,outside_box,0.017,0.498,0.658
+7062,17,0,,,87,saved,left_foot,0,penalty_area,0.113,0.236,0.355
+7063,17,0,,,90,missed,left_foot,0,outside_box,0.028,0.524,0.424
+7064,19,1,35,Exequiel Zeballos,16,saved,right_foot,0,outside_box,0.017,0.594,0.427
+7065,19,1,30,Alan Velasco,26,saved,right_foot,0,outside_box,0.021,0.548,0.57
+7066,19,1,30,Alan Velasco,43,goal,right_foot,0,penalty_area,0.042,0.286,0.674
+7067,19,1,25,Milton Giménez,45,goal,right_foot,0,six_yard_box,0.47,0.098,0.495
+7068,19,1,25,Milton Giménez,45,saved,header,0,penalty_area,0.103,0.198,0.497
+7069,19,1,7,Nicolás Figal,47,missed,right_foot,0,outside_box,0.017,0.61,0.536
+7070,19,1,26,Angel Romero,55,saved,left_foot,0,outside_box,0.059,0.382,0.64
+7071,19,1,25,Milton Giménez,60,missed,right_foot,0,outside_box,0.064,0.402,0.523
+7072,19,1,26,Angel Romero,71,missed,left_foot,0,penalty_area,0.062,0.294,0.37
+7073,19,1,28,Miguel Merentiel,86,saved,right_foot,0,penalty_area,0.124,0.214,0.628
+7074,19,1,28,Miguel Merentiel,90,saved,right_foot,0,penalty_area,0.124,0.216,0.595
+7075,19,0,,,3,missed,header,0,penalty_area,0.038,0.246,0.552
+7076,19,0,,,22,blocked,right_foot,0,penalty_area,0.123,0.312,0.464
+7077,19,0,,,22,missed,right_foot,0,outside_box,0.017,0.614,0.556
+7078,19,0,,,39,blocked,right_foot,0,penalty_area,0.123,0.296,0.552
+7079,19,0,,,39,missed,left_foot,0,outside_box,0.064,0.402,0.55
+7080,19,0,,,42,missed,right_foot,0,outside_box,0.037,0.482,0.558
+7081,19,0,,,53,blocked,left_foot,0,penalty_area,0.146,0.272,0.491
+7082,19,0,,,56,goal,header,0,six_yard_box,0.566,0.066,0.524
+7083,19,0,,,62,missed,header,0,penalty_area,0.036,0.282,0.615
+7084,19,0,,,67,missed,right_foot,0,penalty_area,0.091,0.208,0.683
+7085,19,0,,,83,missed,left_foot,0,outside_box,0.037,0.5,0.517
+7086,19,0,,,84,missed,right_foot,0,outside_box,0.032,0.468,0.409
+7087,19,0,,,85,blocked,right_foot,0,penalty_area,0.186,0.22,0.55
+7088,19,0,,,86,saved,header,0,outside_box,0.038,0.486,0.485
+7089,21,1,20,Tomás Aranda,11,blocked,right_foot,0,outside_box,0.064,0.412,0.474
+7090,21,1,16,Leandro Paredes,13,saved,right_foot,0,penalty_area,0.015,0.304,0.228
+7091,21,1,28,Miguel Merentiel,15,saved,header,0,penalty_area,0.121,0.19,0.46
+7092,21,1,22,Milton Delgado,18,saved,right_foot,0,outside_box,0.023,0.506,0.374
+7093,21,1,32,Adam Bareiro,20,blocked,right_foot,0,penalty_area,0.253,0.198,0.54
+7094,21,1,24,Santiago Ascacibar,26,saved,right_foot,0,penalty_area,0.124,0.198,0.636
+7095,21,1,43,Marcelo Weigandt,26,blocked,right_foot,0,outside_box,0.021,0.55,0.593
+7096,21,1,22,Milton Delgado,30,missed,right_foot,0,outside_box,0.017,0.604,0.54
+7097,21,1,24,Santiago Ascacibar,31,blocked,left_foot,0,penalty_area,0.248,0.194,0.509
+7098,21,1,25,Milton Giménez,31,blocked,right_foot,0,six_yard_box,0.397,0.064,0.462
+7099,21,1,28,Miguel Merentiel,37,saved,left_foot,0,penalty_area,0.118,0.104,0.352
+7100,21,1,5,Lautaro Di Lollo,37,missed,header,0,penalty_area,0.05,0.216,0.474
+7101,21,1,24,Santiago Ascacibar,49,blocked,right_foot,0,penalty_area,0.248,0.188,0.495
+7102,21,1,16,Leandro Paredes,61,blocked,right_foot,0,outside_box,0.023,0.494,0.387
+7103,21,1,11,Malcom Braida,62,missed,right_foot,0,outside_box,0.059,0.44,0.591
+7104,21,1,35,Exequiel Zeballos,72,blocked,right_foot,0,penalty_area,0.124,0.228,0.385
+7105,21,1,12,Ayrton Costa,72,missed,left_foot,0,penalty_area,0.146,0.288,0.495
+7106,21,1,28,Miguel Merentiel,75,missed,left_foot,0,outside_box,0.07,0.376,0.609
+7107,21,1,35,Exequiel Zeballos,83,saved,header,0,penalty_area,0.121,0.152,0.446
+7108,21,1,35,Exequiel Zeballos,85,blocked,left_foot,0,penalty_area,0.128,0.188,0.35
+7109,21,1,16,Leandro Paredes,86,blocked,right_foot,0,outside_box,0.032,0.462,0.366
+7110,21,1,25,Milton Giménez,87,goal,,0,six_yard_box,0.459,0.098,0.534
+7111,21,1,25,Milton Giménez,90,missed,right_foot,0,penalty_area,0.36,0.146,0.528
+7112,21,1,16,Leandro Paredes,105,saved,right_foot,0,outside_box,0.011,0.506,0.714
+7113,21,1,5,Lautaro Di Lollo,105,saved,header,0,penalty_area,0.103,0.202,0.477
+7114,21,1,26,Angel Romero,106,missed,header,0,penalty_area,0.121,0.17,0.446
+7115,21,1,5,Lautaro Di Lollo,107,missed,header,0,penalty_area,0.338,0.116,0.517
+7116,21,1,16,Leandro Paredes,109,blocked,right_foot,0,outside_box,0.017,0.594,0.436
+7117,21,1,5,Lautaro Di Lollo,109,saved,header,0,penalty_area,0.121,0.182,0.458
+7118,21,1,35,Exequiel Zeballos,110,missed,right_foot,0,outside_box,0.023,0.492,0.383
+7119,21,1,28,Miguel Merentiel,111,missed,right_foot,0,outside_box,0.023,0.474,0.344
+7120,21,1,5,Lautaro Di Lollo,116,missed,header,0,penalty_area,0.233,0.152,0.536
+7121,21,1,26,Angel Romero,116,goal,header,0,six_yard_box,0.233,0.114,0.538
+7122,21,1,5,Lautaro Di Lollo,117,blocked,left_foot,0,penalty_area,0.146,0.25,0.46
+7123,21,1,26,Angel Romero,118,missed,right_foot,0,penalty_area,0.118,0.08,0.664
+7124,21,1,5,Lautaro Di Lollo,120,missed,header,0,penalty_area,0.05,0.216,0.472
+7125,21,0,,,2,blocked,left_foot,0,outside_box,0.008,0.64,0.28
+7126,21,0,,,4,blocked,left_foot,0,outside_box,0.028,0.506,0.409
+7127,21,0,,,5,goal,right_foot,0,penalty_area,0.1,0.284,0.564
+7128,21,0,,,70,missed,right_foot,0,outside_box,0.039,0.356,0.687
+7129,21,0,,,94,goal,left_foot,1,penalty,0.739,0.232,0.499
+7130,21,0,,,98,blocked,left_foot,0,penalty_area,0.032,0.216,0.274
+7131,21,0,,,103,goal,left_foot,1,penalty,0.739,0.23,0.5
+7132,21,0,,,120,missed,left_foot,0,outside_box,0.014,0.626,0.568
+7133,27,1,41,Kevin Zenon,3,missed,left_foot,0,outside_box,0.017,0.52,0.69
+7134,27,1,29,Leonel Flores,6,missed,header,0,six_yard_box,0.379,0.104,0.534
+7135,27,1,41,Kevin Zenon,16,saved,left_foot,0,outside_box,0.028,0.446,0.835
+7136,27,1,41,Kevin Zenon,19,saved,left_foot,0,outside_box,0.055,0.454,0.454
+7137,27,1,30,Alan Velasco,19,blocked,right_foot,0,penalty_area,0.053,0.226,0.319
+7138,27,1,24,Santiago Ascacibar,28,missed,left_foot,0,outside_box,0.021,0.572,0.441
+7139,27,1,30,Alan Velasco,29,missed,right_foot,0,outside_box,0.017,0.58,0.421
+7140,27,1,21,Williams Alarcón,33,missed,right_foot,0,outside_box,0.028,0.534,0.509
+7141,27,1,41,Kevin Zenon,35,saved,left_foot,0,outside_box,0.023,0.47,0.644
+7142,27,1,29,Leonel Flores,43,missed,left_foot,0,outside_box,0.021,0.558,0.585
+7143,27,1,6,Lautaro Blanco,61,missed,left_foot,0,outside_box,0.01,0.572,0.308
+7144,27,1,20,Tomás Aranda,90,blocked,right_foot,0,outside_box,0.037,0.464,0.424
+7145,27,1,10,Marco Pellegrino,90,missed,left_foot,0,outside_box,0.032,0.44,0.612
+7146,27,0,,,7,goal,header,0,six_yard_box,0.703,0.044,0.521
+7147,27,0,,,23,blocked,header,0,penalty_area,0.233,0.146,0.553
+7148,27,0,,,23,goal,header,0,six_yard_box,0.689,0.032,0.486
+7149,27,0,,,38,goal,right_foot,0,outside_box,0.032,0.434,0.36
+7150,27,0,,,82,saved,right_foot,0,penalty_area,0.091,0.204,0.665
+7151,27,0,,,83,missed,right_foot,0,outside_box,0.064,0.398,0.512
+7152,29,1,28,Miguel Merentiel,3,saved,left_foot,0,six_yard_box,0.47,0.102,0.515
+7153,29,1,5,Lautaro Di Lollo,11,saved,right_foot,0,outside_box,0.032,0.436,0.343
+7154,29,1,28,Miguel Merentiel,18,woodwork,header,0,penalty_area,0.214,0.166,0.504
+7155,29,1,29,Leonel Flores,23,missed,right_foot,0,penalty_area,0.161,0.148,0.361
+7156,29,1,31,Sebastián Villa,25,blocked,right_foot,0,outside_box,0.017,0.428,0.292
+7157,29,1,24,Santiago Ascacibar,30,goal,header,0,six_yard_box,0.379,0.108,0.536
+7158,29,1,29,Leonel Flores,48,missed,right_foot,0,penalty_area,0.042,0.29,0.7
+7159,29,1,20,Tomás Aranda,52,missed,header,0,outside_box,0.027,0.386,0.461
+7160,29,1,31,Sebastián Villa,55,blocked,right_foot,0,outside_box,0.014,0.376,0.218
+7161,29,1,31,Sebastián Villa,61,missed,left_foot,0,penalty_area,0.091,0.188,0.327
+7162,29,1,29,Leonel Flores,71,blocked,right_foot,0,outside_box,0.023,0.512,0.389
+7163,29,1,30,Alan Velasco,81,goal,left_foot,0,penalty_area,0.124,0.224,0.38
+7164,29,1,20,Tomás Aranda,82,missed,right_foot,0,outside_box,0.017,0.606,0.509
+7165,29,1,25,Milton Giménez,85,missed,header,0,penalty_area,0.104,0.164,0.424
+7166,29,1,20,Tomás Aranda,87,woodwork,left_foot,0,penalty_area,0.186,0.188,0.57
+7167,29,1,29,Leonel Flores,90,missed,right_foot,0,penalty_area,0.055,0.128,0.693
+7168,29,0,,,19,blocked,left_foot,0,outside_box,0.011,0.53,0.284
+7169,29,0,,,19,blocked,right_foot,0,outside_box,0.028,0.536,0.521
+7170,29,0,,,45,blocked,left_foot,0,outside_box,0.026,0.294,0.797
+7171,29,0,,,45,blocked,header,0,penalty_area,0.038,0.236,0.433
+7172,29,0,,,47,missed,left_foot,0,outside_box,0.037,0.46,0.502
+7173,29,0,,,50,blocked,left_foot,0,outside_box,0.028,0.52,0.469
+7174,29,0,,,50,goal,right_foot,0,penalty_area,0.146,0.246,0.536
+7175,29,0,,,53,missed,left_foot,0,outside_box,0.021,0.556,0.502
+7176,29,0,,,59,goal,right_foot,0,penalty_area,0.123,0.312,0.459
+7177,30,1,24,Santiago Ascacibar,18,blocked,right_foot,0,penalty_area,0.113,0.234,0.646
+7178,30,1,16,Leandro Paredes,20,blocked,right_foot,0,outside_box,0.017,0.592,0.51
+7179,30,1,20,Tomás Aranda,30,saved,right_foot,0,outside_box,0.017,0.386,0.268
+7180,30,1,22,Milton Delgado,31,missed,right_foot,0,outside_box,0.023,0.508,0.613
+7181,30,1,28,Miguel Merentiel,35,blocked,right_foot,0,outside_box,0.014,0.412,0.22
+7182,30,1,29,Leonel Flores,42,blocked,left_foot,0,outside_box,0.017,0.528,0.67
+7183,30,1,28,Miguel Merentiel,44,blocked,left_foot,0,penalty_area,0.042,0.328,0.648
+7184,30,1,24,Santiago Ascacibar,45,goal,right_foot,0,six_yard_box,0.397,0.088,0.46
+7185,30,1,20,Tomás Aranda,46,blocked,right_foot,0,penalty_area,0.1,0.296,0.58
+7186,30,1,29,Leonel Flores,60,missed,right_foot,0,penalty_area,0.113,0.25,0.373
+7187,30,1,29,Leonel Flores,72,missed,right_foot,0,penalty_area,0.053,0.216,0.7
+7188,30,1,30,Alan Velasco,85,missed,right_foot,0,penalty_area,0.032,0.25,0.715
+7189,30,0,,,14,missed,left_foot,0,penalty_area,0.146,0.258,0.491
+7190,30,0,,,21,saved,left_foot,0,outside_box,0.037,0.496,0.454
+7191,30,0,,,21,saved,left_foot,0,six_yard_box,0.124,0.04,0.376
+7192,30,0,,,36,saved,right_foot,0,penalty_area,0.128,0.142,0.347
+7193,30,0,,,39,missed,header,0,penalty_area,0.044,0.226,0.425
+7194,30,0,,,48,blocked,left_foot,0,outside_box,0.017,0.388,0.726
+7195,30,0,,,88,missed,right_foot,0,outside_box,0.01,0.612,0.327
+7196,30,0,,,90,saved,header,0,penalty_area,0.034,0.274,0.579
+7197,31,1,22,Milton Delgado,5,missed,right_foot,0,outside_box,0.023,0.484,0.642
+7198,31,1,8,Leandro Lozano,7,blocked,right_foot,0,outside_box,0.017,0.432,0.682
+7199,31,1,20,Tomás Aranda,7,woodwork,right_foot,0,outside_box,0.095,0.356,0.565
+7200,31,1,12,Ayrton Costa,19,missed,header,0,penalty_area,0.046,0.166,0.602
+7201,31,1,28,Miguel Merentiel,19,saved,header,0,six_yard_box,0.162,0.078,0.41
+7202,31,1,6,Lautaro Blanco,28,blocked,left_foot,0,penalty_area,0.019,0.292,0.27
+7203,31,1,16,Leandro Paredes,31,missed,right_foot,0,outside_box,0.059,0.408,0.369
+7204,31,1,16,Leandro Paredes,31,missed,right_foot,0,outside_box,0.059,0.392,0.642
+7205,31,1,20,Tomás Aranda,33,saved,right_foot,0,outside_box,0.017,0.54,0.648
+7206,31,1,16,Leandro Paredes,36,blocked,right_foot,0,outside_box,0.017,0.412,0.282
+7207,31,1,29,Leonel Flores,39,saved,left_foot,0,penalty_area,0.118,0.11,0.352
+7208,31,1,24,Santiago Ascacibar,39,goal,left_foot,0,six_yard_box,0.228,0.082,0.409
+7209,31,1,28,Miguel Merentiel,45,missed,header,0,penalty_area,0.051,0.154,0.387
+7210,31,1,24,Santiago Ascacibar,45,woodwork,header,0,penalty_area,0.214,0.134,0.497
+7211,31,1,6,Lautaro Blanco,47,blocked,left_foot,0,penalty_area,0.113,0.288,0.383
+7212,31,1,24,Santiago Ascacibar,54,saved,left_foot,0,penalty_area,0.1,0.27,0.407
+7213,31,1,16,Leandro Paredes,56,blocked,right_foot,0,outside_box,0.022,0.43,0.804
+7214,31,1,29,Leonel Flores,58,saved,right_foot,0,penalty_area,0.039,0.338,0.685
+7215,31,1,24,Santiago Ascacibar,68,missed,left_foot,0,penalty_area,0.062,0.288,0.363
+7216,31,1,24,Santiago Ascacibar,70,missed,header,0,penalty_area,0.121,0.148,0.44
+7217,31,1,16,Leandro Paredes,72,saved,right_foot,0,outside_box,0.028,0.516,0.581
+7218,31,1,29,Leonel Flores,74,saved,right_foot,0,outside_box,0.032,0.45,0.627
+7219,31,1,24,Santiago Ascacibar,77,saved,right_foot,0,penalty_area,0.154,0.256,0.554
+7220,31,1,6,Lautaro Blanco,84,missed,left_foot,0,outside_box,0.032,0.414,0.356
+7221,31,1,24,Santiago Ascacibar,84,blocked,left_foot,0,penalty_area,0.248,0.196,0.517
+7222,31,1,22,Milton Delgado,84,blocked,left_foot,0,penalty_area,0.135,0.046,0.343
+7223,31,1,16,Leandro Paredes,84,missed,right_foot,0,outside_box,0.023,0.492,0.359
+7224,31,1,22,Milton Delgado,87,missed,left_foot,0,penalty_area,0.09,0.312,0.395
+7225,31,1,25,Milton Giménez,87,missed,header,0,penalty_area,0.046,0.16,0.397
+7226,31,1,30,Alan Velasco,90,missed,header,0,outside_box,0.074,0.352,0.461
+7227,31,0,,,12,goal,right_foot,0,outside_box,0.011,0.512,0.709
+7228,31,0,,,15,blocked,right_foot,0,penalty_area,0.09,0.302,0.603
+7229,31,0,,,16,saved,header,0,penalty_area,0.104,0.142,0.564
+7230,31,0,,,22,missed,right_foot,0,outside_box,0.055,0.442,0.447
+7231,31,0,,,44,missed,left_foot,0,outside_box,0.037,0.476,0.508
+7232,31,0,,,56,missed,left_foot,0,outside_box,0.017,0.552,0.336
+7233,31,0,,,79,blocked,right_foot,0,outside_box,0.014,0.458,0.271
+7234,31,0,,,90,saved,right_foot,0,penalty_area,0.062,0.296,0.369
+7235,33,1,20,Tomás Aranda,6,saved,right_foot,0,outside_box,0.017,0.542,0.336
+7236,33,1,20,Tomás Aranda,18,blocked,right_foot,0,penalty_area,0.123,0.3,0.521
+7237,33,1,20,Tomás Aranda,27,missed,left_foot,0,outside_box,0.055,0.438,0.442
+7238,33,1,31,Sebastián Villa,34,blocked,right_foot,0,outside_box,0.037,0.5,0.487
+7239,33,1,16,Leandro Paredes,36,missed,right_foot,0,outside_box,0.023,0.488,0.629
+7240,33,1,31,Sebastián Villa,52,missed,right_foot,0,penalty_area,0.062,0.28,0.363
+7241,33,1,8,Leandro Lozano,59,saved,left_foot,0,penalty_area,0.149,0.196,0.402
+7242,33,1,31,Sebastián Villa,68,blocked,right_foot,0,outside_box,0.017,0.42,0.291
+7243,33,1,9,Dylan Gorosito,75,woodwork,right_foot,0,outside_box,0.023,0.482,0.624
+7244,33,1,28,Miguel Merentiel,80,goal,header,0,six_yard_box,0.566,0.06,0.516
+7245,33,1,28,Miguel Merentiel,90,blocked,header,0,penalty_area,0.164,0.136,0.562
+7246,33,1,30,Alan Velasco,90,missed,right_foot,0,penalty_area,0.36,0.146,0.541
+7247,33,1,28,Miguel Merentiel,90,saved,right_foot,0,penalty_area,0.186,0.21,0.427
+7248,33,1,20,Tomás Aranda,90,blocked,right_foot,0,outside_box,0.017,0.526,0.334
+7249,33,0,,,20,missed,right_foot,0,outside_box,0.059,0.438,0.583
+7250,33,0,,,25,saved,right_foot,0,outside_box,0.032,0.444,0.664
+7251,33,0,,,26,saved,header,0,penalty_area,0.05,0.238,0.516
+7252,33,0,,,39,saved,header,0,penalty_area,0.036,0.278,0.38
+7253,33,0,,,39,saved,header,0,penalty_area,0.021,0.22,0.397
+7254,33,0,,,45,missed,right_foot,0,outside_box,0.013,0.618,0.295
+7255,33,0,,,45,missed,header,0,penalty_area,0.046,0.18,0.579
+7256,33,0,,,45,saved,left_foot,0,outside_box,0.017,0.44,0.715
+7257,33,0,,,53,goal,left_foot,0,penalty_area,0.186,0.234,0.451
+7258,33,0,,,67,saved,header,0,penalty_area,0.053,0.156,0.648
+7259,33,0,,,82,saved,right_foot,0,penalty_area,0.055,0.094,0.708
+7260,33,0,,,90,missed,left_foot,0,penalty_area,0.062,0.278,0.355
+7261,35,1,20,Tomás Aranda,2,missed,right_foot,0,outside_box,0.064,0.388,0.475
+7262,35,1,20,Tomás Aranda,16,missed,right_foot,0,penalty_area,0.055,0.164,0.3
+7263,35,1,20,Tomás Aranda,16,blocked,right_foot,0,outside_box,0.01,0.598,0.345
+7264,35,1,28,Miguel Merentiel,28,goal,right_foot,0,penalty_area,0.124,0.242,0.614
+7265,35,1,29,Leonel Flores,35,missed,right_foot,0,penalty_area,0.019,0.304,0.715
+7266,35,1,24,Santiago Ascacibar,39,missed,header,0,penalty_area,0.043,0.264,0.539
+7267,35,1,28,Miguel Merentiel,39,blocked,right_foot,0,penalty_area,0.113,0.268,0.385
+7268,35,1,24,Santiago Ascacibar,45,missed,left_foot,0,penalty_area,0.128,0.156,0.355
+7269,35,1,22,Milton Delgado,45,missed,right_foot,0,outside_box,0.028,0.526,0.493
+7270,35,1,29,Leonel Flores,47,blocked,right_foot,0,six_yard_box,0.228,0.092,0.591
+7271,35,1,20,Tomás Aranda,58,missed,right_foot,0,outside_box,0.028,0.522,0.485
+7272,35,1,31,Sebastián Villa,66,missed,right_foot,0,outside_box,0.064,0.382,0.54
+7273,35,1,20,Tomás Aranda,75,blocked,right_foot,0,penalty_area,0.123,0.292,0.534
+7274,35,1,27,Enner Valencia,82,missed,left_foot,0,penalty_area,0.128,0.17,0.346
+7275,35,1,27,Enner Valencia,90,missed,header,0,outside_box,0.019,0.492,0.376
+7276,35,0,,,9,goal,left_foot,1,penalty,0.739,0.23,0.5
+7277,35,0,,,14,missed,header,0,outside_box,0.009,0.52,0.702
+7278,35,0,,,25,blocked,left_foot,0,outside_box,0.032,0.444,0.653
+7279,35,0,,,34,saved,left_foot,0,outside_box,0.013,0.668,0.348
+7280,35,0,,,34,missed,header,0,penalty_area,0.021,0.248,0.603
+7281,35,0,,,37,missed,left_foot,0,outside_box,0.055,0.444,0.422
+7282,35,0,,,39,blocked,left_foot,0,outside_box,0.017,0.62,0.44
+7283,35,0,,,45,blocked,left_foot,0,penalty_area,0.149,0.206,0.412
+7284,35,0,,,49,missed,header,0,penalty_area,0.214,0.156,0.528
+7285,35,0,,,52,missed,right_foot,0,penalty_area,0.042,0.298,0.337
+7286,35,0,,,59,missed,right_foot,0,penalty_area,0.019,0.298,0.732
+7287,35,0,,,74,saved,right_foot,0,outside_box,0.021,0.55,0.46
+7288,35,0,,,82,saved,right_foot,0,six_yard_box,0.31,0.014,0.418
+7289,35,0,,,90,saved,right_foot,0,penalty_area,0.113,0.272,0.366
+7290,36,1,29,Leonel Flores,19,blocked,left_foot,0,outside_box,0.07,0.376,0.623
+7291,36,1,24,Santiago Ascacibar,20,blocked,header,0,penalty_area,0.038,0.254,0.582
+7292,36,1,30,Alan Velasco,20,blocked,right_foot,0,outside_box,0.055,0.458,0.524
+7293,36,1,30,Alan Velasco,24,missed,header,0,penalty_area,0.214,0.148,0.512
+7294,36,1,30,Alan Velasco,26,blocked,right_foot,0,outside_box,0.017,0.538,0.342
+7295,36,1,29,Leonel Flores,26,missed,header,0,penalty_area,0.104,0.158,0.581
+7296,36,1,,,26,blocked,right_foot,0,outside_box,0.037,0.484,0.443
+7297,36,1,29,Leonel Flores,31,missed,right_foot,0,outside_box,0.014,0.466,0.285
+7298,36,1,30,Alan Velasco,39,blocked,right_foot,0,outside_box,0.023,0.482,0.634
+7299,36,1,9,Dylan Gorosito,42,blocked,right_foot,0,penalty_area,0.032,0.238,0.726
+7300,36,1,30,Alan Velasco,45,missed,right_foot,0,outside_box,0.017,0.622,0.527
+7301,36,1,30,Alan Velasco,50,saved,right_foot,0,outside_box,0.037,0.472,0.585
+7302,36,1,6,Lautaro Blanco,65,saved,left_foot,0,outside_box,0.017,0.578,0.352
+7303,36,1,27,Enner Valencia,66,missed,header,0,penalty_area,0.121,0.168,0.546
+7304,36,1,31,Sebastián Villa,67,saved,left_foot,0,penalty_area,0.1,0.266,0.41
+7305,36,1,24,Santiago Ascacibar,67,blocked,header,0,penalty_area,0.05,0.228,0.504
+7306,36,1,29,Leonel Flores,71,missed,header,0,six_yard_box,0.337,0.074,0.555
+7307,36,1,16,Leandro Paredes,74,missed,right_foot,0,outside_box,0.023,0.458,0.649
+7308,36,1,19,Tomás Belmonte,90,goal,right_foot,0,penalty_area,0.186,0.198,0.433
+7309,36,0,,,2,woodwork,header,0,penalty_area,0.043,0.252,0.476
+7310,36,0,,,15,missed,right_foot,0,outside_box,0.021,0.568,0.451
+7311,36,0,,,17,missed,right_foot,0,penalty_area,0.113,0.242,0.362
+7312,36,0,,,29,blocked,right_foot,0,penalty_area,0.1,0.292,0.433
+7313,36,0,,,45,woodwork,right_foot,0,penalty_area,0.1,0.28,0.613
+7314,36,0,,,59,saved,left_foot,0,penalty_area,0.146,0.256,0.486
+7315,36,0,,,63,blocked,header,0,outside_box,0.017,0.564,0.53
+7316,36,0,,,70,missed,header,0,six_yard_box,0.338,0.096,0.485
+7317,36,0,,,75,blocked,right_foot,0,outside_box,0.032,0.44,0.596
+7318,36,0,,,90,saved,right_foot,0,penalty_area,0.377,0.16,0.478
+7319,38,1,29,Leonel Flores,14,saved,right_foot,0,penalty_area,0.015,0.272,0.225
+7320,38,1,19,Tomás Belmonte,17,blocked,right_foot,0,penalty_area,0.042,0.3,0.667
+7321,38,1,30,Alan Velasco,17,goal,right_foot,0,outside_box,0.095,0.356,0.482
+7322,38,1,29,Leonel Flores,22,saved,left_foot,0,penalty_area,0.042,0.312,0.657
+7323,38,1,41,Kevin Zenon,29,missed,left_foot,0,outside_box,0.023,0.494,0.357
+7324,38,1,41,Kevin Zenon,32,saved,left_foot,0,penalty_area,0.1,0.294,0.606
+7325,38,1,27,Enner Valencia,38,blocked,right_foot,0,outside_box,0.032,0.456,0.403
+7326,38,1,41,Kevin Zenon,38,goal,left_foot,0,six_yard_box,0.47,0.092,0.504
+7327,38,1,30,Alan Velasco,42,woodwork,right_foot,0,penalty_area,0.186,0.216,0.558
+7328,38,1,29,Leonel Flores,55,saved,left_foot,0,penalty_area,0.085,0.094,0.327
+7329,38,1,19,Tomás Belmonte,55,missed,right_foot,0,penalty_area,0.124,0.22,0.615
+7330,38,1,29,Leonel Flores,86,blocked,right_foot,0,penalty_area,0.113,0.276,0.379
+7331,38,0,,,2,saved,left_foot,0,penalty_area,0.36,0.12,0.528
+7332,38,0,,,2,missed,right_foot,0,penalty_area,0.053,0.212,0.303
+7333,38,0,,,6,missed,header,0,penalty_area,0.044,0.218,0.544
+7334,38,0,,,8,saved,right_foot,0,outside_box,0.055,0.414,0.424
+7335,38,0,,,16,missed,right_foot,0,penalty_area,0.204,0.218,0.465
+7336,38,0,,,19,goal,right_foot,0,penalty_area,0.146,0.28,0.541
+7337,38,0,,,24,missed,header,0,six_yard_box,0.162,0.088,0.588
+7338,38,0,,,27,missed,right_foot,0,penalty_area,0.146,0.252,0.471
+7339,38,0,,,34,missed,right_foot,0,penalty_area,0.032,0.282,0.703
+7340,38,0,,,45,blocked,right_foot,0,outside_box,0.021,0.56,0.517
+7341,38,0,,,49,saved,header,0,outside_box,0.009,0.56,0.682
+7342,38,0,,,51,blocked,right_foot,0,penalty_area,0.053,0.242,0.693
+7343,38,0,,,57,missed,left_foot,0,penalty_area,0.124,0.216,0.382
+7344,38,0,,,64,saved,left_foot,0,outside_box,0.017,0.594,0.637
+7345,38,0,,,76,saved,right_foot,0,outside_box,0.028,0.504,0.583
+7346,38,0,,,90,missed,right_foot,0,outside_box,0.017,0.586,0.462
+7347,38,0,,,90,goal,right_foot,0,penalty_area,0.123,0.306,0.489
+7348,40,1,26,Angel Romero,5,goal,left_foot,0,penalty_area,0.248,0.164,0.525
+7349,40,1,27,Enner Valencia,11,goal,left_foot,0,six_yard_box,0.397,0.092,0.449
+7350,40,1,27,Enner Valencia,15,saved,left_foot,0,penalty_area,0.042,0.306,0.68
+7351,40,1,31,Sebastián Villa,16,blocked,right_foot,0,penalty_area,0.123,0.294,0.471
+7352,40,1,7,Nicolás Figal,16,missed,header,0,penalty_area,0.04,0.31,0.529
+7353,40,1,27,Enner Valencia,29,saved,right_foot,0,outside_box,0.008,0.702,0.684
+7354,40,1,26,Angel Romero,56,goal,right_foot,0,outside_box,0.017,0.532,0.611
+7355,40,1,27,Enner Valencia,71,missed,right_foot,0,penalty_area,0.146,0.29,0.473
+7356,40,1,25,Milton Giménez,83,blocked,right_foot,0,outside_box,0.095,0.364,0.495
+7357,40,0,,,3,missed,left_foot,0,penalty_area,0.019,0.282,0.259
+7358,40,0,,,7,missed,right_foot,0,outside_box,0.017,0.4,0.28
+7359,40,0,,,26,missed,right_foot,0,penalty_area,0.36,0.15,0.541
+7360,40,0,,,30,missed,left_foot,0,outside_box,0.055,0.448,0.495
+7361,40,0,,,40,blocked,right_foot,0,outside_box,0.028,0.506,0.411
+7362,40,0,,,40,missed,right_foot,0,outside_box,0.037,0.48,0.46
+7363,40,0,,,45,blocked,header,0,penalty_area,0.038,0.236,0.427
+7364,40,0,,,51,missed,left_foot,0,outside_box,0.095,0.362,0.442
+7365,40,0,,,62,missed,left_foot,0,penalty_area,0.123,0.302,0.535
+7366,40,0,,,65,blocked,left_foot,0,outside_box,0.028,0.506,0.55
+7367,40,0,,,79,missed,left_foot,0,outside_box,0.032,0.438,0.33
+7368,40,0,,,83,blocked,left_foot,0,outside_box,0.014,0.61,0.396
+7369,40,0,,,84,missed,header,0,penalty_area,0.043,0.258,0.492
+7370,40,0,,,90,goal,right_foot,0,penalty_area,0.248,0.204,0.532
+7371,40,0,,,90,missed,right_foot,0,penalty_area,0.226,0.136,0.592
+7372,42,1,5,Lautaro Di Lollo,10,missed,header,0,penalty_area,0.05,0.214,0.479
+7373,42,1,5,Lautaro Di Lollo,13,missed,header,0,penalty_area,0.038,0.26,0.438
+7374,42,1,24,Santiago Ascacibar,17,missed,right_foot,0,six_yard_box,0.47,0.104,0.515
+7375,42,1,29,Leonel Flores,25,blocked,right_foot,0,penalty_area,0.113,0.22,0.36
+7376,42,1,28,Miguel Merentiel,27,saved,right_foot,0,penalty_area,0.124,0.242,0.613
+7377,42,1,30,Alan Velasco,29,missed,right_foot,0,outside_box,0.017,0.508,0.324
+7378,42,1,8,Leandro Lozano,41,missed,right_foot,0,outside_box,0.008,0.656,0.7
+7379,42,1,29,Leonel Flores,45,missed,left_foot,0,penalty_area,0.085,0.098,0.335
+7380,42,1,24,Santiago Ascacibar,45,saved,header,0,six_yard_box,0.164,0.112,0.558
+7381,42,1,16,Leandro Paredes,51,saved,right_foot,0,outside_box,0.017,0.604,0.56
+7382,42,1,8,Leandro Lozano,57,goal,left_foot,0,penalty_area,0.1,0.286,0.601
+7383,42,1,24,Santiago Ascacibar,64,saved,left_foot,0,penalty_area,0.149,0.174,0.407
+7384,42,1,28,Miguel Merentiel,72,goal,right_foot,0,penalty_area,0.377,0.13,0.496
+7385,42,1,26,Angel Romero,82,blocked,right_foot,0,penalty_area,0.042,0.326,0.327
+7386,42,1,8,Leandro Lozano,86,blocked,left_foot,0,outside_box,0.028,0.53,0.491
+7387,42,1,22,Milton Delgado,90,saved,right_foot,0,outside_box,0.037,0.45,0.57
+7388,42,0,,,7,missed,header,0,penalty_area,0.121,0.18,0.445
+7389,42,0,,,30,saved,right_foot,0,outside_box,0.014,0.628,0.458
+7390,42,0,,,56,missed,right_foot,0,outside_box,0.064,0.382,0.518
+7391,42,0,,,56,blocked,right_foot,0,penalty_area,0.113,0.258,0.614
+7392,44,1,28,Miguel Merentiel,9,missed,header,0,penalty_area,0.214,0.14,0.477
+7393,44,1,30,Alan Velasco,12,missed,header,0,penalty_area,0.038,0.248,0.407
+7394,44,1,5,Lautaro Di Lollo,22,goal,header,0,penalty_area,0.214,0.152,0.49
+7395,44,1,30,Alan Velasco,24,blocked,right_foot,0,penalty_area,0.1,0.272,0.583
+7396,44,1,24,Santiago Ascacibar,25,missed,header,0,penalty_area,0.038,0.236,0.43
+7397,44,1,28,Miguel Merentiel,28,missed,header,0,penalty_area,0.233,0.148,0.531
+7398,44,1,28,Miguel Merentiel,29,missed,right_foot,0,outside_box,0.017,0.548,0.642
+7399,44,1,24,Santiago Ascacibar,32,missed,left_foot,0,penalty_area,0.253,0.184,0.438
+7400,44,1,31,Sebastián Villa,34,missed,right_foot,0,outside_box,0.014,0.442,0.248
+7401,44,1,31,Sebastián Villa,34,blocked,right_foot,0,outside_box,0.032,0.474,0.402
+7402,44,1,30,Alan Velasco,47,missed,right_foot,0,penalty_area,0.053,0.244,0.303
+7403,44,1,24,Santiago Ascacibar,49,saved,left_foot,0,penalty_area,0.146,0.26,0.515
+7404,44,1,31,Sebastián Villa,52,missed,right_foot,0,penalty_area,0.039,0.314,0.283
+7405,44,1,30,Alan Velasco,53,missed,left_foot,0,penalty_area,0.042,0.314,0.327
+7406,44,1,24,Santiago Ascacibar,55,saved,header,0,six_yard_box,0.162,0.096,0.573
+7407,44,1,31,Sebastián Villa,59,saved,left_foot,0,penalty_area,0.036,0.15,0.263
+7408,44,1,29,Leonel Flores,64,missed,right_foot,0,outside_box,0.021,0.544,0.486
+7409,44,1,5,Lautaro Di Lollo,74,missed,header,0,penalty_area,0.104,0.16,0.416
+7410,44,1,27,Enner Valencia,75,blocked,right_foot,0,penalty_area,0.113,0.23,0.63
+7411,44,1,29,Leonel Flores,83,goal,right_foot,0,penalty_area,0.149,0.198,0.407
+7412,44,1,18,Carlos Palacios,86,missed,right_foot,0,outside_box,0.064,0.378,0.536
+7413,44,1,21,Williams Alarcón,90,missed,right_foot,0,outside_box,0.028,0.514,0.43
+7414,44,1,27,Enner Valencia,90,saved,right_foot,0,penalty_area,0.124,0.234,0.6
+7415,44,1,18,Carlos Palacios,90,missed,left_foot,0,penalty_area,0.095,0.342,0.497
+7416,44,1,29,Leonel Flores,90,goal,right_foot,0,penalty_area,0.113,0.266,0.358
+7417,44,0,,,8,blocked,left_foot,0,outside_box,0.028,0.504,0.446
+7418,44,0,,,13,missed,right_foot,0,outside_box,0.021,0.542,0.533
+7419,44,0,,,30,saved,left_foot,0,penalty_area,0.113,0.238,0.343
+7420,44,0,,,48,missed,right_foot,0,outside_box,0.01,0.676,0.509
+7421,45,1,27,Enner Valencia,2,missed,right_foot,0,penalty_area,0.149,0.178,0.391
+7422,45,1,10,Marco Pellegrino,17,missed,header,0,penalty_area,0.103,0.19,0.518
+7423,45,1,27,Enner Valencia,23,goal,right_foot,0,six_yard_box,0.698,0.054,0.488
+7424,45,1,28,Miguel Merentiel,56,goal,left_foot,0,penalty_area,0.146,0.272,0.504
+7425,45,1,28,Miguel Merentiel,66,missed,left_foot,0,penalty_area,0.124,0.228,0.376
+7426,45,1,31,Sebastián Villa,68,missed,left_foot,0,penalty_area,0.154,0.232,0.421
+7427,45,1,29,Leonel Flores,74,missed,right_foot,0,penalty_area,0.053,0.242,0.329
+7428,45,1,29,Leonel Flores,80,missed,right_foot,0,outside_box,0.011,0.512,0.288
+7429,45,1,26,Angel Romero,82,blocked,right_foot,0,outside_box,0.055,0.434,0.421
+7430,45,1,10,Marco Pellegrino,82,missed,header,0,penalty_area,0.038,0.252,0.419
+7431,45,1,18,Carlos Palacios,88,saved,right_foot,0,penalty_area,0.032,0.256,0.718
+7432,45,0,,,2,missed,right_foot,0,outside_box,0.01,0.568,0.714
+7433,45,0,,,4,missed,right_foot,0,outside_box,0.016,1.016,0.354
+7434,45,0,,,8,saved,right_foot,0,penalty_area,0.053,0.212,0.709
+7435,45,0,,,9,missed,right_foot,0,outside_box,0.028,0.384,0.695
+7436,45,0,,,14,goal,right_foot,0,penalty_area,0.204,0.24,0.523
+7437,45,0,,,47,blocked,right_foot,0,outside_box,0.014,0.438,0.237
+7438,45,0,,,48,missed,,0,penalty_area,0.248,0.178,0.523
+7439,45,0,,,48,goal,right_foot,0,six_yard_box,0.364,0.064,0.57
+7440,45,0,,,69,saved,right_foot,0,penalty_area,0.09,0.318,0.409
+7441,45,0,,,75,missed,header,0,penalty_area,0.04,0.296,0.463
+7442,45,0,,,77,missed,left_foot,0,penalty_area,0.015,0.312,0.252
+7443,45,0,,,84,blocked,right_foot,0,outside_box,0.01,0.666,0.588
+7444,47,1,8,Leandro Lozano,4,blocked,left_foot,0,outside_box,0.064,0.388,0.487
+7445,47,1,24,Santiago Ascacibar,7,missed,left_foot,0,penalty_area,0.154,0.262,0.445
+7446,47,1,28,Miguel Merentiel,18,goal,right_foot,0,penalty_area,0.091,0.206,0.336
+7447,47,1,26,Angel Romero,25,blocked,right_foot,0,outside_box,0.017,0.408,0.73
+7448,47,1,24,Santiago Ascacibar,34,missed,header,0,penalty_area,0.05,0.218,0.468
+7449,47,1,29,Leonel Flores,34,saved,left_foot,0,penalty_area,0.085,0.078,0.306
+7450,47,1,12,Ayrton Costa,38,saved,left_foot,0,penalty_area,0.149,0.198,0.4
+7451,47,1,29,Leonel Flores,45,blocked,right_foot,0,outside_box,0.011,0.53,0.274
+7452,47,1,28,Miguel Merentiel,47,saved,right_foot,0,penalty_area,0.149,0.19,0.385
+7453,47,1,29,Leonel Flores,49,goal,right_foot,0,penalty_area,0.053,0.174,0.294
+7454,47,1,24,Santiago Ascacibar,60,missed,right_foot,0,penalty_area,0.154,0.24,0.444
+7455,47,1,27,Enner Valencia,90,blocked,right_foot,0,outside_box,0.032,0.462,0.391
+7456,47,1,18,Carlos Palacios,90,missed,right_foot,0,outside_box,0.055,0.436,0.504
+7457,47,0,,,2,missed,right_foot,0,outside_box,0.01,0.638,0.631
+7458,47,0,,,11,goal,right_foot,0,outside_box,0.013,0.646,0.371
+7459,47,0,,,16,blocked,header,0,penalty_area,0.214,0.154,0.474
+7460,47,0,,,16,missed,left_foot,0,outside_box,0.037,0.474,0.442
+7461,47,0,,,21,missed,right_foot,0,outside_box,0.013,0.626,0.687
+7462,47,0,,,32,missed,left_foot,0,outside_box,0.014,0.63,0.455
+7463,47,0,,,44,blocked,left_foot,0,outside_box,0.014,0.45,0.723
+7464,47,0,,,45,woodwork,right_foot,0,outside_box,0.028,0.508,0.444
+7465,47,0,,,69,missed,right_foot,0,outside_box,0.014,0.452,0.285
+7466,47,0,,,75,missed,right_foot,0,outside_box,0.095,0.364,0.443
+7467,47,0,,,83,missed,right_foot,0,outside_box,0.014,0.654,0.409
+7468,49,1,29,Leonel Flores,7,missed,right_foot,0,penalty_area,0.192,0.13,0.397
+7469,49,1,28,Miguel Merentiel,15,saved,left_foot,0,penalty_area,0.124,0.204,0.373
+7470,49,1,29,Leonel Flores,22,blocked,right_foot,0,outside_box,0.017,0.428,0.295
+7471,49,1,24,Santiago Ascacibar,24,missed,header,0,penalty_area,0.121,0.172,0.433
+7472,49,1,29,Leonel Flores,37,missed,right_foot,0,outside_box,0.059,0.404,0.357
+7473,49,1,30,Alan Velasco,60,blocked,left_foot,0,outside_box,0.032,0.454,0.638
+7474,49,1,28,Miguel Merentiel,62,missed,left_foot,0,penalty_area,0.36,0.146,0.53
+7475,49,1,24,Santiago Ascacibar,64,saved,header,0,penalty_area,0.121,0.178,0.548
+7476,49,1,13,Facundo Herrera,88,goal,header,0,six_yard_box,0.079,0.102,0.389
+7477,49,1,22,Milton Delgado,90,saved,right_foot,0,penalty_area,0.128,0.174,0.649
+7478,49,0,,,1,blocked,left_foot,0,outside_box,0.014,0.462,0.742
+7479,49,0,,,1,missed,left_foot,0,outside_box,0.021,0.544,0.419
+7480,49,0,,,3,missed,header,0,penalty_area,0.038,0.27,0.56
+7481,49,0,,,17,missed,right_foot,0,outside_box,0.074,0.224,0.149
+7482,49,0,,,19,missed,header,0,penalty_area,0.103,0.168,0.526
+7483,49,0,,,21,missed,right_foot,0,outside_box,0.013,0.622,0.696
+7484,49,0,,,27,missed,right_foot,0,penalty_area,0.032,0.29,0.707
+7485,49,0,,,30,missed,header,0,penalty_area,0.036,0.222,0.639
+7486,49,0,,,34,missed,left_foot,0,penalty_area,0.042,0.336,0.325
+7487,49,0,,,38,saved,right_foot,0,outside_box,0.014,0.468,0.289
+7488,49,0,,,43,missed,left_foot,0,outside_box,0.037,0.482,0.476
+7489,49,0,,,63,missed,right_foot,0,outside_box,0.059,0.42,0.376
+7490,49,0,,,65,saved,left_foot,0,penalty_area,0.085,0.096,0.322
+7491,49,0,,,66,blocked,header,0,penalty_area,0.103,0.196,0.526
+7492,49,0,,,66,saved,left_foot,0,penalty_area,0.248,0.19,0.523
+7493,49,0,,,68,missed,right_foot,0,outside_box,0.064,0.406,0.555
+7494,49,0,,,69,missed,left_foot,0,outside_box,0.037,0.466,0.484
+7495,49,0,,,70,missed,left_foot,0,penalty_area,0.123,0.29,0.548
+7496,49,0,,,70,missed,right_foot,0,penalty_area,0.226,0.134,0.579
+7497,49,0,,,83,saved,right_foot,0,penalty_area,0.042,0.306,0.687
+7498,49,0,,,83,missed,left_foot,0,penalty_area,0.09,0.338,0.564
+7499,49,0,,,90,missed,header,0,penalty_area,0.214,0.16,0.479
+7500,49,0,,,90,saved,left_foot,0,penalty_area,0.377,0.138,0.507

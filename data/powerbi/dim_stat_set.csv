@@ -1,0 +1,179 @@
+﻿set_id,conjunto,stat_id,orden
+resumen,Resumen,partidos,1
+resumen,Resumen,minutos,2
+resumen,Resumen,goles,3
+resumen,Resumen,asistencias,4
+resumen,Resumen,goles_asistencias,5
+resumen,Resumen,calificacion,6
+resumen,Resumen,amarillas,7
+resumen,Resumen,rojas,8
+participacion,Participación,partidos,1
+participacion,Participación,titularidades,2
+participacion,Participación,convocado_suplente,3
+participacion,Participación,entradas_banco,4
+participacion,Participación,minutos,5
+participacion,Participación,minutos_por_partido,6
+participacion,Participación,pct_minutos,7
+participacion,Participación,partidos_completos,8
+participacion,Participación,sustituido,9
+participacion,Participación,capitan,10
+participacion,Participación,calificacion,11
+participacion,Participación,goles,12
+participacion,Participación,asistencias,13
+participacion,Participación,goles_asistencias,14
+participacion,Participación,goles_penal,15
+participacion,Participación,penales_lanzados,16
+participacion,Participación,penales_fallados,17
+participacion,Participación,pct_penales,18
+participacion,Participación,autogoles,19
+participacion,Participación,goles_anulados,20
+ataque,Ataque,goles,1
+ataque,Ataque,goles_sin_penal,2
+ataque,Ataque,goles_cabeza,3
+ataque,Ataque,goles_fuera_area,4
+ataque,Ataque,remates,5
+ataque,Ataque,remates_arco,6
+ataque,Ataque,remates_no_arco,7
+ataque,Ataque,remates_bloqueados,8
+ataque,Ataque,pct_remates_arco,9
+ataque,Ataque,goles_por_remate,10
+ataque,Ataque,goles_por_remate_arco,11
+ataque,Ataque,remates_cabeza,12
+ataque,Ataque,remates_fuera_area,13
+ataque,Ataque,xg,14
+ataque,Ataque,npxg,15
+ataque,Ataque,xg_por_remate,16
+ataque,Ataque,xgot,17
+ataque,Ataque,ocasiones_claras_falladas,18
+ataque,Ataque,remates_palo,19
+ataque,Ataque,fueras_de_juego,20
+ataque,Ataque,faltas_recibidas,21
+ataque,Ataque,penales_provocados,22
+ataque,Ataque,regates_exitosos,23
+ataque,Ataque,regates_intentados,24
+ataque,Ataque,pct_regates,25
+ataque,Ataque,toques,26
+creacion,Creación,asistencias,1
+creacion,Creación,pases,2
+creacion,Creación,pases_completos,3
+creacion,Creación,pct_pases,4
+creacion,Creación,pases_clave,5
+creacion,Creación,ocasiones_claras_creadas,6
+creacion,Creación,ocasiones_creadas,7
+creacion,Creación,xa,8
+creacion,Creación,npxg_xa,9
+creacion,Creación,pases_largos,10
+creacion,Creación,pases_largos_completos,11
+creacion,Creación,pct_pases_largos,12
+creacion,Creación,centros,13
+creacion,Creación,centros_completos,14
+creacion,Creación,pct_centros,15
+creacion,Creación,pases_campo_rival,16
+creacion,Creación,pases_campo_rival_completos,17
+creacion,Creación,pct_pases_campo_rival,18
+creacion,Creación,conducciones,19
+creacion,Creación,conducciones_progresivas,20
+creacion,Creación,distancia_conduccion,21
+creacion,Creación,progresion,22
+creacion,Creación,perdidas,23
+creacion,Creación,desposesiones,24
+creacion,Creación,malos_controles,25
+creacion,Creación,asistencias_centro,26
+creacion,Creación,asistencias_filtrado,27
+creacion,Creación,asistencias_cabeza,28
+creacion,Creación,asistencias_pase,29
+defensa,Defensa,entradas,1
+defensa,Defensa,entradas_intentadas,2
+defensa,Defensa,entradas_ganadas,3
+defensa,Defensa,pct_entradas,4
+defensa,Defensa,intercepciones,5
+defensa,Defensa,despejes,6
+defensa,Defensa,despejes_linea,7
+defensa,Defensa,bloqueos,8
+defensa,Defensa,acciones_defensivas,9
+defensa,Defensa,recuperaciones,10
+defensa,Defensa,duelos_ganados,11
+defensa,Defensa,duelos_perdidos,12
+defensa,Defensa,duelos_disputados,13
+defensa,Defensa,pct_duelos,14
+defensa,Defensa,aereos_ganados,15
+defensa,Defensa,aereos_perdidos,16
+defensa,Defensa,aereos_disputados,17
+defensa,Defensa,pct_aereos,18
+defensa,Defensa,veces_regateado,19
+defensa,Defensa,entradas_ultimo_hombre,20
+defensa,Defensa,errores_remate,21
+defensa,Defensa,errores_gol,22
+defensa,Defensa,faltas_cometidas,23
+disciplina,Disciplina,amarillas,1
+disciplina,Disciplina,rojas,2
+disciplina,Disciplina,faltas_cometidas,3
+disciplina,Disciplina,penales_cometidos,4
+disciplina,Disciplina,manos,5
+disciplina,Disciplina,partidos_suspendido,6
+rendimiento_esperado,Rendimiento vs esperado,goles,1
+rendimiento_esperado,Rendimiento vs esperado,xg,2
+rendimiento_esperado,Rendimiento vs esperado,goles_menos_xg,3
+rendimiento_esperado,Rendimiento vs esperado,goles_sin_penal,4
+rendimiento_esperado,Rendimiento vs esperado,npxg,5
+rendimiento_esperado,Rendimiento vs esperado,npg_menos_npxg,6
+rendimiento_esperado,Rendimiento vs esperado,asistencias,7
+rendimiento_esperado,Rendimiento vs esperado,xa,8
+rendimiento_esperado,Rendimiento vs esperado,asistencias_menos_xa,9
+rendimiento_esperado,Rendimiento vs esperado,npxg_xa,10
+rendimiento_esperado,Rendimiento vs esperado,goles_por_remate,11
+rendimiento_esperado,Rendimiento vs esperado,xg_por_remate,12
+porteros,Porteros,partidos,1
+porteros,Porteros,minutos,2
+porteros,Porteros,goles_recibidos,3
+porteros,Porteros,vallas_invictas,4
+porteros,Porteros,atajadas,5
+porteros,Porteros,remates_arco_recibidos,6
+porteros,Porteros,pct_atajadas,7
+porteros,Porteros,xgot_recibido,8
+porteros,Porteros,goles_evitados,9
+porteros,Porteros,penales_enfrentados,10
+porteros,Porteros,penales_atajados,11
+porteros,Porteros,centros_atrapados,12
+porteros,Porteros,despejes_punos,13
+porteros,Porteros,salidas,14
+porteros,Porteros,salidas_exitosas,15
+porteros,Porteros,pct_salidas,16
+porteros,Porteros,atajadas_dentro_area,17
+porteros,Porteros,pct_pases,18
+porteros,Porteros,errores_remate,19
+porteros,Porteros,errores_gol,20
+porteros,Porteros,racha_vallas,21
+fisico_carga,Físico y carga,partidos,1
+fisico_carga,Físico y carga,minutos,2
+fisico_carga,Físico y carga,minutos_por_partido,3
+fisico_carga,Físico y carga,pct_minutos,4
+fisico_carga,Físico y carga,partidos_completos,5
+fisico_carga,Físico y carga,carga_7d,6
+fisico_carga,Físico y carga,carga_14d,7
+fisico_carga,Físico y carga,carga_28d,8
+metricas_propias,Métricas propias,minutos,1
+metricas_propias,Métricas propias,goles_equipo_en_cancha,2
+metricas_propias,Métricas propias,goles_contra_en_cancha,3
+metricas_propias,Métricas propias,gf_en_cancha,4
+metricas_propias,Métricas propias,gc_en_cancha,5
+metricas_propias,Métricas propias,nr,6
+metricas_propias,Métricas propias,nr_relativo,7
+metricas_propias,Métricas propias,nr_xg,8
+metricas_propias,Métricas propias,ewa,9
+metricas_propias,Métricas propias,ela,10
+metricas_propias,Métricas propias,participacion_goles,11
+metricas_propias,Métricas propias,dependencia_goleador,12
+metricas_propias,Métricas propias,ga_como_suplente,13
+metricas_propias,Métricas propias,minutos_como_suplente,14
+metricas_propias,Métricas propias,ga_suplente_90,15
+metricas_propias,Métricas propias,racha_goles,16
+metricas_propias,Métricas propias,racha_asistencias,17
+metricas_propias,Métricas propias,consistencia_calificacion,18
+evolucion_proyeccion,Evolución y proyección,minutos,2
+evolucion_proyeccion,Evolución y proyección,rendimiento_indice,3
+evolucion_proyeccion,Evolución y proyección,rendimiento_cobertura,4
+evolucion_proyeccion,Evolución y proyección,mejoria_alpha,5
+evolucion_proyeccion,Evolución y proyección,mejoria_beta,6
+evolucion_proyeccion,Evolución y proyección,potencial_alpha,7
+evolucion_proyeccion,Evolución y proyección,potencial_beta,8

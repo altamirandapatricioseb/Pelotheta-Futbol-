@@ -1,0 +1,62 @@
+{
+  "name": "Pelotheta Θ",
+  "dataColors": [
+    "#328336",
+    "#734f9a",
+    "#a30310",
+    "#2a78d6",
+    "#eda100",
+    "#e87ba4",
+    "#c2560c",
+    "#0f9b8e",
+    "#7a6a00"
+  ],
+  "foreground": "#222222",
+  "foregroundNeutralSecondary": "#555b55",
+  "foregroundNeutralTertiary": "#7a807a",
+  "background": "#fbfbfd",
+  "backgroundLight": "#ffffff",
+  "backgroundNeutral": "#f1f3f1",
+  "tableAccent": "#64cc4f",
+  "hyperlink": "#328336",
+  "visitedHyperlink": "#1f5a22",
+  "good": "#328336",
+  "neutral": "#734f9a",
+  "bad": "#a30310",
+  "maximum": "#1f5a22",
+  "center": "#d4efa6",
+  "minimum": "#fbfbfd",
+  "null": "#dfe3df",
+  "textClasses": {
+    "callout": { "fontFace": "Montserrat, Segoe UI, sans-serif", "fontSize": 28, "color": "#222222" },
+    "title": { "fontFace": "Montserrat, Segoe UI, sans-serif", "fontSize": 13, "color": "#222222" },
+    "header": { "fontFace": "Montserrat, Segoe UI, sans-serif", "fontSize": 12, "color": "#222222" },
+    "label": { "fontFace": "Montserrat, Segoe UI, sans-serif", "fontSize": 10, "color": "#555b55" }
+  },
+  "visualStyles": {
+    "*": {
+      "*": {
+        "background": [{ "show": true, "color": { "solid": { "color": "#ffffff" } }, "transparency": 0 }],
+        "border": [{ "show": true, "color": { "solid": { "color": "#dfe3df" } }, "radius": 8 }],
+        "title": [{ "fontFamily": "Montserrat, Segoe UI, sans-serif", "fontColor": { "solid": { "color": "#222222" } } }]
+      }
+    },
+    "page": {
+      "*": {
+        "background": [{ "color": { "solid": { "color": "#fbfbfd" } }, "transparency": 0 }]
+      }
+    },
+    "tableEx": {
+      "*": {
+        "columnHeaders": [{ "backColor": { "solid": { "color": "#eef8e3" } }, "fontColor": { "solid": { "color": "#222222" } } }],
+        "values": [{ "backColorSecondary": { "solid": { "color": "#f4f9ee" } } }]
+      }
+    },
+    "pivotTable": {
+      "*": {
+        "columnHeaders": [{ "backColor": { "solid": { "color": "#eef8e3" } }, "fontColor": { "solid": { "color": "#222222" } } }],
+        "rowHeaders": [{ "fontColor": { "solid": { "color": "#222222" } } }]
+      }
+    }
+  }
+}

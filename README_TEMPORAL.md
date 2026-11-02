@@ -16,7 +16,7 @@ Para retomar en un chat nuevo: leer este archivo, `PROMPT-1-BOCA-FUTBOL.md` (ya 
 | 6. Situaciones y estadística desglosada | **Desplegada** (28-oct): tablero, conclusiones, desglosada y doble clic; queda la página de partido (ver abajo) |
 | 7. Comparación directa | **Desplegada** (28-oct): `/comparar` contra plantel, zona, carril, posición y otro jugador |
 | 8. Excel | **Desplegada** (28-oct): 6 libros (global y uno por competición) que se descargan desde la web |
-| 9. Power BI | Pendiente |
+| 9. Power BI | **Lista** (2-nov): CSV en estrella, medidas DAX, temas, rol `powerbi_reader` y guía |
 | 10. Pulido | Pendiente |
 | 11. Documentación y entrega | Pendiente |
 
@@ -320,7 +320,30 @@ Juan Barinaga) que vienen así de la fuente.
   clic en el nombre en Jugadores, «Ver detalle del jugador» en el panel, «Ver detalle» en Comparar y los nombres
   de la página de partido.
 
-## Próxima etapa (9: Power BI)
+## Etapa 9: estado (2-nov-2026)
 
-Skills: las del plan para Power BI (`docs/skills_plan.md`); tema con la paleta nueva (verde, violeta
-secundario, rojo solo para lo negativo).
+- **Modelo en estrella (`pipeline/powerbi.py`):** 19 CSV en `data/powerbi/` (UTF-8 con BOM, textos con el mismo
+  resguardo contra fórmulas que el Excel): `dim_player`, `dim_competition`, `dim_date`, `dim_team`, `dim_stat`
+  (con descripción, grupo y nivel), `dim_stat_set`, `fact_player_stat` en formato largo (jugador, competición,
+  estadística, valor, valor cada 90, percentil por tipo, estimada), `fact_player_minutes`, `fact_match`,
+  `fact_team_match_stat`, `fact_player_match_value`, `fact_stat_match_value` (con `rolling_5`), `fact_shot`
+  (mapa de tiros), `fact_projection` (insumos de 6.1 con el nivel N), `stat_distribution`, `stat_correlation`,
+  `fact_situational`, `dim_chart` y `chart_source_map`. El workflow los regenera y los sube a
+  `exports/powerbi/` (público, mismo bucket que los libros) en cada corrida.
+- **Rol `powerbi_reader`** (migración `20261102120000_powerbi_reader.sql`): exactamente los SELECT de `anon` sobre
+  `api` y `core` (vistas security_invoker) y sus políticas de lectura; sin escritura, sin `ingest`, storage ni
+  realtime; solo lectura, 60 s por consulta, 5 conexiones. Nace **sin login**: el dueño le pone contraseña con
+  `alter role powerbi_reader with login password '...'` (ver la guía). Verificado: mismos permisos que `anon`
+  en `api` y `core`, cero permisos de escritura.
+- **`powerbi/measures.dax`:** Valor y Percentil seleccionados, jugador actual, medias sin el jugador
+  (`REMOVEFILTERS`) y de la línea (`ALLEXCEPT`), ejes de la dispersión, cada 90, NR/EWA/ELA, Índice de
+  rendimiento, Mejoría α y β, Potencial β y **Potencial α recalculado con los parámetros what-if** `A_pico`, `G`
+  y `λ`; equipo, situaciones, correlación y «Ver origen».
+- **Temas:** `powerbi/theme.json` (claro) y `powerbi/theme-oscuro.json` con la paleta de la web y Montserrat.
+- **Guía (`docs/powerbi_guia.md`):** conexión por CSV o PostgreSQL (pooler de sesión), relaciones, medidas, las 7
+  páginas más Evolución y proyección, la tabla gráfico por gráfico del cuadro 9.4 y las notas (radar de
+  AppSource, parámetros de campo, actualización manual, «Publicar en la web» y licencias).
+- Gráfico 10 (evolución de la tabla) sigue no disponible: no hay posiciones fecha a fecha, igual que en la web.
+- No probado en Power BI Desktop (no está en esta PC): las medidas DAX están revisadas a mano, no ejecutadas.
+
+## Próxima etapa (10: Pulido)

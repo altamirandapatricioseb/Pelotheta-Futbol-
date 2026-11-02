@@ -81,6 +81,7 @@ def _data() -> excel.Data:
         team=team,
         situations=[
             {
+                "card_id": "s001",
                 "category": "Contexto",
                 "title": "Local",
                 "param_value": "Sí",

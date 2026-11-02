@@ -1,0 +1,252 @@
+// Pelotheta Θ — medidas de Power BI (sección 11).
+//
+// Modelo: los CSV de data/powerbi/ (o las vistas api por PostgreSQL con powerbi_reader).
+// Cómo usarlo: en Power BI Desktop, Modelado → Nueva medida, y pegá cada bloque (nombre = expresión).
+// Las tablas calculadas (parámetros y ejes) van en Modelado → Nueva tabla. Paso a paso en
+// docs/powerbi_guia.md.
+//
+// Convenciones:
+// - Los valores salen de fact_player_stat en formato largo: el segmentador de dim_stat elige qué
+//   estadística muestra cada gráfico, sin una medida por columna.
+// - Las medias de referencia excluyen al jugador comparado y piden 450 minutos (como la web).
+// - Elegí una sola competición en el segmentador (por defecto «Todas las competiciones»).
+
+// ============================================================================================
+// Parámetros de hipótesis (what-if) de 6.1.4. Tablas calculadas.
+
+A_pico = GENERATESERIES ( 23, 32, 0.5 )
+// Columna: [Value] → renombrala a [A_pico]. Valor por defecto 27 (arqueros: A_pico + 2 = 29).
+
+G = GENERATESERIES ( 0, 3, 0.1 )
+// Columna: [Value] → [G]. Por defecto 1,5 puntos de percentil por año.
+
+λ = GENERATESERIES ( 0, 1, 0.05 )
+// Columna: [Value] → [λ]. Por defecto 0,5; con 0 el Potencial α no usa la Mejoría α.
+
+A_pico valor = SELECTEDVALUE ( A_pico[A_pico], 27 )
+G valor = SELECTEDVALUE ( G[G], 1.5 )
+λ valor = SELECTEDVALUE ( 'λ'[λ], 0.5 )
+
+// Ejes de la dispersión configurable (gráfico 2): copias desconectadas de dim_stat.
+Eje X = SELECTCOLUMNS ( dim_stat, "stat_id", dim_stat[stat_id], "nombre", dim_stat[nombre] )
+Eje Y = SELECTCOLUMNS ( dim_stat, "stat_id", dim_stat[stat_id], "nombre", dim_stat[nombre] )
+
+// ============================================================================================
+// Selección actual
+
+Jugador actual = SELECTEDVALUE ( dim_player[nombre], "Varios jugadores" )
+
+Estadística actual = SELECTEDVALUE ( dim_stat[nombre], "Elegí una estadística" )
+
+Competición actual = SELECTEDVALUE ( dim_competition[nombre], "Todas las competiciones" )
+
+Descripción de la estadística = SELECTEDVALUE ( dim_stat[descripcion_es] )
+
+// Cada 90 cuando la estadística lo admite; si no, el valor tal cual (porcentajes, promedios).
+Valor seleccionado =
+IF (
+    HASONEVALUE ( dim_stat[stat_id] ),
+    IF (
+        SELECTEDVALUE ( dim_stat[por90] ) = 1,
+        AVERAGE ( fact_player_stat[valor_90] ),
+        AVERAGE ( fact_player_stat[valor] )
+    )
+)
+
+Total seleccionado =
+IF ( HASONEVALUE ( dim_stat[stat_id] ), AVERAGE ( fact_player_stat[valor] ) )
+
+// 100 = el mejor del plantel entre los del mismo tipo (arqueros o de campo), según el sentido.
+Percentil seleccionado =
+IF ( HASONEVALUE ( dim_stat[stat_id] ), AVERAGE ( fact_player_stat[percentil] ) )
+
+Aviso de estimación =
+IF ( MAX ( fact_player_stat[estimada] ) = 1, "Estimada: leer con cuidado", BLANK () )
+
+Puesto =
+VAR mejorEsMas = SELECTEDVALUE ( dim_stat[mas_es_mejor], 1 ) = 1
+RETURN
+    IF (
+        NOT ISBLANK ( [Valor seleccionado] ),
+        IF (
+            mejorEsMas,
+            RANKX ( ALLSELECTED ( dim_player[nombre] ), [Valor seleccionado], , DESC, DENSE ),
+            RANKX ( ALLSELECTED ( dim_player[nombre] ), [Valor seleccionado], , ASC, DENSE )
+        )
+    )
+
+// ============================================================================================
+// Medias de referencia (excluyen al jugador comparado, 450 minutos o más)
+
+Minutos = SUM ( fact_player_minutes[minutos] )
+
+Partidos jugados = SUM ( fact_player_minutes[partidos] )
+
+// Arqueros contra arqueros y jugadores de campo contra jugadores de campo, como el percentil.
+Media del plantel (sin el jugador) =
+VAR actual = SELECTEDVALUE ( dim_player[player_id] )
+VAR arquero = SELECTEDVALUE ( dim_player[linea] ) = "Arquero"
+RETURN
+    CALCULATE (
+        AVERAGEX (
+            FILTER ( VALUES ( dim_player[player_id] ), [Minutos] >= 450 ),
+            [Valor seleccionado]
+        ),
+        REMOVEFILTERS ( dim_player ),
+        dim_player[player_id] <> actual,
+        FILTER ( ALL ( dim_player[linea] ), ( dim_player[linea] = "Arquero" ) = arquero )
+    )
+
+Media de su línea (sin el jugador) =
+VAR actual = SELECTEDVALUE ( dim_player[player_id] )
+VAR linea = SELECTEDVALUE ( dim_player[linea] )
+RETURN
+    CALCULATE (
+        AVERAGEX (
+            FILTER ( VALUES ( dim_player[player_id] ), [Minutos] >= 450 ),
+            [Valor seleccionado]
+        ),
+        REMOVEFILTERS ( dim_player ),
+        dim_player[linea] = linea,
+        dim_player[player_id] <> actual
+    )
+
+// Con ALLEXCEPT: media de todos los jugadores de la línea filtrada en la página (incluye a todos).
+Media de la línea filtrada =
+CALCULATE (
+    AVERAGEX ( FILTER ( VALUES ( dim_player[player_id] ), [Minutos] >= 450 ), [Valor seleccionado] ),
+    ALLEXCEPT ( dim_player, dim_player[linea] )
+)
+
+Diferencia con el plantel = [Valor seleccionado] - [Media del plantel (sin el jugador)]
+
+Diferencia con su línea = [Valor seleccionado] - [Media de su línea (sin el jugador)]
+
+// Dispersión configurable: valor del jugador en la estadística elegida en cada eje.
+Valor eje X =
+VAR s = SELECTEDVALUE ( 'Eje X'[stat_id] )
+RETURN CALCULATE ( [Valor seleccionado], TREATAS ( { s }, dim_stat[stat_id] ) )
+
+Valor eje Y =
+VAR s = SELECTEDVALUE ( 'Eje Y'[stat_id] )
+RETURN CALCULATE ( [Valor seleccionado], TREATAS ( { s }, dim_stat[stat_id] ) )
+
+// ============================================================================================
+// Valores fijos (por 90, porcentajes y métricas propias)
+
+Goles cada 90 = CALCULATE ( [Valor seleccionado], dim_stat[stat_id] = "goles" )
+Asistencias cada 90 = CALCULATE ( [Valor seleccionado], dim_stat[stat_id] = "asistencias" )
+Goles + asistencias cada 90 = CALCULATE ( [Valor seleccionado], dim_stat[stat_id] = "goles_asistencias" )
+xG cada 90 = CALCULATE ( [Valor seleccionado], dim_stat[stat_id] = "xg" )
+xA cada 90 = CALCULATE ( [Valor seleccionado], dim_stat[stat_id] = "xa" )
+Calificación media = CALCULATE ( [Valor seleccionado], dim_stat[stat_id] = "calificacion" )
+% de minutos = CALCULATE ( [Valor seleccionado], dim_stat[stat_id] = "pct_minutos" )
+Goles = CALCULATE ( [Total seleccionado], dim_stat[stat_id] = "goles" )
+Asistencias = CALCULATE ( [Total seleccionado], dim_stat[stat_id] = "asistencias" )
+
+// Métricas propias (6): NR, EWA y ELA. Formato condicional por signo en el gráfico 13.
+NR = CALCULATE ( [Valor seleccionado], dim_stat[stat_id] = "nr" )
+EWA = CALCULATE ( [Valor seleccionado], dim_stat[stat_id] = "ewa" )
+ELA = CALCULATE ( [Valor seleccionado], dim_stat[stat_id] = "ela" )
+Color por signo = IF ( [Valor seleccionado] < 0, "#a30310", "#328336" )
+
+// ============================================================================================
+// Evolución y proyección (6.1). Siempre son estimaciones: mostrá [Aviso 6.1] junto a ellas.
+
+Aviso 6.1 = "Estimación del sistema: orienta, no predice. Supuestos: A_pico, G y λ."
+
+Índice de rendimiento = AVERAGE ( fact_projection[indice_rendimiento] )
+
+Cobertura del índice = AVERAGE ( fact_projection[cobertura] )
+
+Mejoría α = AVERAGE ( fact_projection[mejoria_alpha] )
+
+Mejoría β = AVERAGE ( fact_projection[mejoria_beta] )
+
+Potencial β = AVERAGE ( fact_projection[potencial_beta] )
+
+// Valor calculado por el pipeline con los parámetros por defecto.
+Potencial α (pipeline) = AVERAGE ( fact_projection[potencial_alpha] )
+
+// Recalculado con los parámetros de hipótesis: min(100, N + G × años × (1 + λ × M)).
+// Sin N o sin edad queda en blanco (n/d); AVERAGEX ignora los blancos.
+Potencial α =
+AVERAGEX (
+    fact_projection,
+    VAR n = fact_projection[nivel_n]
+    VAR edad = fact_projection[edad]
+    VAR pico = [A_pico valor] + IF ( fact_projection[es_arquero] = 1, 2, 0 )
+    VAR anios = MAX ( 0, pico - edad )
+    VAR m =
+        IF (
+            ISBLANK ( fact_projection[mejoria_alpha] ),
+            0,
+            ( fact_projection[mejoria_alpha] - 50 ) / 50
+        )
+    RETURN
+        IF (
+            ISBLANK ( n ) || ISBLANK ( edad ),
+            BLANK (),
+            MIN ( 100, n + [G valor] * anios * ( 1 + [λ valor] * m ) )
+        )
+)
+
+Potencial α mínimo = IF ( NOT ISBLANK ( [Potencial α] ), MAX ( 0, [Potencial α] - 8 ) )
+
+Potencial α máximo = IF ( NOT ISBLANK ( [Potencial α] ), MIN ( 100, [Potencial α] + 8 ) )
+
+Años al pico =
+VAR pico = [A_pico valor] + IF ( MAX ( fact_projection[es_arquero] ) = 1, 2, 0 )
+RETURN MAX ( 0, pico - AVERAGE ( fact_projection[edad] ) )
+
+// ============================================================================================
+// Equipo y partidos
+
+Partidos = COUNTROWS ( fact_match )
+Puntos = SUM ( fact_match[puntos] )
+Ganados = CALCULATE ( COUNTROWS ( fact_match ), fact_match[resultado] = "G" )
+Empatados = CALCULATE ( COUNTROWS ( fact_match ), fact_match[resultado] = "E" )
+Perdidos = CALCULATE ( COUNTROWS ( fact_match ), fact_match[resultado] = "P" )
+% de victorias = DIVIDE ( [Ganados], [Partidos] )
+Puntos por partido = DIVIDE ( [Puntos], [Partidos] )
+Goles a favor = SUM ( fact_match[goles_favor] )
+Goles en contra = SUM ( fact_match[goles_contra] )
+Diferencia de gol = [Goles a favor] - [Goles en contra]
+
+Puntos acumulados =
+VAR hasta = MAX ( fact_match[fecha] )
+RETURN CALCULATE ( [Puntos], REMOVEFILTERS ( dim_date ), fact_match[fecha] <= hasta )
+
+Color por resultado =
+SWITCH ( SELECTEDVALUE ( fact_match[resultado] ), "G", "#328336", "E", "#734f9a", "P", "#a30310" )
+
+// Estadística del equipo por partido (fact_team_match_stat, clave elegida con un segmentador).
+Valor del equipo = AVERAGE ( fact_team_match_stat[valor] )
+
+// Estadística por partido (desglosada, drill-through): jugador o equipo.
+Valor por partido = AVERAGE ( fact_stat_match_value[valor] )
+
+Valor por partido del jugador =
+CALCULATE (
+    [Valor por partido],
+    fact_stat_match_value[entidad] = "player",
+    TREATAS ( VALUES ( dim_player[player_id] ), fact_stat_match_value[entity_id] )
+)
+
+// ============================================================================================
+// Situaciones, distribución, correlación
+
+% de victorias en la situación = AVERAGE ( fact_situational[pct_victorias] )
+Partidos en la situación = SUM ( fact_situational[partidos] )
+Diferencia con la base = AVERAGE ( fact_situational[dif_vs_base] )
+
+Jugadores en el intervalo = SUM ( stat_distribution[jugadores] )
+
+Correlación = AVERAGE ( stat_correlation[pearson] )
+
+// ============================================================================================
+// «Ver origen» (9.9): solo se muestra si el gráfico tiene a dónde llevar.
+
+Origen del gráfico = SELECTEDVALUE ( chart_source_map[etiqueta_es] )
+Tiene origen = IF ( COUNTROWS ( chart_source_map ) > 0, 1, 0 )
+Texto del botón origen = IF ( [Tiene origen] = 1, "Ver origen: " & [Origen del gráfico], BLANK () )

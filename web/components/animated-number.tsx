@@ -20,6 +20,11 @@ export function AnimatedNumber({ value, format, className }: AnimatedNumberProps
   useEffect(() => {
     const node = ref.current;
     if (!node) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      node.textContent = format(value);
+      from.current = value;
+      return;
+    }
     const controls = animate(from.current, value, {
       duration: 0.7,
       ease: [0.16, 1, 0.3, 1],

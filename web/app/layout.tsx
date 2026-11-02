@@ -5,6 +5,7 @@ import Link from 'next/link';
 
 import { SystemMark, TeamMark } from '@/components/header/brand-marks';
 import { SiteHeader } from '@/components/header/site-header';
+import { MotionProvider } from '@/components/motion-provider';
 import { THEME_COOKIE } from '@/lib/theme';
 import { SITE_DESCRIPTION, SYSTEM_NAME } from '@/config/brand';
 
@@ -47,10 +48,12 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         <a href="#contenido" className="skip-link">
           Saltar al contenido
         </a>
-        <SiteHeader teamMark={<TeamMark />} systemMark={<SystemMark />} />
-        <main id="contenido" className="page" tabIndex={-1}>
-          {children}
-        </main>
+        <MotionProvider>
+          <SiteHeader teamMark={<TeamMark />} systemMark={<SystemMark />} />
+          <main id="contenido" className="page" tabIndex={-1}>
+            {children}
+          </main>
+        </MotionProvider>
         <footer className="page pt-0 pb-10 text-sm text-muted">
           Proyecto de portfolio sin fines comerciales. Datos de partidos: Promiedos (estadísticas de Opta). Las
           interfaces se publican por etapas.{' '}

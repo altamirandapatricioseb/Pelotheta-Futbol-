@@ -50,8 +50,9 @@ export function SiteHeader({ teamMark, systemMark }: SiteHeaderProps) {
   return (
     <header className="site-header" data-compact={compact || undefined}>
       <div className="site-header__bar">
-        <Link href="/" className="site-header__side focus-ring rounded-md" aria-label="Boca Juniors, ir al inicio">
+        <Link href="/" className="site-header__side focus-ring rounded-md">
           {teamMark}
+          <span className="sr-only">, ir al inicio</span>
         </Link>
 
         <nav aria-label="Interfaces" className="site-header__nav">

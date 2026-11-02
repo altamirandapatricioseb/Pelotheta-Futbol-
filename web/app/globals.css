@@ -83,7 +83,7 @@ h3 {
   gap: 16px;
   height: var(--header-bar-h);
   padding-inline: clamp(16px, 3vw, 32px);
-  transition: height var(--dur-base) var(--ease-out-expo);
+  /* Sin transición de height: animarla recalcula el layout de toda la página en cada cuadro. */
 }
 .site-header[data-compact] .site-header__bar {
   height: var(--header-bar-h-compact);
@@ -589,12 +589,14 @@ h3 {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .update-panel__spin {
-    animation: none;
-  }
-
-  .update-panel__button {
-    transition: none;
+  /* Reducir movimiento en todo el sitio: animaciones y transiciones casi instantáneas. */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 
@@ -669,8 +671,8 @@ h3 {
   align-items: flex-start;
   gap: 8px;
   max-width: 60ch;
-  border-left: 3px solid var(--color-brand);
-  border-radius: 4px;
+  border: 1px solid color-mix(in oklab, var(--color-brand) 35%, var(--color-border));
+  border-radius: 8px;
   background: color-mix(in oklab, var(--color-brand) 10%, transparent);
   padding: 8px 12px;
   font-size: 0.875rem;
@@ -1364,7 +1366,8 @@ h3 {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: var(--tone);
+  /* El tono puro no llega a 4,5:1 sobre el fondo teñido: se mezcla con el color del texto. */
+  color: color-mix(in oklab, var(--tone) 70%, var(--color-text));
   font-size: 0.75rem;
   font-weight: 800;
 }
@@ -1824,11 +1827,18 @@ h3 {
   display: flex;
   align-items: center;
   gap: 8px;
-  border-left: 3px solid var(--series-1);
-  padding-left: 10px;
 }
-.match-goals .match-goal--rival {
-  border-left-color: var(--series-2);
+/* Punto del equipo que hizo el gol: el texto también lo dice, el color no es la única pista. */
+.match-goals li::before {
+  content: '';
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--series-1);
+}
+.match-goals .match-goal--rival::before {
+  background: var(--series-2);
 }
 .match-faceoff {
   display: grid;

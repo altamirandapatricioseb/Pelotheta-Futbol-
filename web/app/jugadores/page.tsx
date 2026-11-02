@@ -124,7 +124,7 @@ function CompetitionChip({
       scroll={false}
     >
       {short}
-      {matches !== undefined ? <span className="tabular opacity-70">{matches}</span> : null}
+      {matches !== undefined ? <span className="tabular">{matches}</span> : null}
     </Link>
   );
 }

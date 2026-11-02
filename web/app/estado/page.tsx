@@ -28,7 +28,8 @@ export default async function Page() {
       {error ? (
         <p role="alert">La base no respondió. Puede estar pausada: volvé a intentar en unos minutos.</p>
       ) : (
-        <div className="data-table-wrap">
+        // Con foco y nombre: en el celular la tabla se desplaza de costado y hay que poder hacerlo con teclado.
+        <div className="data-table-wrap" tabIndex={0} role="region" aria-label="Estado de las fuentes">
           <table className="data-table tabular">
             <caption className="sr-only">Estado de las fuentes</caption>
             <thead>

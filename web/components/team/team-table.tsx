@@ -210,32 +210,32 @@ export function TeamTableView({
                 {single ? `${single.home ? 'Boca vs' : 'Boca en cancha de'} ${single.opponent}` : current.label}
               </h2>
               {single ? (
-                <dl className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
-                  <div>
-                    <dt className="text-xs text-muted">Fecha</dt>
-                    <dd className="font-bold">{single.date.split('-').reverse().join('/')}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs text-muted">Resultado</dt>
-                    <dd className="font-bold">{resultLabel(single)}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs text-muted">Localía</dt>
-                    <dd className="font-bold">{single.home ? 'Local' : 'Visitante'}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs text-muted">Árbitro</dt>
-                    <dd className="font-bold">{single.referee ?? NOT_AVAILABLE}</dd>
-                  </div>
-                  <div className="col-span-2">
-                    <Link
-                      href={`/partido/${String(single.matchId)}`}
-                      className="focus-ring font-semibold text-link hover:underline"
-                    >
-                      Ver la página del partido
-                    </Link>
-                  </div>
-                </dl>
+                <>
+                  <dl className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
+                    <div>
+                      <dt className="text-xs text-muted">Fecha</dt>
+                      <dd className="font-bold">{single.date.split('-').reverse().join('/')}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs text-muted">Resultado</dt>
+                      <dd className="font-bold">{resultLabel(single)}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs text-muted">Localía</dt>
+                      <dd className="font-bold">{single.home ? 'Local' : 'Visitante'}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs text-muted">Árbitro</dt>
+                      <dd className="font-bold">{single.referee ?? NOT_AVAILABLE}</dd>
+                    </div>
+                  </dl>
+                  <Link
+                    href={`/partido/${String(single.matchId)}`}
+                    className="focus-ring text-sm font-semibold text-link hover:underline"
+                  >
+                    Ver la página del partido
+                  </Link>
+                </>
               ) : (
                 <GroupRecord rows={current.rows} />
               )}

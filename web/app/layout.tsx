@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Montserrat, Noto_Sans } from 'next/font/google';
 import { cookies } from 'next/headers';
+import Link from 'next/link';
 
 import { SystemMark, TeamMark } from '@/components/header/brand-marks';
 import { SiteHeader } from '@/components/header/site-header';
@@ -52,7 +53,14 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         </main>
         <footer className="page pt-0 pb-10 text-sm text-muted">
           Proyecto de portfolio sin fines comerciales. Datos de partidos: Promiedos (estadísticas de Opta). Las
-          interfaces se publican por etapas.
+          interfaces se publican por etapas.{' '}
+          <Link href="/privacidad" className="focus-ring underline">
+            Privacidad
+          </Link>{' '}
+          ·{' '}
+          <Link href="/estado" className="focus-ring underline">
+            Estado
+          </Link>
         </footer>
       </body>
     </html>

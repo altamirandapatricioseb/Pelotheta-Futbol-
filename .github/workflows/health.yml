@@ -1,0 +1,51 @@
+# Salud del sistema (sección 14.6): consulta /api/health cada 6 horas. Si falla dos veces
+# seguidas (con un minuto entre intentos), abre un issue; si ya hay uno abierto, lo comenta.
+name: Salud
+
+on:
+  schedule:
+    - cron: '23 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: health
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      issues: write
+    env:
+      URL: https://pelotheta-futbol.vercel.app/api/health
+    steps:
+      - name: Consultar /api/health
+        id: health
+        run: |
+          for intento in 1 2; do
+            if curl -fsS --max-time 20 "$URL" -o health.json; then
+              cat health.json; echo "ok=true" >> "$GITHUB_OUTPUT"; exit 0
+            fi
+            [ "$intento" = 1 ] && sleep 60
+          done
+          echo "ok=false" >> "$GITHUB_OUTPUT"
+      - name: Abrir o comentar el issue
+        if: steps.health.outputs.ok == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh label create salud --color B60205 --description "Sitio o base sin responder" --force
+          abierto=$(gh issue list --label salud --state open --json number --jq '.[0].number')
+          cuerpo="/api/health no respondió dos veces seguidas ($(date -u +%FT%TZ)). Corrida: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          if [ -n "$abierto" ]; then
+            gh issue comment "$abierto" --body "$cuerpo"
+          else
+            gh issue create --title "Sitio o base sin responder" --label salud --body "$cuerpo"
+          fi
+          exit 1

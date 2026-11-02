@@ -69,3 +69,15 @@ jobs:
       - uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Semgrep con reglas OWASP para TypeScript y Python: bloquea con hallazgos de severidad ERROR.
+  semgrep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
+      - run: >-
+          uvx semgrep==1.183.0 scan --metrics=off --error --severity ERROR
+          --config p/owasp-top-ten --config p/typescript --config p/python
+          --exclude data --exclude web/.next

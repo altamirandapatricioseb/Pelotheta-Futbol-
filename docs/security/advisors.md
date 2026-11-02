@@ -1,5 +1,10 @@
 # Supabase Advisors
 
+## 2-nov-2026 (etapas 9 y 10.1)
+
+Security Advisor: 0 ERROR, 0 WARN. Siguen solo los 2 INFO intencionales de la etapa 1. El rol
+`powerbi_reader` no generó avisos.
+
 ## 28-oct-2026 (cierre de la etapa 3)
 
 Security Advisor: 0 ERROR, 0 WARN. Siguen solo los 2 INFO intencionales de la etapa 1

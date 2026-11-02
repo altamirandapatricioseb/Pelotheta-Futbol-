@@ -1,0 +1,111 @@
+# Control semanal de seguridad (sección 14.6): gitleaks sobre todo el historial, auditorías de
+# dependencias, ZAP baseline (pasivo, solo contra el propio sitio), cabeceras contra la política
+# esperada, RLS con la clave pública y vencimiento de security.txt. Si algo falla, abre un issue
+# con la etiqueta `security` para clasificarlo (nuevo, en análisis, mitigado, cerrado, falso positivo).
+name: Seguridad semanal
+
+on:
+  schedule:
+    - cron: '41 7 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-weekly
+  cancel-in-progress: false
+
+env:
+  SITE: https://pelotheta-futbol.vercel.app
+
+jobs:
+  secretos:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  dependencias:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      - name: pip-audit
+        run: uvx pip-audit==2.9.0 --strict -r <(uv export --locked --no-hashes --format requirements-txt)
+      - name: pnpm audit
+        working-directory: web
+        run: corepack enable pnpm && pnpm audit --audit-level high --prod
+
+  sitio:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
+      - name: Cabeceras de seguridad
+        run: |
+          curl -fsSI "$SITE/" | tr -d '\r' | tee headers.txt
+          falta=0
+          for h in "content-security-policy: .*default-src 'self'" \
+                   "content-security-policy: .*frame-ancestors 'none'" \
+                   "strict-transport-security: max-age=63072000" \
+                   "x-content-type-options: nosniff" \
+                   "referrer-policy: strict-origin-when-cross-origin" \
+                   "permissions-policy: " \
+                   "cross-origin-opener-policy: same-origin"; do
+            grep -qiE "^$h" headers.txt || { echo "Falta o cambió: $h"; falta=1; }
+          done
+          exit $falta
+      - name: security.txt vigente (vence en más de 30 días)
+        run: |
+          vence=$(curl -fsS "$SITE/.well-known/security.txt" | tr -d '\r' | sed -n 's/^Expires: //p')
+          echo "Vence: $vence"
+          [ "$(date -d "$vence" +%s)" -gt "$(date -d '+30 days' +%s)" ]
+      - name: RLS con la clave pública (lee, no escribe)
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          [ -n "$SUPABASE_PUBLISHABLE_KEY" ] || { echo "Falta el secreto SUPABASE_PUBLISHABLE_KEY"; exit 1; }
+          uv run pytest -q tests/test_rls.py
+
+  zap:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # Escaneo pasivo: no envía ataques. El propio action abre o actualiza un issue con el informe.
+      - uses: zaproxy/action-baseline@de8ad967d3548d44ef623df22cf95c3b0baf8b25 # v0.15.0
+        with:
+          target: ${{ env.SITE }}
+          issue_title: ZAP baseline (semanal)
+          fail_action: false
+
+  aviso:
+    needs: [secretos, dependencias, sitio, zap]
+    if: failure()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      issues: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - run: |
+          gh label create security --color D93F0B --description "Hallazgo de seguridad" --force
+          gh issue create --title "Control semanal de seguridad con fallas ($(date -u +%F))" --label security \
+            --body "Severidad: a clasificar. Estado: nuevo. Corrida: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"

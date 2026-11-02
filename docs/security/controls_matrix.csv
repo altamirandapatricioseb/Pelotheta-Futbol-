@@ -1,0 +1,25 @@
+id,control,asvs_5,owasp_top10_2025,cis_v8_ig1,iso27001_2022,evidencia,estado
+C01,"Tablas en esquema privado; la web solo ve vistas de api",V8 Autorización,A01 Broken Access Control,3.3,A.8.3,supabase/migrations/20261027025639_security_baseline.sql; docs/adr/0001-esquema-privado-y-api.md,implementado
+C02,"RLS en todas las tablas, sin escritura para anon ni authenticated",V8 Autorización,A01 Broken Access Control,3.3,A.8.3,tests/test_rls.py; security_weekly.yml,implementado
+C03,"statement_timeout para anon, authenticated y powerbi_reader",V2 Validación de lógica,A06 Insecure Design,—,A.8.6,security_baseline.sql; 20261102120000_powerbi_reader.sql,implementado
+C04,"Rol powerbi_reader solo lectura, sin login hasta que el dueño lo active",V8 Autorización,A01 Broken Access Control,5.4,A.5.15,20261102120000_powerbi_reader.sql; docs/powerbi_guia.md,implementado
+C05,"Bucket exports: lectura pública, escritura solo con clave secreta, tamaño y MIME limitados",V5 Archivos,A01 Broken Access Control,3.3,A.8.3,20261028200000_exports_bucket.sql; tests/test_rls.py,implementado
+C06,"Clave secreta solo en GitHub Secrets; cliente web en módulos server-only",V13 Configuración,A02 Security Misconfiguration,3.11,A.8.24,web/lib/supabase/server.ts; ci.yml (búsqueda en .next/static),implementado
+C07,"CSP con nonce y strict-dynamic; frame-ancestors none",V3 Frontend,A05 Injection,—,A.8.26,web/lib/security/csp.ts; docs/adr/0003-csp-con-nonce.md,implementado
+C08,"HSTS, nosniff, Referrer-Policy, Permissions-Policy, COOP",V3 Frontend,A02 Security Misconfiguration,4.1,A.8.9,web/next.config.ts; security_weekly.yml (cabeceras),implementado
+C09,"Parámetros de URL validados con Zod contra listas cerradas",V1 Codificación y validación,A05 Injection,16.1,A.8.28,web/app/*/page.tsx,implementado
+C10,"Exportaciones Excel y CSV sin inyección de fórmulas",V1 Codificación y validación,A05 Injection,16.1,A.8.28,pipeline/excel.py (safe_text); tests/test_excel.py; tests/test_powerbi.py,implementado
+C11,"Botón Actualizar: POST solo mismo Origin, enfriamiento y token fine-grained",V4 API,A01 Broken Access Control,6.8,A.8.5,web/app/api/actualizar/route.ts; docs/adr/0004-fuentes-y-boton-actualizar.md,implementado
+C12,"Validación de datos de fuentes y cuarentena",V1 Codificación y validación,A08 Software and Data Integrity Failures,—,A.8.28,sources/; data/quarantine/,implementado
+C13,"Acciones fijadas por SHA, permisos mínimos y timeouts en workflows",V15 Arquitectura segura,A03 Software Supply Chain Failures,2.2,A.8.30,.github/workflows/,implementado
+C14,"gitleaks en cada push y semanal sobre todo el historial",V13 Configuración,A02 Security Misconfiguration,3.11,A.8.12,ci.yml; security_weekly.yml,implementado
+C15,"pip-audit, pnpm audit, Dependabot, CodeQL y Semgrep",V15 Arquitectura segura,A03 Software Supply Chain Failures,7.1,A.8.8,ci.yml; codeql.yml; .github/dependabot.yml,implementado
+C16,"ZAP baseline semanal contra producción",V15 Arquitectura segura,A02 Security Misconfiguration,7.5,A.8.8,security_weekly.yml,implementado
+C17,"Salud cada 6 h con issue automático y página /estado",V16 Registro y errores,A09 Logging and Alerting Failures,8.2,A.8.16,health.yml; web/app/api/health/route.ts; web/app/estado/page.tsx,implementado
+C18,"Registro de cada corrida (ingest_log, audit_log)",V16 Registro y errores,A09 Logging and Alerting Failures,8.2,A.8.15,core.ingest_log; core.audit_log,parcial
+C19,"Backup mensual cifrado con age y restauración probada",V14 Protección de datos,A06 Insecure Design,11.2,A.8.13,pendiente: clave pública del dueño,parcial
+C20,"Plan de respuesta a incidentes con playbooks",—,A09 Logging and Alerting Failures,17.1,A.5.24,docs/security/incident_response.md,implementado
+C21,"Política de divulgación y security.txt",—,—,—,A.5.26,SECURITY.md; web/public/.well-known/security.txt,implementado
+C22,"Privacidad (Ley 25.326): minimización y /privacidad",V14 Protección de datos,—,3.1,A.5.34,web/app/privacidad/page.tsx,implementado
+C23,"2FA en GitHub, Vercel y Supabase",V6 Autenticación,A07 Authentication Failures,6.3,A.5.17,docs/security/access_review.md,a confirmar por el dueño
+C24,"Auth de Supabase sin registro ni proveedores",V6 Autenticación,A07 Authentication Failures,4.8,A.8.5,panel de Supabase (0 usuarios),a confirmar por el dueño

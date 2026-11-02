@@ -17,7 +17,7 @@ Para retomar en un chat nuevo: leer este archivo, `PROMPT-1-BOCA-FUTBOL.md` (ya 
 | 7. Comparación directa | **Desplegada** (28-oct): `/comparar` contra plantel, zona, carril, posición y otro jugador |
 | 8. Excel | **Desplegada** (28-oct): 6 libros (global y uno por competición) que se descargan desde la web |
 | 9. Power BI | **Lista** (2-nov): CSV en estrella, medidas DAX, temas, rol `powerbi_reader` y guía |
-| 10. Pulido | Pendiente |
+| 10. Pulido | En curso: 10.1 seguridad lista (2-nov); faltan 10.2 accesibilidad y rendimiento y 10.3 extras |
 | 11. Documentación y entrega | Pendiente |
 
 ## Etapa 3: cierre (28-oct-2026)
@@ -346,4 +346,35 @@ Juan Barinaga) que vienen así de la fuente.
 - Gráfico 10 (evolución de la tabla) sigue no disponible: no hay posiciones fecha a fecha, igual que en la web.
 - No probado en Power BI Desktop (no está en esta PC): las medidas DAX están revisadas a mano, no ejecutadas.
 
-## Próxima etapa (10: Pulido)
+## Etapa 10.1: endurecimiento de seguridad (2-nov-2026)
+
+La etapa 10 se parte en tres: **10.1 seguridad** (esta), 10.2 accesibilidad, responsive y rendimiento de las
+animaciones, y 10.3 extras de la sección 16 más la hoja `Desglosada` del Excel.
+
+- **Web:** `/api/health` (base en vivo, última carga y versión; 503 si la base no responde), `/estado` (última
+  corrida de cada fuente), `/privacidad` (Ley 25.326) y `/.well-known/security.txt` (vence el 1-nov-2027). Enlaces
+  en el pie de todas las páginas.
+- **CI:** job de Semgrep (OWASP, TypeScript, Python) en `ci.yml`; `codeql.yml` (TypeScript y Python,
+  `security-extended`); `.github/dependabot.yml` (uv, npm y acciones, agrupado y semanal); `health.yml` (cada 6 h,
+  issue `salud` tras dos fallas seguidas); `security_weekly.yml` (gitleaks sobre todo el historial, auditorías,
+  ZAP baseline pasivo contra producción, cabeceras, vencimiento de security.txt y RLS; issue `security` si falla).
+  Acciones nuevas fijadas por SHA de commit.
+- **Docs:** `SECURITY.md`, `docs/security/threat_model.md` (activos, actores, flujo con límites de confianza y
+  STRIDE), `incident_response.md` (NIST 800-61, cinco playbooks), `controls_matrix.csv` (ASVS 5, Top 10, CIS v8 y
+  ISO 27001), `access_review.md`, `fuera_de_alcance.md`; `risk_register.csv` revisado (R10 y R12 mitigados, R14 y
+  R15 nuevos); advisors sin ERROR ni WARN.
+- La base ya cumplía lo de 14.2 desde la etapa 1 (revoke en `public`, default privileges, `statement_timeout`, sin
+  GraphQL, bucket con límite y MIME).
+
+**Pendiente del dueño (no se puede hacer desde el código):**
+
+1. GitHub → Settings → Secrets: agregar `SUPABASE_PUBLISHABLE_KEY` (la usan `keepalive.yml` y el control semanal de RLS).
+2. GitHub → Settings → Code security: activar secret scanning con push protection; proteger `main` (checks en verde).
+3. Supabase → Authentication: deshabilitar el registro y todos los proveedores.
+4. Confirmar 2FA en GitHub, Vercel y Supabase (`docs/security/access_review.md`).
+5. Para el backup cifrado: generar un par de claves `age` y pasarme la **pública** (la privada nunca va al repositorio).
+6. Correr a mano una vez `Seguridad semanal` y `Salud` (Actions → Run workflow).
+
+Semgrep no corre en Windows (pywin32): se verifica en el primer CI después del push.
+
+## Próxima etapa (10.2: accesibilidad, responsive y rendimiento)

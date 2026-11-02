@@ -1,11 +1,14 @@
 import { NextResponse, type NextRequest } from 'next/server';
 
+import { isScannerPath } from '@/lib/security/blocklist';
 import { buildCsp, createNonce } from '@/lib/security/csp';
 
-// El proxy (antes "middleware") solo agrega la CSP con nonce. Ninguna protección del
+// El proxy (antes "middleware") agrega la CSP con nonce y corta con 404 las sondas de escáneres
+// (lib/security/blocklist.ts). Ninguna protección del
 // sistema depende de él: la última línea de defensa es la RLS de la base (sección 14.3,
 // por vulnerabilidades como CVE-2025-29927, que permitía saltear el middleware).
 export function proxy(request: NextRequest) {
+  if (isScannerPath(request.nextUrl.pathname)) return new NextResponse(null, { status: 404 });
   const nonce = createNonce();
   const supabaseOrigin = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? 'https://invalid.supabase.co').origin;
   const csp = buildCsp({ nonce, isDev: process.env.NODE_ENV === 'development', supabaseOrigin });

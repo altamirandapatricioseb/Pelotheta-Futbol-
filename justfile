@@ -34,6 +34,10 @@ types:
 bootstrap:
     bash scripts/bootstrap.sh
 
+# Backup cifrado local de las vistas de api (14.2); --verify <archivo> para probar la restauración
+backup *args:
+    uv run --with pyrage==1.2.5 python -m scripts.backup {{args}}
+
 # Regenera la especificación OpenAPI de la API de solo lectura (16.2)
 openapi:
     uv run python -m scripts.openapi

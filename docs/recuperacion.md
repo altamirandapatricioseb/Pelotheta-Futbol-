@@ -7,7 +7,7 @@ Qué hacer si se pierde la máquina, el proyecto de Supabase o el despliegue, y 
 | Pieza | Dónde vive | Se recupera desde |
 |---|---|---|
 | Código, migraciones, catálogos, documentación | GitHub | `git clone` |
-| Datos de partidos y estadísticas | Supabase (`core`) | El pipeline los vuelve a calcular desde las fuentes (unos 30 min); el backup cifrado (pendiente, ver abajo) evita depender de que las fuentes sigan publicadas |
+| Datos de partidos y estadísticas | Supabase (`core`) | El pipeline los vuelve a calcular desde las fuentes (unos 30 min); el backup cifrado mensual (`backup.yml`, artefacto de 90 días) guarda todo lo publicado aunque una fuente desaparezca |
 | Libros de Excel y CSV de Power BI | Bucket `exports` | Se regeneran con `pipeline.excel` y `pipeline.powerbi --upload` |
 | Sitio | Vercel (conectado al repositorio) | Un push a `main`, o «Redeploy» en Vercel |
 | Claves | GitHub Secrets, Vercel y el `.env` del dueño | Se rotan y se vuelven a cargar (ver `docs/security/access_review.md`) |
@@ -15,7 +15,7 @@ Qué hacer si se pierde la máquina, el proyecto de Supabase o el despliegue, y 
 ## Objetivos
 
 - **RPO (cuántos datos se pueden perder):** ninguno de lo que todavía publican las fuentes, porque se vuelve
-  a calcular; los datos que una fuente ya no publique se pierden hasta tener el backup mensual.
+  a calcular; de lo publicado, como mucho un mes (el último backup cifrado).
 - **RTO (cuánto tarda volver):** objetivo de 2 horas con el proyecto de Supabase en pie y de 4 horas si hay
   que crear uno nuevo.
 
@@ -39,7 +39,7 @@ Qué hacer si se pierde la máquina, el proyecto de Supabase o el despliegue, y 
 | Fecha | Alcance | Resultado | Tiempo |
 |---|---|---|---|
 | 2-nov-2026 | Pasos 1 y 3 sin `--con-datos` en la máquina del dueño (dependencias en caché) | Todo en verde | 2 min |
-| Pendiente | Recuperación completa en un proyecto de Supabase nuevo, desde el backup cifrado | Espera la clave pública `age` del dueño para el workflow de backup | — |
+| 2-nov-2026 | Backup cifrado de las 40 vistas y restauración de prueba (`scripts/backup.py --verify`) | 96.734 filas restauradas y verificadas contra el manifiesto | 2 s |
 
-El simulacro completo se hace una vez que el backup mensual esté funcionando, y su tiempo real reemplaza el
-objetivo de arriba.
+La clave privada del backup está en la máquina del dueño (`~/.pelotheta/backup-age.key`). Sin ella, los
+backups no se pueden abrir: guardala también fuera de esa máquina.

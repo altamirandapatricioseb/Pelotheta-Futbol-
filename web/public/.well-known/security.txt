@@ -1,5 +1,5 @@
-Contact: https://github.com/altamirandapatricioseb/Pelotheta-Futbol-/security/advisories/new
+Contact: https://github.com/altamirandapatricioseb
 Expires: 2027-11-01T00:00:00.000Z
 Preferred-Languages: es, en
 Canonical: https://pelotheta-futbol.vercel.app/.well-known/security.txt
-Policy: https://github.com/altamirandapatricioseb/Pelotheta-Futbol-/blob/main/SECURITY.md
+Policy: https://pelotheta-futbol.vercel.app/privacidad#seguridad

@@ -5,8 +5,8 @@ vulnerabilidad, gracias por avisar de forma responsable.
 
 ## Cómo reportar
 
-- Abrí un aviso privado en
-  [Security → Report a vulnerability](https://github.com/altamirandapatricioseb/Pelotheta-Futbol-/security/advisories/new).
+- Contactá al responsable desde [su perfil de GitHub](https://github.com/altamirandapatricioseb) (el
+  repositorio es privado, así que los avisos privados de GitHub no están disponibles para terceros).
 - No abras un issue público ni publiques el detalle hasta que esté corregido.
 - Incluí la URL o el archivo, los pasos para reproducirlo y el impacto que ves.
 

@@ -1,5 +1,6 @@
-# CodeQL para TypeScript y Python (sección 14.5): análisis estático con los resultados en la
-# pestaña Security. Corre en cada push y PR a main y una vez por semana.
+# CodeQL para TypeScript y Python (sección 14.5). El repositorio es privado y sin GitHub Advanced
+# Security no se pueden subir resultados a la pestaña Security: el informe SARIF queda como
+# artefacto de la corrida y el job falla si hay hallazgos de severidad alta o crítica.
 name: CodeQL
 
 on:
@@ -23,7 +24,6 @@ jobs:
     timeout-minutes: 30
     permissions:
       contents: read
-      security-events: write
     strategy:
       fail-fast: false
       matrix:
@@ -38,3 +38,30 @@ jobs:
       - uses: github/codeql-action/analyze@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
         with:
           category: /language:${{ matrix.language }}
+          upload: never
+          output: sarif
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: codeql-${{ matrix.language }}
+          path: sarif
+          retention-days: 30
+      - name: Sin hallazgos altos ni críticos
+        run: |
+          python3 - <<'PY'
+          import glob, json, sys
+          high = []
+          for f in glob.glob("sarif/*.sarif"):
+              run = json.load(open(f))["runs"][0]
+              tool = run["tool"]
+              rules = {}
+              for comp in [tool["driver"], *tool.get("extensions", [])]:
+                  rules.update({r["id"]: r for r in comp.get("rules", [])})
+              for res in run.get("results", []):
+                  props = rules.get(res["ruleId"], {}).get("properties", {})
+                  sev = float(props.get("security-severity", 0) or 0)
+                  if sev >= 7.0:
+                      uri = res["locations"][0]["physicalLocation"]["artifactLocation"]["uri"]
+                      high.append(f"{res['ruleId']} ({sev}): {uri}")
+          print(" | ".join(high) or "Sin hallazgos altos ni críticos.")
+          sys.exit(1 if high else 0)
+          PY

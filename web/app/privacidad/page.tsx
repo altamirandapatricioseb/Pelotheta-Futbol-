@@ -35,15 +35,23 @@ export default function Page() {
       <section className="grid gap-2">
         <h2 className="text-xl font-bold">Corrección o baja</h2>
         <p>
-          Si un dato tuyo es incorrecto o querés que se quite, escribí por{' '}
+          Si un dato tuyo es incorrecto o querés que se quite, contactá al responsable del proyecto desde{' '}
           <a
-            href="https://github.com/altamirandapatricioseb/Pelotheta-Futbol-/issues"
+            href="https://github.com/altamirandapatricioseb"
             className="focus-ring underline"
             rel="noopener noreferrer"
           >
-            los issues del repositorio
+            su perfil de GitHub
           </a>
-          . Para problemas de seguridad, mirá{' '}
+          . Se responde dentro de los 10 días hábiles que fija la ley y la baja se aplica en la carga siguiente.
+        </p>
+      </section>
+      <section id="seguridad" className="grid scroll-mt-24 gap-2">
+        <h2 className="text-xl font-bold">Seguridad</h2>
+        <p>
+          Si encontrás una vulnerabilidad, avisá por el mismo contacto y no la publiques hasta que esté corregida. La
+          respuesta inicial llega en 7 días como máximo. Las pruebas tienen que ser pasivas: nada de denegación de
+          servicio, ingeniería social ni acceso a datos de terceros. La información completa está en{' '}
           <a href="/.well-known/security.txt" className="focus-ring underline">
             security.txt
           </a>

@@ -17,6 +17,7 @@ const ROUTES = [
   '/estado',
   '/privacidad',
   '/api-docs',
+  '/soporte',
 ];
 
 for (const theme of ['light', 'dark'] as const) {

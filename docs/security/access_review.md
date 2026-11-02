@@ -15,5 +15,10 @@ Trimestral. Próxima: febrero de 2027.
 | StrikerAPI, Bzzoiro, API-Football | Pipeline | GitHub Secrets, `.env` local | Sin rotar (R01) |
 | `powerbi_reader` | Power BI del dueño | Contraseña fuera del repositorio | Sin login hasta que el dueño la active |
 
-Pendiente del dueño: confirmar 2FA (passkey o TOTP) en GitHub, Vercel y Supabase y guardar los
-códigos de recuperación fuera de línea.
+2FA en GitHub, Vercel y Supabase: no confirmado por el dueño. Riesgo aceptado (R16): las cuentas
+no se pueden verificar desde el repositorio; el impacto de un acceso indebido se limita con RLS (la
+base no acepta escrituras sin la clave secreta) y con el backup cifrado mensual.
+
+Clave del backup: la privada está en la máquina del dueño (`~/.pelotheta/backup-age.key`), fuera del
+repositorio; la pública en `config/backup_age_recipient.txt`. Si se pierde la privada, los backups
+viejos quedan ilegibles: se genera un par nuevo y se reemplaza la pública.

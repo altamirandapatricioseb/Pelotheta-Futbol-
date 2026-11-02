@@ -10,7 +10,7 @@ export function ErrorNotice({ code }: { code: ErrorCode }) {
       </p>
       <p className="text-muted">
         {hint}{' '}
-        <a href={articleUrl(code)} className="focus-ring underline" target="_blank" rel="noreferrer">
+        <a href={articleUrl(code)} className="focus-ring underline">
           Qué significa este código
         </a>
       </p>

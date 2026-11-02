@@ -23,8 +23,9 @@ for (const theme of ['light', 'dark'] as const) {
     test(`${route} sin problemas de accesibilidad (${theme})`, async ({ page, context, baseURL }) => {
       await context.addCookies([{ name: 'tema', value: theme, url: baseURL ?? 'http://localhost:3000' }]);
       await page.emulateMedia({ reducedMotion: 'reduce' });
-      await page.goto(route);
-      await page.waitForLoadState('networkidle');
+      // `load` y no `networkidle`: el servidor de desarrollo deja conexiones abiertas y la espera se cuelga.
+      await page.goto(route, { waitUntil: 'load' });
+      await expect(page.locator('#contenido')).toBeVisible();
       const { violations } = await new AxeBuilder({ page })
         .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
         .analyze();
@@ -39,8 +40,8 @@ for (const theme of ['light', 'dark'] as const) {
 
 for (const route of ROUTES) {
   test(`${route} sin desplazamiento horizontal`, async ({ page }) => {
-    await page.goto(route);
-    await page.waitForLoadState('networkidle');
+    await page.goto(route, { waitUntil: 'load' });
+    await expect(page.locator('#contenido')).toBeVisible();
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
     );

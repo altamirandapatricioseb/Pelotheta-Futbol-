@@ -28,7 +28,9 @@ export default async function Page() {
       {error ? (
         <p role="alert">La base no respondió. Puede estar pausada: volvé a intentar en unos minutos.</p>
       ) : (
-        // Con foco y nombre: en el celular la tabla se desplaza de costado y hay que poder hacerlo con teclado.
+        // Con foco y nombre: en el celular la tabla se desplaza de costado y hay que poder hacerlo con teclado
+        // (axe: scrollable-region-focusable).
+        // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- región desplazable con nombre
         <div className="data-table-wrap" tabIndex={0} role="region" aria-label="Estado de las fuentes">
           <table className="data-table tabular">
             <caption className="sr-only">Estado de las fuentes</caption>

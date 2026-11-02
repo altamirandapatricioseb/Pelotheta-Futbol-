@@ -17,7 +17,7 @@ Para retomar en un chat nuevo: leer este archivo, `PROMPT-1-BOCA-FUTBOL.md` (ya 
 | 7. Comparación directa | **Desplegada** (28-oct): `/comparar` contra plantel, zona, carril, posición y otro jugador |
 | 8. Excel | **Desplegada** (28-oct): 6 libros (global y uno por competición) que se descargan desde la web |
 | 9. Power BI | **Lista** (2-nov): CSV en estrella, medidas DAX, temas, rol `powerbi_reader` y guía |
-| 10. Pulido | En curso: 10.1 seguridad lista (2-nov); faltan 10.2 accesibilidad y rendimiento y 10.3 extras |
+| 10. Pulido | En curso: 10.1 seguridad y 10.2 accesibilidad y rendimiento listas (2-nov); falta 10.3 extras |
 | 11. Documentación y entrega | Pendiente |
 
 ## Etapa 3: cierre (28-oct-2026)
@@ -385,4 +385,25 @@ animaciones, y 10.3 extras de la sección 16. La hoja `Desglosada` del Excel ya 
 
 Semgrep no corre en Windows (pywin32): se verifica en el primer CI después del push.
 
-## Próxima etapa (10.2: accesibilidad, responsive y rendimiento)
+## Etapa 10.2: accesibilidad, responsive y rendimiento (2-nov-2026)
+
+- **Pruebas (`web/e2e/a11y.spec.ts`, Playwright y `@axe-core/playwright`):** las 12 rutas (inicio, Equipo,
+  Jugadores, Situaciones, Comparar, Actualizar, jugador, partido, desglosada de jugador y de equipo, Estado y
+  Privacidad) con axe (WCAG 2.2 AA) en tema claro y oscuro, en escritorio y en celular (Pixel 7), más una prueba
+  de que ninguna página se desplaza de costado. 72 de 72 en verde. Local: `cd web && pnpm e2e` (levanta
+  `next dev` o usa uno abierto); contra otro sitio: `E2E_BASE_URL=https://... pnpm e2e`. En CI corre cada semana
+  contra producción dentro de `Seguridad semanal` (en el CI de cada push no hay datos reales).
+- **Arreglos que encontró axe:** el enlace al inicio del header se llama como su texto visible; en Equipo el
+  enlace al partido salió de la lista de definiciones; contraste de las etiquetas de conclusión (el tono se
+  mezcla con el color del texto) y del número de partidos en los chips; la tabla de Estado se puede desplazar con
+  el teclado.
+- **Responsive:** en el celular Situaciones se salía 61 px de costado (columnas implícitas de la grilla que
+  crecían con el texto más largo): ahora corta con puntos suspensivos.
+- **Movimiento:** `MotionConfig reducedMotion="user"` para todo el sitio, el contador animado muestra el valor
+  directo con «reducir movimiento» y una regla CSS global deja las transiciones casi instantáneas. El header
+  compacto ya no anima `height` (recalculaba el layout de toda la página en cada cuadro) y el enlace «Saltar al
+  contenido» anima `transform` en vez de `top`.
+- **Diseño:** la guía de lectura y los goles del partido dejaron el borde lateral grueso (borde fino completo y
+  un punto del color del equipo).
+
+## Próxima etapa (10.3: extras de la sección 16)

@@ -115,7 +115,7 @@ export function SituationsBoard({
 
   return (
     <MotionConfig reducedMotion="user">
-      <div className="grid gap-5">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-5">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div className="min-w-0">
             <h1 className="page-title">

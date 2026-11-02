@@ -1,6 +1,7 @@
 'use client';
 
 import { CaretDownIcon, EraserIcon, FileXlsIcon, ImageIcon, WarningCircleIcon } from '@phosphor-icons/react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 
@@ -220,7 +221,8 @@ export function CompareView({ players, catalog, positions, competitions, initial
   };
 
   const model = useMemo(() => {
-    if (!main || refs.length === 0) return null;
+    // Sin «comparar con» igual se ven los valores, los percentiles y el desglose del jugador.
+    if (!main) return null;
     const own = positionsById.get(main.playerId);
     const pool = referencePool(players, main, positionsById, minMinutes);
     const dropped: string[] = [];
@@ -502,7 +504,7 @@ export function CompareView({ players, catalog, positions, competitions, initial
 
       {!main || !model ? (
         <div className="under-construction cmp-empty">
-          <p className="text-lg font-bold">{!main ? 'Elegí un jugador para empezar.' : 'Elegí con qué compararlo.'}</p>
+          <p className="text-lg font-bold">Elegí un jugador para empezar.</p>
           <p className="text-muted">
             Podés compararlo con la media del equipo, con la media de una línea (arqueros, defensores, mediocampistas o
             delanteros), con la media de su posición o con otro jugador; con otro jugador también podés sumar medias.
@@ -694,6 +696,12 @@ function CompareBody({
           <h2 id="cmp-jugador" className="flex items-center gap-2 text-2xl font-extrabold tracking-tight">
             <span className="chart-key chart-key--box" style={{ background: 'var(--series-1)' }} aria-hidden="true" />
             {main.name}
+            <Link
+              href={`/jugador/${String(main.playerId)}`}
+              className="text-sm font-semibold text-link hover:underline focus-ring"
+            >
+              Ver detalle
+            </Link>
           </h2>
           <p className="text-sm text-muted">
             {periodLabel} · {competitionLabel} · {main.matches} partidos · {main.minutes} minutos ·{' '}
@@ -735,6 +743,12 @@ function CompareBody({
             <p className="text-warn">
               <WarningCircleIcon size={14} aria-hidden="true" className="mr-1 inline" />
               Comparás un arquero con jugadores de campo: se muestran las estadísticas de las dos posiciones.
+            </p>
+          ) : null}
+          {labels.length === 0 ? (
+            <p className="font-semibold text-link">
+              Elegí con qué compararlo para ver las diferencias. Mientras, ves sus valores, sus percentiles y el
+              desglose de cada estadística.
             </p>
           ) : null}
           {dropped.map((d) => (
@@ -913,6 +927,7 @@ function CompareBody({
                 <div ref={radarRef}>
                   <Radar
                     axes={radarSections.map((s) => s.section.short)}
+                    titles={radarSections.map((s) => s.section.name)}
                     series={[
                       { id: 'p', label: name(main), slot: 1, values: radarSections.map((s) => s.player) },
                       ...labels.map((l, k) => ({

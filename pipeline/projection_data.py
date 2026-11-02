@@ -282,6 +282,8 @@ def projection_rows(players: Sequence[PlayerSeason], team_matches: int) -> list[
         alpha_set = ALPHA_SETS.get(player.position, ALPHA_SETS[None])
         if len(window_r) >= 5 and len(window_b) >= 10:
             zs: list[tuple[float, float]] = []
+            # Insumos de cada z para la hoja Proyección del Excel (fórmulas vivas).
+            rates: list[dict[str, Any]] = []
             for rate, weight in alpha_set:
                 rate_r, rate_b, sigma = (
                     rate.compute(window_r),
@@ -290,13 +292,30 @@ def projection_rows(players: Sequence[PlayerSeason], team_matches: int) -> list[
                 )
                 if rate_r is not None and rate_b is not None and sigma:
                     zs.append((pj.z_change(rate_r, rate_b, sigma, rate.higher_is_better), weight))
-            w = pj.reliability(_minutes(window_r), _minutes(window_b))
+                    rates.append(
+                        {
+                            "tasa": rate.name,
+                            "r": round(rate_r, 5),
+                            "b": round(rate_b, 5),
+                            "sigma": round(sigma, 5),
+                            "peso": weight,
+                            "mas_es_mejor": rate.higher_is_better,
+                        }
+                    )
+            min_r, min_b = _minutes(window_r), _minutes(window_b)
+            w = pj.reliability(min_r, min_b)
             mej_alpha = pj.mejoria_alpha(zs, w)
             row(
                 "mejoria_alpha",
                 player.player_id,
                 mej_alpha,
-                detail={"w": round(w, 3), "estadisticas": len(zs)},
+                detail={
+                    "w": round(w, 3),
+                    "estadisticas": len(zs),
+                    "min_r": min_r,
+                    "min_b": min_b,
+                    "tasas": rates,
+                },
             )
 
         if player.age is None:
@@ -310,9 +329,17 @@ def projection_rows(players: Sequence[PlayerSeason], team_matches: int) -> list[
             and len(dist := _distribution(reference, rate)) >= 2
         ]
         if level_pcts:
-            level = pj.shrink(sum(level_pcts) / len(level_pcts), player.minutes)
+            level_raw = sum(level_pcts) / len(level_pcts)
+            level = pj.shrink(level_raw, player.minutes)
             value, low_r, high_r = pj.potencial_alpha(level, player.age, mej_alpha, goalkeeper)
-            row("potencial_alpha", player.player_id, value, low=round(low_r, 4), high=round(high_r, 4))
+            row(
+                "potencial_alpha",
+                player.player_id,
+                value,
+                low=round(low_r, 4),
+                high=round(high_r, 4),
+                detail={"nivel_pct": round(level_raw, 3)},
+            )
         # Potencial β: nivel (R*), tendencia (Mejoría β) y edad.
         if r_season is not None:
             r_star = pj.shrink(r_season, player.minutes)

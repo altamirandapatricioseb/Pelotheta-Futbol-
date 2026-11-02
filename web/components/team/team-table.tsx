@@ -403,7 +403,12 @@ export function TeamTableView({
               hoverStat(null);
             }}
             onDoubleClick={(e) => {
-              // Doble clic en una celda: la estadística desglosada del equipo (9.8).
+              // Doble clic en el nombre del partido: su página; en una celda: la estadística desglosada (9.8).
+              const match = (e.target as HTMLElement).closest<HTMLElement>('th[data-match]')?.dataset.match;
+              if (match) {
+                router.push(`/partido/${match}`);
+                return;
+              }
               const stat = (e.target as HTMLElement).closest<HTMLElement>('td[data-stat]')?.dataset.stat;
               if (stat) openDetail(stat);
             }}
@@ -508,7 +513,12 @@ export function TeamTableView({
                       setSelectedKey(g.key);
                     }}
                   >
-                    <th scope="row" className="font-semibold">
+                    <th
+                      scope="row"
+                      className="font-semibold"
+                      data-match={view === 'partido' ? g.rows[0]?.matchId : undefined}
+                      title={view === 'partido' ? 'Doble clic: la página del partido' : undefined}
+                    >
                       {g.label}
                     </th>
                     <td>{view === 'partido' && g.rows[0] ? resultLabel(g.rows[0]) : g.rows.length}</td>

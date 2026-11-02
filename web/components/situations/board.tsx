@@ -376,7 +376,7 @@ const TONE_LABEL: Record<Conclusion['tone'], string> = {
 };
 
 /** Números de la regla con el formato de su unidad, para completar la frase. */
-function fillText(c: Conclusion): string {
+export function fillText(c: Conclusion): string {
   const fmt = (v: number) =>
     c.unit === '%' ? `${N0.format(v)} %` : c.unit === 'prop' ? `${N0.format(v * 100)} %` : N2.format(v);
   const reference =
@@ -395,7 +395,7 @@ function fillText(c: Conclusion): string {
     .replaceAll('{n}', N0.format(c.n));
 }
 
-function basisText(c: Conclusion): string {
+export function basisText(c: Conclusion): string {
   if (c.kind === 'liga')
     return `Boca en sus ${N0.format(c.n)} partidos (liga y copas) contra el promedio de los 30 clubes de la liga · quedaría en el percentil ${N0.format(c.percentile ?? 0)}`;
   if (c.kind === 'competencia')

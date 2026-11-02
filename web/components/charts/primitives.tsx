@@ -809,7 +809,18 @@ export function ShotMap({
 }
 
 /** Radar de 3 a 8 ejes en escala 0 a 100 (percentiles o valores normalizados). */
-export function Radar({ axes, series, label }: { axes: string[]; series: Series[]; label: string }) {
+export function Radar({
+  axes,
+  series,
+  label,
+  titles,
+}: {
+  axes: string[];
+  series: Series[];
+  label: string;
+  /** Nombre completo de cada eje: aparece al pasar el mouse sobre la abreviatura. */
+  titles?: string[];
+}) {
   const cx = W / 2;
   const cy = H / 2 + 4;
   const r = 92;
@@ -831,6 +842,7 @@ export function Radar({ axes, series, label }: { axes: string[]; series: Series[
           const [ex, ey] = point(i, 116);
           return (
             <text key={a} x={ex} y={ey} textAnchor="middle" dy="0.32em" className="chart-axis chart-radar-label">
+              <title>{titles?.[i] ?? a}</title>
               {a}
             </text>
           );

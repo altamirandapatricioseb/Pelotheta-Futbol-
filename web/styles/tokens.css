@@ -1,11 +1,11 @@
 /*
  * Tokens de diseño (sección 9.10). Fuente única de color y tipografía: se reusan en los
  * gráficos, en los PNG exportados, en los estilos de Excel y en powerbi/theme.json.
- * Prohibido el violeta (matices entre 255° y 335°).
+ * Violeta: solo #734f9a y #965fd4, como secundario junto al verde (cambio del 28-oct).
  *
- * Paleta del dueño (28-oct): #222222, #328336, #64cc4f (principal), #b2e05b y #fbfbfd. El rojo
- * (matiz 27°) es el segundo color después del verde: el complementario estricto de #64cc4f
- * (320°) es violeta y está prohibido. Orden de prioridad: verde, rojo, azul, amarillo, rosa.
+ * Paleta del dueño: #222222, #328336, #64cc4f (principal), #8bd450 (reemplaza a #b2e05b desde el
+ * 2-nov) y #fbfbfd. Orden de prioridad: verde, violeta (secundario), rojo (solo lo negativo, lo peor
+ * o lo malo), azul, amarillo y después el resto.
  *
  * El fondo del body es liso (#fbfbfd o #222222); la profundidad la dan las capas de encima:
  * tarjetas, header más oscuro en modo oscuro y encabezados de tabla con tinte verde.
@@ -18,13 +18,13 @@
   --color-brand-700: #4fae3c;
   --color-brand-800: #328336;
   --color-brand-900: #1f5a22;
-  --color-brand-300: #b2e05b;
+  --color-brand-300: #8bd450;
   --color-brand-200: #d4efa6;
   --color-brand-100: #eef8e3;
   /* Texto sobre el verde de la marca (botones y pestañas activas) */
   --color-on-brand: #222222;
   /* Neón: solo acentos y animaciones */
-  --color-neon: #b2e05b;
+  --color-neon: #8bd450;
   --color-neon-soft: #d4efa6;
 
   /* Modo claro: #64CC4F sobre blanco no llega a AA; el texto verde usa #328336 (4,6:1) */
@@ -75,9 +75,9 @@
     --color-table-head: #2d412e;
     --color-text: #f4f5f4;
     --color-text-muted: #b4b8b4;
-    --color-link: #b2e05b;
+    --color-link: #8bd450;
     --color-border: #3d3f3d;
-    --color-accent-motion: #b2e05b;
+    --color-accent-motion: #8bd450;
     --color-row-hover: #313631;
     --color-row-selected: #2d412e;
     --color-header-bg: rgb(26 26 26 / 0.94);
@@ -99,9 +99,9 @@
   --color-table-head: #2d412e;
   --color-text: #f4f5f4;
   --color-text-muted: #b4b8b4;
-  --color-link: #b2e05b;
+  --color-link: #8bd450;
   --color-border: #3d3f3d;
-  --color-accent-motion: #b2e05b;
+  --color-accent-motion: #8bd450;
   --color-row-hover: #313631;
   --color-row-selected: #2d412e;
   --color-header-bg: rgb(26 26 26 / 0.94);

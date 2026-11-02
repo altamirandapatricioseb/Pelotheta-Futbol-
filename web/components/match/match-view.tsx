@@ -357,7 +357,7 @@ export function MatchView({ data }: { data: MatchPage }) {
                     className={!p.started && i > 0 ? 'match-sub' : undefined}
                   >
                     <th scope="row">
-                      <Link href={`/jugadores?jugador=${String(p.playerId)}`} className="focus-ring hover:underline">
+                      <Link href={`/jugador/${String(p.playerId)}`} className="focus-ring hover:underline">
                         {p.shirt !== null ? <span className="text-muted">{p.shirt} </span> : null}
                         {p.name}
                       </Link>

@@ -95,7 +95,42 @@ def _data() -> excel.Data:
                 "ga_avg": 1,
             }
         ],
+        projection={
+            2: {
+                "rendimiento_indice": {"value": 70.0, "detail": {"componentes": {"A": 60, "C": 80, "D": 70}}},
+                "mejoria_alpha": {
+                    "value": 55.0,
+                    "detail": {
+                        "w": 0.5,
+                        "min_r": 450,
+                        "min_b": 900,
+                        "tasas": [
+                            {
+                                "tasa": "pases_90",
+                                "r": 50,
+                                "b": 45,
+                                "sigma": 5,
+                                "peso": 1,
+                                "mas_es_mejor": True,
+                            }
+                        ],
+                    },
+                },
+                "potencial_alpha": {"value": 72.0, "detail": {"nivel_pct": 65.0}},
+                "potencial_beta": {"value": 60.0, "detail": {}},
+            }
+        },
     )
+
+
+def test_projection_sheet_has_live_formulas_and_named_parameters() -> None:
+    _, wb = _book()
+    assert {"Parámetros", "Proyección"} <= set(wb.sheetnames)
+    assert {"K_REL", "ALFA_ESC", "PESOS", "LINEAS"} <= set(wb.defined_names)
+    formulas = [c.value for row in wb["Proyección"].iter_rows() for c in row if isinstance(c.value, str)]
+    assert any(f.startswith("=") and "ALFA_ESC" in f for f in formulas)
+    assert any("INDEX(PESOS,MATCH(" in f for f in formulas)
+    assert wb["Proyección"].data_validations.dataValidation
 
 
 def _book() -> tuple[bytes, openpyxl.Workbook]:

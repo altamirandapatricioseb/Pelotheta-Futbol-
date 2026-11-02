@@ -33,6 +33,8 @@ from xlsxwriter.utility import xl_col_to_name, xl_rowcol_to_cell
 from xlsxwriter.workbook import Workbook
 from xlsxwriter.worksheet import Worksheet
 
+from pipeline import projection as pj
+
 TIMEOUT = 60
 PAGE = 1000
 BUCKET = "exports"
@@ -89,6 +91,7 @@ class Player:
     matches: int
     minutes: int
     stats: dict[str, float]
+    age: float | None = None
 
 
 @dataclass
@@ -102,6 +105,8 @@ class Data:
     players: dict[str, list[Player]]
     team: list[dict[str, Any]]
     situations: list[dict[str, Any]] = field(default_factory=list)
+    # Detalle de las métricas de 6.1 por jugador: {player_id: {stat_id: {"value", "detail"}}}.
+    projection: dict[int, dict[str, dict[str, Any]]] = field(default_factory=dict)
 
 
 def _get(
@@ -143,8 +148,9 @@ def fetch(url: str, key: str) -> Data:
             url,
             key,
             "player_master",
-            "player_id,competition_code,full_name,position_group,matches,minutes,stats",
+            "player_id,competition_code,full_name,position_group,age,matches,minutes,stats",
         )
+        details = _get(c, url, key, "stat_value_detail", "player_id,stat_id,value,detail")
         team = _get(
             c,
             url,
@@ -203,8 +209,15 @@ def fetch(url: str, key: str) -> Data:
                 matches=r["matches"] or 0,
                 minutes=r["minutes"] or 0,
                 stats={k: float(v) for k, v in (r["stats"] or {}).items() if isinstance(v, int | float)},
+                age=r.get("age"),
             )
         )
+    projection: dict[int, dict[str, dict[str, Any]]] = {}
+    for d in details:
+        projection.setdefault(d["player_id"], {})[d["stat_id"]] = {
+            "value": d["value"],
+            "detail": d["detail"] or {},
+        }
     for rows in players.values():
         rows.sort(key=lambda p: -p.minutes)
     updated = next((s["updated_at"] for s in status if s["key"] == "ultima_actualizacion"), None) or next(
@@ -226,6 +239,7 @@ def fetch(url: str, key: str) -> Data:
         players=players,
         team=team,
         situations=situ,
+        projection=projection,
     )
 
 
@@ -1159,6 +1173,10 @@ def build(data: Data, code: str, scope: str) -> bytes:
         },
     )
 
+    # Proyección (6.1) con fórmulas vivas: solo en el global (las métricas son de toda la temporada).
+    if code == "todas" and data.projection:
+        projection_sheets(book, players, data.projection)
+
     # Situaciones (solo en el global: las tarjetas mezclan competiciones).
     if code == "todas" and data.situations:
         si = book.sheet(
@@ -1206,6 +1224,287 @@ def build(data: Data, code: str, scope: str) -> bytes:
     book.wb.worksheets_objs.sort(key=lambda w: 0 if w.get_name() == "Índice" else 1)
     idx.activate()
     return book.finish()
+
+
+# --------------------------------------------------------------------------------------------
+# Proyección (6.1): parámetros y cálculo paso a paso con fórmulas vivas
+
+COMPONENTS = ("A", "C", "D", "E", "P", "G")
+COMPONENT_NAMES = {
+    "A": "Ataque",
+    "C": "Creación",
+    "D": "Defensa",
+    "E": "Eficiencia",
+    "P": "Participación",
+    "G": "Portería",
+}
+RATE_SLOTS = 6
+NO_LINE = "Sin posición"
+
+
+def projection_sheets(
+    book: Book, players: Sequence[Player], projection: dict[int, dict[str, dict[str, Any]]]
+) -> None:
+    """`Parámetros` y `Proyección`: el cálculo de R, Mejoría α y los Potenciales en fórmulas que leen
+    los parámetros, para auditar cada número sin abrir el código. Al lado, el valor del pipeline."""
+    wb = book.wb
+    # Parámetros con nombre (las fórmulas los usan por nombre).
+    par = book.sheet("Parámetros", "Parámetros de 6.1 que usan las fórmulas de la hoja Proyección")
+    r = book.header(par, "Parámetros de la proyección (6.1)", "pipeline/projection.py")
+    params = [
+        ("MIN_COB", pj.MIN_COVERAGE, "Cobertura mínima de los pesos para calcular R"),
+        ("K_REL", pj.K_RELIABILITY, "K de la confiabilidad w de la Mejoría α (minutos)"),
+        ("Z_CLIP", pj.Z_CLIP, "Tope de cada z (más o menos)"),
+        ("ALFA_ESC", pj.ALPHA_SCALE, "Escala de la Mejoría α (50 + escala × w × Z)"),
+        ("K_NIVEL", pj.K_LEVEL, "K de la reducción por muestra chica (minutos)"),
+        ("PICO", pj.PEAK_AGE, "Edad pico de un jugador de campo"),
+        ("PICO_ARQ", pj.PEAK_AGE_GOALKEEPER, "Edad pico de un arquero"),
+        ("G_ANUAL", pj.GROWTH_PER_YEAR, "Crecimiento por año hasta el pico (puntos)"),
+        ("LAMBDA", pj.TREND_WEIGHT, "Peso de la tendencia (λ)"),
+        ("INCERT", pj.UNCERTAINTY, "Margen de incertidumbre del Potencial α (más o menos)"),
+        ("BETA_N", 0.60, "Peso del nivel (R*) en el Potencial β"),
+        ("BETA_T", 0.25, "Peso de la tendencia (T) en el Potencial β"),
+        ("BETA_E", 0.15, "Peso de la edad en el Potencial β"),
+        ("F_MAYOR", pj.AGE_FACTOR_OLDER, "Factor de edad después de la última banda"),
+    ]
+    first, _ = book.table(
+        par, r, ["Nombre", "Valor", "Qué es"], [list(p) for p in params], widths=[14, 10, 60], freeze=False
+    )
+    for i, (name, _, _) in enumerate(params):
+        wb.define_name(name, f"='Parámetros'!$B${first + i + 1}")
+    wr = first + len(params) + 2
+    par.write_string(wr, 0, "Pesos por línea (se reescalan entre los componentes con dato)", book.bold)
+    lines = [*LINES[::-1], None]
+    rows = [[line or NO_LINE, *[pj.WEIGHTS[line].get(c, 0.0) for c in COMPONENTS]] for line in lines]
+    wf, wl = book.table(par, wr + 1, ["Línea", *[COMPONENT_NAMES[c] for c in COMPONENTS]], rows, freeze=False)
+    wb.define_name("LINEAS", f"='Parámetros'!$A${wf + 1}:$A${wl + 1}")
+    wb.define_name("PESOS", f"='Parámetros'!$B${wf + 1}:$G${wl + 1}")
+    br = wl + 3
+    par.write_string(br, 0, "Factor de edad (arqueros: la edad se corre 2 años)", book.bold)
+    bands = [[f"Menos de {limit + 1} años", limit + 1, factor] for limit, factor in pj.AGE_BANDS]
+    bf, bl = book.table(par, br + 1, ["Banda", "Edad menor que", "Factor"], bands, freeze=False)
+    par.autofilter(0, 0, 0, 0)
+
+    # Datos (oculta): una fila por jugador con lo que guardó el pipeline.
+    rows_data: list[list[Any]] = []
+    for p in players:
+        det = projection.get(p.id, {})
+        if "rendimiento_indice" not in det:
+            continue
+        comp = det["rendimiento_indice"]["detail"].get("componentes", {})
+        alpha = det.get("mejoria_alpha", {})
+        alpha_det = alpha.get("detail", {})
+        rates = list(alpha_det.get("tasas", []))[:RATE_SLOTS]
+        flat: list[Any] = []
+        for k in range(RATE_SLOTS):
+            t = rates[k] if k < len(rates) else None
+            flat += (
+                [t["tasa"], t["r"], t["b"], t["sigma"], t["peso"], 1 if t["mas_es_mejor"] else -1]
+                if t
+                else [None] * 6
+            )
+        rows_data.append(
+            [
+                p.name,
+                p.line or NO_LINE,
+                p.age,
+                p.minutes,
+                1 if p.line == "Arquero" else 0,
+                *[comp.get(c) for c in COMPONENTS],
+                det["rendimiento_indice"]["value"],
+                alpha.get("value"),
+                alpha_det.get("w"),
+                alpha_det.get("min_r"),
+                alpha_det.get("min_b"),
+                det.get("potencial_alpha", {}).get("detail", {}).get("nivel_pct"),
+                det.get("potencial_alpha", {}).get("value"),
+                det.get("mejoria_beta", {}).get("value"),
+                det.get("potencial_beta", {}).get("value"),
+                *flat,
+            ]
+        )
+    if not rows_data:
+        return
+    raw = book.sheet("Datos proyección", "Lo que guardó el pipeline por jugador (oculta)")
+    for i, values in enumerate(rows_data, start=1):
+        for c, v in enumerate(values):
+            if isinstance(v, int | float) and not isinstance(v, bool):
+                raw.write_number(i, c, v)
+            elif v is not None:
+                raw.write_string(i, c, safe_text(str(v)))
+    raw.hide()
+    n = len(rows_data)
+
+    def col(c: int) -> str:
+        letter = xl_col_to_name(c)
+        return f"'Datos proyección'!${letter}$2:${letter}${n + 1}"
+
+    # Proyección: lista desplegable del jugador y el cálculo en cuatro bloques.
+    ws = book.sheet(
+        "Proyección", "Elegí un jugador: R, Mejoría α y los Potenciales paso a paso, con fórmulas vivas"
+    )
+    r = book.header(ws, "Proyección paso a paso (6.1)", "stat_value_detail + hoja Parámetros")
+    ws.set_column(0, 0, 30)
+    ws.set_column(1, 7, 14)
+    ws.write_string(r, 0, "Jugador (elegí en la lista)", book.bold)
+    ws.write_string(r, 1, rows_data[0][0], book.input)
+    ws.data_validation(r, 1, r, 1, {"validate": "list", "source": f"={col(0)}"})
+    ws.write_string(r, 3, "Fila", book.note)
+    ws.write_formula(r, 4, f"=MATCH($B${r + 1},{col(0)},0)")
+    fila = f"$E${r + 1}"
+
+    def pick(c: int) -> str:
+        return f'IF(INDEX({col(c)},{fila})="","",INDEX({col(c)},{fila}))'
+
+    def cell(row: int, c: int) -> str:
+        return xl_rowcol_to_cell(row, c, row_abs=True, col_abs=True)
+
+    info = r + 1
+    for k, (label, c) in enumerate([("Línea", 1), ("Edad", 2), ("Minutos", 3), ("Arquero (1 = sí)", 4)]):
+        ws.write_string(info + k, 0, label)
+        ws.write_formula(info + k, 1, f"={pick(c)}")
+    line_c, age_c, min_c, gk_c = (cell(info + k, 1) for k in range(4))
+
+    # 1. Índice de rendimiento.
+    a = info + 6
+    ws.write_string(a, 0, "1. Índice de rendimiento (R)", book.title_fmt)
+    head = ["Componente", "Percentil", "Peso de su línea", "Tiene dato", "Peso efectivo", "Aporte"]
+    for c, h in enumerate(head):
+        ws.write_string(a + 1, c, h, book.head)
+    for k, comp in enumerate(COMPONENTS):
+        row = a + 2 + k
+        ws.write_string(row, 0, COMPONENT_NAMES[comp])
+        ws.write_formula(row, 1, f"={pick(5 + k)}", book.cell)
+        ws.write_formula(row, 2, f"=INDEX(PESOS,MATCH({line_c},LINEAS,0),{k + 1})", book.cell)
+        ws.write_formula(row, 3, f"=IF(ISNUMBER(B{row + 1}),1,0)", book.int)
+        ws.write_formula(row, 4, f"=C{row + 1}*D{row + 1}", book.cell)
+        ws.write_formula(row, 5, f"=IF(D{row + 1}=1,B{row + 1}*C{row + 1},0)", book.cell)
+    last = a + 2 + len(COMPONENTS)
+    ws.write_string(last, 0, "Cobertura (suma de pesos con dato)", book.bold)
+    ws.write_formula(last, 1, f"=SUM(E{a + 3}:E{last})", book.cell)
+    ws.write_string(last + 1, 0, "R = suma de aportes / cobertura", book.bold)
+    ws.write_formula(
+        last + 1, 1, f'=IF(B{last + 1}<MIN_COB,"n/d",SUM(F{a + 3}:F{last})/B{last + 1})', book.cell
+    )
+    ws.write_string(last + 1, 3, "Pipeline:", book.note)
+    ws.write_formula(last + 1, 4, f"={pick(11)}", book.cell)
+    r_cell = cell(last + 1, 1)
+
+    # 2. Mejoría α.
+    b = last + 4
+    ws.write_string(b, 0, "2. Mejoría α (últimos 5 partidos contra el resto)", book.title_fmt)
+    head = ["Tasa", "Últimos 5 (R)", "Resto (B)", "σ", "Peso", "Sentido", "z"]
+    for c, h in enumerate(head):
+        ws.write_string(b + 1, c, h, book.head)
+    for k in range(RATE_SLOTS):
+        row = b + 2 + k
+        base = 20 + k * 6
+        for j in range(6):
+            ws.write_formula(row, j, f"={pick(base + j)}", book.text if j == 0 else book.cell)
+        ws.write_formula(
+            row,
+            6,
+            f'=IF(A{row + 1}="","",MAX(-Z_CLIP,MIN(Z_CLIP,F{row + 1}*(B{row + 1}-C{row + 1})/D{row + 1})))',
+            book.cell,
+        )
+    zf, zl = b + 3, b + 2 + RATE_SLOTS
+    m = zl + 1
+    rows_b = [
+        ("Estadísticas con dato", f"=COUNT(G{zf}:G{zl})"),
+        (
+            "Z (promedio ponderado)",
+            f'=IF(B{m + 1}=0,"",SUMPRODUCT(G{zf}:G{zl},E{zf}:E{zl})'
+            f"/SUMPRODUCT(--ISNUMBER(G{zf}:G{zl}),E{zf}:E{zl}))",
+        ),
+        ("Minutos últimos 5", f"={pick(14)}"),
+        ("Minutos resto", f"={pick(15)}"),
+        (
+            "w = mín / (mín + K)",
+            f"=IF(MIN(B{m + 3},B{m + 4})>0,MIN(B{m + 3},B{m + 4})/(MIN(B{m + 3},B{m + 4})+K_REL),0)",
+        ),
+        (
+            "Mejoría α = 50 + escala × w × Z",
+            f'=IF(B{m + 1}<3,"n/d",MAX(0,MIN(100,50+ALFA_ESC*B{m + 5}*B{m + 2})))',
+        ),
+    ]
+    for k, (label, formula) in enumerate(rows_b):
+        ws.write_string(m + k, 0, label, book.bold if k == len(rows_b) - 1 else book.text)
+        ws.write_formula(m + k, 1, formula, book.cell)
+    alpha_cell = cell(m + len(rows_b) - 1, 1)
+    ws.write_string(m + len(rows_b) - 1, 3, "Pipeline:", book.note)
+    ws.write_formula(m + len(rows_b) - 1, 4, f"={pick(12)}", book.cell)
+
+    # 3. Potencial α.
+    c3 = m + len(rows_b) + 2
+    ws.write_string(c3, 0, "3. Potencial α", book.title_fmt)
+    rows_c = [
+        ("Nivel (percentil medio)", f"={pick(16)}"),
+        (
+            "N = 50 + (nivel − 50) × Min / (Min + K)",
+            f'=IF(ISNUMBER(B{c3 + 2}),50+(B{c3 + 2}-50)*{min_c}/({min_c}+K_NIVEL),"n/d")',
+        ),
+        ("Edad pico", f"=IF({gk_c}=1,PICO_ARQ,PICO)"),
+        ("Años hasta el pico", f"=IF(ISNUMBER({age_c}),MAX(0,B{c3 + 4}-{age_c}),0)"),
+        ("Tendencia = (Mejoría α − 50) / 50", f"=IF(ISNUMBER({alpha_cell}),({alpha_cell}-50)/50,0)"),
+        (
+            "Potencial α = mín(100, N + G × años × (1 + λ × tendencia))",
+            f'=IF(ISNUMBER(B{c3 + 3}),MIN(100,B{c3 + 3}+G_ANUAL*B{c3 + 5}*(1+LAMBDA*B{c3 + 6})),"n/d")',
+        ),
+        ("Mínimo", f'=IF(ISNUMBER(B{c3 + 7}),MAX(0,B{c3 + 7}-INCERT),"n/d")'),
+        ("Máximo", f'=IF(ISNUMBER(B{c3 + 7}),MIN(100,B{c3 + 7}+INCERT),"n/d")'),
+    ]
+    for k, (label, formula) in enumerate(rows_c):
+        ws.write_string(c3 + 1 + k, 0, label, book.bold if k == 5 else book.text)
+        ws.write_formula(c3 + 1 + k, 1, formula, book.cell)
+    ws.write_string(c3 + 6, 3, "Pipeline:", book.note)
+    ws.write_formula(c3 + 6, 4, f"={pick(17)}", book.cell)
+
+    # 4. Potencial β.
+    d4 = c3 + len(rows_c) + 3
+    ws.write_string(d4, 0, "4. Potencial β", book.title_fmt)
+    lims = [f"'Parámetros'!$B${bf + 1 + i}" for i in range(bl - bf + 1)]
+    facs = [f"'Parámetros'!$C${bf + 1 + i}" for i in range(bl - bf + 1)]
+    factor = "F_MAYOR"
+    for lim, fac in zip(reversed(lims), reversed(facs), strict=True):
+        factor = f"IF(B{d4 + 5}<{lim},{fac},{factor})"
+    rows_d = [
+        ("R (bloque 1)", f"={r_cell}"),
+        (
+            "R* = 50 + (R − 50) × Min / (Min + K)",
+            f'=IF(ISNUMBER(B{d4 + 2}),50+(B{d4 + 2}-50)*{min_c}/({min_c}+K_NIVEL),"n/d")',
+        ),
+        ("Mejoría β (pipeline)", f"={pick(18)}"),
+        ("Edad usada (arqueros −2)", f'=IF(ISNUMBER({age_c}),{age_c}-IF({gk_c}=1,2,0),"")'),
+        ("Factor de edad", f"={factor}"),
+        (
+            "T = R* + Mejoría β (entre 0 y 100)",
+            f"=IF(ISNUMBER(B{d4 + 4}),MAX(0,MIN(100,B{d4 + 3}+B{d4 + 4})),B{d4 + 3})",
+        ),
+        ("Nivel: 0,60 × R*", f'=IF(ISNUMBER(B{d4 + 3}),BETA_N*B{d4 + 3},"n/d")'),
+        ("Tendencia: 0,25 × T", f'=IF(ISNUMBER(B{d4 + 7}),BETA_T*B{d4 + 7},"n/d")'),
+        ("Edad: 0,15 × 100 × factor", f"=BETA_E*100*B{d4 + 6}"),
+        (
+            "Potencial β = mín(100, suma)",
+            f'=IF(ISNUMBER(B{d4 + 8}),MIN(100,B{d4 + 8}+B{d4 + 9}+B{d4 + 10}),"n/d")',
+        ),
+    ]
+    for k, (label, formula) in enumerate(rows_d):
+        ws.write_string(d4 + 1 + k, 0, label, book.bold if k == len(rows_d) - 1 else book.text)
+        ws.write_formula(d4 + 1 + k, 1, formula, book.cell)
+    ws.write_string(d4 + len(rows_d), 3, "Pipeline:", book.note)
+    ws.write_formula(d4 + len(rows_d), 4, f"={pick(19)}", book.cell)
+
+    # Tabla del plantel (valores del pipeline).
+    t = d4 + len(rows_d) + 3
+    ws.write_string(t - 1, 0, "Plantel: valores que guardó el pipeline", book.bold)
+    book.table(
+        ws,
+        t,
+        ["Jugador", "Línea", "Edad", "Minutos", "R", "Mejoría α", "Mejoría β", "Potencial α", "Potencial β"],
+        [[v[0], v[1], v[2], v[3], v[11], v[12], v[18], v[17], v[19]] for v in rows_data],
+        freeze=False,
+    )
+    ws.autofilter(0, 0, 0, 0)
 
 
 # --------------------------------------------------------------------------------------------

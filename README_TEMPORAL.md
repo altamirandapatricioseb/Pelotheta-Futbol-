@@ -297,8 +297,28 @@ Juan Barinaga) que vienen así de la fuente.
   texto seguro, percentiles y medias).
 - **No verificado:** el recálculo de fórmulas con Excel o LibreOffice (no hay ninguno instalado acá). Las
   fórmulas son de Excel 2007 (`INDEX`, `MATCH`, `IFERROR`, `NA`) y el libro pide recalcular al abrir.
-- **Pendiente:** hoja `Proyección` con el cálculo paso a paso en fórmulas vivas (6.1) y hoja `Desglosada` con
-  listas de estadística, entidad y ventana.
+- **Hoja `Proyección` (2-nov):** en el libro global, con `Parámetros` (constantes de 6.1 con nombre, pesos por
+  línea y bandas de edad). Se elige un jugador en la lista y se calculan con fórmulas vivas: R (componentes ×
+  pesos reescalados, cobertura), Mejoría α (cada tasa con R, B, σ, peso y z; Z ponderado; w; 50 + escala × w × Z),
+  Potencial α (nivel con reducción por muestra chica, años al pico, tendencia, margen) y Potencial β (R*, T,
+  factor de edad, 0,60/0,25/0,15). Al lado de cada resultado, el valor del pipeline para comparar, y abajo la
+  tabla del plantel. Las tasas de la Mejoría α y el nivel del Potencial α se guardan desde ahora en el detalle
+  (`stat_value_detail`): aparecen con la próxima carga (botón Actualizar); hasta entonces esos dos bloques dicen n/d.
+- **Pendiente:** hoja `Desglosada` con listas de estadística, entidad y ventana.
+
+## Pedidos del 2-nov
+
+- En Comparar, la columna del otro jugador lleva su nombre (antes decía «Valor»).
+- El verde #b2e05b se reemplazó por #8bd450 (enlaces y acentos en modo oscuro).
+- Nombre completo al pasar el mouse por las abreviaturas de los radares y por los nombres recortados de los
+  gráficos de Comparar.
+- Comparar muestra categorías y Desglose con solo elegir el jugador; «Comparar con» suma las diferencias.
+- Partido: doble clic en el nombre del partido en la tabla de Equipo (vista por partido) abre su página.
+- **Detalle del jugador (`/jugador/[id]`):** ficha y datos generales, conclusiones, todas sus estadísticas por
+  categoría (valor, cada 90, percentil y puesto en el plantel; cada una lleva a su desglosada) y sus partidos
+  (titular, entró o no entró, minutos, calificación, goles y asistencias, con enlace al partido). Se llega con doble
+  clic en el nombre en Jugadores, «Ver detalle del jugador» en el panel, «Ver detalle» en Comparar y los nombres
+  de la página de partido.
 
 ## Próxima etapa (9: Power BI)
 

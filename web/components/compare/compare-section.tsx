@@ -194,6 +194,7 @@ export function CompareSection({ section, rows, labels, groups, pool, main, per9
               >
                 <Radar
                   axes={g.rows.map((r) => r.stat.short)}
+                  titles={g.rows.map((r) => r.stat.name)}
                   series={[
                     { id: 'p', label: playerName, slot: 1, values: g.rows.map((r) => r.percentile) },
                     ...refs.map((ref, k) => ({
@@ -349,7 +350,7 @@ export function CompareSection({ section, rows, labels, groups, pool, main, per9
               </th>
               {labels.map((l) => [
                 <th key={`${l.long}-v`} scope="col">
-                  {l.player ? 'Valor' : 'Media'}
+                  {l.player ? l.short : 'Media'}
                 </th>,
                 <th key={`${l.long}-d`} scope="col">
                   Dif.

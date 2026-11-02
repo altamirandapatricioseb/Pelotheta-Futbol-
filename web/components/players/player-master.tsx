@@ -2,6 +2,7 @@
 
 import { CaretDownIcon, InfoIcon, MagnifyingGlassIcon } from '@phosphor-icons/react';
 import { motion } from 'motion/react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -256,6 +257,12 @@ export function PlayerMasterView({
                     {previewId !== null && previewId !== selectedId ? ' · vista previa' : ''}
                   </p>
                   <h2 className="truncate text-2xl font-extrabold tracking-tight">{current.name}</h2>
+                  <Link
+                    href={`/jugador/${String(current.playerId)}`}
+                    className="text-sm font-semibold text-link hover:underline focus-ring"
+                  >
+                    Ver detalle del jugador
+                  </Link>
                   <p className="text-sm text-muted">
                     {[
                       current.age !== null ? `${String(current.age)} años` : 'Edad n/d',
@@ -478,7 +485,13 @@ export function PlayerMasterView({
             hoverStat(null);
           }}
           onDoubleClick={(e) => {
-            // Doble clic en una celda: la estadística desglosada de ese jugador (9.8).
+            // Doble clic en el nombre: el detalle del jugador; en una celda: la estadística desglosada (9.8).
+            const nameCell = (e.target as HTMLElement).closest<HTMLElement>('th[scope="row"]');
+            const owner = nameCell?.closest<HTMLElement>('tr[data-player]')?.dataset.player;
+            if (owner) {
+              router.push(`/jugador/${owner}`);
+              return;
+            }
             const cell = (e.target as HTMLElement).closest<HTMLElement>('td[data-stat]');
             const row = cell?.closest<HTMLElement>('tr[data-player]');
             if (cell?.dataset.stat && row?.dataset.player) openDetail(cell.dataset.stat, Number(row.dataset.player));
@@ -584,7 +597,7 @@ export function PlayerMasterView({
                     setSelectedId(p.playerId);
                   }}
                 >
-                  <th scope="row" className="font-semibold">
+                  <th scope="row" className="font-semibold" title="Doble clic: el detalle del jugador">
                     <span className="flex items-center gap-2">
                       <span className="w-6 text-right text-xs text-muted">{p.shirtNumber ?? ''}</span>
                       {p.name}

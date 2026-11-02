@@ -206,6 +206,7 @@ export function DivergingBars({
             >
               <rect x={0} y={y} width={W} height={rowH} className="cmp-chart-hit" />
               <text x={LABEL_W - 8} y={y + rowH / 2} dy="0.32em" textAnchor="end" className="cmp-label">
+                <title>{r.label}</title>
                 {short(r.label, chars)}
                 {!r.higherIsBetter ? ' ↓' : ''}
               </text>
@@ -327,6 +328,7 @@ export function GroupedBars({
             >
               <rect x={0} y={y} width={W} height={rowH} className="cmp-chart-hit" />
               <text x={LABEL_W - 8} y={y + rowH / 2} dy="0.32em" textAnchor="end" className="cmp-label">
+                <title>{r.label}</title>
                 {short(r.label, chars)}
               </text>
               <line x1={x(0)} x2={x(0)} y1={y + 3} y2={y + rowH - 5} className="chart-baseline" />
@@ -455,6 +457,7 @@ export function BulletChart({
             >
               <rect x={0} y={y} width={W} height={rowH} className="cmp-chart-hit" />
               <text x={LABEL_W - 8} y={mid} dy="0.32em" textAnchor="end" className="cmp-label">
+                <title>{r.label}</title>
                 {short(r.label, chars)}
                 {!r.higherIsBetter ? ' ↓' : ''}
               </text>

@@ -847,6 +847,12 @@ h3 {
   content-visibility: auto;
   contain-intrinsic-size: auto 420px;
 }
+/* Lugar del gráfico mientras no se montó (ver ChartCard): alto típico para no mover la página. */
+.chart-placeholder {
+  min-height: 300px;
+  border-radius: 10px;
+  background: color-mix(in oklab, var(--color-surface-2) 60%, transparent);
+}
 .chart-frame {
   position: relative;
 }

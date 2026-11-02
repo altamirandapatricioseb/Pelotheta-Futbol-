@@ -1,0 +1,40 @@
+# Presupuesto de rendimiento (16.5): Lighthouse CI en cada PR que toque la web, contra el build de
+# producción servido en el runner (el preview de Vercel está protegido). Los límites están en
+# web/lighthouserc.json y salen de lo medido el 2-nov-2026: frenan regresiones, no son la meta.
+name: Lighthouse
+
+on:
+  pull_request:
+    paths: ['web/**', '.github/workflows/lighthouse.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lighthouse-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: web
+    env:
+      # Clave publicable: pública por diseño (RLS impide escribir). Sin ella las páginas muestran
+      # PEL-DB-001 y el presupuesto no mide nada real.
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      - name: Secretos presentes
+        run: '[ -n "$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY" ] || { echo "Falta el secreto SUPABASE_PUBLISHABLE_KEY"; exit 1; }'
+      - run: corepack enable pnpm && pnpm install --frozen-lockfile
+      - run: pnpm build
+      - name: Lighthouse CI
+        run: npx --yes @lhci/cli@0.15.1 autorun

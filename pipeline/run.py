@@ -22,7 +22,7 @@ import os
 import sys
 import uuid
 from collections import deque
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -516,7 +516,7 @@ def main(argv: list[str] | None = None) -> int:
 def run_pipeline(dry_run: bool, url: str, key: str) -> int:
     """Scraping de todas las fuentes, validación y carga (con el destino ya verificado)."""
     run_id = str(uuid.uuid4())
-    started = datetime.now()
+    started = datetime.now(UTC)
     try:
         with PoliteClient(source=pd.SOURCE) as client:
             games, players, squad, warnings, league_page, promiedos_league = crawl(client, SEASON_YEAR)
@@ -612,20 +612,53 @@ def run_pipeline(dry_run: bool, url: str, key: str) -> int:
         print(f"Fallo de la carga: {exc}", file=sys.stderr)
         with contextlib.suppress(load.LoadError):
             load.log_failure(pd.SOURCE, f"Fallo de la carga: {exc}", url, key)
+        _log_run(run_id, started, "error", len(batch["matches"]), {}, warnings, 1, url, key)
         return 1
     # Métricas propias (5.7 y 6) con todo lo cargado; al terminar recalculan las tablas maestras
     # de la web. Si fallan, los datos ya están en la base: se registra el fallo, se recalculan las
     # tablas igual y la corrida sigue siendo válida.
+    errors = 0
     try:
         result["metricas_propias"] = own_metrics.run(url, key)
     except load.LoadError as exc:
+        errors = 1
         print(f"Aviso: métricas propias no calculadas: {exc}", file=sys.stderr)
         with contextlib.suppress(load.LoadError):
             load.log_failure("metricas_propias", f"Métricas propias: {exc}", url, key)
             load.refresh_stats(url, key)
-    seconds = (datetime.now() - started).total_seconds()
+    seconds = (datetime.now(UTC) - started).total_seconds()
     print(f"Carga {status} en {seconds:.0f} s: {result}")
+    _log_run(run_id, started, status, len(batch["matches"]), result, warnings, errors, url, key)
     return 0
+
+
+def _log_run(
+    run_id: str,
+    started: datetime,
+    status: str,
+    matches: int,
+    result: dict[str, Any],
+    warnings: list[str],
+    errors: int,
+    url: str,
+    key: str,
+) -> None:
+    """Métricas de la corrida (16.5). Si no se pueden guardar, la corrida no falla por eso."""
+    metrics = {
+        "run_id": run_id,
+        "started_at": started.isoformat(),
+        "duration_s": round((datetime.now(UTC) - started).total_seconds(), 1),
+        "status": status,
+        "matches": matches,
+        "rows_loaded": load.count_rows(result),
+        "warnings": len(warnings),
+        "errors": errors,
+        "commit_sha": os.environ.get("GITHUB_SHA", ""),
+    }
+    try:
+        load.log_run(metrics, url, key)
+    except load.LoadError as exc:
+        print(f"Aviso: no se guardaron las métricas de la corrida: {exc}", file=sys.stderr)
 
 
 if __name__ == "__main__":

@@ -30,6 +30,14 @@ security:
 types:
     npx supabase gen types typescript --project-id ymnbuywcpkynikudybth --schema api > web/lib/database.types.ts
 
+# Levanta todo desde cero en una máquina nueva (16.5): ver scripts/bootstrap.sh
+bootstrap:
+    bash scripts/bootstrap.sh
+
+# Regenera la especificación OpenAPI de la API de solo lectura (16.2)
+openapi:
+    uv run python -m scripts.openapi
+
 # Sonda de la Fase 0 de una fuente, por ejemplo: just probe api_football
 probe source:
     uv run python -m scripts.phase0.probe_{{source}}

@@ -32,11 +32,17 @@ export function formatNumber(value: number | null | undefined, decimals: 0 | 1 =
   return (decimals === 0 ? integerFormatter : decimalFormatter).format(value);
 }
 
+/** Días enteros desde una fecha (null si la fecha no es válida). */
+export function daysSince(iso: string, now: Date = new Date()): number | null {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return null;
+  return Math.floor((now.getTime() - date.getTime()) / 86_400_000);
+}
+
 /** «hoy», «hace 1 día», «hace 12 días»: indicador de frescura de los datos (9.10). */
 export function formatRelativeDays(iso: string, now: Date = new Date()): string {
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return NOT_AVAILABLE;
-  const days = Math.floor((now.getTime() - date.getTime()) / 86_400_000);
+  const days = daysSince(iso, now);
+  if (days === null) return NOT_AVAILABLE;
   if (days <= 0) return 'hoy';
   return days === 1 ? 'hace 1 día' : `hace ${String(days)} días`;
 }

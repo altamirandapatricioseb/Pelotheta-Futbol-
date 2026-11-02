@@ -117,6 +117,31 @@ export function ChartCard({
       el.removeEventListener('dblclick', open);
     };
   }, [detailHref, empty, router]);
+  // Rendimiento (10.2): la landing tiene ~100 gráficos. Cada uno se monta recién cuando su tarjeta
+  // está a 800 px de entrar en pantalla (o al imprimir); antes, un espacio reservado del mismo alto.
+  const [near, setNear] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || empty) return;
+    const show = () => {
+      setNear(true);
+    };
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          show();
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '800px 0px' },
+    );
+    observer.observe(el);
+    window.addEventListener('beforeprint', show);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('beforeprint', show);
+    };
+  }, [empty]);
   const name = `pelotheta-${id}`;
   return (
     <article ref={ref} className={`chart-card${empty ? ' chart-card--empty' : ''}`} aria-labelledby={`${id}-title`}>
@@ -182,8 +207,10 @@ export function ChartCard({
         <div className="max-h-72 overflow-auto">
           <ChartDataTable table={table} title={title} />
         </div>
-      ) : (
+      ) : near ? (
         children
+      ) : (
+        <div className="chart-placeholder" aria-hidden="true" />
       )}
 
       <footer className="mt-auto flex flex-wrap items-center justify-between gap-2 text-xs text-muted">

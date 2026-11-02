@@ -113,6 +113,24 @@ def _rpc(function: str, payload: dict[str, Any], url: str, key: str, client: htt
     return response.json() if response.content else None
 
 
+def count_rows(result: Any) -> int:
+    """Filas cargadas en una corrida: suma de los conteos enteros que devuelven las funciones de carga."""
+    if isinstance(result, bool):
+        return 0
+    if isinstance(result, int):
+        return max(result, 0)
+    if isinstance(result, dict):
+        return sum(count_rows(v) for v in result.values())
+    if isinstance(result, list):
+        return sum(count_rows(v) for v in result)
+    return 0
+
+
+def log_run(metrics: dict[str, Any], url: str, key: str, client: httpx.Client | None = None) -> None:
+    """Una fila en core.pipeline_run_metrics (16.5); el tamaño de la base lo mide el servidor."""
+    _rpc("log_run", {"p_run": metrics}, url, key, client)
+
+
 def check_connection(url: str, key: str, client: httpx.Client | None = None) -> None:
     """Lectura mínima con la clave secreta antes de empezar: si el destino está mal, se sabe en
     segundos y no después de media hora de scraping (cuando ni el fallo se puede registrar)."""

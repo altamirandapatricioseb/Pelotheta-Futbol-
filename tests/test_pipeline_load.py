@@ -147,3 +147,25 @@ def test_player_stats_are_sent_in_chunks() -> None:
     with httpx.Client(transport=httpx.MockTransport(handler)) as client:
         total = load.send_player_stats(rows, "https://abc.supabase.co", "sb_secret_x", client, chunk=5)
     assert calls == [5, 5, 2] and total == 12
+
+
+def test_count_rows_sums_only_counts() -> None:
+    result = {"matches": 48, "catalog": {"stats": 300, "sets": 12}, "ok": True, "weather": [3, 4], "msg": "x"}
+    assert load.count_rows(result) == 48 + 300 + 12 + 3 + 4
+    assert load.count_rows({"rows": -5}) == 0
+
+
+def test_run_metrics_go_to_their_function() -> None:
+    seen: dict[str, httpx.Request] = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen["req"] = request
+        return httpx.Response(204)
+
+    client = httpx.Client(transport=httpx.MockTransport(handler))
+    load.log_run(
+        {"run_id": "r1", "status": "ok"}, url="https://x.supabase.co", key="sb_secret_abc", client=client
+    )
+    req = seen["req"]
+    assert req.url.path == "/rest/v1/rpc/log_run"
+    assert json.loads(req.content) == {"p_run": {"run_id": "r1", "status": "ok"}}

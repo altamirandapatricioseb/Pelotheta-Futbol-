@@ -458,6 +458,22 @@ export type Database = {
         };
         Relationships: [];
       };
+      pipeline_run_metrics: {
+        Row: {
+          run_id: string;
+          started_at: string;
+          finished_at: string;
+          duration_s: number;
+          status: string;
+          matches: number;
+          rows_loaded: number;
+          warnings: number;
+          errors: number;
+          db_size_bytes: number | null;
+          commit_sha: string | null;
+        };
+        Relationships: [];
+      };
     };
     Functions: {
       stat_series: {

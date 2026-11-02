@@ -1,0 +1,7078 @@
+{
+ "openapi": "3.1.0",
+ "info": {
+  "title": "Pelotheta Θ · API de solo lectura",
+  "version": "2026.11.02",
+  "description": "API de solo lectura de Pelotheta Θ: las vistas del esquema `api` de Supabase (PostgREST).\n\n- **Autenticación:** la clave publicable de Supabase en la cabecera `apikey` (es pública por diseño; RLS\n  impide escribir). Nunca uses la clave secreta en un cliente.\n- **Esquema:** todas las consultas llevan `Accept-Profile: api`.\n- **Límites:** hasta 1000 filas por pedido (paginá con `limit` y `offset`) y 3 s de tiempo\n  máximo por consulta.\n- **Filtros:** cada columna admite los operadores de PostgREST, por ejemplo `?goals_for=gte.2` o\n  `?competition_code=eq.copa_argentina`; `select` elige columnas y `order` ordena (`order=match_date.desc`).\n- **Sin escrituras:** la clave pública no tiene permiso de escritura en ninguna vista; `POST`, `PATCH` y\n  `DELETE` responden con error (403, o 500 cuando PostgreSQL rechaza la vista antes de mirar permisos).",
+  "license": {
+   "name": "Datos de terceros: ver /privacidad",
+   "url": "https://pelotheta-futbol.vercel.app/privacidad"
+  }
+ },
+ "servers": [
+  {
+   "url": "https://ymnbuywcpkynikudybth.supabase.co/rest/v1"
+  }
+ ],
+ "security": [
+  {
+   "apikey": []
+  }
+ ],
+ "tags": [
+  {
+   "name": "Vistas",
+   "description": "Una vista por tabla publicada."
+  },
+  {
+   "name": "Funciones",
+   "description": "Estadística desglosada (9.8): serie y ventanas."
+  }
+ ],
+ "paths": {
+  "/boca_absence": {
+   "get": {
+    "operationId": "boca_absence",
+    "summary": "Bajas por partido: de Boca con el jugador, de los rivales solo el motivo.",
+    "tags": [
+     "Vistas"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/select"
+     },
+     {
+      "$ref": "#/components/parameters/order"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     },
+     {
+      "name": "match_id",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "match_date",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "competition_code",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "opponent",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "boca_absence",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "player_id",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "player_name",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "reason",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "source",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Filas de la vista.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/boca_absence"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/boca_competition_metric": {
+   "get": {
+    "operationId": "boca_competition_metric",
+    "summary": "Métricas de Boca por competición con el promedio y el puesto (ScoutingStats): PPDA, Field Tilt, goles evitados y más.",
+    "tags": [
+     "Vistas"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/select"
+     },
+     {
+      "$ref": "#/components/parameters/order"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     },
+     {
+      "name": "source",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "season",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "competition",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "metric",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "value",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "comp_average",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "rank",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "n_teams",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Filas de la vista.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/boca_competition_metric"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/boca_formation": {
+   "get": {
+    "operationId": "boca_formation",
+    "summary": "Dibujo táctico de Boca y del rival en cada partido.",
+    "tags": [
+     "Vistas"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/select"
+     },
+     {
+      "$ref": "#/components/parameters/order"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     },
+     {
+      "name": "match_id",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "match_date",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "competition_code",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "opponent",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "boca_formation",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "opponent_formation",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "source",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Filas de la vista.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/boca_formation"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/boca_match": {
+   "get": {
+    "operationId": "boca_match",
+    "summary": "Partidos de Boca con rival, goles a favor y en contra y competición.",
+    "tags": [
+     "Vistas"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/select"
+     },
+     {
+      "$ref": "#/components/parameters/order"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     },
+     {
+      "name": "match_id",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "match_date",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "kickoff_at",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "round_label",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "competition_code",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "competition_name",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "season_year",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "boca_home",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "opponent",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "goals_for",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "goals_against",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "status",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "venue",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Filas de la vista.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/boca_match"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/boca_momentum": {
+   "get": {
+    "operationId": "boca_momentum",
+    "summary": "Dominio por minuto: positivo cuando domina Boca, negativo cuando domina el rival.",
+    "tags": [
+     "Vistas"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/select"
+     },
+     {
+      "$ref": "#/components/parameters/order"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     },
+     {
+      "name": "match_id",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "match_date",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "competition_code",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "opponent",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "minute",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "boca_value",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "source",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Filas de la vista.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/boca_momentum"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/boca_penalty": {
+   "get": {
+    "operationId": "boca_penalty",
+    "summary": "Penales de los partidos de Boca: convertidos, atajados o errados (StrikerAPI, liga).",
+    "tags": [
+     "Vistas"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/select"
+     },
+     {
+      "$ref": "#/components/parameters/order"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     },
+     {
+      "name": "match_id",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "match_date",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "competition_code",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "opponent",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "boca_shot",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "player_id",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "player_name",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "minute",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "outcome",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "source",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Filas de la vista.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/boca_penalty"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/boca_shot": {
+   "get": {
+    "operationId": "boca_shot",
+    "summary": "Tiros ubicados de los partidos de Boca (a favor y en contra) para el mapa de tiros.",
+    "tags": [
+     "Vistas"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/select"
+     },
+     {
+      "$ref": "#/components/parameters/order"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     },
+     {
+      "name": "shot_id",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "match_id",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "match_date",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "competition_code",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "opponent",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "boca_shot",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "player_id",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "player_name",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "minute",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "outcome",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "body_part",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "penalty",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "zone",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "xg",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "x",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "y",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "end_x",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "end_y",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "source",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Filas de la vista.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/boca_shot"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/boca_weather": {
+   "get": {
+    "operationId": "boca_weather",
+    "summary": "Clima a la hora del partido (Open-Meteo) junto al resultado de Boca.",
+    "tags": [
+     "Vistas"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/select"
+     },
+     {
+      "$ref": "#/components/parameters/order"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     },
+     {
+      "name": "match_id",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "match_date",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "competition_code",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "opponent",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "boca_home",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "goals_for",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "goals_against",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "points",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "temperature_c",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "precipitation_mm",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "wind_kmh",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "humidity_pct",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "place",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "source",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Filas de la vista.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/boca_weather"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/chart_catalog": {
+   "get": {
+    "operationId": "chart_catalog",
+    "summary": "chart_catalog",
+    "tags": [
+     "Vistas"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/select"
+     },
+     {
+      "$ref": "#/components/parameters/order"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     },
+     {
+      "name": "chart_id",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "category",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "title_es",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "chart_type",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "required_data",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "origin_ref",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "powerbi",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "excel",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "available",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "reason_es",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "sort_order",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Filas de la vista.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/chart_catalog"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/chart_source_map": {
+   "get": {
+    "operationId": "chart_source_map",
+    "summary": "chart_source_map",
+    "tags": [
+     "Vistas"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/select"
+     },
+     {
+      "$ref": "#/components/parameters/order"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     },
+     {
+      "name": "chart_id",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "target_type",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "target_ref",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "params",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "label_es",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Filas de la vista.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/chart_source_map"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/club_rating": {
+   "get": {
+    "operationId": "club_rating",
+    "summary": "club_rating",
+    "tags": [
+     "Vistas"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/select"
+     },
+     {
+      "$ref": "#/components/parameters/order"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     },
+     {
+      "name": "source",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "as_of",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "team_name",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "rank",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "elo",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Filas de la vista.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/club_rating"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/club_season_stat": {
+   "get": {
+    "operationId": "club_season_stat",
+    "summary": "club_season_stat",
+    "tags": [
+     "Vistas"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/select"
+     },
+     {
+      "$ref": "#/components/parameters/order"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     },
+     {
+      "name": "source",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "season",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "team_name",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "stat_key",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "value",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Filas de la vista.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/club_season_stat"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/competition_filter": {
+   "get": {
+    "operationId": "competition_filter",
+    "summary": "competition_filter",
+    "tags": [
+     "Vistas"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/select"
+     },
+     {
+      "$ref": "#/components/parameters/order"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     },
+     {
+      "name": "code",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "name_es",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "sort_order",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "matches",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Filas de la vista.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/competition_filter"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/conclusion": {
+   "get": {
+    "operationId": "conclusion",
+    "summary": "conclusion",
+    "tags": [
+     "Vistas"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/select"
+     },
+     {
+      "$ref": "#/components/parameters/order"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     },
+     {
+      "name": "rule_id",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "entity_id",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "player_name",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "area",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "title_es",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "kind",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "scope",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "unit",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "link",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "sort_order",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "band",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "value",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "reference",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "percentile",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "n",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "computed_at",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "tone",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "text_es",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "player_position",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Filas de la vista.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/conclusion"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/league_absences": {
+   "get": {
+    "operationId": "league_absences",
+    "summary": "Lesionados y suspendidos por equipo en la Liga Profesional (conteos, sin nombres).",
+    "tags": [
+     "Vistas"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/select"
+     },
+     {
+      "$ref": "#/components/parameters/order"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     },
+     {
+      "name": "team",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "season",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "injured",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "suspended",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "games",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Filas de la vista.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/league_absences"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/league_leader": {
+   "get": {
+    "operationId": "league_leader",
+    "summary": "league_leader",
+    "tags": [
+     "Vistas"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/select"
+     },
+     {
+      "$ref": "#/components/parameters/order"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     },
+     {
+      "name": "source",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "season",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "stat",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "rank",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "player_name",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "team_name",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "games",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "minutes",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "value",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "per90",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Filas de la vista.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/league_leader"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/league_result": {
+   "get": {
+    "operationId": "league_result",
+    "summary": "league_result",
+    "tags": [
+     "Vistas"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/select"
+     },
+     {
+      "$ref": "#/components/parameters/order"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     },
+     {
+      "name": "source",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "season",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "stage",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "match_date",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "home_team",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "away_team",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "home_goals",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "away_goals",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "referee",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "yellow_home",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "yellow_away",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "red_home",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "red_away",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "fouls_home",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "fouls_away",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "injured_home",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "injured_away",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "suspended_home",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "suspended_away",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Filas de la vista.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/league_result"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/league_standing": {
+   "get": {
+    "operationId": "league_standing",
+    "summary": "league_standing",
+    "tags": [
+     "Vistas"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/select"
+     },
+     {
+      "$ref": "#/components/parameters/order"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     },
+     {
+      "name": "source",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "season",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "table_name",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "rank",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "team_name",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "played",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "won",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "drawn",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "lost",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "goals_for",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "goals_against",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "points",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "average",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Filas de la vista.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/league_standing"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/match_lineup": {
+   "get": {
+    "operationId": "match_lineup",
+    "summary": "match_lineup",
+    "tags": [
+     "Vistas"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/select"
+     },
+     {
+      "$ref": "#/components/parameters/order"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     },
+     {
+      "name": "match_id",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "player_id",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "player_name",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "position",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "shirt_number",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "started",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "minute_in",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "minute_out",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Filas de la vista.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/match_lineup"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/player_master": {
+   "get": {
+    "operationId": "player_master",
+    "summary": "player_master",
+    "tags": [
+     "Vistas"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/select"
+     },
+     {
+      "$ref": "#/components/parameters/order"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     },
+     {
+      "name": "player_id",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "competition_code",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "full_name",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "known_as",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "position_group",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "shirt_number",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "age",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "height_cm",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "weight_kg",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "preferred_foot",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "nationality",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "matches",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "minutes",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "stats",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Filas de la vista.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/player_master"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/player_match_value": {
+   "get": {
+    "operationId": "player_match_value",
+    "summary": "player_match_value",
+    "tags": [
+     "Vistas"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/select"
+     },
+     {
+      "$ref": "#/components/parameters/order"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     },
+     {
+      "name": "match_id",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "player_id",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "key",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "value",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Filas de la vista.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/player_match_value"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/player_position": {
+   "get": {
+    "operationId": "player_position",
+    "summary": "player_position",
+    "tags": [
+     "Vistas"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/select"
+     },
+     {
+      "$ref": "#/components/parameters/order"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     },
+     {
+      "name": "player_id",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "position_raw",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "zone",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "lane",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "role",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "starts",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "games",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "detail_level",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Filas de la vista.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/player_position"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/player_profile": {
+   "get": {
+    "operationId": "player_profile",
+    "summary": "player_profile",
+    "tags": [
+     "Vistas"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/select"
+     },
+     {
+      "$ref": "#/components/parameters/order"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     },
+     {
+      "name": "player_id",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "full_name",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "nationality",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "weight_kg",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "youth_club",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "academy",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "national_team",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "source",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "preferred_foot",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Filas de la vista.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/player_profile"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/player_shot_totals": {
+   "get": {
+    "operationId": "player_shot_totals",
+    "summary": "Tiros, xG, npxG y goles por tipo de cada jugador de Boca (StrikerAPI).",
+    "tags": [
+     "Vistas"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/select"
+     },
+     {
+      "$ref": "#/components/parameters/order"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     },
+     {
+      "name": "player_id",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "competition_code",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "shots",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "xg",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "npxg",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "goals",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "headers",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "header_goals",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "shots_outside_box",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "goals_outside_box",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "shots_blocked",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "source",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Filas de la vista.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/player_shot_totals"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/player_stat_totals": {
+   "get": {
+    "operationId": "player_stat_totals",
+    "summary": "Estadísticas avanzadas por jugador de Boca: total, promedio por partido y partidos con dato.",
+    "tags": [
+     "Vistas"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/select"
+     },
+     {
+      "$ref": "#/components/parameters/order"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     },
+     {
+      "name": "player_id",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "competition_code",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "stat_key",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "matches",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "total",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "average",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "source",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Filas de la vista.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/player_stat_totals"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/player_summary": {
+   "get": {
+    "operationId": "player_summary",
+    "summary": "Resumen por jugador: PJ, titular, minutos, goles, asistencias, G+A y tarjetas, por competición y total.",
+    "tags": [
+     "Vistas"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/select"
+     },
+     {
+      "$ref": "#/components/parameters/order"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     },
+     {
+      "name": "player_id",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "full_name",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "known_as",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "position_group",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "shirt_number",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "age",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "height_cm",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "competition_code",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "competition_name",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "matches",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "starts",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "minutes",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "goals",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "assists",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "goal_contributions",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "yellow_cards",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "red_cards",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Filas de la vista.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/player_summary"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/projection_param": {
+   "get": {
+    "operationId": "projection_param",
+    "summary": "projection_param",
+    "tags": [
+     "Vistas"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/select"
+     },
+     {
+      "$ref": "#/components/parameters/order"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     },
+     {
+      "name": "sport",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "param",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "value",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "version",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "valid_from",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "description_es",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Filas de la vista.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/projection_param"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/referee_stats": {
+   "get": {
+    "operationId": "referee_stats",
+    "summary": "Árbitros de la Liga Profesional: tarjetas, faltas y resultados de los partidos que dirigieron.",
+    "tags": [
+     "Vistas"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/select"
+     },
+     {
+      "$ref": "#/components/parameters/order"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     },
+     {
+      "name": "referee",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "season",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "games",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "yellow_per_game",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "red_per_game",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "fouls_per_game",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "home_win_pct",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "yellow_home_minus_away",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Filas de la vista.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/referee_stats"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/rpc/stat_series": {
+   "get": {
+    "operationId": "stat_series",
+    "summary": "Función stat_series",
+    "tags": [
+     "Funciones"
+    ],
+    "parameters": [
+     {
+      "name": "p_stat",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "text"
+      }
+     },
+     {
+      "name": "p_entity",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "text"
+      }
+     },
+     {
+      "name": "p_id",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "format": "int32"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Filas que devuelve la función."
+     }
+    }
+   }
+  },
+  "/rpc/stat_windows": {
+   "get": {
+    "operationId": "stat_windows",
+    "summary": "Función stat_windows",
+    "tags": [
+     "Funciones"
+    ],
+    "parameters": [
+     {
+      "name": "p_stat",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "text"
+      }
+     },
+     {
+      "name": "p_entity",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "text"
+      }
+     },
+     {
+      "name": "p_id",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "format": "int32"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Filas que devuelve la función."
+     }
+    }
+   }
+  },
+  "/situational_catalog": {
+   "get": {
+    "operationId": "situational_catalog",
+    "summary": "situational_catalog",
+    "tags": [
+     "Vistas"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/select"
+     },
+     {
+      "$ref": "#/components/parameters/order"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     },
+     {
+      "name": "card_id",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "category",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "title_es",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "condition_es",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "params_es",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "measured_es",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "required_data",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "level",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "available",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "estimated",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "reason_es",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "sort_order",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "main_metric",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "extra_metrics",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Filas de la vista.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/situational_catalog"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/situational_match": {
+   "get": {
+    "operationId": "situational_match",
+    "summary": "situational_match",
+    "tags": [
+     "Vistas"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/select"
+     },
+     {
+      "$ref": "#/components/parameters/order"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     },
+     {
+      "name": "card_id",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "param_value",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "match_id",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "match_date",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "competition_name",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "opponent",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "home",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "goals_for",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "goals_against",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "result",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Filas de la vista.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/situational_match"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/situational_result": {
+   "get": {
+    "operationId": "situational_result",
+    "summary": "situational_result",
+    "tags": [
+     "Vistas"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/select"
+     },
+     {
+      "$ref": "#/components/parameters/order"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     },
+     {
+      "name": "card_id",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "param_value",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "param_order",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "n",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "w",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "d",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "l",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "win_pct",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "ppg",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "goal_diff",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "base_win_pct",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "delta",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "computed_at",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "gf_avg",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "ga_avg",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "clean_pct",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "scored_pct",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "base_ppg",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "base_gf",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "base_ga",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "base_clean",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "stats",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "base_stats",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Filas de la vista.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/situational_result"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/source_status": {
+   "get": {
+    "operationId": "source_status",
+    "summary": "Estado de la última carga de cada fuente y fecha de la última carga exitosa.",
+    "tags": [
+     "Vistas"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/select"
+     },
+     {
+      "$ref": "#/components/parameters/order"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     },
+     {
+      "name": "source",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "last_status",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "last_run_at",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "last_success_at",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Filas de la vista.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/source_status"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/stat_catalog": {
+   "get": {
+    "operationId": "stat_catalog",
+    "summary": "Catálogo de estadísticas (sección 5): descripción, nivel A/B/C y regla de cálculo.",
+    "tags": [
+     "Vistas"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/select"
+     },
+     {
+      "$ref": "#/components/parameters/order"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     },
+     {
+      "name": "stat_id",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "entity",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "name_es",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "short_name",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "description_es",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "stat_group",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "category",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "unit",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "source",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "level",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "formula",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "higher_is_better",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "available",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "estimated",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "per90",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "rule",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "arg1",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "arg2",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "factor",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "reading_es",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "lines",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "key_stat",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Filas de la vista.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/stat_catalog"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/stat_match_value": {
+   "get": {
+    "operationId": "stat_match_value",
+    "summary": "stat_match_value",
+    "tags": [
+     "Vistas"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/select"
+     },
+     {
+      "$ref": "#/components/parameters/order"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     },
+     {
+      "name": "entity",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "entity_id",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "match_id",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "stat_id",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "value",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "low",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "high",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Filas de la vista.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/stat_match_value"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/stat_set": {
+   "get": {
+    "operationId": "stat_set",
+    "summary": "Conjuntos de columnas del desplegable de las Interfaces 2 y 3.",
+    "tags": [
+     "Vistas"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/select"
+     },
+     {
+      "$ref": "#/components/parameters/order"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     },
+     {
+      "name": "set_id",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "entity",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "name_es",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "description_es",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "sort_order",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "stat_ids",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Filas de la vista.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/stat_set"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/stat_value_detail": {
+   "get": {
+    "operationId": "stat_value_detail",
+    "summary": "stat_value_detail",
+    "tags": [
+     "Vistas"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/select"
+     },
+     {
+      "$ref": "#/components/parameters/order"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     },
+     {
+      "name": "player_id",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "stat_id",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "value",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "detail",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Filas de la vista.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/stat_value_detail"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/system_status": {
+   "get": {
+    "operationId": "system_status",
+    "summary": "Estado público del sistema. Fila de prueba de la etapa 1.",
+    "tags": [
+     "Vistas"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/select"
+     },
+     {
+      "$ref": "#/components/parameters/order"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     },
+     {
+      "name": "key",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "value",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "updated_at",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Filas de la vista.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/system_status"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/team_match_master": {
+   "get": {
+    "operationId": "team_match_master",
+    "summary": "Partidos de Boca con valores base y métricas propias por partido (Interfaz 2).",
+    "tags": [
+     "Vistas"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/select"
+     },
+     {
+      "$ref": "#/components/parameters/order"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     },
+     {
+      "name": "match_id",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "match_date",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "kickoff_at",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "round_label",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "competition_code",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "competition_name",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "opponent",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "boca_home",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "goals_for",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "goals_against",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "penalties_for",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "penalties_against",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "referee",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "venue",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "stats",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Filas de la vista.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/team_match_master"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/team_match_value": {
+   "get": {
+    "operationId": "team_match_value",
+    "summary": "Valores base por partido de Boca y del rival (sufijo _against).",
+    "tags": [
+     "Vistas"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/select"
+     },
+     {
+      "$ref": "#/components/parameters/order"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     },
+     {
+      "name": "match_id",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "key",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "value",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Filas de la vista.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/team_match_value"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/team_window_value": {
+   "get": {
+    "operationId": "team_window_value",
+    "summary": "Métricas del equipo calculadas por ventana (competición o todas).",
+    "tags": [
+     "Vistas"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/select"
+     },
+     {
+      "$ref": "#/components/parameters/order"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     },
+     {
+      "name": "competition_code",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "stat_id",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "value",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "low",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "high",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "coverage",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Filas de la vista.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/team_window_value"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ },
+ "components": {
+  "securitySchemes": {
+   "apikey": {
+    "type": "apiKey",
+    "in": "header",
+    "name": "apikey",
+    "description": "Clave publicable."
+   }
+  },
+  "parameters": {
+   "select": {
+    "name": "select",
+    "in": "query",
+    "required": false,
+    "description": "Columnas separadas por coma.",
+    "schema": {
+     "type": "string"
+    },
+    "example": "match_id,opponent"
+   },
+   "order": {
+    "name": "order",
+    "in": "query",
+    "required": false,
+    "description": "Columna y sentido.",
+    "schema": {
+     "type": "string"
+    },
+    "example": "match_date.desc"
+   },
+   "limit": {
+    "name": "limit",
+    "in": "query",
+    "required": false,
+    "description": "Filas a devolver (máximo 1000).",
+    "schema": {
+     "type": "integer"
+    },
+    "example": 50
+   },
+   "offset": {
+    "name": "offset",
+    "in": "query",
+    "required": false,
+    "description": "Filas a saltear, para paginar.",
+    "schema": {
+     "type": "integer"
+    },
+    "example": 0
+   }
+  },
+  "schemas": {
+   "boca_absence": {
+    "type": "object",
+    "description": "Bajas por partido: de Boca con el jugador, de los rivales solo el motivo.",
+    "properties": {
+     "match_id": {
+      "type": "integer",
+      "format": "int32",
+      "description": "Clave primaria."
+     },
+     "match_date": {
+      "type": "string",
+      "format": "date"
+     },
+     "competition_code": {
+      "type": "string",
+      "format": "text"
+     },
+     "opponent": {
+      "type": "string",
+      "format": "text"
+     },
+     "boca_absence": {
+      "type": "boolean",
+      "format": "boolean"
+     },
+     "player_id": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "player_name": {
+      "type": "string",
+      "format": "text"
+     },
+     "reason": {
+      "type": "string",
+      "format": "text"
+     },
+     "source": {
+      "type": "string",
+      "format": "text"
+     }
+    }
+   },
+   "boca_competition_metric": {
+    "type": "object",
+    "description": "Métricas de Boca por competición con el promedio y el puesto (ScoutingStats): PPDA, Field Tilt, goles evitados y más.",
+    "properties": {
+     "source": {
+      "type": "string",
+      "format": "text",
+      "description": "Clave primaria."
+     },
+     "season": {
+      "type": "integer",
+      "format": "int32",
+      "description": "Clave primaria."
+     },
+     "competition": {
+      "type": "string",
+      "format": "text",
+      "description": "Clave primaria."
+     },
+     "metric": {
+      "type": "string",
+      "format": "text",
+      "description": "Clave primaria."
+     },
+     "value": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "comp_average": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "rank": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "n_teams": {
+      "type": "integer",
+      "format": "int32"
+     }
+    }
+   },
+   "boca_formation": {
+    "type": "object",
+    "description": "Dibujo táctico de Boca y del rival en cada partido.",
+    "properties": {
+     "match_id": {
+      "type": "integer",
+      "format": "int32",
+      "description": "Clave primaria."
+     },
+     "match_date": {
+      "type": "string",
+      "format": "date"
+     },
+     "competition_code": {
+      "type": "string",
+      "format": "text"
+     },
+     "opponent": {
+      "type": "string",
+      "format": "text"
+     },
+     "boca_formation": {
+      "type": "string",
+      "format": "text"
+     },
+     "opponent_formation": {
+      "type": "string",
+      "format": "text"
+     },
+     "source": {
+      "type": "string",
+      "format": "text"
+     }
+    }
+   },
+   "boca_match": {
+    "type": "object",
+    "description": "Partidos de Boca con rival, goles a favor y en contra y competición.",
+    "properties": {
+     "match_id": {
+      "type": "integer",
+      "format": "int32",
+      "description": "Clave primaria."
+     },
+     "match_date": {
+      "type": "string",
+      "format": "date"
+     },
+     "kickoff_at": {
+      "type": "string",
+      "format": "timestamp with time zone"
+     },
+     "round_label": {
+      "type": "string",
+      "format": "text"
+     },
+     "competition_code": {
+      "type": "string",
+      "format": "text"
+     },
+     "competition_name": {
+      "type": "string",
+      "format": "text"
+     },
+     "season_year": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "boca_home": {
+      "type": "boolean",
+      "format": "boolean"
+     },
+     "opponent": {
+      "type": "string",
+      "format": "text"
+     },
+     "goals_for": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "goals_against": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "status": {
+      "type": "string",
+      "format": "text"
+     },
+     "venue": {
+      "type": "string",
+      "format": "text"
+     }
+    }
+   },
+   "boca_momentum": {
+    "type": "object",
+    "description": "Dominio por minuto: positivo cuando domina Boca, negativo cuando domina el rival.",
+    "properties": {
+     "match_id": {
+      "type": "integer",
+      "format": "int32",
+      "description": "Clave primaria."
+     },
+     "match_date": {
+      "type": "string",
+      "format": "date"
+     },
+     "competition_code": {
+      "type": "string",
+      "format": "text"
+     },
+     "opponent": {
+      "type": "string",
+      "format": "text"
+     },
+     "minute": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "boca_value": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "source": {
+      "type": "string",
+      "format": "text"
+     }
+    }
+   },
+   "boca_penalty": {
+    "type": "object",
+    "description": "Penales de los partidos de Boca: convertidos, atajados o errados (StrikerAPI, liga).",
+    "properties": {
+     "match_id": {
+      "type": "integer",
+      "format": "int32",
+      "description": "Clave primaria."
+     },
+     "match_date": {
+      "type": "string",
+      "format": "date"
+     },
+     "competition_code": {
+      "type": "string",
+      "format": "text"
+     },
+     "opponent": {
+      "type": "string",
+      "format": "text"
+     },
+     "boca_shot": {
+      "type": "boolean",
+      "format": "boolean"
+     },
+     "player_id": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "player_name": {
+      "type": "string",
+      "format": "text"
+     },
+     "minute": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "outcome": {
+      "type": "string",
+      "format": "text"
+     },
+     "source": {
+      "type": "string",
+      "format": "text"
+     }
+    }
+   },
+   "boca_shot": {
+    "type": "object",
+    "description": "Tiros ubicados de los partidos de Boca (a favor y en contra) para el mapa de tiros.",
+    "properties": {
+     "shot_id": {
+      "type": "integer",
+      "format": "int64",
+      "description": "Clave primaria."
+     },
+     "match_id": {
+      "type": "integer",
+      "format": "int32",
+      "description": "Clave primaria."
+     },
+     "match_date": {
+      "type": "string",
+      "format": "date"
+     },
+     "competition_code": {
+      "type": "string",
+      "format": "text"
+     },
+     "opponent": {
+      "type": "string",
+      "format": "text"
+     },
+     "boca_shot": {
+      "type": "boolean",
+      "format": "boolean"
+     },
+     "player_id": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "player_name": {
+      "type": "string",
+      "format": "text"
+     },
+     "minute": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "outcome": {
+      "type": "string",
+      "format": "text"
+     },
+     "body_part": {
+      "type": "string",
+      "format": "text"
+     },
+     "penalty": {
+      "type": "boolean",
+      "format": "boolean"
+     },
+     "zone": {
+      "type": "string",
+      "format": "text"
+     },
+     "xg": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "x": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "y": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "end_x": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "end_y": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "source": {
+      "type": "string",
+      "format": "text"
+     }
+    }
+   },
+   "boca_weather": {
+    "type": "object",
+    "description": "Clima a la hora del partido (Open-Meteo) junto al resultado de Boca.",
+    "properties": {
+     "match_id": {
+      "type": "integer",
+      "format": "int32",
+      "description": "Clave primaria."
+     },
+     "match_date": {
+      "type": "string",
+      "format": "date"
+     },
+     "competition_code": {
+      "type": "string",
+      "format": "text"
+     },
+     "opponent": {
+      "type": "string",
+      "format": "text"
+     },
+     "boca_home": {
+      "type": "boolean",
+      "format": "boolean"
+     },
+     "goals_for": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "goals_against": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "points": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "temperature_c": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "precipitation_mm": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "wind_kmh": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "humidity_pct": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "place": {
+      "type": "string",
+      "format": "text"
+     },
+     "source": {
+      "type": "string",
+      "format": "text"
+     }
+    }
+   },
+   "chart_catalog": {
+    "type": "object",
+    "properties": {
+     "chart_id": {
+      "type": "string",
+      "format": "text",
+      "description": "Clave primaria."
+     },
+     "category": {
+      "type": "string",
+      "format": "text"
+     },
+     "title_es": {
+      "type": "string",
+      "format": "text"
+     },
+     "chart_type": {
+      "type": "string",
+      "format": "text"
+     },
+     "required_data": {
+      "type": "string",
+      "format": "text"
+     },
+     "origin_ref": {
+      "type": "string",
+      "format": "text"
+     },
+     "powerbi": {
+      "type": "string",
+      "format": "text"
+     },
+     "excel": {
+      "type": "string",
+      "format": "text"
+     },
+     "available": {
+      "type": "boolean",
+      "format": "boolean"
+     },
+     "reason_es": {
+      "type": "string",
+      "format": "text"
+     },
+     "sort_order": {
+      "type": "integer",
+      "format": "int32"
+     }
+    }
+   },
+   "chart_source_map": {
+    "type": "object",
+    "properties": {
+     "chart_id": {
+      "type": "string",
+      "format": "text",
+      "description": "Clave primaria.\nThis is a Foreign Key to `chart_catalog.chart_id`.<fk table='chart_catalog' column='chart_id'/>"
+     },
+     "target_type": {
+      "type": "string",
+      "format": "text",
+      "description": "Clave primaria."
+     },
+     "target_ref": {
+      "type": "string",
+      "format": "text",
+      "description": "Clave primaria."
+     },
+     "params": {
+      "type": "string",
+      "format": "text",
+      "description": "Clave primaria."
+     },
+     "label_es": {
+      "type": "string",
+      "format": "text"
+     }
+    }
+   },
+   "club_rating": {
+    "type": "object",
+    "properties": {
+     "source": {
+      "type": "string",
+      "format": "text",
+      "description": "Clave primaria."
+     },
+     "as_of": {
+      "type": "string",
+      "format": "date",
+      "description": "Clave primaria."
+     },
+     "team_name": {
+      "type": "string",
+      "format": "text",
+      "description": "Clave primaria."
+     },
+     "rank": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "elo": {
+      "type": "number",
+      "format": "numeric"
+     }
+    }
+   },
+   "club_season_stat": {
+    "type": "object",
+    "properties": {
+     "source": {
+      "type": "string",
+      "format": "text",
+      "description": "Clave primaria."
+     },
+     "season": {
+      "type": "integer",
+      "format": "int32",
+      "description": "Clave primaria."
+     },
+     "team_name": {
+      "type": "string",
+      "format": "text",
+      "description": "Clave primaria."
+     },
+     "stat_key": {
+      "type": "string",
+      "format": "text",
+      "description": "Clave primaria."
+     },
+     "value": {
+      "type": "number",
+      "format": "numeric"
+     }
+    }
+   },
+   "competition_filter": {
+    "type": "object",
+    "properties": {
+     "code": {
+      "type": "string",
+      "format": "text"
+     },
+     "name_es": {
+      "type": "string",
+      "format": "text"
+     },
+     "sort_order": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "matches": {
+      "type": "integer",
+      "format": "int32"
+     }
+    }
+   },
+   "conclusion": {
+    "type": "object",
+    "properties": {
+     "rule_id": {
+      "type": "string",
+      "format": "text",
+      "description": "Clave primaria."
+     },
+     "entity_id": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "player_name": {
+      "type": "string",
+      "format": "text"
+     },
+     "area": {
+      "type": "string",
+      "format": "text"
+     },
+     "title_es": {
+      "type": "string",
+      "format": "text"
+     },
+     "kind": {
+      "type": "string",
+      "format": "text"
+     },
+     "scope": {
+      "type": "string",
+      "format": "text"
+     },
+     "unit": {
+      "type": "string",
+      "format": "text"
+     },
+     "link": {
+      "type": "string",
+      "format": "text"
+     },
+     "sort_order": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "band": {
+      "type": "string",
+      "format": "text"
+     },
+     "value": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "reference": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "percentile": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "n": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "computed_at": {
+      "type": "string",
+      "format": "timestamp with time zone"
+     },
+     "tone": {
+      "type": "string",
+      "format": "text"
+     },
+     "text_es": {
+      "type": "string",
+      "format": "text"
+     },
+     "player_position": {
+      "type": "string",
+      "format": "text"
+     }
+    }
+   },
+   "league_absences": {
+    "type": "object",
+    "description": "Lesionados y suspendidos por equipo en la Liga Profesional (conteos, sin nombres).",
+    "properties": {
+     "team": {
+      "type": "string",
+      "format": "text"
+     },
+     "season": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "injured": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "suspended": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "games": {
+      "type": "integer",
+      "format": "int32"
+     }
+    }
+   },
+   "league_leader": {
+    "type": "object",
+    "properties": {
+     "source": {
+      "type": "string",
+      "format": "text",
+      "description": "Clave primaria."
+     },
+     "season": {
+      "type": "integer",
+      "format": "int32",
+      "description": "Clave primaria."
+     },
+     "stat": {
+      "type": "string",
+      "format": "text",
+      "description": "Clave primaria."
+     },
+     "rank": {
+      "type": "integer",
+      "format": "int32",
+      "description": "Clave primaria."
+     },
+     "player_name": {
+      "type": "string",
+      "format": "text",
+      "description": "Clave primaria."
+     },
+     "team_name": {
+      "type": "string",
+      "format": "text"
+     },
+     "games": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "minutes": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "value": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "per90": {
+      "type": "number",
+      "format": "numeric"
+     }
+    }
+   },
+   "league_result": {
+    "type": "object",
+    "properties": {
+     "source": {
+      "type": "string",
+      "format": "text"
+     },
+     "season": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "stage": {
+      "type": "string",
+      "format": "text"
+     },
+     "match_date": {
+      "type": "string",
+      "format": "date"
+     },
+     "home_team": {
+      "type": "string",
+      "format": "text"
+     },
+     "away_team": {
+      "type": "string",
+      "format": "text"
+     },
+     "home_goals": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "away_goals": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "referee": {
+      "type": "string",
+      "format": "text"
+     },
+     "yellow_home": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "yellow_away": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "red_home": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "red_away": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "fouls_home": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "fouls_away": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "injured_home": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "injured_away": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "suspended_home": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "suspended_away": {
+      "type": "integer",
+      "format": "int32"
+     }
+    }
+   },
+   "league_standing": {
+    "type": "object",
+    "properties": {
+     "source": {
+      "type": "string",
+      "format": "text",
+      "description": "Clave primaria."
+     },
+     "season": {
+      "type": "integer",
+      "format": "int32",
+      "description": "Clave primaria."
+     },
+     "table_name": {
+      "type": "string",
+      "format": "text",
+      "description": "Clave primaria."
+     },
+     "rank": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "team_name": {
+      "type": "string",
+      "format": "text",
+      "description": "Clave primaria."
+     },
+     "played": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "won": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "drawn": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "lost": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "goals_for": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "goals_against": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "points": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "average": {
+      "type": "number",
+      "format": "numeric"
+     }
+    }
+   },
+   "match_lineup": {
+    "type": "object",
+    "properties": {
+     "match_id": {
+      "type": "integer",
+      "format": "int32",
+      "description": "Clave primaria.\nThis is a Foreign Key to `boca_absence.match_id`.<fk table='boca_absence' column='match_id'/>"
+     },
+     "player_id": {
+      "type": "integer",
+      "format": "int32",
+      "description": "Clave primaria."
+     },
+     "player_name": {
+      "type": "string",
+      "format": "text"
+     },
+     "position": {
+      "type": "string",
+      "format": "text"
+     },
+     "shirt_number": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "started": {
+      "type": "boolean",
+      "format": "boolean"
+     },
+     "minute_in": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "minute_out": {
+      "type": "integer",
+      "format": "int32"
+     }
+    }
+   },
+   "player_master": {
+    "type": "object",
+    "properties": {
+     "player_id": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "competition_code": {
+      "type": "string",
+      "format": "text"
+     },
+     "full_name": {
+      "type": "string",
+      "format": "text"
+     },
+     "known_as": {
+      "type": "string",
+      "format": "text"
+     },
+     "position_group": {
+      "type": "string",
+      "format": "text"
+     },
+     "shirt_number": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "age": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "height_cm": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "weight_kg": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "preferred_foot": {
+      "type": "string",
+      "format": "text"
+     },
+     "nationality": {
+      "type": "string",
+      "format": "text"
+     },
+     "matches": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "minutes": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "stats": {
+      "format": "jsonb"
+     }
+    }
+   },
+   "player_match_value": {
+    "type": "object",
+    "properties": {
+     "match_id": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "player_id": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "key": {
+      "type": "string",
+      "format": "text"
+     },
+     "value": {
+      "type": "number",
+      "format": "numeric"
+     }
+    }
+   },
+   "player_position": {
+    "type": "object",
+    "properties": {
+     "player_id": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "position_raw": {
+      "type": "string",
+      "format": "text"
+     },
+     "zone": {
+      "type": "string",
+      "format": "text"
+     },
+     "lane": {
+      "type": "string",
+      "format": "text"
+     },
+     "role": {
+      "type": "string",
+      "format": "text"
+     },
+     "starts": {
+      "type": "integer",
+      "format": "int64"
+     },
+     "games": {
+      "type": "integer",
+      "format": "int64"
+     },
+     "detail_level": {
+      "type": "string",
+      "format": "text"
+     }
+    }
+   },
+   "player_profile": {
+    "type": "object",
+    "properties": {
+     "player_id": {
+      "type": "integer",
+      "format": "int32",
+      "description": "Clave primaria."
+     },
+     "full_name": {
+      "type": "string",
+      "format": "text"
+     },
+     "nationality": {
+      "type": "string",
+      "format": "text"
+     },
+     "weight_kg": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "youth_club": {
+      "type": "string",
+      "format": "text"
+     },
+     "academy": {
+      "type": "boolean",
+      "format": "boolean"
+     },
+     "national_team": {
+      "type": "string",
+      "format": "text"
+     },
+     "source": {
+      "type": "string",
+      "format": "text"
+     },
+     "preferred_foot": {
+      "type": "string",
+      "format": "text"
+     }
+    }
+   },
+   "player_shot_totals": {
+    "type": "object",
+    "description": "Tiros, xG, npxG y goles por tipo de cada jugador de Boca (StrikerAPI).",
+    "properties": {
+     "player_id": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "competition_code": {
+      "type": "string",
+      "format": "text"
+     },
+     "shots": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "xg": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "npxg": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "goals": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "headers": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "header_goals": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "shots_outside_box": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "goals_outside_box": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "shots_blocked": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "source": {
+      "type": "string",
+      "format": "text"
+     }
+    }
+   },
+   "player_stat_totals": {
+    "type": "object",
+    "description": "Estadísticas avanzadas por jugador de Boca: total, promedio por partido y partidos con dato.",
+    "properties": {
+     "player_id": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "competition_code": {
+      "type": "string",
+      "format": "text"
+     },
+     "stat_key": {
+      "type": "string",
+      "format": "text"
+     },
+     "matches": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "total": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "average": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "source": {
+      "type": "string",
+      "format": "text"
+     }
+    }
+   },
+   "player_summary": {
+    "type": "object",
+    "description": "Resumen por jugador: PJ, titular, minutos, goles, asistencias, G+A y tarjetas, por competición y total.",
+    "properties": {
+     "player_id": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "full_name": {
+      "type": "string",
+      "format": "text"
+     },
+     "known_as": {
+      "type": "string",
+      "format": "text"
+     },
+     "position_group": {
+      "type": "string",
+      "format": "text"
+     },
+     "shirt_number": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "age": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "height_cm": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "competition_code": {
+      "type": "string",
+      "format": "text"
+     },
+     "competition_name": {
+      "type": "string",
+      "format": "text"
+     },
+     "matches": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "starts": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "minutes": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "goals": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "assists": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "goal_contributions": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "yellow_cards": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "red_cards": {
+      "type": "integer",
+      "format": "int32"
+     }
+    }
+   },
+   "projection_param": {
+    "type": "object",
+    "properties": {
+     "sport": {
+      "type": "string",
+      "format": "text",
+      "description": "Clave primaria."
+     },
+     "param": {
+      "type": "string",
+      "format": "text",
+      "description": "Clave primaria."
+     },
+     "value": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "version": {
+      "type": "integer",
+      "format": "int32",
+      "description": "Clave primaria."
+     },
+     "valid_from": {
+      "type": "string",
+      "format": "date"
+     },
+     "description_es": {
+      "type": "string",
+      "format": "text"
+     }
+    }
+   },
+   "referee_stats": {
+    "type": "object",
+    "description": "Árbitros de la Liga Profesional: tarjetas, faltas y resultados de los partidos que dirigieron.",
+    "properties": {
+     "referee": {
+      "type": "string",
+      "format": "text"
+     },
+     "season": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "games": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "yellow_per_game": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "red_per_game": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "fouls_per_game": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "home_win_pct": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "yellow_home_minus_away": {
+      "type": "number",
+      "format": "numeric"
+     }
+    }
+   },
+   "situational_catalog": {
+    "type": "object",
+    "properties": {
+     "card_id": {
+      "type": "string",
+      "format": "text",
+      "description": "Clave primaria."
+     },
+     "category": {
+      "type": "string",
+      "format": "text"
+     },
+     "title_es": {
+      "type": "string",
+      "format": "text"
+     },
+     "condition_es": {
+      "type": "string",
+      "format": "text"
+     },
+     "params_es": {
+      "type": "string",
+      "format": "text"
+     },
+     "measured_es": {
+      "type": "string",
+      "format": "text"
+     },
+     "required_data": {
+      "type": "string",
+      "format": "text"
+     },
+     "level": {
+      "type": "string",
+      "format": "text"
+     },
+     "available": {
+      "type": "boolean",
+      "format": "boolean"
+     },
+     "estimated": {
+      "type": "boolean",
+      "format": "boolean"
+     },
+     "reason_es": {
+      "type": "string",
+      "format": "text"
+     },
+     "sort_order": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "main_metric": {
+      "type": "string",
+      "format": "text"
+     },
+     "extra_metrics": {
+      "type": "string",
+      "format": "text"
+     }
+    }
+   },
+   "situational_match": {
+    "type": "object",
+    "properties": {
+     "card_id": {
+      "type": "string",
+      "format": "text",
+      "description": "Clave primaria."
+     },
+     "param_value": {
+      "type": "string",
+      "format": "text",
+      "description": "Clave primaria."
+     },
+     "match_id": {
+      "type": "integer",
+      "format": "int32",
+      "description": "Clave primaria.\nThis is a Foreign Key to `boca_absence.match_id`.<fk table='boca_absence' column='match_id'/>"
+     },
+     "match_date": {
+      "type": "string",
+      "format": "date"
+     },
+     "competition_name": {
+      "type": "string",
+      "format": "text"
+     },
+     "opponent": {
+      "type": "string",
+      "format": "text"
+     },
+     "home": {
+      "type": "boolean",
+      "format": "boolean"
+     },
+     "goals_for": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "goals_against": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "result": {
+      "type": "string",
+      "format": "text"
+     }
+    }
+   },
+   "situational_result": {
+    "type": "object",
+    "properties": {
+     "card_id": {
+      "type": "string",
+      "format": "text",
+      "description": "Clave primaria."
+     },
+     "param_value": {
+      "type": "string",
+      "format": "text",
+      "description": "Clave primaria."
+     },
+     "param_order": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "n": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "w": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "d": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "l": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "win_pct": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "ppg": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "goal_diff": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "base_win_pct": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "delta": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "computed_at": {
+      "type": "string",
+      "format": "timestamp with time zone"
+     },
+     "gf_avg": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "ga_avg": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "clean_pct": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "scored_pct": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "base_ppg": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "base_gf": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "base_ga": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "base_clean": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "stats": {
+      "format": "jsonb"
+     },
+     "base_stats": {
+      "format": "jsonb"
+     }
+    }
+   },
+   "source_status": {
+    "type": "object",
+    "description": "Estado de la última carga de cada fuente y fecha de la última carga exitosa.",
+    "properties": {
+     "source": {
+      "type": "string",
+      "format": "text"
+     },
+     "last_status": {
+      "type": "string",
+      "format": "text"
+     },
+     "last_run_at": {
+      "type": "string",
+      "format": "timestamp with time zone"
+     },
+     "last_success_at": {
+      "type": "string",
+      "format": "timestamp with time zone"
+     }
+    }
+   },
+   "stat_catalog": {
+    "type": "object",
+    "description": "Catálogo de estadísticas (sección 5): descripción, nivel A/B/C y regla de cálculo.",
+    "properties": {
+     "stat_id": {
+      "type": "string",
+      "format": "text",
+      "description": "Clave primaria."
+     },
+     "entity": {
+      "type": "string",
+      "format": "text"
+     },
+     "name_es": {
+      "type": "string",
+      "format": "text"
+     },
+     "short_name": {
+      "type": "string",
+      "format": "text"
+     },
+     "description_es": {
+      "type": "string",
+      "format": "text"
+     },
+     "stat_group": {
+      "type": "string",
+      "format": "text"
+     },
+     "category": {
+      "type": "string",
+      "format": "text"
+     },
+     "unit": {
+      "type": "string",
+      "format": "text"
+     },
+     "source": {
+      "type": "string",
+      "format": "text"
+     },
+     "level": {
+      "type": "string",
+      "format": "text"
+     },
+     "formula": {
+      "type": "string",
+      "format": "text"
+     },
+     "higher_is_better": {
+      "type": "boolean",
+      "format": "boolean"
+     },
+     "available": {
+      "type": "boolean",
+      "format": "boolean"
+     },
+     "estimated": {
+      "type": "boolean",
+      "format": "boolean"
+     },
+     "per90": {
+      "type": "boolean",
+      "format": "boolean"
+     },
+     "rule": {
+      "type": "string",
+      "format": "text"
+     },
+     "arg1": {
+      "type": "string",
+      "format": "text"
+     },
+     "arg2": {
+      "type": "string",
+      "format": "text"
+     },
+     "factor": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "reading_es": {
+      "type": "string",
+      "format": "text"
+     },
+     "lines": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "key_stat": {
+      "type": "boolean",
+      "format": "boolean"
+     }
+    }
+   },
+   "stat_match_value": {
+    "type": "object",
+    "properties": {
+     "entity": {
+      "type": "string",
+      "format": "text",
+      "description": "Clave primaria."
+     },
+     "entity_id": {
+      "type": "integer",
+      "format": "int32",
+      "description": "Clave primaria."
+     },
+     "match_id": {
+      "type": "integer",
+      "format": "int32",
+      "description": "Clave primaria.\nThis is a Foreign Key to `boca_absence.match_id`.<fk table='boca_absence' column='match_id'/>"
+     },
+     "stat_id": {
+      "type": "string",
+      "format": "text",
+      "description": "Clave primaria.\nThis is a Foreign Key to `stat_catalog.stat_id`.<fk table='stat_catalog' column='stat_id'/>"
+     },
+     "value": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "low": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "high": {
+      "type": "number",
+      "format": "numeric"
+     }
+    }
+   },
+   "stat_set": {
+    "type": "object",
+    "description": "Conjuntos de columnas del desplegable de las Interfaces 2 y 3.",
+    "properties": {
+     "set_id": {
+      "type": "string",
+      "format": "text",
+      "description": "Clave primaria."
+     },
+     "entity": {
+      "type": "string",
+      "format": "text"
+     },
+     "name_es": {
+      "type": "string",
+      "format": "text"
+     },
+     "description_es": {
+      "type": "string",
+      "format": "text"
+     },
+     "sort_order": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "stat_ids": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     }
+    }
+   },
+   "stat_value_detail": {
+    "type": "object",
+    "properties": {
+     "player_id": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "stat_id": {
+      "type": "string",
+      "format": "text",
+      "description": "Note:\nThis is a Foreign Key to `stat_catalog.stat_id`.<fk table='stat_catalog' column='stat_id'/>"
+     },
+     "value": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "detail": {
+      "format": "jsonb"
+     }
+    }
+   },
+   "system_status": {
+    "type": "object",
+    "description": "Estado público del sistema. Fila de prueba de la etapa 1.",
+    "properties": {
+     "key": {
+      "type": "string",
+      "format": "text",
+      "description": "Clave primaria."
+     },
+     "value": {
+      "type": "string",
+      "format": "text"
+     },
+     "updated_at": {
+      "type": "string",
+      "format": "timestamp with time zone"
+     }
+    }
+   },
+   "team_match_master": {
+    "type": "object",
+    "description": "Partidos de Boca con valores base y métricas propias por partido (Interfaz 2).",
+    "properties": {
+     "match_id": {
+      "type": "integer",
+      "format": "int32",
+      "description": "Clave primaria."
+     },
+     "match_date": {
+      "type": "string",
+      "format": "date"
+     },
+     "kickoff_at": {
+      "type": "string",
+      "format": "timestamp with time zone"
+     },
+     "round_label": {
+      "type": "string",
+      "format": "text"
+     },
+     "competition_code": {
+      "type": "string",
+      "format": "text"
+     },
+     "competition_name": {
+      "type": "string",
+      "format": "text"
+     },
+     "opponent": {
+      "type": "string",
+      "format": "text"
+     },
+     "boca_home": {
+      "type": "boolean",
+      "format": "boolean"
+     },
+     "goals_for": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "goals_against": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "penalties_for": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "penalties_against": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "referee": {
+      "type": "string",
+      "format": "text"
+     },
+     "venue": {
+      "type": "string",
+      "format": "text"
+     },
+     "stats": {
+      "format": "jsonb"
+     }
+    }
+   },
+   "team_match_value": {
+    "type": "object",
+    "description": "Valores base por partido de Boca y del rival (sufijo _against).",
+    "properties": {
+     "match_id": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "key": {
+      "type": "string",
+      "format": "text"
+     },
+     "value": {
+      "type": "number",
+      "format": "numeric"
+     }
+    }
+   },
+   "team_window_value": {
+    "type": "object",
+    "description": "Métricas del equipo calculadas por ventana (competición o todas).",
+    "properties": {
+     "competition_code": {
+      "type": "string",
+      "format": "text"
+     },
+     "stat_id": {
+      "type": "string",
+      "format": "text",
+      "description": "Note:\nThis is a Foreign Key to `stat_catalog.stat_id`.<fk table='stat_catalog' column='stat_id'/>"
+     },
+     "value": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "low": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "high": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "coverage": {
+      "type": "number",
+      "format": "numeric"
+     }
+    }
+   }
+  }
+ }
+}

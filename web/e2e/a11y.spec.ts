@@ -16,6 +16,7 @@ const ROUTES = [
   '/estadistica/eq_xg?entidad=equipo',
   '/estado',
   '/privacidad',
+  '/api-docs',
 ];
 
 for (const theme of ['light', 'dark'] as const) {

@@ -509,6 +509,30 @@ h3 {
   border-radius: 12px;
 }
 
+/* Documentación de la API (16.2): ejemplos de código y una vista por bloque desplegable. */
+.code-block {
+  /* Corta líneas en vez de desplazarse: en el celular no hay región con scroll que necesite foco. */
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-surface-2);
+  padding: 12px 14px;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+.api-view {
+  border-bottom: 1px solid var(--color-border);
+  padding-block: 8px;
+}
+.api-view summary {
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+.api-view .data-table {
+  margin-top: 8px;
+}
+
 /* Filas en cascada al cargar (9.10): solo transform y opacity, 35 ms entre filas, tope de 24. */
 .row-enter {
   animation: row-in var(--dur-slow) var(--ease-out-expo) both;

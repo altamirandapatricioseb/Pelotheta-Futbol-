@@ -65,6 +65,10 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           <Link href="/estado" className="focus-ring underline">
             Estado
           </Link>{' '}
+          ·{' '}
+          <Link href="/api-docs" className="focus-ring underline">
+            API
+          </Link>{' '}
           · <ReportDataLink />
         </footer>
       </body>

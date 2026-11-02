@@ -73,8 +73,8 @@ jobs:
           [ "$(date -d "$vence" +%s)" -gt "$(date -d '+30 days' +%s)" ]
       - name: RLS con la clave pública (lee, no escribe)
         env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL || 'https://ymnbuywcpkynikudybth.supabase.co' }}
+          SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_Fyd88fp5p4sEXCFDNPXysQ_1uCtQUnm' }}
         run: |
           [ -n "$SUPABASE_PUBLISHABLE_KEY" ] || { echo "Falta el secreto SUPABASE_PUBLISHABLE_KEY"; exit 1; }
           uv run pytest -q tests/test_rls.py

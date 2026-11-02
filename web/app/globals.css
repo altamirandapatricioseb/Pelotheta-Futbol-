@@ -49,6 +49,17 @@ h3 {
   outline-offset: 2px;
 }
 
+/* Cambio de tema (ThemeToggle): la View Transition no hace el fundido por defecto; el tema nuevo entra
+   como un círculo que crece desde el botón (clip-path animado desde JS). */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-new(root) {
+  z-index: 1;
+}
+
 .skip-link {
   position: absolute;
   left: 12px;

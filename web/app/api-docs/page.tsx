@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 
+import { readPublicEnv } from '@/lib/env';
 import spec from '@/public/openapi.json';
 
 export const metadata: Metadata = {
@@ -21,8 +22,10 @@ const SERVER = spec.servers[0]?.url ?? '';
 const SCHEMAS = spec.components.schemas as Record<string, Schema>;
 const FUNCTIONS = Object.keys(spec.paths).filter((p) => p.startsWith('/rpc/'));
 
-const CURL = `curl "${SERVER}/boca_match?select=match_date,opponent,goals_for,goals_against&order=match_date.desc&limit=5" \\
-  -H "apikey: $SUPABASE_PUBLISHABLE_KEY" \\
+const curl = (
+  key: string,
+) => `curl "${SERVER}/boca_match?select=match_date,opponent,goals_for,goals_against&order=match_date.desc&limit=5" \\
+  -H "apikey: ${key}" \\
   -H "Accept-Profile: api"`;
 
 const TS = `import { createClient } from '@supabase/supabase-js';
@@ -40,6 +43,8 @@ const serie = await api.rpc('stat_series', { p_stat: 'goles', p_entity: 'jugador
 
 /** Documentación de la API de solo lectura (16.2): la misma Data API que usa el sitio. */
 export default function Page() {
+  // La clave publicable es pública por diseño: solo lectura (RLS) y 3 s por consulta.
+  const key = readPublicEnv().NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
   return (
     <div className="grid max-w-[80ch] gap-6">
       <h1 className="page-title">
@@ -59,8 +64,8 @@ export default function Page() {
         <h2 className="text-xl font-bold">Reglas</h2>
         <ul className="list-disc space-y-1 pl-5">
           <li>
-            Cabecera <code>apikey</code> con la clave publicable (es pública; la seguridad la da RLS) y{' '}
-            <code>Accept-Profile: api</code>.
+            Cabecera <code>apikey</code> con la clave publicable <code className="break-all">{key}</code> (es pública;
+            la seguridad la da RLS) y <code>Accept-Profile: api</code>.
           </li>
           <li>
             Hasta 1000 filas por pedido: paginá con <code>limit</code> y <code>offset</code>.
@@ -71,7 +76,8 @@ export default function Page() {
             columnas y <code>order</code> para ordenar.
           </li>
           <li>
-            <code>POST</code>, <code>PATCH</code> y <code>DELETE</code> se rechazan: la clave pública no tiene permiso de escritura en ninguna vista.
+            <code>POST</code>, <code>PATCH</code> y <code>DELETE</code> se rechazan: la clave pública no tiene permiso
+            de escritura en ninguna vista.
           </li>
         </ul>
       </section>
@@ -79,7 +85,7 @@ export default function Page() {
       <section className="grid gap-2">
         <h2 className="text-xl font-bold">Ejemplo con curl</h2>
         <pre className="code-block">
-          <code>{CURL}</code>
+          <code>{curl(key)}</code>
         </pre>
         <h2 className="text-xl font-bold">Ejemplo con TypeScript</h2>
         <pre className="code-block">

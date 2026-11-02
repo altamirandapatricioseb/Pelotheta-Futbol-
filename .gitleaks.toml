@@ -1,0 +1,9 @@
+# gitleaks (14.4): reglas por defecto más una excepción. La clave publicable de Supabase es pública
+# por diseño (solo lectura con RLS, sin permisos de escritura) y se publica en /api-docs y en los
+# workflows que leen la base. La clave secreta (sb_secret_) sigue prohibida en todo el repositorio.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Clave publicable de Supabase (pública por diseño)"
+regexes = ["sb_publishable_[A-Za-z0-9_-]+"]

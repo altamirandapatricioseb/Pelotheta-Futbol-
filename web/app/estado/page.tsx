@@ -14,18 +14,29 @@ const FRESHNESS_DAYS = 35;
 /** Estado público del sistema (14.6 y 16.5): SLOs, corridas del pipeline y última corrida de cada fuente. */
 export default async function Page() {
   const api = createApiClient();
-  const [sources, runs] = await Promise.all([
+  const [sources, runs, quality] = await Promise.all([
     api.from('source_status').select('source, last_run_at, last_status, last_success_at').order('source'),
     api
       .from('pipeline_run_metrics')
       .select('run_id, finished_at, duration_s, status, matches, rows_loaded, warnings, errors, db_size_bytes')
       .order('finished_at', { ascending: false })
       .limit(6),
+    api.from('data_quality').select('table_name, description_es, failing, total, checked_at').order('table_name'),
   ]);
   // La frescura se mide con la fuente principal (partidos de Promiedos), no con la más reciente.
   const lastSuccess = sources.data?.find((s) => s.source === 'promiedos')?.last_success_at;
   const age = lastSuccess ? daysSince(lastSuccess) : null;
   const lastRun = runs.data?.[0];
+  // Semáforo de calidad (16.1): una fila por tabla con los chequeos que pasan y los que fallan.
+  const byTable = new Map<string, { ok: number; total: number; failing: string[] }>();
+  for (const q of quality.data ?? []) {
+    const t = byTable.get(q.table_name) ?? { ok: 0, total: 0, failing: [] };
+    t.total += 1;
+    if (q.failing === 0) t.ok += 1;
+    else t.failing.push(`${q.description_es} (${String(q.failing)} de ${String(q.total)})`);
+    byTable.set(q.table_name, t);
+  }
+  const checkedAt = quality.data?.[0]?.checked_at;
 
   return (
     <div className="grid gap-6">
@@ -101,6 +112,32 @@ export default async function Page() {
                 </tbody>
               </table>
             </div>
+          ) : null}
+
+          {byTable.size ? (
+            <section className="grid gap-2" aria-labelledby="calidad">
+              <h2 id="calidad" className="text-xl font-bold">
+                Calidad de datos
+              </h2>
+              <p className="text-sm text-muted">
+                Unicidad, valores obligatorios, rangos, referencias, frescura y conciliación de los goles con los
+                eventos{checkedAt ? `, revisados el ${formatDateTime(checkedAt)}` : ''}.
+              </p>
+              <ul className="grid gap-1">
+                {[...byTable].map(([table, t]) => (
+                  <li key={table} className="flex flex-wrap items-baseline gap-2">
+                    <span className={t.failing.length ? 'font-bold value-worst' : 'font-bold value-best'}>
+                      {t.failing.length ? 'Con fallas' : 'Bien'}
+                    </span>
+                    <code>{table}</code>
+                    <span className="text-muted">
+                      {String(t.ok)} de {String(t.total)} chequeos
+                      {t.failing.length ? ` · ${t.failing.join('; ')}` : ''}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </section>
           ) : null}
 
           {/* Con foco y nombre: en el celular la tabla se desplaza de costado (axe: scrollable-region-focusable). */}

@@ -146,6 +146,18 @@ export type Database = {
         };
         Relationships: [];
       };
+      data_quality: {
+        Row: {
+          check_id: string;
+          table_name: string;
+          check_type: string;
+          description_es: string;
+          failing: number;
+          total: number;
+          checked_at: string;
+        };
+        Relationships: [];
+      };
       match_context: {
         Row: {
           match_id: number;

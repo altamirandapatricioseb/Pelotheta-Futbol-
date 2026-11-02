@@ -1786,6 +1786,107 @@
     }
    }
   },
+  "/data_quality": {
+   "get": {
+    "operationId": "data_quality",
+    "summary": "Último resultado de cada chequeo de calidad de datos (16.1): filas que fallan y revisadas.",
+    "tags": [
+     "Vistas"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/select"
+     },
+     {
+      "$ref": "#/components/parameters/order"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     },
+     {
+      "name": "check_id",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "table_name",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "check_type",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "description_es",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "failing",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "total",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "checked_at",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Filas de la vista.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/data_quality"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
   "/league_absences": {
    "get": {
     "operationId": "league_absences",
@@ -2361,6 +2462,98 @@
     }
    }
   },
+  "/match_context": {
+   "get": {
+    "operationId": "match_context",
+    "summary": "DT de Boca y del rival y estadio con su capacidad, por partido (ELNINE).",
+    "tags": [
+     "Vistas"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/select"
+     },
+     {
+      "$ref": "#/components/parameters/order"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     },
+     {
+      "name": "match_id",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "boca_coach",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "rival_coach",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "stadium",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "stadium_capacity",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "source",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Filas de la vista.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/match_context"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
   "/match_lineup": {
    "get": {
     "operationId": "match_lineup",
@@ -2463,6 +2656,143 @@
          "type": "array",
          "items": {
           "$ref": "#/components/schemas/match_lineup"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/pipeline_run_metrics": {
+   "get": {
+    "operationId": "pipeline_run_metrics",
+    "summary": "Una fila por corrida del pipeline: duración, partidos, filas cargadas, avisos, errores y tamaño de la base.",
+    "tags": [
+     "Vistas"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/select"
+     },
+     {
+      "$ref": "#/components/parameters/order"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     },
+     {
+      "name": "run_id",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "started_at",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "finished_at",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "duration_s",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "status",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "matches",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "rows_loaded",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "warnings",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "errors",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "db_size_bytes",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "commit_sha",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Filas de la vista.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/pipeline_run_metrics"
          }
         }
        }
@@ -5873,6 +6203,41 @@
      }
     }
    },
+   "data_quality": {
+    "type": "object",
+    "description": "Último resultado de cada chequeo de calidad de datos (16.1): filas que fallan y revisadas.",
+    "properties": {
+     "check_id": {
+      "type": "string",
+      "format": "text",
+      "description": "Clave primaria."
+     },
+     "table_name": {
+      "type": "string",
+      "format": "text"
+     },
+     "check_type": {
+      "type": "string",
+      "format": "text"
+     },
+     "description_es": {
+      "type": "string",
+      "format": "text"
+     },
+     "failing": {
+      "type": "integer",
+      "format": "int64"
+     },
+     "total": {
+      "type": "integer",
+      "format": "int64"
+     },
+     "checked_at": {
+      "type": "string",
+      "format": "timestamp with time zone"
+     }
+    }
+   },
    "league_absences": {
     "type": "object",
     "description": "Lesionados y suspendidos por equipo en la Liga Profesional (conteos, sin nombres).",
@@ -6091,6 +6456,37 @@
      }
     }
    },
+   "match_context": {
+    "type": "object",
+    "description": "DT de Boca y del rival y estadio con su capacidad, por partido (ELNINE).",
+    "properties": {
+     "match_id": {
+      "type": "integer",
+      "format": "int32",
+      "description": "Clave primaria.\nThis is a Foreign Key to `boca_absence.match_id`.<fk table='boca_absence' column='match_id'/>"
+     },
+     "boca_coach": {
+      "type": "string",
+      "format": "text"
+     },
+     "rival_coach": {
+      "type": "string",
+      "format": "text"
+     },
+     "stadium": {
+      "type": "string",
+      "format": "text"
+     },
+     "stadium_capacity": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "source": {
+      "type": "string",
+      "format": "text"
+     }
+    }
+   },
    "match_lineup": {
     "type": "object",
     "properties": {
@@ -6127,6 +6523,57 @@
      "minute_out": {
       "type": "integer",
       "format": "int32"
+     }
+    }
+   },
+   "pipeline_run_metrics": {
+    "type": "object",
+    "description": "Una fila por corrida del pipeline: duración, partidos, filas cargadas, avisos, errores y tamaño de la base.",
+    "properties": {
+     "run_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Clave primaria."
+     },
+     "started_at": {
+      "type": "string",
+      "format": "timestamp with time zone"
+     },
+     "finished_at": {
+      "type": "string",
+      "format": "timestamp with time zone"
+     },
+     "duration_s": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "status": {
+      "type": "string",
+      "format": "text"
+     },
+     "matches": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "rows_loaded": {
+      "type": "integer",
+      "format": "int64"
+     },
+     "warnings": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "errors": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "db_size_bytes": {
+      "type": "integer",
+      "format": "int64"
+     },
+     "commit_sha": {
+      "type": "string",
+      "format": "text"
      }
     }
    },

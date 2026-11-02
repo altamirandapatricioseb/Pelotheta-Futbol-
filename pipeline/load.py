@@ -126,6 +126,11 @@ def count_rows(result: Any) -> int:
     return 0
 
 
+def run_quality_checks(url: str, key: str, client: httpx.Client | None = None) -> int:
+    """Chequeos de calidad de datos (16.1) sobre lo cargado; devuelve cuántos fallan."""
+    return int(_rpc("run_quality_checks", {}, url, key, client) or 0)
+
+
 def log_run(metrics: dict[str, Any], url: str, key: str, client: httpx.Client | None = None) -> None:
     """Una fila en core.pipeline_run_metrics (16.5); el tamaño de la base lo mide el servidor."""
     _rpc("log_run", {"p_run": metrics}, url, key, client)

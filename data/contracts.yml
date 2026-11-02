@@ -1,0 +1,73 @@
+# Contratos de datos (16.1): qué promete cada tabla central de core. Las reglas se verifican con los
+# chequeos de sql/quality/checks.sql (columna «checks»); el resultado de la última corrida está en
+# api.data_quality y en /estado. Capas: los datos crudos quedan en data/raw (caché de las fuentes,
+# fuera de la base por el límite de 500 MB), core es la capa limpia (staging) y api son los marts
+# que leen la web, Excel y Power BI.
+
+match:
+  description: Un partido de Boca (fuente principal Promiedos).
+  key: [match_id]
+  unique: [match_date, home_team_id, away_team_id]
+  columns:
+    match_id: integer, no nulo
+    match_date: date, no nulo
+    home_team_id: integer, no nulo, referencia team
+    away_team_id: integer, no nulo, referencia team, distinto de home_team_id
+    home_goals: integer, no nulo, entre 0 y 15
+    away_goals: integer, no nulo, entre 0 y 15
+    penalties_home: integer, solo con definición por penales
+  checks: [match_unico, match_no_nulos, match_rango, match_frescura, match_conciliacion_goles]
+
+lineup:
+  description: Un jugador en un partido (titular o suplente).
+  key: [match_id, player_id]
+  columns:
+    match_id: integer, no nulo, referencia match
+    player_id: integer, no nulo, referencia player
+    started: boolean
+    minute_in: integer, entre 0 y 130
+    minute_out: integer, entre 0 y 130, mayor o igual a minute_in
+  checks: [lineup_unico, lineup_referencial, lineup_minutos]
+
+event:
+  description: Gol, tarjeta, cambio o VAR con su minuto. El período 5 es la definición por penales.
+  key: [event_id]
+  columns:
+    match_id: integer, no nulo, referencia match
+    minute: integer, entre 0 y 130
+    period: integer, 1 a 5
+    type: texto, uno de gol, gol_en_contra, penal_convertido, penal_fallado, amarilla, segunda_amarilla, roja, cambio, var, otro
+  checks: [event_referencial, event_minuto, match_conciliacion_goles]
+
+team_match_stat:
+  description: Estadística de un equipo en un partido, en formato largo.
+  key: [match_id, team_id, stat_key]
+  columns:
+    stat_key: texto; las que terminan en _pct son porcentajes
+    value: numeric; porcentajes entre 0 y 100; la posesión de los dos equipos suma 100
+  checks: [team_stat_porcentaje, team_stat_posesion_suma]
+
+player_match_stat:
+  description: Estadística de un jugador en un partido, en formato largo.
+  key: [match_id, player_id, stat_key]
+  columns:
+    match_id: integer, no nulo, referencia match
+    player_id: integer, no nulo, referencia player
+    value: numeric; la calificación (rating) entre 0 y 10
+  checks: [player_stat_calificacion, player_stat_referencial]
+
+shot:
+  description: Un remate con su xG y su posición (coordenadas normalizadas de 0 a 1).
+  key: [shot_id]
+  columns:
+    xg: numeric, entre 0 y 1
+    x: numeric, entre 0 y 1,05
+    y: numeric, entre 0 y 1,05
+  checks: [shot_xg]
+
+player:
+  description: Un jugador del plantel o de una alineación.
+  key: [player_id]
+  columns:
+    full_name: texto; full_name o known_as presente
+  checks: [player_no_nulos]

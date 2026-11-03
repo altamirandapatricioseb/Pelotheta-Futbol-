@@ -42,6 +42,12 @@ backup *args:
 openapi:
     uv run python -m scripts.openapi
 
+# Diccionario, glosario y PDF único de entrega (sección 15)
+docs:
+    uv run python -m scripts.diccionario
+    uv run --group notebooks python -m scripts.entrega
+    cd web; node scripts/pdf.ts
+
 # Sonda de la Fase 0 de una fuente, por ejemplo: just probe api_football
 probe source:
     uv run python -m scripts.phase0.probe_{{source}}

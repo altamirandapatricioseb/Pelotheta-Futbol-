@@ -18,7 +18,7 @@ Para retomar en un chat nuevo: leer este archivo, `PROMPT-1-BOCA-FUTBOL.md` (ya 
 | 8. Excel | **Desplegada** (28-oct): 6 libros (global y uno por competición) que se descargan desde la web |
 | 9. Power BI | **Lista** (2-nov): CSV en estrella, medidas DAX, temas, rol `powerbi_reader` y guía |
 | 10. Pulido | **Lista** (2-nov): seguridad (sección 14 completa), accesibilidad, rendimiento y extras de la sección 16 |
-| 11. Documentación y entrega | Pendiente |
+| 11. Documentación y entrega | **Lista** (2-nov): diagramas, diccionario, manuales, pruebas, portfolio y PDF único |
 
 ## Etapa 3: cierre (28-oct-2026)
 
@@ -432,4 +432,10 @@ quedó como riesgo aceptado con control compensatorio (`docs/security/fuera_de_a
 - **Otros:** animación del cambio de tema, fuente ELNINE (bloqueada hoy por Cloudflare) y
   `docs/ideas_extra.md`.
 
-## Próxima etapa (11: documentación y entrega)
+## Etapa 11: cierre (2-nov-2026)
+
+- Todo lo de la sección 15 está en `docs/` y enlazado desde `README.md` (más `README.en.md`).
+- PDF único: `docs/entrega/Pelotheta_documentacion.pdf` (107 páginas: portada, índice, 40 documentos y
+  diagramas en SVG), regenerable con `just docs`.
+- Métricas finales, fuentes que funcionan y que fallan y siguientes pasos: `docs/gestion/informe_cierre.md`.
+- Proyecto completo: las 11 etapas cerradas.

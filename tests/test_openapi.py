@@ -48,3 +48,28 @@ def test_schemas_and_functions() -> None:
     assert "otra_tabla" not in doc["components"]["schemas"]
     rpc = doc["paths"]["/rpc/stat_series"]["get"]
     assert rpc["tags"] == ["Funciones"] and rpc["parameters"][0]["required"] is True
+
+
+def test_dictionary_lists_every_view_and_stat() -> None:
+    from scripts.diccionario import build
+
+    spec = {
+        "components": {
+            "schemas": {
+                "boca_match": {"description": "Partidos.", "properties": {"match_id": {"type": "integer"}}}
+            }
+        }
+    }
+    stat = {
+        "id": "goles",
+        "entidad": "jugador",
+        "nombre_es": "Goles",
+        "unidad": "goles",
+        "fuente": "promiedos",
+        "nivel": "B",
+        "estimada": "false",
+        "formula": "a | b",
+    }
+    text = build(spec, [stat])
+    assert "### `boca_match`" in text and "| `match_id` | integer |" in text
+    assert "| `goles` | jugador | Goles | goles | promiedos | B | no | a / b |" in text

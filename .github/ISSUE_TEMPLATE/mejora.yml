@@ -1,0 +1,25 @@
+name: Mejora
+description: Una idea para el sitio, los libros de Excel, Power BI o la documentación.
+title: 'Mejora: '
+labels: [mejora, triage]
+body:
+  - type: textarea
+    id: problema
+    attributes:
+      label: Qué problema resuelve
+    validations:
+      required: true
+  - type: textarea
+    id: propuesta
+    attributes:
+      label: Propuesta
+    validations:
+      required: true
+  - type: dropdown
+    id: prioridad
+    attributes:
+      label: Prioridad sugerida
+      options:
+        - Must
+        - Should
+        - Could

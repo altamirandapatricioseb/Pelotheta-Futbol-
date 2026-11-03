@@ -14,7 +14,7 @@ const FRESHNESS_DAYS = 35;
 /** Estado público del sistema (14.6 y 16.5): SLOs, corridas del pipeline y última corrida de cada fuente. */
 export default async function Page() {
   const api = createApiClient();
-  const [sources, runs, quality] = await Promise.all([
+  const [sources, runs, quality, stats, charts, cards] = await Promise.all([
     api.from('source_status').select('source, last_run_at, last_status, last_success_at').order('source'),
     api
       .from('pipeline_run_metrics')
@@ -22,7 +22,20 @@ export default async function Page() {
       .order('finished_at', { ascending: false })
       .limit(6),
     api.from('data_quality').select('table_name, description_es, failing, total, checked_at').order('table_name'),
+    api.from('stat_catalog').select('available'),
+    api.from('chart_catalog').select('available'),
+    api.from('situational_catalog').select('available'),
   ]);
+  // KPIs de producto (16.8): cuánto del catálogo tiene datos hoy.
+  const kpis = [
+    { label: 'Estadísticas con datos', rows: stats.data },
+    { label: 'Gráficos con datos', rows: charts.data },
+    { label: 'Tarjetas de situaciones con datos', rows: cards.data },
+  ].map((k) => ({
+    label: k.label,
+    ok: (k.rows ?? []).filter((r) => r.available).length,
+    total: (k.rows ?? []).length,
+  }));
   // La frescura se mide con la fuente principal (partidos de Promiedos), no con la más reciente.
   const lastSuccess = sources.data?.find((s) => s.source === 'promiedos')?.last_success_at;
   const age = lastSuccess ? daysSince(lastSuccess) : null;
@@ -113,6 +126,20 @@ export default async function Page() {
               </table>
             </div>
           ) : null}
+
+          <section className="grid gap-2" aria-labelledby="kpis">
+            <h2 id="kpis" className="text-xl font-bold">
+              Cobertura del catálogo
+            </h2>
+            <ul className="grid gap-1">
+              {kpis.map((k) => (
+                <li key={k.label}>
+                  <strong>{k.label}:</strong> {String(k.ok)} de {String(k.total)}
+                  {k.total ? ` (${String(Math.round((100 * k.ok) / k.total))} %)` : ''}
+                </li>
+              ))}
+            </ul>
+          </section>
 
           {byTable.size ? (
             <section className="grid gap-2" aria-labelledby="calidad">

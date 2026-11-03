@@ -27,7 +27,7 @@ jobs:
       - name: Ruff (lint, formato y reglas de seguridad S)
         run: uv run ruff check sources tests scripts pipeline && uv run ruff format --check sources tests scripts pipeline
       - name: Pytest (sin red; test_rls se saltea sin variables)
-        run: uv run pytest -q
+        run: uv run pytest -q --cov --cov-report=term
       - name: Auditoría de dependencias Python
         run: uvx pip-audit==2.9.0 --strict -r <(uv export --locked --no-hashes --format requirements-txt)
 
@@ -49,7 +49,7 @@ jobs:
       - run: corepack enable pnpm && pnpm install --frozen-lockfile
       - run: pnpm lint
       - run: pnpm typecheck
-      - run: pnpm test
+      - run: pnpm test --coverage
       - run: pnpm build
       - name: El build no contiene claves secretas
         run: |

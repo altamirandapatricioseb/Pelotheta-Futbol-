@@ -17,7 +17,7 @@ Para retomar en un chat nuevo: leer este archivo, `PROMPT-1-BOCA-FUTBOL.md` (ya 
 | 7. Comparación directa | **Desplegada** (28-oct): `/comparar` contra plantel, zona, carril, posición y otro jugador |
 | 8. Excel | **Desplegada** (28-oct): 6 libros (global y uno por competición) que se descargan desde la web |
 | 9. Power BI | **Lista** (2-nov): CSV en estrella, medidas DAX, temas, rol `powerbi_reader` y guía |
-| 10. Pulido | En curso: 10.1 seguridad y 10.2 accesibilidad y rendimiento listas (2-nov); falta 10.3 extras |
+| 10. Pulido | **Lista** (2-nov): seguridad (sección 14 completa), accesibilidad, rendimiento y extras de la sección 16 |
 | 11. Documentación y entrega | Pendiente |
 
 ## Etapa 3: cierre (28-oct-2026)
@@ -406,4 +406,30 @@ Semgrep no corre en Windows (pywin32): se verifica en el primer CI después del 
 - **Diseño:** la guía de lectura y los goles del partido dejaron el borde lateral grueso (borde fino completo y
   un punto del color del equipo).
 
-## Próxima etapa (10.3: extras de la sección 16)
+## Etapa 10.3: extras de la sección 16 y cierre de la 14 (2-nov-2026)
+
+Lo que dependía del dueño (secretos, 2FA, Auth, rama protegida, clave de backup) se resolvió sin él o
+quedó como riesgo aceptado con control compensatorio (`docs/security/fuera_de_alcance.md`, R16 a R18).
+
+- **14:** backup mensual cifrado con age (la clave privada está en `~/.pelotheta/backup-age.key`, fuera del
+  repositorio: guardala también en otro lado), pgTAP 10/10, e2e de CSP y parámetros maliciosos, sondas de
+  escáneres con 404, SBOM y Scorecard, simulacro y ejercicio forense. El repositorio es privado: soporte en
+  `/soporte`, contacto de seguridad y de privacidad por el perfil de GitHub.
+- **16.1:** contratos (`data/contracts.yml`) y 16 chequeos de calidad (`sql/quality/`), con el resultado en
+  `/estado` por tabla. Hoy 16/16.
+- **16.2:** `/api-docs` y `/openapi.json`; la clave publicable se publica (es pública por diseño).
+- **16.3 y 16.4:** cinco notebooks (`notebooks/`, HTML en `docs/notebooks/`, CI con nbmake). Elo calibrado
+  a K = 30 y V = 50 (versión 2 de `projection_param`: cambia en la próxima carga). Mejoría α: describe, no
+  anticipa. El modelo de resultado no le gana al Elo calibrado y no se publica.
+- **16.5:** métricas por corrida, SLOs (`docs/slo.md`), Lighthouse CI, `just bootstrap`, recuperación
+  (`docs/recuperacion.md`).
+- **16.6:** códigos de error estables, `/soporte`, página 404 y plantillas de issues.
+- **16.7:** cobertura en CI (Python 89 % con mínimo 85; web 93 % con mínimo 80), regresión visual de las 5
+  interfaces en los dos temas, script de k6 y `docs/pruebas/estrategia.md`.
+- **16.8 a 16.10:** `docs/producto/vision.md` (personas, KPIs, backlog y hoja de ruta; KPIs en vivo en
+  `/estado`), `docs/gestion/` (etapas, Definición de Terminado, informe y retrospectiva) y
+  `docs/red/dominio.md`.
+- **Otros:** animación del cambio de tema, fuente ELNINE (bloqueada hoy por Cloudflare) y
+  `docs/ideas_extra.md`.
+
+## Próxima etapa (11: documentación y entrega)

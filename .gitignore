@@ -32,6 +32,7 @@ web/next-env.d.ts
 web/playwright-report/
 web/test-results/
 web/.lighthouseci/
+web/coverage/
 
 # Supabase local
 supabase/.branches/

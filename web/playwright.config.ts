@@ -11,6 +11,9 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   workers: 2,
   reporter: [['list']],
+  // Si falta la captura de referencia de esta plataforma (por ejemplo, Linux en CI), se crea en vez
+  // de fallar: las de Windows están en el repositorio.
+  updateSnapshots: 'missing',
   use: { baseURL, trace: 'retain-on-failure' },
   projects: [
     { name: 'escritorio', use: { ...devices['Desktop Chrome'] } },

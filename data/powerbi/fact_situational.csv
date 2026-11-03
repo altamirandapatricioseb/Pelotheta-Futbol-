@@ -1,469 +1,473 @@
 ﻿card_id,categoria,tarjeta,fila,partidos,ganados,empatados,perdidos,pct_victorias,dif_vs_base,puntos_por_partido,gf,gc
-s001,A,Minuto del primer gol de Boca,0-15,4,3,1,0,75.0,25.0,2.5,2.5,0.75
-s001,A,Minuto del primer gol de Boca,16-30,9,5,4,0,55.6,5.6,2.11,2.44,1.0
-s001,A,Minuto del primer gol de Boca,31-45+,9,6,3,0,66.7,16.7,2.33,1.44,0.44
-s001,A,Minuto del primer gol de Boca,46-60,8,5,3,0,62.5,12.5,2.25,1.63,0.5
-s001,A,Minuto del primer gol de Boca,61-75,2,2,0,0,100.0,50.0,3.0,2.0,1.0
-s001,A,Minuto del primer gol de Boca,76-90+,7,3,1,3,42.9,-7.1,1.43,1.14,1.14
-s002,A,Minuto del primer gol del rival,0-15,9,2,5,2,22.2,-27.8,1.22,1.44,1.56
-s002,A,Minuto del primer gol del rival,16-30,4,1,1,2,25.0,-25.0,1.0,1.5,1.75
-s002,A,Minuto del primer gol del rival,31-45+,2,0,1,1,0.0,-50.0,0.5,0.5,1.0
-s002,A,Minuto del primer gol del rival,46-60,4,1,3,0,25.0,-25.0,1.5,1.5,1.25
-s002,A,Minuto del primer gol del rival,61-75,5,1,1,3,20.0,-30.0,0.8,1.0,1.2
-s002,A,Minuto del primer gol del rival,76-90+,4,2,1,1,50.0,0.0,1.75,1.5,1.0
-s003,A,Ganando al descanso,'+1,11,8,3,0,72.7,22.7,2.45,2.0,0.55
-s003,A,Ganando al descanso,'+2,5,5,0,0,100.0,50.0,3.0,3.0,0.6
-s004,A,Perdiendo al descanso,−1,6,2,1,3,33.3,-16.7,1.17,1.5,1.5
-s004,A,Perdiendo al descanso,−2,1,0,0,1,0.0,-50.0,0.0,1.0,2.0
-s004,A,Perdiendo al descanso,−3 o más,1,0,0,1,0.0,-50.0,0.0,0.0,3.0
-s005,A,Empatando al descanso,0-0,18,8,6,4,44.4,-5.6,1.67,0.83,0.44
-s005,A,Empatando al descanso,1-1 o más,6,1,5,0,16.7,-33.3,1.33,1.33,1.17
-s006,A,Ganando en el minuto 60,'+1,16,13,3,0,81.3,31.3,2.63,1.94,0.5
-s006,A,Ganando en el minuto 60,'+2 o más,6,6,0,0,100.0,50.0,3.0,2.83,0.33
-s007,A,Ganando en el minuto 75,'+1,13,11,2,0,84.6,34.6,2.69,1.92,0.46
-s007,A,Ganando en el minuto 75,'+2 o más,9,9,0,0,100.0,50.0,3.0,2.56,0.33
-s008,A,Ganando en el minuto 85,'+1 o más,23,21,2,0,91.3,41.3,2.83,2.13,0.39
-s009,A,Perdiendo en el minuto 60,−1,5,0,2,3,0.0,-50.0,0.4,1.0,1.6
-s009,A,Perdiendo en el minuto 60,−2 o más,3,1,0,2,33.3,-16.7,1.0,1.33,2.33
-s010,A,Perdiendo en el minuto 75,−1,8,1,2,5,12.5,-37.5,0.63,1.0,1.5
-s010,A,Perdiendo en el minuto 75,−2 o más,3,0,0,3,0.0,-50.0,0.0,0.67,2.33
-s011,A,Empatando en el final,Empate al 75,15,3,11,1,20.0,-30.0,1.33,0.8,0.67
-s011,A,Empatando en el final,Empate al 85,16,3,13,0,18.8,-31.3,1.38,1.06,0.88
-s012,A,Gol en los últimos 10 minutos,A favor,11,7,1,3,63.6,13.6,2.0,2.18,1.09
-s012,A,Gol en los últimos 10 minutos,En contra,5,2,2,1,40.0,-10.0,1.6,1.6,1.2
-s013,A,Gol en los primeros 10 minutos,A favor,2,2,0,0,100.0,50.0,3.0,3.0,1.0
-s013,A,Gol en los primeros 10 minutos,En contra,5,1,2,2,20.0,-30.0,1.0,1.4,1.8
-s014,A,Gol en tiempo agregado,A favor,8,7,1,0,87.5,37.5,2.75,2.13,0.38
-s014,A,Gol en tiempo agregado,En contra,1,0,1,0,0.0,-50.0,1.0,2.0,2.0
-s132,A,Quién marca primero,Boca marca primero,26,21,5,0,80.8,30.8,2.62,1.92,0.42
-s132,A,Quién marca primero,El rival marca primero,19,3,7,9,15.8,-34.2,0.84,1.05,1.42
-s132,A,Quién marca primero,Sin goles,3,0,3,0,0.0,-50.0,1.0,0.0,0.0
-s015,B,Goleadas,A favor (+3 o más),5,5,0,0,100.0,50.0,3.0,3.4,0.0
-s015,B,Goleadas,En contra (−3 o más),1,0,0,1,0.0,-50.0,0.0,0.0,3.0
-s016,B,Partidos decididos por un gol,Ganados por 1,12,12,0,0,100.0,50.0,3.0,1.42,0.42
-s016,B,Partidos decididos por un gol,Perdidos por 1,8,0,0,8,0.0,-50.0,0.0,0.5,1.5
-s017,B,Marcadores más repetidos,1-1,9,0,9,0,0.0,-50.0,1.0,1.0,1.0
-s017,B,Marcadores más repetidos,1-0,8,8,0,0,100.0,50.0,3.0,1.0,0.0
-s017,B,Marcadores más repetidos,0-1,5,0,0,5,0.0,-50.0,0.0,0.0,1.0
-s017,B,Marcadores más repetidos,2-0,4,4,0,0,100.0,50.0,3.0,2.0,0.0
-s017,B,Marcadores más repetidos,3-0,3,3,0,0,100.0,50.0,3.0,3.0,0.0
-s017,B,Marcadores más repetidos,3-1,3,3,0,0,100.0,50.0,3.0,3.0,1.0
-s017,B,Marcadores más repetidos,2-1,3,3,0,0,100.0,50.0,3.0,2.0,1.0
-s017,B,Marcadores más repetidos,2-2,3,0,3,0,0.0,-50.0,1.0,2.0,2.0
-s017,B,Marcadores más repetidos,0-0,3,0,3,0,0.0,-50.0,1.0,0.0,0.0
-s017,B,Marcadores más repetidos,4-0,2,2,0,0,100.0,50.0,3.0,4.0,0.0
-s017,B,Marcadores más repetidos,1-2,2,0,0,2,0.0,-50.0,0.0,1.0,2.0
-s017,B,Marcadores más repetidos,3-2,1,1,0,0,100.0,50.0,3.0,3.0,2.0
-s017,B,Marcadores más repetidos,2-3,1,0,0,1,0.0,-50.0,0.0,2.0,3.0
-s017,B,Marcadores más repetidos,0-3,1,0,0,1,0.0,-50.0,0.0,0.0,3.0
-s018,B,Partidos con muchos goles,3 o más goles,19,12,3,4,63.2,13.2,2.05,2.37,1.26
-s018,B,Partidos con muchos goles,2 o menos,29,12,12,5,41.4,-8.6,1.66,0.86,0.48
-s019,B,Ambos equipos marcan,Ambos marcan,22,7,12,3,31.8,-18.2,1.5,1.68,1.36
-s019,B,Ambos equipos marcan,No marcan los dos,26,17,3,6,65.4,15.4,2.08,1.27,0.31
-s020,B,Valla invicta,Valla invicta,20,17,3,0,85.0,35.0,2.7,1.65,0.0
-s020,B,Valla invicta,Recibió gol,28,7,12,9,25.0,-25.0,1.18,1.32,1.36
-s021,B,Después de no marcar,Después de no marcar,9,3,4,2,33.3,-16.7,1.44,1.44,1.22
-s021,B,Después de no marcar,Después de marcar,38,20,11,7,52.6,2.6,1.87,1.47,0.71
-s022,B,Cuando marca 2 o más,Marca 2 o más,20,16,3,1,80.0,30.0,2.55,2.55,0.85
-s023,B,Cuando marca exactamente 1,Marca exactamente 1,19,8,9,2,42.1,-7.9,1.74,1.0,0.68
-s024,B,Gol en contra temprano,Recibe antes del 10',5,1,2,2,20.0,-30.0,1.0,1.4,1.8
-s024,B,Gol en contra temprano,No recibe antes del 10',43,23,13,7,53.5,3.5,1.91,1.47,0.67
-s025,B,Reacción tras recibir,Respondió en 10 minutos,2,1,1,0,50.0,0.0,2.0,2.0,1.5
-s025,B,Reacción tras recibir,No respondió en 10 minutos,26,6,11,9,23.1,-26.9,1.12,1.27,1.35
-s026,B,Recibir justo después de marcar,Recibió en 10 minutos,3,0,2,1,0.0,-50.0,0.67,1.67,2.0
-s026,B,Recibir justo después de marcar,No recibió en 10 minutos,36,24,10,2,66.7,16.7,2.28,1.81,0.67
-s027,C,Muchos remates,10 o más remates,39,19,13,7,48.7,-1.3,1.79,1.46,0.79
-s027,C,Muchos remates,15 o más remates,22,11,7,4,50.0,0.0,1.82,1.55,0.73
-s027,C,Muchos remates,20 o más remates,6,2,2,2,33.3,-16.7,1.33,1.67,1.17
-s028,C,Remates al arco,4 o más al arco,28,18,8,2,64.3,14.3,2.21,1.96,0.75
-s028,C,Remates al arco,6 o más al arco,14,9,4,1,64.3,14.3,2.21,2.43,0.93
-s028,C,Remates al arco,8 o más al arco,7,4,2,1,57.1,7.1,2.0,2.29,1.0
-s029,C,Más remates que el rival,Más remates que el rival,31,17,10,4,54.8,4.8,1.97,1.61,0.71
-s030,C,Menos remates que el rival,Menos remates que el rival,16,7,5,4,43.8,-6.3,1.63,1.25,0.94
-s031,C,Diferencia de remates al arco,'+3 o más,17,12,4,1,70.6,20.6,2.35,2.29,0.65
-s031,C,Diferencia de remates al arco,'+1 a +2,13,7,5,1,53.8,3.8,2.0,1.23,0.69
-s031,C,Diferencia de remates al arco,Igual,2,1,0,1,50.0,0.0,1.5,1.0,0.5
-s031,C,Diferencia de remates al arco,−1 a −2,11,4,3,4,36.4,-13.6,1.36,0.82,1.0
-s031,C,Diferencia de remates al arco,−3 o menos,5,0,3,2,0.0,-50.0,0.6,0.8,1.2
-s032,C,xG alto a favor,"xG 1,5 o más",18,7,8,3,38.9,-11.1,1.61,1.78,1.0
-s032,C,xG alto a favor,"xG 2,0 o más",9,4,3,2,44.4,-5.6,1.67,1.67,0.78
-s033,C,xG alto en contra,"xG en contra 1,0 o más",13,4,3,6,30.8,-19.2,1.15,1.15,1.38
-s033,C,xG alto en contra,"xG en contra 1,5 o más",4,1,1,2,25.0,-25.0,1.0,1.5,1.75
-s034,C,Injusticias y robos,Más xG y no ganó,13,0,10,3,0.0,-50.0,0.77,1.0,1.23
-s034,C,Injusticias y robos,Menos xG y ganó,1,1,0,0,100.0,50.0,3.0,1.0,0.0
-s035,C,Después de convertir de más o de menos,Después de goles − xG ≥ 1,4,0,3,1,0.0,-50.0,0.75,0.75,1.0
-s035,C,Después de convertir de más o de menos,Después de goles − xG ≤ −1,5,3,0,2,60.0,10.0,1.8,2.2,1.0
-s036,C,Efectividad de remate,Menos de 5 %,10,0,5,5,0.0,-50.0,0.5,0.2,0.9
-s036,C,Efectividad de remate,5 a 10 %,13,6,6,1,46.2,-3.8,1.85,1.23,0.77
-s036,C,Efectividad de remate,10 a 20 %,17,11,4,2,64.7,14.7,2.18,1.82,0.88
-s036,C,Efectividad de remate,20 % o más,7,7,0,0,100.0,50.0,3.0,3.0,0.43
-s037,C,Precisión de remate,40 % o más al arco,15,12,2,1,80.0,30.0,2.53,2.2,0.53
-s037,C,Precisión de remate,Menos de 40 %,32,12,13,7,37.5,-12.5,1.53,1.16,0.91
-s038,C,Remates bloqueados,3 o más bloqueados,23,9,8,6,39.1,-10.9,1.52,1.35,0.91
-s038,C,Remates bloqueados,5 o más bloqueados,10,4,1,5,40.0,-10.0,1.3,1.1,1.0
-s039,C,Remates desde dentro del área,70 % o más dentro del área,13,7,5,1,53.8,3.8,2.0,1.69,0.69
-s039,C,Remates desde dentro del área,50 a 70 %,25,13,8,4,52.0,2.0,1.88,1.56,0.76
-s039,C,Remates desde dentro del área,Menos de 50 %,6,2,1,3,33.3,-16.7,1.17,0.67,1.17
-s040,C,Pases clave,6 o más pases clave,37,20,12,5,54.1,4.1,1.95,1.54,0.76
-s040,C,Pases clave,10 o más pases clave,25,13,8,4,52.0,2.0,1.88,1.6,0.72
-s041,D,Posesión alta o baja,60 % o más,25,12,8,5,48.0,-2.0,1.76,1.48,0.92
-s041,D,Posesión alta o baja,40 % o menos,4,2,1,1,50.0,0.0,1.75,1.25,0.75
-s042,D,Precisión de pase,85 % o más,19,13,4,2,68.4,18.4,2.26,1.68,0.79
-s042,D,Precisión de pase,75 % o menos,6,1,3,2,16.7,-33.3,1.0,0.67,0.83
-s045,D,Pérdidas de balón,130 o más pérdidas,28,12,10,6,42.9,-7.1,1.64,1.18,0.86
-s045,D,Pérdidas de balón,150 o más pérdidas,12,4,4,4,33.3,-16.7,1.33,1.0,1.17
-s047,D,Presión alta o baja,PPDA menor a 8 (presión alta),16,6,7,3,37.5,-12.5,1.56,1.13,0.88
-s047,D,Presión alta o baja,PPDA mayor a 12 (presión baja),9,5,2,2,55.6,5.6,1.89,1.78,0.78
-s049,D,Centros y goles de cabeza,20 o más centros,25,10,8,7,40.0,-10.0,1.52,1.28,0.96
-s049,D,Centros y goles de cabeza,30 o más centros,12,2,5,5,16.7,-33.3,0.92,1.08,1.42
-s049,D,Centros y goles de cabeza,Con gol de cabeza,6,4,1,1,66.7,16.7,2.17,2.0,0.83
-s050,D,Posesión sin peligro,Posesión > 55 % y xG < 1,2,0,1,1,0.0,-50.0,0.5,0.0,1.5
-s051,E,Remates recibidos,8 o menos recibidos,18,10,5,3,55.6,5.6,1.94,1.56,0.67
-s051,E,Remates recibidos,15 o más recibidos,7,3,2,2,42.9,-7.1,1.57,1.29,1.0
-s052,E,Remates al arco recibidos,3 o menos al arco,31,19,9,3,61.3,11.3,2.13,1.58,0.48
-s052,E,Remates al arco recibidos,6 o más al arco,3,0,2,1,0.0,-50.0,0.67,1.33,1.67
-s053,E,xG concedido,"xG en contra 0,8 o menos",21,11,9,1,52.4,2.4,2.0,1.52,0.52
-s054,E,Recibir más de lo esperado,Goles recibidos − xG > 1,4,0,2,2,0.0,-50.0,0.5,1.5,2.5
-s055,E,Atajadas del arquero,4 o más atajadas,10,4,4,2,40.0,-10.0,1.6,1.4,0.8
-s055,E,Atajadas del arquero,6 o más atajadas,1,0,1,0,0.0,-50.0,1.0,1.0,1.0
-s056,E,Entradas e intercepciones,20 o más entradas,15,9,6,0,60.0,10.0,2.2,1.47,0.47
-s056,E,Entradas e intercepciones,10 o más intercepciones,23,10,10,3,43.5,-6.5,1.74,1.43,0.78
-s057,E,Equipo encerrado,25 o más despejes,14,7,7,0,50.0,0.0,2.0,1.29,0.57
-s057,E,Equipo encerrado,35 o más despejes,2,1,1,0,50.0,0.0,2.0,2.0,0.5
-s060,E,Cuándo recibe goles,0-15,9,2,5,2,22.2,-27.8,1.22,1.44,1.56
-s060,E,Cuándo recibe goles,16-30,5,1,1,3,20.0,-30.0,0.8,1.2,2.0
-s060,E,Cuándo recibe goles,31-45+,4,0,1,3,0.0,-50.0,0.25,0.5,1.75
-s060,E,Cuándo recibe goles,46-60,6,2,4,0,33.3,-16.7,1.67,1.83,1.5
-s060,E,Cuándo recibe goles,61-75,5,1,1,3,20.0,-30.0,0.8,1.0,1.2
-s060,E,Cuándo recibe goles,76-90+,5,2,2,1,40.0,-10.0,1.6,1.6,1.2
-s060,E,Cuándo recibe goles,Prórroga,1,0,0,1,0.0,-50.0,0.0,2.0,3.0
-s061,F,Muchos córners a favor,5 o más córners,26,12,8,6,46.2,-3.8,1.69,1.46,0.96
-s061,F,Muchos córners a favor,8 o más córners,13,5,4,4,38.5,-11.5,1.46,1.08,1.0
-s061,F,Muchos córners a favor,10 o más córners,5,3,1,1,60.0,10.0,2.0,1.6,1.2
-s062,F,Muchos córners en contra,5 o más córners en contra,14,8,4,2,57.1,7.1,2.0,1.86,0.86
-s062,F,Muchos córners en contra,8 o más córners en contra,2,2,0,0,100.0,50.0,3.0,3.5,0.0
-s063,F,Goles de córner,Gol de córner a favor,1,1,0,0,100.0,50.0,3.0,1.0,0.0
-s063,F,Goles de córner,Gol de córner en contra,4,0,2,2,0.0,-50.0,0.5,1.0,2.0
-s064,F,Penal a favor,Penal convertido,3,2,1,0,66.7,16.7,2.33,1.33,0.33
-s065,F,Penal en contra,Con penal en contra,2,0,1,1,0.0,-50.0,0.5,1.5,2.0
-s067,F,Goles de tiro libre y pelota parada,Gol de tiro libre en contra,1,0,1,0,0.0,-50.0,1.0,1.0,1.0
-s067,F,Goles de tiro libre y pelota parada,Gol de pelota parada a favor,4,2,1,1,50.0,0.0,1.75,2.0,1.25
-s067,F,Goles de tiro libre y pelota parada,Gol de pelota parada en contra,2,1,1,0,50.0,0.0,2.0,2.0,1.5
-s069,F,Offsides del rival,3 o más offsides del rival,7,3,3,1,42.9,-7.1,1.71,1.57,0.86
-s070,F,Faltas recibidas,15 o más faltas recibidas,13,5,5,3,38.5,-11.5,1.54,1.15,1.0
-s070,F,Faltas recibidas,20 o más faltas recibidas,2,1,0,1,50.0,0.0,1.5,1.0,1.5
-s071,G,Expulsión del rival,Hasta el 45',5,3,1,1,60.0,10.0,2.0,2.0,0.6
-s071,G,Expulsión del rival,Del 46' al 70',2,0,1,1,0.0,-50.0,0.5,0.5,1.0
-s071,G,Expulsión del rival,Desde el 71',1,0,0,1,0.0,-50.0,0.0,2.0,3.0
-s072,G,Expulsión de Boca,Hasta el 45',2,0,0,2,0.0,-50.0,0.0,0.0,1.0
-s073,G,Amarillas de Boca,3 o más amarillas,16,7,6,3,43.8,-6.3,1.69,1.44,0.88
-s073,G,Amarillas de Boca,5 o más amarillas,1,1,0,0,100.0,50.0,3.0,1.0,0.0
-s074,G,Faltas cometidas,15 o más faltas,5,4,1,0,80.0,30.0,2.6,1.4,0.4
-s075,G,Partidos con penal,Penal a favor,3,2,1,0,66.7,16.7,2.33,1.33,0.33
-s075,G,Partidos con penal,Penal en contra,2,0,1,1,0.0,-50.0,0.5,1.5,2.0
-s076,G,Resultado por árbitro,Nazareno Arasa,7,6,0,1,85.7,35.7,2.57,1.43,0.43
-s076,G,Resultado por árbitro,Darío Herrera (Argentina),3,2,1,0,66.7,16.7,2.33,2.33,0.67
-s076,G,Resultado por árbitro,Leandro Rey Hilfer,3,1,2,0,33.3,-16.7,1.67,1.33,0.67
-s076,G,Resultado por árbitro,Pablo Echavarría,3,0,1,2,0.0,-50.0,0.33,1.33,2.0
-s076,G,Resultado por árbitro,Piero Maza Gomez,3,2,0,1,66.7,16.7,2.0,1.33,0.67
-s076,G,Resultado por árbitro,Sebastían Zunino,3,1,2,0,33.3,-16.7,1.67,0.33,0.0
-s076,G,Resultado por árbitro,Wilmar Alexander Roldán Pérez,3,1,0,2,33.3,-16.7,1.0,1.0,0.67
-s076,G,Resultado por árbitro,Andrés Matonte,2,2,0,0,100.0,50.0,3.0,2.5,0.0
-s076,G,Resultado por árbitro,Andrés Merlos,2,0,2,0,0.0,-50.0,1.0,1.5,1.5
-s076,G,Resultado por árbitro,C. Gareano,2,2,0,0,100.0,50.0,3.0,3.5,1.0
-s076,G,Resultado por árbitro,G. Tejera,2,1,1,0,50.0,0.0,2.0,1.5,1.0
-s076,G,Resultado por árbitro,Pablo Dóvalo,2,1,1,0,50.0,0.0,2.0,1.0,0.5
-s076,G,Resultado por árbitro,Yael Falcón (Argentina),2,1,1,0,50.0,0.0,2.0,2.0,1.0
-s077,G,Árbitros que sacan muchas tarjetas,5 o más amarillas por partido,16,11,3,2,68.8,18.8,2.25,1.63,0.69
-s077,G,Árbitros que sacan muchas tarjetas,4 a 5,12,6,6,0,50.0,0.0,2.0,1.42,0.58
-s077,G,Árbitros que sacan muchas tarjetas,Menos de 4,6,0,4,2,0.0,-50.0,0.67,1.33,1.67
-s080,G,Amarillas del rival,3 o más amarillas del rival,23,9,8,6,39.1,-10.9,1.52,1.09,0.83
-s080,G,Amarillas del rival,5 o más amarillas del rival,5,3,1,1,60.0,10.0,2.0,1.0,0.2
-s081,H,Local y visitante,Local,22,12,7,3,54.5,4.5,1.95,1.36,0.59
-s081,H,Local y visitante,Visitante,26,12,8,6,46.2,-3.8,1.69,1.54,0.96
-s082,H,Localía por competición,CONMEBOL Copa Libertadores · local,3,1,1,1,33.3,-16.7,1.33,1.33,0.67
-s082,H,Localía por competición,CONMEBOL Copa Libertadores · visitante,3,1,0,2,33.3,-16.7,1.0,0.67,1.0
-s082,H,Localía por competición,CONMEBOL Copa Sudamericana · local,4,3,0,1,75.0,25.0,2.25,1.25,0.5
-s082,H,Localía por competición,CONMEBOL Copa Sudamericana · visitante,4,2,1,1,50.0,0.0,1.75,2.0,0.75
-s082,H,Localía por competición,Copa Argentina · visitante,3,2,1,0,66.7,16.7,2.33,1.67,0.67
-s082,H,Localía por competición,Liga Profesional: Torneo Apertura · local,9,3,5,1,33.3,-16.7,1.56,1.11,0.67
-s082,H,Localía por competición,Liga Profesional: Torneo Apertura · visitante,8,5,1,2,62.5,12.5,2.0,1.75,0.75
-s082,H,Localía por competición,Liga Profesional: Torneo Clausura · local,6,5,1,0,83.3,33.3,2.67,1.83,0.5
-s082,H,Localía por competición,Liga Profesional: Torneo Clausura · visitante,8,2,5,1,25.0,-25.0,1.38,1.38,1.38
-s083,H,Días de descanso,3 días o menos,13,7,3,3,53.8,3.8,1.85,1.77,1.08
-s083,H,Días de descanso,4 a 6 días,22,11,7,4,50.0,0.0,1.82,1.41,0.64
-s083,H,Días de descanso,7 días o más,12,5,5,2,41.7,-8.3,1.67,1.25,0.83
-s084,H,Después de copa o alargue,Después de un partido de copa,16,9,4,3,56.3,6.3,1.94,1.5,0.94
-s084,H,Después de copa o alargue,Después de un alargue,2,0,2,0,0.0,-50.0,1.0,1.5,1.5
-s085,H,Semanas con doble partido,Segundo partido en 4 días o menos,25,12,7,6,48.0,-2.0,1.72,1.72,1.0
-s085,H,Semanas con doble partido,Con más descanso,22,11,8,3,50.0,0.0,1.86,1.18,0.59
-s086,H,Día de la semana,Martes,11,6,2,3,54.5,4.5,1.82,1.64,0.73
-s086,H,Día de la semana,Miércoles,5,2,2,1,40.0,-10.0,1.6,1.2,0.6
-s086,H,Día de la semana,Jueves,6,4,0,2,66.7,16.7,2.0,1.33,0.33
-s086,H,Día de la semana,Viernes,6,4,2,0,66.7,16.7,2.33,1.83,0.67
-s086,H,Día de la semana,Sábado,7,1,5,1,14.3,-35.7,1.14,1.43,1.43
-s086,H,Día de la semana,Domingo,13,7,4,2,53.8,3.8,1.92,1.31,0.85
-s087,H,Franja horaria,Tarde (antes de las 18),25,14,9,2,56.0,6.0,2.04,1.68,0.8
-s087,H,Franja horaria,Noche (18 o más),23,10,6,7,43.5,-6.5,1.57,1.22,0.78
-s088,H,Mes del año,Enero,2,1,0,1,50.0,0.0,1.5,1.0,1.0
-s088,H,Mes del año,Febrero,5,1,3,1,20.0,-30.0,1.2,0.8,0.6
-s088,H,Mes del año,Marzo,4,2,2,0,50.0,0.0,2.0,1.75,0.5
-s088,H,Mes del año,Abril,7,5,1,1,71.4,21.4,2.29,1.71,0.43
-s088,H,Mes del año,Mayo,5,1,1,3,20.0,-30.0,0.8,1.0,1.4
-s088,H,Mes del año,Julio,4,2,0,2,50.0,0.0,1.5,0.75,1.0
-s088,H,Mes del año,Agosto,8,4,4,0,50.0,0.0,2.0,1.75,0.75
-s088,H,Mes del año,Septiembre,7,4,3,0,57.1,7.1,2.14,1.71,0.86
-s088,H,Mes del año,Octubre,6,4,1,1,66.7,16.7,2.17,1.83,0.83
-s089,H,Comienzo y final del torneo,Primeras 5 fechas,10,3,4,3,30.0,-20.0,1.3,1.0,1.1
-s089,H,Comienzo y final del torneo,Últimas 5 fechas,10,7,2,1,70.0,20.0,2.3,2.0,0.8
-s090,H,Clásicos y grandes,Superclásico,1,1,0,0,100.0,50.0,3.0,1.0,0.0
-s090,H,Clásicos y grandes,Otros grandes,7,3,4,0,42.9,-7.1,1.86,1.29,0.71
-s090,H,Clásicos y grandes,Resto,40,20,11,9,50.0,0.0,1.78,1.5,0.83
-s091,H,Rival por nivel (Elo),Cuartil 1 (los más débiles),9,5,2,2,55.6,5.6,1.89,1.44,1.11
-s091,H,Rival por nivel (Elo),Cuartil 2,9,7,1,1,77.8,27.8,2.44,2.22,0.78
-s091,H,Rival por nivel (Elo),Cuartil 3,8,2,5,1,25.0,-25.0,1.38,1.13,0.63
-s091,H,Rival por nivel (Elo),Cuartil 4 (los más fuertes),8,3,5,0,37.5,-12.5,1.75,1.13,0.75
-s092,H,Rival por puesto en la tabla,Puestos 1 a 10,7,4,2,1,57.1,7.1,2.0,1.57,0.71
-s092,H,Rival por puesto en la tabla,Puestos 11 a 20,14,7,5,2,50.0,0.0,1.86,1.64,0.86
-s092,H,Rival por puesto en la tabla,Puestos 21 a 30,10,4,5,1,40.0,-10.0,1.7,1.2,0.9
-s093,H,Rival que recibe pocos o muchos goles,Rival que recibe pocos goles,10,5,2,3,50.0,0.0,1.7,1.0,0.8
-s093,H,Rival que recibe pocos o muchos goles,Rival en el medio,11,4,6,1,36.4,-13.6,1.64,1.45,0.82
-s093,H,Rival que recibe pocos o muchos goles,Rival que recibe muchos goles,2,1,1,0,50.0,0.0,2.0,2.0,1.0
-s094,H,Historial contra cada rival,Racing Club,3,1,2,0,33.3,-16.7,1.67,1.33,1.0
-s094,H,Historial contra cada rival,Vélez Sarsfield,3,0,2,1,0.0,-50.0,0.67,0.67,1.0
-s094,H,Historial contra cada rival,Barcelona SC,2,1,0,1,50.0,0.0,1.5,1.5,0.5
-s094,H,Historial contra cada rival,Central Córdoba SdE,2,2,0,0,100.0,50.0,3.0,2.5,1.0
-s094,H,Historial contra cada rival,Cruzeiro,2,0,1,1,0.0,-50.0,0.5,0.5,1.0
-s094,H,Historial contra cada rival,Deportivo Riestra,2,1,0,1,50.0,0.0,1.5,0.5,1.5
-s094,H,Historial contra cada rival,Estudiantes de La Plata,2,1,0,1,50.0,0.0,1.5,1.0,1.0
-s094,H,Historial contra cada rival,Gimnasia de Mendoza,2,0,2,0,0.0,-50.0,1.0,1.5,1.5
-s094,H,Historial contra cada rival,Independiente,2,1,1,0,50.0,0.0,2.0,1.0,0.5
-s094,H,Historial contra cada rival,Instituto,2,1,1,0,50.0,0.0,2.0,2.0,1.0
-s094,H,Historial contra cada rival,Lanús,2,2,0,0,100.0,50.0,3.0,2.0,0.0
-s094,H,Historial contra cada rival,Newell's Old Boys,2,1,1,0,50.0,0.0,2.0,2.0,1.0
-s094,H,Historial contra cada rival,O'Higgins,2,1,0,1,50.0,0.0,1.5,0.5,0.5
-s094,H,Historial contra cada rival,Platense,2,0,2,0,0.0,-50.0,1.0,0.5,0.5
-s094,H,Historial contra cada rival,Recoleta FC,2,2,0,0,100.0,50.0,3.0,3.5,0.5
-s094,H,Historial contra cada rival,San Lorenzo,2,1,1,0,50.0,0.0,2.0,1.5,0.5
-s094,H,Historial contra cada rival,São Paulo,2,1,1,0,50.0,0.0,2.0,1.0,0.5
-s094,H,Historial contra cada rival,Talleres de Córdoba,2,2,0,0,100.0,50.0,3.0,1.5,0.5
-s094,H,Historial contra cada rival,Unión de Santa Fe,2,1,1,0,50.0,0.0,2.0,2.0,0.5
-s094,H,Historial contra cada rival,Universidad Católica,2,1,0,1,50.0,0.0,1.5,1.0,1.0
-s094,H,Historial contra cada rival,Vasco Da Gama,2,1,0,1,50.0,0.0,1.5,1.5,1.0
-s095,H,Rivales que más puntos le sacaron,Vélez Sarsfield,3,0,2,1,0.0,-50.0,0.67,0.67,1.0
-s095,H,Rivales que más puntos le sacaron,Cruzeiro,2,0,1,1,0.0,-50.0,0.5,0.5,1.0
-s095,H,Rivales que más puntos le sacaron,Gimnasia de Mendoza,2,0,2,0,0.0,-50.0,1.0,1.5,1.5
-s095,H,Rivales que más puntos le sacaron,Platense,2,0,2,0,0.0,-50.0,1.0,0.5,0.5
-s095,H,Rivales que más puntos le sacaron,Racing Club,3,1,2,0,33.3,-16.7,1.67,1.33,1.0
-s095,H,Rivales que más puntos le sacaron,Barcelona SC,2,1,0,1,50.0,0.0,1.5,1.5,0.5
-s095,H,Rivales que más puntos le sacaron,Deportivo Riestra,2,1,0,1,50.0,0.0,1.5,0.5,1.5
-s095,H,Rivales que más puntos le sacaron,Estudiantes de La Plata,2,1,0,1,50.0,0.0,1.5,1.0,1.0
-s095,H,Rivales que más puntos le sacaron,Huracán,1,0,0,1,0.0,-50.0,0.0,2.0,3.0
-s095,H,Rivales que más puntos le sacaron,O'Higgins,2,1,0,1,50.0,0.0,1.5,0.5,0.5
-s095,H,Rivales que más puntos le sacaron,Universidad Católica,2,1,0,1,50.0,0.0,1.5,1.0,1.0
-s095,H,Rivales que más puntos le sacaron,Vasco Da Gama,2,1,0,1,50.0,0.0,1.5,1.5,1.0
-s095,H,Rivales que más puntos le sacaron,Independiente,2,1,1,0,50.0,0.0,2.0,1.0,0.5
-s095,H,Rivales que más puntos le sacaron,Instituto,2,1,1,0,50.0,0.0,2.0,2.0,1.0
-s095,H,Rivales que más puntos le sacaron,Newell's Old Boys,2,1,1,0,50.0,0.0,2.0,2.0,1.0
-s095,H,Rivales que más puntos le sacaron,San Lorenzo,2,1,1,0,50.0,0.0,2.0,1.5,0.5
-s095,H,Rivales que más puntos le sacaron,São Paulo,2,1,1,0,50.0,0.0,2.0,1.0,0.5
-s095,H,Rivales que más puntos le sacaron,Unión de Santa Fe,2,1,1,0,50.0,0.0,2.0,2.0,0.5
-s096,I,"Después de ganar, empatar o perder",Después de ganar,23,10,8,5,43.5,-6.5,1.65,1.39,0.96
-s096,I,"Después de ganar, empatar o perder",Después de empatar,15,9,4,2,60.0,10.0,2.07,1.6,0.47
-s096,I,"Después de ganar, empatar o perder",Después de perder,9,4,3,2,44.4,-5.6,1.67,1.44,1.0
-s097,I,Después de una goleada,Después de golear,5,1,3,1,20.0,-30.0,1.2,1.0,1.0
-s097,I,Después de una goleada,Después de ser goleado,1,0,0,1,0.0,-50.0,0.0,0.0,1.0
-s098,I,Después de una racha ganadora,Después de 3 o más victorias seguidas,3,0,2,1,0.0,-50.0,0.67,1.0,1.33
-s099,I,Después de una racha sin ganar,Después de 3 o más sin ganar,5,3,1,1,60.0,10.0,2.0,1.4,0.4
-s100,I,Forma reciente,0 a 5 puntos,5,3,1,1,60.0,10.0,2.0,1.4,0.6
-s100,I,Forma reciente,6 a 9 puntos,20,9,8,3,45.0,-5.0,1.75,1.45,0.85
-s100,I,Forma reciente,10 a 15 puntos,18,10,5,3,55.6,5.6,1.94,1.61,0.78
-s101,I,Racha sin recibir goles,Venía de 2 o más vallas invictas,6,2,2,2,33.3,-16.7,1.33,1.5,1.33
-s102,I,Racha sin marcar,Venía de 2 o más partidos sin marcar,2,0,2,0,0.0,-50.0,1.0,1.5,1.5
-s103,I,Rachas más largas,Invicto (sin perder) (17),17,9,8,0,52.9,2.9,2.06,1.82,0.82
-s103,I,Rachas más largas,Sin ganar (4),4,0,3,1,0.0,-50.0,0.75,0.5,0.75
-s103,I,Rachas más largas,Victorias seguidas (3),3,3,0,0,100.0,50.0,3.0,1.67,0.33
-s104,I,Después de quedar afuera de una copa,Después del último partido de una copa,3,3,0,0,100.0,50.0,3.0,2.0,0.0
-s105,I,Después de una expulsión,Después de una expulsión de Boca,2,1,0,1,50.0,0.0,1.5,2.0,2.0
-s106,J,Con cada titular,Con Blanco,42,20,13,9,47.6,-2.4,1.74,1.4,0.81
-s106,J,Con cada titular,Con Delgado,37,19,10,8,51.4,1.4,1.81,1.49,0.78
-s106,J,Con cada titular,Con Di Lollo,37,17,12,8,45.9,-4.1,1.7,1.32,0.84
-s106,J,Con cada titular,Con Ascacibar,35,17,11,7,48.6,-1.4,1.77,1.4,0.77
-s106,J,Con cada titular,Con Merentiel,35,19,11,5,54.3,4.3,1.94,1.46,0.66
-s106,J,Con cada titular,Con Paredes,31,15,9,7,48.4,-1.6,1.74,1.32,0.74
-s106,J,Con cada titular,Con Costa,27,12,9,6,44.4,-5.6,1.67,1.41,0.78
-s106,J,Con cada titular,Con Aranda,23,11,7,5,47.8,-2.2,1.74,1.43,0.74
-s106,J,Con cada titular,Con Montero,21,10,8,3,47.6,-2.4,1.81,1.38,0.86
-s106,J,Con cada titular,Con Flores,20,11,7,2,55.0,5.0,2.0,1.5,0.95
-s106,J,Con cada titular,Con Lozano,16,10,4,2,62.5,12.5,2.13,1.5,0.63
-s106,J,Con cada titular,Con Alan Velasco,15,10,4,1,66.7,16.7,2.27,1.6,0.67
-s106,J,Con cada titular,Con Leandro Brey,14,9,1,4,64.3,14.3,2.0,1.71,0.86
-s106,J,Con cada titular,Con Marchesín,13,5,6,2,38.5,-11.5,1.62,1.31,0.62
-s106,J,Con cada titular,Con Tomás Belmonte,13,7,5,1,53.8,3.8,2.0,1.62,0.62
-s106,J,Con cada titular,Con Weigandt,12,5,4,3,41.7,-8.3,1.58,1.33,0.75
-s106,J,Con cada titular,Con Bareiro,11,6,3,2,54.5,4.5,1.91,1.55,0.73
-s106,J,Con cada titular,Con Figal,11,7,3,1,63.6,13.6,2.18,1.91,0.64
-s106,J,Con cada titular,Con Pellegrino,11,5,4,2,45.5,-4.5,1.73,1.55,1.09
-s106,J,Con cada titular,Con Herrera,16,11,3,2,68.8,18.8,2.25,1.38,0.44
-s106,J,Con cada titular,Con Villa,10,5,4,1,50.0,0.0,1.9,1.9,0.8
-s106,J,Con cada titular,Con Alarcón,9,2,4,3,22.2,-27.8,1.11,1.0,1.22
-s106,J,Con cada titular,Con Braida,9,4,3,2,44.4,-5.6,1.67,1.33,1.0
-s106,J,Con cada titular,Con J. Barinaga,8,4,2,2,50.0,0.0,1.75,1.5,0.75
-s106,J,Con cada titular,Con Gorosito,7,4,3,0,57.1,7.1,2.14,2.0,0.86
-s106,J,Con cada titular,Con Giménez,6,2,2,2,33.3,-16.7,1.33,1.33,0.83
-s106,J,Con cada titular,Con Romero,6,4,2,0,66.7,16.7,2.33,2.0,0.67
-s106,J,Con cada titular,Con Zeballos,6,4,0,2,66.7,16.7,2.0,1.67,0.67
-s107,J,Cuando marca,Merentiel,14,8,6,0,57.1,7.1,2.14,1.93,0.64
-s107,J,Cuando marca,Ascacibar,8,5,3,0,62.5,12.5,2.25,2.25,0.63
-s107,J,Cuando marca,Alan Velasco,6,4,2,0,66.7,16.7,2.33,2.67,0.83
-s107,J,Cuando marca,Bareiro,4,4,0,0,100.0,50.0,3.0,2.25,0.25
-s107,J,Cuando marca,Di Lollo,4,4,0,0,100.0,50.0,3.0,2.5,0.25
-s107,J,Cuando marca,Flores,4,4,0,0,100.0,50.0,3.0,2.5,0.5
-s107,J,Cuando marca,Giménez,4,2,1,1,50.0,0.0,1.75,2.25,1.25
-s107,J,Cuando marca,Paredes,4,4,0,0,100.0,50.0,3.0,2.0,0.5
-s107,J,Cuando marca,Valencia,3,2,1,0,66.7,16.7,2.33,2.67,1.67
-s107,J,Cuando marca,Lozano,2,1,1,0,50.0,0.0,2.0,1.5,0.5
-s107,J,Cuando marca,Romero,2,1,0,1,50.0,0.0,1.5,2.5,2.0
-s108,J,Cuando asiste,Blanco,10,8,1,1,80.0,30.0,2.5,2.2,1.0
-s108,J,Cuando asiste,Paredes,6,4,1,1,66.7,16.7,2.17,1.67,0.5
-s108,J,Cuando asiste,Delgado,5,4,1,0,80.0,30.0,2.6,2.4,0.6
-s108,J,Cuando asiste,Villa,5,4,1,0,80.0,30.0,2.6,2.4,1.2
-s108,J,Cuando asiste,Flores,3,1,2,0,33.3,-16.7,1.67,1.33,0.67
-s108,J,Cuando asiste,Merentiel,3,3,0,0,100.0,50.0,3.0,2.0,0.33
-s108,J,Cuando asiste,Zeballos,3,3,0,0,100.0,50.0,3.0,2.67,0.33
-s108,J,Cuando asiste,Alan Velasco,2,2,0,0,100.0,50.0,3.0,3.5,0.0
-s108,J,Cuando asiste,Aranda,2,1,1,0,50.0,0.0,2.0,3.0,1.0
-s108,J,Cuando asiste,Ascacibar,2,1,1,0,50.0,0.0,2.0,1.0,0.5
-s108,J,Cuando asiste,Gorosito,2,1,1,0,50.0,0.0,2.0,2.5,1.5
-s108,J,Cuando asiste,Palacios,2,2,0,0,100.0,50.0,3.0,3.0,1.5
-s108,J,Cuando asiste,Valencia,2,2,0,0,100.0,50.0,3.0,3.0,0.5
-s109,J,Cuando recibe tarjeta,Paredes,13,6,2,5,46.2,-3.8,1.54,1.54,1.08
-s109,J,Cuando recibe tarjeta,Delgado,10,6,2,2,60.0,10.0,2.0,1.4,0.6
-s109,J,Cuando recibe tarjeta,Costa,9,1,6,2,11.1,-38.9,1.0,1.0,1.0
-s109,J,Cuando recibe tarjeta,Bareiro,6,4,1,1,66.7,16.7,2.17,2.0,0.33
-s109,J,Cuando recibe tarjeta,Di Lollo,6,4,1,1,66.7,16.7,2.17,1.33,0.17
-s109,J,Cuando recibe tarjeta,Ascacibar,5,0,4,1,0.0,-50.0,0.8,1.0,1.2
-s109,J,Cuando recibe tarjeta,Blanco,4,1,2,1,25.0,-25.0,1.25,1.25,1.25
-s109,J,Cuando recibe tarjeta,Herrera,4,3,1,0,75.0,25.0,2.5,1.5,0.0
-s109,J,Cuando recibe tarjeta,Tomás Belmonte,4,3,1,0,75.0,25.0,2.5,1.75,0.75
-s109,J,Cuando recibe tarjeta,Alan Velasco,3,1,1,1,33.3,-16.7,1.33,1.67,1.33
-s109,J,Cuando recibe tarjeta,Aranda,3,0,2,1,0.0,-50.0,0.67,0.67,1.0
-s109,J,Cuando recibe tarjeta,Flores,3,2,0,1,66.7,16.7,2.0,0.67,0.33
-s110,J,Cuando sale temprano,Alarcón,4,0,1,3,0.0,-50.0,0.25,0.5,1.75
-s110,J,Cuando sale temprano,Delgado,4,1,3,0,25.0,-25.0,1.5,2.0,1.0
-s110,J,Cuando sale temprano,Alan Velasco,3,1,1,1,33.3,-16.7,1.33,1.67,2.33
-s110,J,Cuando sale temprano,Ascacibar,3,1,1,1,33.3,-16.7,1.33,1.33,1.33
-s111,J,Cuando entra desde el banco,Romero,16,6,4,6,37.5,-12.5,1.38,1.25,1.0
-s111,J,Cuando entra desde el banco,Alan Velasco,13,6,5,2,46.2,-3.8,1.77,1.54,0.69
-s111,J,Cuando entra desde el banco,Villa,12,7,3,2,58.3,8.3,2.0,1.25,0.83
-s111,J,Cuando entra desde el banco,Valencia,11,8,3,0,72.7,22.7,2.45,1.82,0.55
-s111,J,Cuando entra desde el banco,Zenon,9,7,2,0,77.8,27.8,2.56,1.67,0.22
-s111,J,Cuando entra desde el banco,Aranda,8,2,3,3,25.0,-25.0,1.13,1.13,1.13
-s111,J,Cuando entra desde el banco,Giménez,8,5,2,1,62.5,12.5,2.13,1.88,1.0
-s111,J,Cuando entra desde el banco,Merentiel,8,2,3,3,25.0,-25.0,1.13,1.25,1.25
-s111,J,Cuando entra desde el banco,Palacios,8,6,2,0,75.0,25.0,2.5,1.88,0.63
-s111,J,Cuando entra desde el banco,Paredes,7,5,2,0,71.4,21.4,2.43,2.0,0.71
-s111,J,Cuando entra desde el banco,Tomás Belmonte,7,5,2,0,71.4,21.4,2.43,1.57,0.29
-s111,J,Cuando entra desde el banco,Zeballos,7,2,2,3,28.6,-21.4,1.14,1.14,1.0
-s111,J,Cuando entra desde el banco,Zufiaurre,7,3,3,1,42.9,-7.1,1.71,1.29,0.57
-s111,J,Cuando entra desde el banco,Ascacibar,6,4,2,0,66.7,16.7,2.33,2.0,0.67
-s111,J,Cuando entra desde el banco,Herrera,9,4,4,1,44.4,-5.6,1.78,1.78,0.89
-s111,J,Cuando entra desde el banco,Delgado,5,3,2,0,60.0,10.0,2.2,1.2,0.4
-s111,J,Cuando entra desde el banco,Pellegrino,5,4,1,0,80.0,30.0,2.6,2.2,1.0
-s111,J,Cuando entra desde el banco,Rey,4,3,0,1,75.0,25.0,2.25,1.75,0.75
-s111,J,Cuando entra desde el banco,Alarcón,3,2,1,0,66.7,16.7,2.33,2.33,0.67
-s111,J,Cuando entra desde el banco,Braida,3,1,1,1,33.3,-16.7,1.33,1.33,1.33
-s111,J,Cuando entra desde el banco,Flores,3,1,1,1,33.3,-16.7,1.33,1.0,0.33
-s111,J,Cuando entra desde el banco,G. Gelini,3,0,2,1,0.0,-50.0,0.67,0.33,0.67
-s111,J,Cuando entra desde el banco,Weigandt,3,1,1,1,33.3,-16.7,1.33,1.0,1.0
-s112,J,Gol de un suplente,Marcó un suplente,12,7,3,2,58.3,8.3,2.0,2.42,1.08
-s112,J,Gol de un suplente,Solo marcaron titulares,27,17,9,1,63.0,13.0,2.22,1.52,0.63
-s113,J,Goleadores distintos,Sin goles,9,0,3,6,0.0,-50.0,0.33,0.0,0.89
-s113,J,Goleadores distintos,1 goleador,20,9,9,2,45.0,-5.0,1.8,1.1,0.75
-s113,J,Goleadores distintos,2 goleadores,14,10,3,1,71.4,21.4,2.36,2.21,0.93
-s113,J,Goleadores distintos,3 o más goleadores,5,5,0,0,100.0,50.0,3.0,3.4,0.4
-s114,J,Arquero titular,Leandro Brey,14,9,1,4,64.3,14.3,2.0,1.71,0.86
-s114,J,Arquero titular,Marchesín,13,5,6,2,38.5,-11.5,1.62,1.31,0.62
-s114,J,Arquero titular,Montero,21,10,8,3,47.6,-2.4,1.81,1.38,0.86
-s115,J,Dupla de centrales,Con la dupla habitual (Costa y Di Lollo),22,9,8,5,40.9,-9.1,1.59,1.36,0.86
-s115,J,Dupla de centrales,Con otra dupla,25,15,6,4,60.0,10.0,2.04,1.52,0.68
-s116,J,Edad del once,Menos de 25 años,2,1,0,1,50.0,0.0,1.5,0.5,0.5
-s116,J,Edad del once,25 a 28 años,41,21,13,7,51.2,1.2,1.85,1.56,0.83
-s116,J,Edad del once,28 años o más,2,0,2,0,0.0,-50.0,1.0,0.5,0.5
-s117,J,Rotación del once,0 o 1 cambio,10,6,3,1,60.0,10.0,2.1,1.9,0.9
-s117,J,Rotación del once,2 o 3 cambios,15,6,6,3,40.0,-10.0,1.6,1.2,0.73
-s117,J,Rotación del once,4 o más cambios,22,11,6,5,50.0,0.0,1.77,1.45,0.82
-s118,J,Formación,4-1-2-1-2,1,1,0,0,100.0,50.0,3.0,2.0,0.0
-s118,J,Formación,4-1-3-2,2,1,1,0,50.0,0.0,2.0,1.5,1.0
-s118,J,Formación,4-2-2-2,1,0,1,0,0.0,-50.0,1.0,1.0,1.0
-s118,J,Formación,4-2-3-1,10,6,2,2,60.0,10.0,2.0,1.8,1.1
-s118,J,Formación,4-3-1-2,7,4,1,2,57.1,7.1,1.86,1.57,0.57
-s118,J,Formación,4-3-3,15,8,6,1,53.3,3.3,2.0,1.47,0.73
-s118,J,Formación,4-4-1-1,1,0,1,0,0.0,-50.0,1.0,1.0,1.0
-s118,J,Formación,4-4-2,11,4,3,4,36.4,-13.6,1.36,1.09,0.73
-s119,J,Tres partidos en una semana,Tercer partido en 7 días,5,4,1,0,80.0,30.0,2.6,1.8,0.6
-s119,J,Tres partidos en una semana,Con menos carga,43,20,14,9,46.5,-3.5,1.72,1.42,0.81
-s120,J,Minuto del primer cambio,Antes del 55',20,8,6,6,40.0,-10.0,1.5,1.6,1.05
-s120,J,Minuto del primer cambio,Del 55' al 70',22,12,7,3,54.5,4.5,1.95,1.27,0.68
-s120,J,Minuto del primer cambio,Después del 70',6,4,2,0,66.7,16.7,2.33,1.67,0.33
-s121,J,Cómo iba en el primer cambio,Primer cambio ganando,16,14,2,0,87.5,37.5,2.75,2.19,0.38
-s121,J,Cómo iba en el primer cambio,Primer cambio empatando,22,8,10,4,36.4,-13.6,1.55,0.95,0.64
-s121,J,Cómo iba en el primer cambio,Primer cambio perdiendo,10,2,3,5,20.0,-30.0,0.9,1.4,1.8
-s122,J,Gol después de un cambio,Gol en los 15 minutos tras un cambio,21,15,4,2,71.4,21.4,2.33,2.1,0.81
-s122,J,Gol después de un cambio,Sin gol tras los cambios,27,9,11,7,33.3,-16.7,1.41,0.96,0.78
-s123,J,Cuando marca o asiste,Merentiel,17,11,6,0,64.7,14.7,2.29,1.94,0.59
-s123,J,Cuando marca o asiste,Blanco,11,9,1,1,81.8,31.8,2.55,2.18,0.91
-s123,J,Cuando marca o asiste,Ascacibar,10,6,4,0,60.0,10.0,2.2,2.0,0.6
-s123,J,Cuando marca o asiste,Paredes,10,8,1,1,80.0,30.0,2.5,1.8,0.5
-s123,J,Cuando marca o asiste,Alan Velasco,7,5,2,0,71.4,21.4,2.43,2.71,0.71
-s123,J,Cuando marca o asiste,Flores,7,5,2,0,71.4,21.4,2.43,2.0,0.57
-s123,J,Cuando marca o asiste,Delgado,6,5,1,0,83.3,33.3,2.67,2.5,0.67
-s123,J,Cuando marca o asiste,Villa,6,5,1,0,83.3,33.3,2.67,2.67,1.0
-s123,J,Cuando marca o asiste,Bareiro,5,4,1,0,80.0,30.0,2.6,2.0,0.4
-s123,J,Cuando marca o asiste,Di Lollo,4,4,0,0,100.0,50.0,3.0,2.5,0.25
-s123,J,Cuando marca o asiste,Giménez,4,2,1,1,50.0,0.0,1.75,2.25,1.25
-s123,J,Cuando marca o asiste,Valencia,4,3,1,0,75.0,25.0,2.5,2.75,1.25
-s123,J,Cuando marca o asiste,Zeballos,4,3,0,1,75.0,25.0,2.25,2.25,0.75
-s123,J,Cuando marca o asiste,Aranda,3,2,1,0,66.7,16.7,2.33,2.67,0.67
-s123,J,Cuando marca o asiste,Lozano,3,2,1,0,66.7,16.7,2.33,2.0,0.33
-s124,J,Sin cada jugador clave,Sin Blanco,1,1,0,0,100.0,50.0,3.0,1.0,0.0
-s124,J,Sin cada jugador clave,Sin Delgado,4,2,2,0,50.0,0.0,2.0,1.5,0.75
-s124,J,Sin cada jugador clave,Sin Di Lollo,1,0,1,0,0.0,-50.0,1.0,1.0,1.0
-s124,J,Sin cada jugador clave,Sin Ascacibar,6,2,2,2,33.3,-16.7,1.33,1.17,1.0
-s124,J,Sin cada jugador clave,Sin Merentiel,3,2,0,1,66.7,16.7,2.0,1.33,0.67
-s124,J,Sin cada jugador clave,Sin Paredes,8,3,3,2,37.5,-12.5,1.5,1.25,0.88
-s124,J,Sin cada jugador clave,Sin Costa,9,5,3,1,55.6,5.6,2.0,1.44,0.78
-s124,J,Sin cada jugador clave,Sin Aranda,15,10,4,1,66.7,16.7,2.27,1.67,0.73
-s124,J,Sin cada jugador clave,Sin Montero,27,14,7,6,51.9,1.9,1.81,1.52,0.74
-s124,J,Sin cada jugador clave,Sin Flores,21,10,7,4,47.6,-2.4,1.76,1.33,0.62
-s124,J,Sin cada jugador clave,Sin Lozano,30,13,10,7,43.3,-6.7,1.63,1.37,0.83
-s124,J,Sin cada jugador clave,Sin Alan Velasco,11,3,5,3,27.3,-22.7,1.27,1.18,0.91
-s124,J,Sin cada jugador clave,Sin Marchesín,35,19,9,7,54.3,4.3,1.89,1.51,0.86
-s124,J,Sin cada jugador clave,Sin Tomás Belmonte,17,8,6,3,47.1,-2.9,1.76,1.29,0.82
-s124,J,Sin cada jugador clave,Sin Weigandt,26,15,8,3,57.7,7.7,2.04,1.58,0.81
-s124,J,Sin cada jugador clave,Sin Bareiro,35,17,11,7,48.6,-1.4,1.77,1.37,0.83
-s124,J,Sin cada jugador clave,Sin Pellegrino,4,3,1,0,75.0,25.0,2.5,2.25,0.5
-s124,J,Sin cada jugador clave,Sin Herrera,31,14,10,7,45.2,-4.8,1.68,1.32,0.74
-s124,J,Sin cada jugador clave,Sin Villa,25,12,7,6,48.0,-2.0,1.72,1.36,0.72
-s125,J,Titulares con tres partidos completos,0 a 3 titulares,33,17,9,7,51.5,1.5,1.82,1.45,0.88
-s125,J,Titulares con tres partidos completos,4 a 6 titulares,12,5,6,1,41.7,-8.3,1.75,1.5,0.58
-s126,K,Tiempo arriba o abajo,45 minutos o más ganando,14,13,1,0,92.9,42.9,2.86,2.43,0.43
-s126,K,Tiempo arriba o abajo,30 minutos o más perdiendo,9,2,1,6,22.2,-27.8,0.78,1.11,1.67
-s126,K,Tiempo arriba o abajo,Ni lo uno ni lo otro,25,9,13,3,36.0,-14.0,1.6,1.04,0.68
-s127,K,Cuándo marca goles,0-15,4,3,1,0,75.0,25.0,2.5,2.5,0.75
-s127,K,Cuándo marca goles,16-30,10,6,4,0,60.0,10.0,2.2,2.5,0.9
-s127,K,Cuándo marca goles,31-45+,12,8,4,0,66.7,16.7,2.33,1.83,0.58
-s127,K,Cuándo marca goles,46-60,13,9,4,0,69.2,19.2,2.38,2.0,0.62
-s127,K,Cuándo marca goles,61-75,7,7,0,0,100.0,50.0,3.0,2.29,0.57
-s127,K,Cuándo marca goles,76-90+,14,9,2,3,64.3,14.3,2.07,2.14,0.93
-s127,K,Cuándo marca goles,Prórroga,1,0,0,1,0.0,-50.0,0.0,2.0,3.0
-s128,K,Primer y segundo tiempo,Ganó el primer tiempo,16,13,3,0,81.3,31.3,2.63,2.31,0.56
-s128,K,Primer y segundo tiempo,Ganó el segundo tiempo,19,17,1,1,89.5,39.5,2.74,2.11,0.37
-s129,K,Del descanso al final,Ganando al descanso,16,13,3,0,81.3,31.3,2.63,2.31,0.56
-s129,K,Del descanso al final,Empatando al descanso,24,9,11,4,37.5,-12.5,1.58,0.96,0.63
-s129,K,Del descanso al final,Perdiendo al descanso,8,2,1,5,25.0,-25.0,0.88,1.25,1.75
-s130,K,Remontadas y ventajas perdidas,Sumó estando abajo,11,3,8,0,27.3,-22.7,1.55,1.64,1.27
-s130,K,Remontadas y ventajas perdidas,Perdió puntos estando arriba,5,0,5,0,0.0,-50.0,1.0,1.4,1.4
-s131,K,Minuto de la remontada,Hasta el 60',8,2,6,0,25.0,-25.0,1.5,1.5,1.13
-s131,K,Minuto de la remontada,Del 61' al 75',1,1,0,0,100.0,50.0,3.0,3.0,2.0
-s131,K,Minuto de la remontada,Desde el 76',2,0,2,0,0.0,-50.0,1.0,1.5,1.5
+s001,A,Minuto del primer gol de Boca,0-15,4,3,1,0,75.0,24.0,2.5,2.5,0.75
+s001,A,Minuto del primer gol de Boca,16-30,10,6,4,0,60.0,9.0,2.2,2.3,0.9
+s001,A,Minuto del primer gol de Boca,31-45+,9,6,3,0,66.7,15.6,2.33,1.44,0.44
+s001,A,Minuto del primer gol de Boca,46-60,8,5,3,0,62.5,11.5,2.25,1.63,0.5
+s001,A,Minuto del primer gol de Boca,61-75,2,2,0,0,100.0,49.0,3.0,2.0,1.0
+s001,A,Minuto del primer gol de Boca,76-90+,7,3,1,3,42.9,-8.2,1.43,1.14,1.14
+s002,A,Minuto del primer gol del rival,0-15,9,2,5,2,22.2,-28.8,1.22,1.44,1.56
+s002,A,Minuto del primer gol del rival,16-30,4,1,1,2,25.0,-26.0,1.0,1.5,1.75
+s002,A,Minuto del primer gol del rival,31-45+,2,0,1,1,0.0,-51.0,0.5,0.5,1.0
+s002,A,Minuto del primer gol del rival,46-60,4,1,3,0,25.0,-26.0,1.5,1.5,1.25
+s002,A,Minuto del primer gol del rival,61-75,5,1,1,3,20.0,-31.0,0.8,1.0,1.2
+s002,A,Minuto del primer gol del rival,76-90+,4,2,1,1,50.0,-1.0,1.75,1.5,1.0
+s003,A,Ganando al descanso,'+1,12,9,3,0,75.0,24.0,2.5,1.92,0.5
+s003,A,Ganando al descanso,'+2,5,5,0,0,100.0,49.0,3.0,3.0,0.6
+s004,A,Perdiendo al descanso,−1,6,2,1,3,33.3,-17.7,1.17,1.5,1.5
+s004,A,Perdiendo al descanso,−2,1,0,0,1,0.0,-51.0,0.0,1.0,2.0
+s004,A,Perdiendo al descanso,−3 o más,1,0,0,1,0.0,-51.0,0.0,0.0,3.0
+s005,A,Empatando al descanso,0-0,18,8,6,4,44.4,-6.6,1.67,0.83,0.44
+s005,A,Empatando al descanso,1-1 o más,6,1,5,0,16.7,-34.4,1.33,1.33,1.17
+s006,A,Ganando en el minuto 60,'+1,17,14,3,0,82.4,31.3,2.65,1.88,0.47
+s006,A,Ganando en el minuto 60,'+2 o más,6,6,0,0,100.0,49.0,3.0,2.83,0.33
+s007,A,Ganando en el minuto 75,'+1,14,12,2,0,85.7,34.7,2.71,1.86,0.43
+s007,A,Ganando en el minuto 75,'+2 o más,9,9,0,0,100.0,49.0,3.0,2.56,0.33
+s008,A,Ganando en el minuto 85,'+1 o más,24,22,2,0,91.7,40.6,2.83,2.08,0.38
+s009,A,Perdiendo en el minuto 60,−1,5,0,2,3,0.0,-51.0,0.4,1.0,1.6
+s009,A,Perdiendo en el minuto 60,−2 o más,3,1,0,2,33.3,-17.7,1.0,1.33,2.33
+s010,A,Perdiendo en el minuto 75,−1,8,1,2,5,12.5,-38.5,0.63,1.0,1.5
+s010,A,Perdiendo en el minuto 75,−2 o más,3,0,0,3,0.0,-51.0,0.0,0.67,2.33
+s011,A,Empatando en el final,Empate al 75,15,3,11,1,20.0,-31.0,1.33,0.8,0.67
+s011,A,Empatando en el final,Empate al 85,16,3,13,0,18.8,-32.3,1.38,1.06,0.88
+s012,A,Gol en los últimos 10 minutos,A favor,11,7,1,3,63.6,12.6,2.0,2.18,1.09
+s012,A,Gol en los últimos 10 minutos,En contra,5,2,2,1,40.0,-11.0,1.6,1.6,1.2
+s013,A,Gol en los primeros 10 minutos,A favor,2,2,0,0,100.0,49.0,3.0,3.0,1.0
+s013,A,Gol en los primeros 10 minutos,En contra,5,1,2,2,20.0,-31.0,1.0,1.4,1.8
+s014,A,Gol en tiempo agregado,A favor,8,7,1,0,87.5,36.5,2.75,2.13,0.38
+s014,A,Gol en tiempo agregado,En contra,1,0,1,0,0.0,-51.0,1.0,2.0,2.0
+s132,A,Quién marca primero,Boca marca primero,27,22,5,0,81.5,30.5,2.63,1.89,0.41
+s132,A,Quién marca primero,El rival marca primero,19,3,7,9,15.8,-35.2,0.84,1.05,1.42
+s132,A,Quién marca primero,Sin goles,3,0,3,0,0.0,-51.0,1.0,0.0,0.0
+s015,B,Goleadas,A favor (+3 o más),5,5,0,0,100.0,49.0,3.0,3.4,0.0
+s015,B,Goleadas,En contra (−3 o más),1,0,0,1,0.0,-51.0,0.0,0.0,3.0
+s016,B,Partidos decididos por un gol,Ganados por 1,13,13,0,0,100.0,49.0,3.0,1.38,0.38
+s016,B,Partidos decididos por un gol,Perdidos por 1,8,0,0,8,0.0,-51.0,0.0,0.5,1.5
+s017,B,Marcadores más repetidos,1-0,9,9,0,0,100.0,49.0,3.0,1.0,0.0
+s017,B,Marcadores más repetidos,1-1,9,0,9,0,0.0,-51.0,1.0,1.0,1.0
+s017,B,Marcadores más repetidos,0-1,5,0,0,5,0.0,-51.0,0.0,0.0,1.0
+s017,B,Marcadores más repetidos,2-0,4,4,0,0,100.0,49.0,3.0,2.0,0.0
+s017,B,Marcadores más repetidos,3-0,3,3,0,0,100.0,49.0,3.0,3.0,0.0
+s017,B,Marcadores más repetidos,3-1,3,3,0,0,100.0,49.0,3.0,3.0,1.0
+s017,B,Marcadores más repetidos,2-1,3,3,0,0,100.0,49.0,3.0,2.0,1.0
+s017,B,Marcadores más repetidos,2-2,3,0,3,0,0.0,-51.0,1.0,2.0,2.0
+s017,B,Marcadores más repetidos,0-0,3,0,3,0,0.0,-51.0,1.0,0.0,0.0
+s017,B,Marcadores más repetidos,4-0,2,2,0,0,100.0,49.0,3.0,4.0,0.0
+s017,B,Marcadores más repetidos,1-2,2,0,0,2,0.0,-51.0,0.0,1.0,2.0
+s017,B,Marcadores más repetidos,3-2,1,1,0,0,100.0,49.0,3.0,3.0,2.0
+s017,B,Marcadores más repetidos,2-3,1,0,0,1,0.0,-51.0,0.0,2.0,3.0
+s017,B,Marcadores más repetidos,0-3,1,0,0,1,0.0,-51.0,0.0,0.0,3.0
+s018,B,Partidos con muchos goles,3 o más goles,19,12,3,4,63.2,12.1,2.05,2.37,1.26
+s018,B,Partidos con muchos goles,2 o menos,30,13,12,5,43.3,-7.7,1.7,0.87,0.47
+s019,B,Ambos equipos marcan,Ambos marcan,22,7,12,3,31.8,-19.2,1.5,1.68,1.36
+s019,B,Ambos equipos marcan,No marcan los dos,27,18,3,6,66.7,15.6,2.11,1.26,0.3
+s020,B,Valla invicta,Valla invicta,21,18,3,0,85.7,34.7,2.71,1.62,0.0
+s020,B,Valla invicta,Recibió gol,28,7,12,9,25.0,-26.0,1.18,1.32,1.36
+s021,B,Después de no marcar,Después de no marcar,9,3,4,2,33.3,-17.7,1.44,1.44,1.22
+s021,B,Después de no marcar,Después de marcar,39,21,11,7,53.8,2.8,1.9,1.46,0.69
+s022,B,Cuando marca 2 o más,Marca 2 o más,20,16,3,1,80.0,29.0,2.55,2.55,0.85
+s023,B,Cuando marca exactamente 1,Marca exactamente 1,20,9,9,2,45.0,-6.0,1.8,1.0,0.65
+s024,B,Gol en contra temprano,Recibe antes del 10',5,1,2,2,20.0,-31.0,1.0,1.4,1.8
+s024,B,Gol en contra temprano,No recibe antes del 10',44,24,13,7,54.5,3.5,1.93,1.45,0.66
+s025,B,Reacción tras recibir,Respondió en 10 minutos,2,1,1,0,50.0,-1.0,2.0,2.0,1.5
+s025,B,Reacción tras recibir,No respondió en 10 minutos,26,6,11,9,23.1,-27.9,1.12,1.27,1.35
+s026,B,Recibir justo después de marcar,Recibió en 10 minutos,3,0,2,1,0.0,-51.0,0.67,1.67,2.0
+s026,B,Recibir justo después de marcar,No recibió en 10 minutos,37,25,10,2,67.6,16.5,2.3,1.78,0.65
+s027,C,Muchos remates,10 o más remates,40,20,13,7,50.0,-1.0,1.83,1.45,0.78
+s027,C,Muchos remates,15 o más remates,23,12,7,4,52.2,1.2,1.87,1.52,0.7
+s027,C,Muchos remates,20 o más remates,6,2,2,2,33.3,-17.7,1.33,1.67,1.17
+s028,C,Remates al arco,4 o más al arco,29,19,8,2,65.5,14.5,2.24,1.93,0.72
+s028,C,Remates al arco,6 o más al arco,15,10,4,1,66.7,15.6,2.27,2.33,0.87
+s028,C,Remates al arco,8 o más al arco,7,4,2,1,57.1,6.1,2.0,2.29,1.0
+s029,C,Más remates que el rival,Más remates que el rival,32,18,10,4,56.3,5.2,2.0,1.59,0.69
+s030,C,Menos remates que el rival,Menos remates que el rival,16,7,5,4,43.8,-7.3,1.63,1.25,0.94
+s031,C,Diferencia de remates al arco,'+3 o más,18,13,4,1,72.2,21.2,2.39,2.22,0.61
+s031,C,Diferencia de remates al arco,'+1 a +2,13,7,5,1,53.8,2.8,2.0,1.23,0.69
+s031,C,Diferencia de remates al arco,Igual,2,1,0,1,50.0,-1.0,1.5,1.0,0.5
+s031,C,Diferencia de remates al arco,−1 a −2,11,4,3,4,36.4,-14.7,1.36,0.82,1.0
+s031,C,Diferencia de remates al arco,−3 o menos,5,0,3,2,0.0,-51.0,0.6,0.8,1.2
+s032,C,xG alto a favor,"xG 1,5 o más",19,8,8,3,42.1,-8.9,1.68,1.74,0.95
+s032,C,xG alto a favor,"xG 2,0 o más",9,4,3,2,44.4,-6.6,1.67,1.67,0.78
+s033,C,xG alto en contra,"xG en contra 1,0 o más",13,4,3,6,30.8,-20.3,1.15,1.15,1.38
+s033,C,xG alto en contra,"xG en contra 1,5 o más",4,1,1,2,25.0,-26.0,1.0,1.5,1.75
+s034,C,Injusticias y robos,Más xG y no ganó,13,0,10,3,0.0,-51.0,0.77,1.0,1.23
+s034,C,Injusticias y robos,Menos xG y ganó,1,1,0,0,100.0,49.0,3.0,1.0,0.0
+s035,C,Después de convertir de más o de menos,Después de goles − xG ≥ 1,4,0,3,1,0.0,-51.0,0.75,0.75,1.0
+s035,C,Después de convertir de más o de menos,Después de goles − xG ≤ −1,5,3,0,2,60.0,9.0,1.8,2.2,1.0
+s036,C,Efectividad de remate,Menos de 5 %,10,0,5,5,0.0,-51.0,0.5,0.2,0.9
+s036,C,Efectividad de remate,5 a 10 %,14,7,6,1,50.0,-1.0,1.93,1.21,0.71
+s036,C,Efectividad de remate,10 a 20 %,17,11,4,2,64.7,13.7,2.18,1.82,0.88
+s036,C,Efectividad de remate,20 % o más,7,7,0,0,100.0,49.0,3.0,3.0,0.43
+s037,C,Precisión de remate,40 % o más al arco,15,12,2,1,80.0,29.0,2.53,2.2,0.53
+s037,C,Precisión de remate,Menos de 40 %,33,13,13,7,39.4,-11.6,1.58,1.15,0.88
+s038,C,Remates bloqueados,3 o más bloqueados,23,9,8,6,39.1,-11.9,1.52,1.35,0.91
+s038,C,Remates bloqueados,5 o más bloqueados,10,4,1,5,40.0,-11.0,1.3,1.1,1.0
+s039,C,Remates desde dentro del área,70 % o más dentro del área,14,7,6,1,50.0,-1.0,1.93,1.64,0.71
+s039,C,Remates desde dentro del área,50 a 70 %,25,14,7,4,56.0,5.0,1.96,1.56,0.72
+s039,C,Remates desde dentro del área,Menos de 50 %,6,2,1,3,33.3,-17.7,1.17,0.67,1.17
+s040,C,Pases clave,6 o más pases clave,38,21,12,5,55.3,4.2,1.97,1.53,0.74
+s040,C,Pases clave,10 o más pases clave,26,14,8,4,53.8,2.8,1.92,1.58,0.69
+s041,D,Posesión alta o baja,60 % o más,26,13,8,5,50.0,-1.0,1.81,1.46,0.88
+s041,D,Posesión alta o baja,40 % o menos,4,2,1,1,50.0,-1.0,1.75,1.25,0.75
+s042,D,Precisión de pase,85 % o más,20,14,4,2,70.0,19.0,2.3,1.65,0.75
+s042,D,Precisión de pase,75 % o menos,6,1,3,2,16.7,-34.4,1.0,0.67,0.83
+s045,D,Pérdidas de balón,130 o más pérdidas,30,12,10,8,40.0,-11.0,1.53,1.17,0.93
+s045,D,Pérdidas de balón,150 o más pérdidas,13,4,4,5,30.8,-20.3,1.23,1.0,1.23
+s047,D,Presión alta o baja,PPDA menor a 8 (presión alta),17,7,7,3,41.2,-9.8,1.65,1.12,0.82
+s047,D,Presión alta o baja,PPDA mayor a 12 (presión baja),9,5,2,2,55.6,4.5,1.89,1.78,0.78
+s049,D,Centros y goles de cabeza,20 o más centros,26,11,8,7,42.3,-8.7,1.58,1.27,0.92
+s049,D,Centros y goles de cabeza,30 o más centros,12,2,5,5,16.7,-34.4,0.92,1.08,1.42
+s049,D,Centros y goles de cabeza,Con gol de cabeza,6,4,1,1,66.7,15.6,2.17,2.0,0.83
+s050,D,Posesión sin peligro,Posesión > 55 % y xG < 1,2,0,1,1,0.0,-51.0,0.5,0.0,1.5
+s051,E,Remates recibidos,8 o menos recibidos,19,11,5,3,57.9,6.9,2.0,1.53,0.63
+s051,E,Remates recibidos,15 o más recibidos,7,3,2,2,42.9,-8.2,1.57,1.29,1.0
+s052,E,Remates al arco recibidos,3 o menos al arco,32,20,9,3,62.5,11.5,2.16,1.56,0.47
+s052,E,Remates al arco recibidos,6 o más al arco,3,0,2,1,0.0,-51.0,0.67,1.33,1.67
+s053,E,xG concedido,"xG en contra 0,8 o menos",22,12,9,1,54.5,3.5,2.05,1.5,0.5
+s054,E,Recibir más de lo esperado,Goles recibidos − xG > 1,4,0,2,2,0.0,-51.0,0.5,1.5,2.5
+s055,E,Atajadas del arquero,4 o más atajadas,10,4,4,2,40.0,-11.0,1.6,1.4,0.8
+s055,E,Atajadas del arquero,6 o más atajadas,1,0,1,0,0.0,-51.0,1.0,1.0,1.0
+s056,E,Entradas e intercepciones,20 o más entradas,16,10,6,0,62.5,11.5,2.25,1.44,0.44
+s056,E,Entradas e intercepciones,10 o más intercepciones,23,10,10,3,43.5,-7.5,1.74,1.43,0.78
+s057,E,Equipo encerrado,25 o más despejes,14,7,7,0,50.0,-1.0,2.0,1.29,0.57
+s057,E,Equipo encerrado,35 o más despejes,2,1,1,0,50.0,-1.0,2.0,2.0,0.5
+s060,E,Cuándo recibe goles,0-15,9,2,5,2,22.2,-28.8,1.22,1.44,1.56
+s060,E,Cuándo recibe goles,16-30,5,1,1,3,20.0,-31.0,0.8,1.2,2.0
+s060,E,Cuándo recibe goles,31-45+,4,0,1,3,0.0,-51.0,0.25,0.5,1.75
+s060,E,Cuándo recibe goles,46-60,6,2,4,0,33.3,-17.7,1.67,1.83,1.5
+s060,E,Cuándo recibe goles,61-75,5,1,1,3,20.0,-31.0,0.8,1.0,1.2
+s060,E,Cuándo recibe goles,76-90+,5,2,2,1,40.0,-11.0,1.6,1.6,1.2
+s060,E,Cuándo recibe goles,Prórroga,1,0,0,1,0.0,-51.0,0.0,2.0,3.0
+s061,F,Muchos córners a favor,5 o más córners,27,13,8,6,48.1,-2.9,1.74,1.44,0.93
+s061,F,Muchos córners a favor,8 o más córners,14,6,4,4,42.9,-8.2,1.57,1.07,0.93
+s061,F,Muchos córners a favor,10 o más córners,6,4,1,1,66.7,15.6,2.17,1.5,1.0
+s062,F,Muchos córners en contra,5 o más córners en contra,14,8,4,2,57.1,6.1,2.0,1.86,0.86
+s062,F,Muchos córners en contra,8 o más córners en contra,2,2,0,0,100.0,49.0,3.0,3.5,0.0
+s063,F,Goles de córner,Gol de córner a favor,1,1,0,0,100.0,49.0,3.0,1.0,0.0
+s063,F,Goles de córner,Gol de córner en contra,4,0,2,2,0.0,-51.0,0.5,1.0,2.0
+s064,F,Penal a favor,Penal convertido,3,2,1,0,66.7,15.6,2.33,1.33,0.33
+s065,F,Penal en contra,Con penal en contra,2,0,1,1,0.0,-51.0,0.5,1.5,2.0
+s067,F,Goles de tiro libre y pelota parada,Gol de tiro libre en contra,1,0,1,0,0.0,-51.0,1.0,1.0,1.0
+s067,F,Goles de tiro libre y pelota parada,Gol de pelota parada a favor,4,2,1,1,50.0,-1.0,1.75,2.0,1.25
+s067,F,Goles de tiro libre y pelota parada,Gol de pelota parada en contra,2,1,1,0,50.0,-1.0,2.0,2.0,1.5
+s069,F,Offsides del rival,3 o más offsides del rival,7,3,3,1,42.9,-8.2,1.71,1.57,0.86
+s070,F,Faltas recibidas,15 o más faltas recibidas,14,5,5,4,35.7,-15.3,1.43,1.14,1.07
+s070,F,Faltas recibidas,20 o más faltas recibidas,2,1,0,1,50.0,-1.0,1.5,1.0,1.5
+s071,G,Expulsión del rival,Hasta el 45',6,4,1,1,66.7,15.6,2.17,1.83,0.5
+s071,G,Expulsión del rival,Del 46' al 70',2,0,1,1,0.0,-51.0,0.5,0.5,1.0
+s071,G,Expulsión del rival,Desde el 71',1,0,0,1,0.0,-51.0,0.0,2.0,3.0
+s072,G,Expulsión de Boca,Hasta el 45',2,0,0,2,0.0,-51.0,0.0,0.0,1.0
+s073,G,Amarillas de Boca,3 o más amarillas,16,7,6,3,43.8,-7.3,1.69,1.38,0.88
+s073,G,Amarillas de Boca,5 o más amarillas,1,1,0,0,100.0,49.0,3.0,1.0,0.0
+s074,G,Faltas cometidas,15 o más faltas,7,6,1,0,85.7,34.7,2.71,1.43,0.29
+s075,G,Partidos con penal,Penal a favor,3,2,1,0,66.7,15.6,2.33,1.33,0.33
+s075,G,Partidos con penal,Penal en contra,2,0,1,1,0.0,-51.0,0.5,1.5,2.0
+s076,G,Resultado por árbitro,Nazareno Arasa,7,6,0,1,85.7,34.7,2.57,1.43,0.43
+s076,G,Resultado por árbitro,Darío Herrera (Argentina),3,2,1,0,66.7,15.6,2.33,2.0,0.67
+s076,G,Resultado por árbitro,Leandro Rey Hilfer,3,1,2,0,33.3,-17.7,1.67,1.33,0.67
+s076,G,Resultado por árbitro,Pablo Echavarría,3,0,1,2,0.0,-51.0,0.33,1.33,2.0
+s076,G,Resultado por árbitro,Piero Maza Gomez,3,2,0,1,66.7,15.6,2.0,1.33,0.67
+s076,G,Resultado por árbitro,Sebastían Zunino,3,1,2,0,33.3,-17.7,1.67,0.33,0.0
+s076,G,Resultado por árbitro,Wilmar Alexander Roldán Pérez,3,1,0,2,33.3,-17.7,1.0,1.0,0.67
+s076,G,Resultado por árbitro,Yael Falcón (Argentina),3,1,2,0,33.3,-17.7,1.67,1.67,1.0
+s076,G,Resultado por árbitro,Andrés Matonte,2,2,0,0,100.0,49.0,3.0,2.5,0.0
+s076,G,Resultado por árbitro,Andrés Merlos,2,0,2,0,0.0,-51.0,1.0,1.5,1.5
+s076,G,Resultado por árbitro,C. Gareano,2,2,0,0,100.0,49.0,3.0,3.5,1.0
+s076,G,Resultado por árbitro,G. Tejera,2,1,1,0,50.0,-1.0,2.0,1.5,1.0
+s076,G,Resultado por árbitro,Nicolás Ramírez,2,1,1,0,50.0,-1.0,2.0,1.0,0.5
+s076,G,Resultado por árbitro,Pablo Dóvalo,2,1,1,0,50.0,-1.0,2.0,1.0,0.5
+s077,G,Árbitros que sacan muchas tarjetas,5 o más amarillas por partido,17,12,4,1,70.6,19.6,2.35,1.65,0.53
+s077,G,Árbitros que sacan muchas tarjetas,4 a 5,12,6,5,1,50.0,-1.0,1.92,1.33,0.75
+s077,G,Árbitros que sacan muchas tarjetas,Menos de 4,6,0,4,2,0.0,-51.0,0.67,1.33,1.67
+s080,G,Amarillas del rival,3 o más amarillas del rival,24,10,8,6,41.7,-9.4,1.58,1.08,0.79
+s080,G,Amarillas del rival,5 o más amarillas del rival,5,3,1,1,60.0,9.0,2.0,1.0,0.2
+s081,H,Local y visitante,Local,23,13,7,3,56.5,5.5,2.0,1.35,0.57
+s081,H,Local y visitante,Visitante,26,12,8,6,46.2,-4.9,1.69,1.54,0.96
+s082,H,Localía por competición,CONMEBOL Copa Libertadores · local,3,1,1,1,33.3,-17.7,1.33,1.33,0.67
+s082,H,Localía por competición,CONMEBOL Copa Libertadores · visitante,3,1,0,2,33.3,-17.7,1.0,0.67,1.0
+s082,H,Localía por competición,CONMEBOL Copa Sudamericana · local,4,3,0,1,75.0,24.0,2.25,1.25,0.5
+s082,H,Localía por competición,CONMEBOL Copa Sudamericana · visitante,4,2,1,1,50.0,-1.0,1.75,2.0,0.75
+s082,H,Localía por competición,Copa Argentina · visitante,3,2,1,0,66.7,15.6,2.33,1.67,0.67
+s082,H,Localía por competición,Liga Profesional: Torneo Apertura · local,9,3,5,1,33.3,-17.7,1.56,1.11,0.67
+s082,H,Localía por competición,Liga Profesional: Torneo Apertura · visitante,8,5,1,2,62.5,11.5,2.0,1.75,0.75
+s082,H,Localía por competición,Liga Profesional: Torneo Clausura · local,7,6,1,0,85.7,34.7,2.71,1.71,0.43
+s082,H,Localía por competición,Liga Profesional: Torneo Clausura · visitante,8,2,5,1,25.0,-26.0,1.38,1.38,1.38
+s083,H,Días de descanso,3 días o menos,13,7,3,3,53.8,2.8,1.85,1.77,1.08
+s083,H,Días de descanso,4 a 6 días,22,11,7,4,50.0,-1.0,1.82,1.41,0.64
+s083,H,Días de descanso,7 días o más,13,6,5,2,46.2,-4.9,1.77,1.23,0.77
+s084,H,Después de copa o alargue,Después de un partido de copa,16,9,4,3,56.3,5.2,1.94,1.5,0.94
+s084,H,Después de copa o alargue,Después de un alargue,2,0,2,0,0.0,-51.0,1.0,1.5,1.5
+s085,H,Semanas con doble partido,Segundo partido en 4 días o menos,25,12,7,6,48.0,-3.0,1.72,1.72,1.0
+s085,H,Semanas con doble partido,Con más descanso,23,12,8,3,52.2,1.2,1.91,1.17,0.57
+s086,H,Día de la semana,Martes,11,6,2,3,54.5,3.5,1.82,1.64,0.73
+s086,H,Día de la semana,Miércoles,5,2,2,1,40.0,-11.0,1.6,1.2,0.6
+s086,H,Día de la semana,Jueves,6,4,0,2,66.7,15.6,2.0,1.33,0.33
+s086,H,Día de la semana,Viernes,6,4,2,0,66.7,15.6,2.33,1.83,0.67
+s086,H,Día de la semana,Sábado,7,1,5,1,14.3,-36.7,1.14,1.43,1.43
+s086,H,Día de la semana,Domingo,14,8,4,2,57.1,6.1,2.0,1.29,0.79
+s087,H,Franja horaria,Tarde (antes de las 18),9,6,3,0,66.7,15.6,2.33,1.67,0.89
+s087,H,Franja horaria,Noche (18 o más),40,19,12,9,47.5,-3.5,1.73,1.4,0.75
+s088,H,Mes del año,Enero,2,1,0,1,50.0,-1.0,1.5,1.0,1.0
+s088,H,Mes del año,Febrero,5,1,3,1,20.0,-31.0,1.2,0.8,0.6
+s088,H,Mes del año,Marzo,4,2,2,0,50.0,-1.0,2.0,1.75,0.5
+s088,H,Mes del año,Abril,7,5,1,1,71.4,20.4,2.29,1.71,0.43
+s088,H,Mes del año,Mayo,5,1,1,3,20.0,-31.0,0.8,1.0,1.4
+s088,H,Mes del año,Julio,4,2,0,2,50.0,-1.0,1.5,0.75,1.0
+s088,H,Mes del año,Agosto,8,4,4,0,50.0,-1.0,2.0,1.75,0.75
+s088,H,Mes del año,Septiembre,7,4,3,0,57.1,6.1,2.14,1.71,0.86
+s088,H,Mes del año,Octubre,6,4,1,1,66.7,15.6,2.17,1.83,0.83
+s088,H,Mes del año,Noviembre,1,1,0,0,100.0,49.0,3.0,1.0,0.0
+s089,H,Comienzo y final del torneo,Primeras 5 fechas,10,3,4,3,30.0,-21.0,1.3,1.0,1.1
+s089,H,Comienzo y final del torneo,Últimas 5 fechas,10,7,2,1,70.0,19.0,2.3,1.9,0.8
+s090,H,Clásicos y grandes,Superclásico,2,2,0,0,100.0,49.0,3.0,1.0,0.0
+s090,H,Clásicos y grandes,Otros grandes,7,3,4,0,42.9,-8.2,1.86,1.29,0.71
+s090,H,Clásicos y grandes,Resto,40,20,11,9,50.0,-1.0,1.78,1.5,0.83
+s091,H,Rival por nivel (Elo),Cuartil 1 (los más débiles),9,5,2,2,55.6,4.5,1.89,1.44,1.11
+s091,H,Rival por nivel (Elo),Cuartil 2,9,7,1,1,77.8,26.8,2.44,2.11,0.67
+s091,H,Rival por nivel (Elo),Cuartil 3,9,3,5,1,33.3,-17.7,1.56,1.22,0.67
+s091,H,Rival por nivel (Elo),Cuartil 4 (los más fuertes),8,3,5,0,37.5,-13.5,1.75,1.13,0.75
+s092,H,Rival por puesto en la tabla,Puestos 1 a 10,8,5,2,1,62.5,11.5,2.13,1.5,0.63
+s092,H,Rival por puesto en la tabla,Puestos 11 a 20,14,7,5,2,50.0,-1.0,1.86,1.64,0.86
+s092,H,Rival por puesto en la tabla,Puestos 21 a 30,10,4,5,1,40.0,-11.0,1.7,1.2,0.9
+s093,H,Rival que recibe pocos o muchos goles,Rival que recibe pocos goles,11,6,2,3,54.5,3.5,1.82,1.0,0.73
+s093,H,Rival que recibe pocos o muchos goles,Rival en el medio,11,4,6,1,36.4,-14.7,1.64,1.45,0.82
+s093,H,Rival que recibe pocos o muchos goles,Rival que recibe muchos goles,2,1,1,0,50.0,-1.0,2.0,2.0,1.0
+s094,H,Historial contra cada rival,Racing Club,3,1,2,0,33.3,-17.7,1.67,1.33,1.0
+s094,H,Historial contra cada rival,Vélez Sarsfield,3,0,2,1,0.0,-51.0,0.67,0.67,1.0
+s094,H,Historial contra cada rival,Barcelona SC,2,1,0,1,50.0,-1.0,1.5,1.5,0.5
+s094,H,Historial contra cada rival,Central Córdoba SdE,2,2,0,0,100.0,49.0,3.0,2.5,1.0
+s094,H,Historial contra cada rival,Cruzeiro,2,0,1,1,0.0,-51.0,0.5,0.5,1.0
+s094,H,Historial contra cada rival,Deportivo Riestra,2,1,0,1,50.0,-1.0,1.5,0.5,1.5
+s094,H,Historial contra cada rival,Estudiantes de La Plata,2,1,0,1,50.0,-1.0,1.5,1.0,1.0
+s094,H,Historial contra cada rival,Gimnasia de Mendoza,2,0,2,0,0.0,-51.0,1.0,1.5,1.5
+s094,H,Historial contra cada rival,Independiente,2,1,1,0,50.0,-1.0,2.0,1.0,0.5
+s094,H,Historial contra cada rival,Instituto,2,1,1,0,50.0,-1.0,2.0,2.0,1.0
+s094,H,Historial contra cada rival,Lanús,2,2,0,0,100.0,49.0,3.0,2.0,0.0
+s094,H,Historial contra cada rival,Newell's Old Boys,2,1,1,0,50.0,-1.0,2.0,2.0,1.0
+s094,H,Historial contra cada rival,O'Higgins,2,1,0,1,50.0,-1.0,1.5,0.5,0.5
+s094,H,Historial contra cada rival,Platense,2,0,2,0,0.0,-51.0,1.0,0.5,0.5
+s094,H,Historial contra cada rival,Recoleta FC,2,2,0,0,100.0,49.0,3.0,3.5,0.5
+s094,H,Historial contra cada rival,River Plate,2,2,0,0,100.0,49.0,3.0,1.0,0.0
+s094,H,Historial contra cada rival,San Lorenzo,2,1,1,0,50.0,-1.0,2.0,1.5,0.5
+s094,H,Historial contra cada rival,São Paulo,2,1,1,0,50.0,-1.0,2.0,1.0,0.5
+s094,H,Historial contra cada rival,Talleres de Córdoba,2,2,0,0,100.0,49.0,3.0,1.5,0.5
+s094,H,Historial contra cada rival,Unión de Santa Fe,2,1,1,0,50.0,-1.0,2.0,2.0,0.5
+s094,H,Historial contra cada rival,Universidad Católica,2,1,0,1,50.0,-1.0,1.5,1.0,1.0
+s094,H,Historial contra cada rival,Vasco Da Gama,2,1,0,1,50.0,-1.0,1.5,1.5,1.0
+s095,H,Rivales que más puntos le sacaron,Vélez Sarsfield,3,0,2,1,0.0,-51.0,0.67,0.67,1.0
+s095,H,Rivales que más puntos le sacaron,Cruzeiro,2,0,1,1,0.0,-51.0,0.5,0.5,1.0
+s095,H,Rivales que más puntos le sacaron,Gimnasia de Mendoza,2,0,2,0,0.0,-51.0,1.0,1.5,1.5
+s095,H,Rivales que más puntos le sacaron,Platense,2,0,2,0,0.0,-51.0,1.0,0.5,0.5
+s095,H,Rivales que más puntos le sacaron,Racing Club,3,1,2,0,33.3,-17.7,1.67,1.33,1.0
+s095,H,Rivales que más puntos le sacaron,Barcelona SC,2,1,0,1,50.0,-1.0,1.5,1.5,0.5
+s095,H,Rivales que más puntos le sacaron,Deportivo Riestra,2,1,0,1,50.0,-1.0,1.5,0.5,1.5
+s095,H,Rivales que más puntos le sacaron,Estudiantes de La Plata,2,1,0,1,50.0,-1.0,1.5,1.0,1.0
+s095,H,Rivales que más puntos le sacaron,Huracán,1,0,0,1,0.0,-51.0,0.0,2.0,3.0
+s095,H,Rivales que más puntos le sacaron,O'Higgins,2,1,0,1,50.0,-1.0,1.5,0.5,0.5
+s095,H,Rivales que más puntos le sacaron,Universidad Católica,2,1,0,1,50.0,-1.0,1.5,1.0,1.0
+s095,H,Rivales que más puntos le sacaron,Vasco Da Gama,2,1,0,1,50.0,-1.0,1.5,1.5,1.0
+s095,H,Rivales que más puntos le sacaron,Independiente,2,1,1,0,50.0,-1.0,2.0,1.0,0.5
+s095,H,Rivales que más puntos le sacaron,Instituto,2,1,1,0,50.0,-1.0,2.0,2.0,1.0
+s095,H,Rivales que más puntos le sacaron,Newell's Old Boys,2,1,1,0,50.0,-1.0,2.0,2.0,1.0
+s095,H,Rivales que más puntos le sacaron,San Lorenzo,2,1,1,0,50.0,-1.0,2.0,1.5,0.5
+s095,H,Rivales que más puntos le sacaron,São Paulo,2,1,1,0,50.0,-1.0,2.0,1.0,0.5
+s095,H,Rivales que más puntos le sacaron,Unión de Santa Fe,2,1,1,0,50.0,-1.0,2.0,2.0,0.5
+s096,I,"Después de ganar, empatar o perder",Después de ganar,24,11,8,5,45.8,-5.2,1.71,1.38,0.92
+s096,I,"Después de ganar, empatar o perder",Después de empatar,15,9,4,2,60.0,9.0,2.07,1.6,0.47
+s096,I,"Después de ganar, empatar o perder",Después de perder,9,4,3,2,44.4,-6.6,1.67,1.44,1.0
+s097,I,Después de una goleada,Después de golear,5,1,3,1,20.0,-31.0,1.2,1.0,1.0
+s097,I,Después de una goleada,Después de ser goleado,1,0,0,1,0.0,-51.0,0.0,0.0,1.0
+s098,I,Después de una racha ganadora,Después de 3 o más victorias seguidas,4,1,2,1,25.0,-26.0,1.25,1.0,1.0
+s099,I,Después de una racha sin ganar,Después de 3 o más sin ganar,5,3,1,1,60.0,9.0,2.0,1.4,0.4
+s100,I,Forma reciente,0 a 5 puntos,5,3,1,1,60.0,9.0,2.0,1.4,0.6
+s100,I,Forma reciente,6 a 9 puntos,20,9,8,3,45.0,-6.0,1.75,1.45,0.85
+s100,I,Forma reciente,10 a 15 puntos,19,11,5,3,57.9,6.9,2.0,1.58,0.74
+s101,I,Racha sin recibir goles,Venía de 2 o más vallas invictas,6,2,2,2,33.3,-17.7,1.33,1.5,1.33
+s102,I,Racha sin marcar,Venía de 2 o más partidos sin marcar,2,0,2,0,0.0,-51.0,1.0,1.5,1.5
+s103,I,Rachas más largas,Invicto (sin perder) (17),17,9,8,0,52.9,1.9,2.06,1.82,0.82
+s103,I,Rachas más largas,Sin ganar (4),4,0,3,1,0.0,-51.0,0.75,0.5,0.75
+s103,I,Rachas más largas,Victorias seguidas (4),4,4,0,0,100.0,49.0,3.0,1.75,0.5
+s104,I,Después de quedar afuera de una copa,Después del último partido de una copa,3,3,0,0,100.0,49.0,3.0,2.0,0.0
+s105,I,Después de una expulsión,Después de una expulsión de Boca,2,1,0,1,50.0,-1.0,1.5,2.0,2.0
+s106,J,Con cada titular,Con Blanco,43,21,13,9,48.8,-2.2,1.77,1.4,0.79
+s106,J,Con cada titular,Con Delgado,38,20,10,8,52.6,1.6,1.84,1.47,0.76
+s106,J,Con cada titular,Con Di Lollo,38,18,12,8,47.4,-3.7,1.74,1.32,0.82
+s106,J,Con cada titular,Con Ascacibar,36,18,11,7,50.0,-1.0,1.81,1.39,0.75
+s106,J,Con cada titular,Con Merentiel,36,20,11,5,55.6,4.5,1.97,1.44,0.64
+s106,J,Con cada titular,Con Paredes,32,16,9,7,50.0,-1.0,1.78,1.31,0.72
+s106,J,Con cada titular,Con Costa,27,12,9,6,44.4,-6.6,1.67,1.41,0.78
+s106,J,Con cada titular,Con Aranda,23,11,7,5,47.8,-3.2,1.74,1.43,0.74
+s106,J,Con cada titular,Con Montero,22,11,8,3,50.0,-1.0,1.86,1.36,0.82
+s106,J,Con cada titular,Con Flores,21,12,7,2,57.1,6.1,2.05,1.48,0.9
+s106,J,Con cada titular,Con Lozano,17,11,4,2,64.7,13.7,2.18,1.47,0.59
+s106,J,Con cada titular,Con Alan Velasco,15,10,4,1,66.7,15.6,2.27,1.6,0.67
+s106,J,Con cada titular,Con Leandro Brey,14,9,1,4,64.3,13.3,2.0,1.71,0.86
+s106,J,Con cada titular,Con Marchesín,13,5,6,2,38.5,-12.6,1.62,1.31,0.62
+s106,J,Con cada titular,Con Tomás Belmonte,13,7,5,1,53.8,2.8,2.0,1.62,0.62
+s106,J,Con cada titular,Con Weigandt,12,5,4,3,41.7,-9.4,1.58,1.33,0.75
+s106,J,Con cada titular,Con Bareiro,11,6,3,2,54.5,3.5,1.91,1.55,0.73
+s106,J,Con cada titular,Con Figal,11,7,3,1,63.6,12.6,2.18,1.91,0.64
+s106,J,Con cada titular,Con Herrera,17,12,3,2,70.6,19.6,2.29,1.35,0.41
+s106,J,Con cada titular,Con Pellegrino,11,5,4,2,45.5,-5.6,1.73,1.55,1.09
+s106,J,Con cada titular,Con Villa,11,6,4,1,54.5,3.5,2.0,1.82,0.73
+s106,J,Con cada titular,Con Alarcón,9,2,4,3,22.2,-28.8,1.11,1.0,1.22
+s106,J,Con cada titular,Con Braida,9,4,3,2,44.4,-6.6,1.67,1.33,1.0
+s106,J,Con cada titular,Con Gorosito,7,4,3,0,57.1,6.1,2.14,2.0,0.86
+s106,J,Con cada titular,Con Barinaga,6,4,0,2,66.7,15.6,2.0,1.83,0.83
+s106,J,Con cada titular,Con Giménez,6,2,2,2,33.3,-17.7,1.33,1.33,0.83
+s106,J,Con cada titular,Con Romero,6,4,2,0,66.7,15.6,2.33,2.0,0.67
+s106,J,Con cada titular,Con Zeballos,6,4,0,2,66.7,15.6,2.0,1.67,0.67
+s107,J,Cuando marca,Merentiel,14,8,6,0,57.1,6.1,2.14,1.93,0.64
+s107,J,Cuando marca,Ascacibar,8,5,3,0,62.5,11.5,2.25,2.25,0.63
+s107,J,Cuando marca,Alan Velasco,6,4,2,0,66.7,15.6,2.33,2.67,0.83
+s107,J,Cuando marca,Di Lollo,5,5,0,0,100.0,49.0,3.0,2.2,0.2
+s107,J,Cuando marca,Bareiro,4,4,0,0,100.0,49.0,3.0,2.25,0.25
+s107,J,Cuando marca,Flores,4,4,0,0,100.0,49.0,3.0,2.5,0.5
+s107,J,Cuando marca,Giménez,4,2,1,1,50.0,-1.0,1.75,2.25,1.25
+s107,J,Cuando marca,Paredes,4,4,0,0,100.0,49.0,3.0,2.0,0.5
+s107,J,Cuando marca,Valencia,3,2,1,0,66.7,15.6,2.33,2.67,1.67
+s107,J,Cuando marca,Lozano,2,1,1,0,50.0,-1.0,2.0,1.5,0.5
+s107,J,Cuando marca,Romero,2,1,0,1,50.0,-1.0,1.5,2.5,2.0
+s108,J,Cuando asiste,Blanco,10,8,1,1,80.0,29.0,2.5,2.2,1.0
+s108,J,Cuando asiste,Paredes,6,4,1,1,66.7,15.6,2.17,1.67,0.5
+s108,J,Cuando asiste,Villa,6,5,1,0,83.3,32.3,2.67,2.17,1.0
+s108,J,Cuando asiste,Delgado,5,4,1,0,80.0,29.0,2.6,2.4,0.6
+s108,J,Cuando asiste,Flores,3,1,2,0,33.3,-17.7,1.67,1.33,0.67
+s108,J,Cuando asiste,Merentiel,3,3,0,0,100.0,49.0,3.0,2.0,0.33
+s108,J,Cuando asiste,Zeballos,3,3,0,0,100.0,49.0,3.0,2.67,0.33
+s108,J,Cuando asiste,Alan Velasco,2,2,0,0,100.0,49.0,3.0,3.5,0.0
+s108,J,Cuando asiste,Aranda,2,1,1,0,50.0,-1.0,2.0,3.0,1.0
+s108,J,Cuando asiste,Ascacibar,2,1,1,0,50.0,-1.0,2.0,1.0,0.5
+s108,J,Cuando asiste,Gorosito,2,1,1,0,50.0,-1.0,2.0,2.5,1.5
+s108,J,Cuando asiste,Palacios,2,2,0,0,100.0,49.0,3.0,3.0,1.5
+s108,J,Cuando asiste,Valencia,2,2,0,0,100.0,49.0,3.0,3.0,0.5
+s109,J,Cuando recibe tarjeta,Paredes,14,7,2,5,50.0,-1.0,1.64,1.5,1.0
+s109,J,Cuando recibe tarjeta,Delgado,10,6,2,2,60.0,9.0,2.0,1.4,0.6
+s109,J,Cuando recibe tarjeta,Costa,9,1,6,2,11.1,-39.9,1.0,1.0,1.0
+s109,J,Cuando recibe tarjeta,Di Lollo,7,5,1,1,71.4,20.4,2.29,1.29,0.14
+s109,J,Cuando recibe tarjeta,Bareiro,6,4,1,1,66.7,15.6,2.17,2.0,0.33
+s109,J,Cuando recibe tarjeta,Ascacibar,5,0,4,1,0.0,-51.0,0.8,1.0,1.2
+s109,J,Cuando recibe tarjeta,Blanco,5,2,2,1,40.0,-11.0,1.6,1.2,1.0
+s109,J,Cuando recibe tarjeta,Herrera,5,4,1,0,80.0,29.0,2.6,1.4,0.0
+s109,J,Cuando recibe tarjeta,Alan Velasco,4,2,1,1,50.0,-1.0,1.75,1.5,1.0
+s109,J,Cuando recibe tarjeta,Tomás Belmonte,4,3,1,0,75.0,24.0,2.5,1.75,0.75
+s109,J,Cuando recibe tarjeta,Aranda,3,0,2,1,0.0,-51.0,0.67,0.67,1.0
+s109,J,Cuando recibe tarjeta,Flores,3,2,0,1,66.7,15.6,2.0,0.67,0.33
+s109,J,Cuando recibe tarjeta,Valencia,3,3,0,0,100.0,49.0,3.0,1.67,0.67
+s110,J,Cuando sale temprano,Alarcón,4,0,1,3,0.0,-51.0,0.25,0.5,1.75
+s110,J,Cuando sale temprano,Delgado,4,1,3,0,25.0,-26.0,1.5,2.0,1.0
+s110,J,Cuando sale temprano,Alan Velasco,3,1,1,1,33.3,-17.7,1.33,1.67,2.33
+s110,J,Cuando sale temprano,Ascacibar,3,1,1,1,33.3,-17.7,1.33,1.33,1.33
+s111,J,Cuando entra desde el banco,Romero,16,6,4,6,37.5,-13.5,1.38,1.25,1.0
+s111,J,Cuando entra desde el banco,Alan Velasco,14,7,5,2,50.0,-1.0,1.86,1.5,0.64
+s111,J,Cuando entra desde el banco,Valencia,12,9,3,0,75.0,24.0,2.5,1.75,0.5
+s111,J,Cuando entra desde el banco,Villa,12,7,3,2,58.3,7.3,2.0,1.25,0.83
+s111,J,Cuando entra desde el banco,Palacios,9,7,2,0,77.8,26.8,2.56,1.78,0.56
+s111,J,Cuando entra desde el banco,Zenon,9,7,2,0,77.8,26.8,2.56,1.67,0.22
+s111,J,Cuando entra desde el banco,Aranda,8,2,3,3,25.0,-26.0,1.13,1.13,1.13
+s111,J,Cuando entra desde el banco,Giménez,8,5,2,1,62.5,11.5,2.13,1.88,1.0
+s111,J,Cuando entra desde el banco,Merentiel,8,2,3,3,25.0,-26.0,1.13,1.25,1.25
+s111,J,Cuando entra desde el banco,Tomás Belmonte,8,6,2,0,75.0,24.0,2.5,1.5,0.25
+s111,J,Cuando entra desde el banco,Paredes,7,5,2,0,71.4,20.4,2.43,2.0,0.71
+s111,J,Cuando entra desde el banco,Zeballos,7,2,2,3,28.6,-22.4,1.14,1.14,1.0
+s111,J,Cuando entra desde el banco,Zufiaurre,7,3,3,1,42.9,-8.2,1.71,1.29,0.57
+s111,J,Cuando entra desde el banco,Ascacibar,6,4,2,0,66.7,15.6,2.33,2.0,0.67
+s111,J,Cuando entra desde el banco,Herrera,9,4,4,1,44.4,-6.6,1.78,1.78,0.89
+s111,J,Cuando entra desde el banco,Delgado,5,3,2,0,60.0,9.0,2.2,1.2,0.4
+s111,J,Cuando entra desde el banco,Pellegrino,5,4,1,0,80.0,29.0,2.6,2.2,1.0
+s111,J,Cuando entra desde el banco,Rey,4,3,0,1,75.0,24.0,2.25,1.75,0.75
+s111,J,Cuando entra desde el banco,Alarcón,3,2,1,0,66.7,15.6,2.33,2.33,0.67
+s111,J,Cuando entra desde el banco,Braida,3,1,1,1,33.3,-17.7,1.33,1.33,1.33
+s111,J,Cuando entra desde el banco,Costa,3,2,1,0,66.7,15.6,2.33,1.67,0.67
+s111,J,Cuando entra desde el banco,Flores,3,1,1,1,33.3,-17.7,1.33,1.0,0.33
+s111,J,Cuando entra desde el banco,Weigandt,3,1,1,1,33.3,-17.7,1.33,1.0,1.0
+s112,J,Gol de un suplente,Marcó un suplente,12,7,3,2,58.3,7.3,2.0,2.42,1.08
+s112,J,Gol de un suplente,Solo marcaron titulares,28,18,9,1,64.3,13.3,2.25,1.5,0.61
+s113,J,Goleadores distintos,Sin goles,9,0,3,6,0.0,-51.0,0.33,0.0,0.89
+s113,J,Goleadores distintos,1 goleador,21,10,9,2,47.6,-3.4,1.86,1.1,0.71
+s113,J,Goleadores distintos,2 goleadores,14,10,3,1,71.4,20.4,2.36,2.21,0.93
+s113,J,Goleadores distintos,3 o más goleadores,5,5,0,0,100.0,49.0,3.0,3.4,0.4
+s114,J,Arquero titular,Leandro Brey,14,9,1,4,64.3,13.3,2.0,1.71,0.86
+s114,J,Arquero titular,Marchesín,13,5,6,2,38.5,-12.6,1.62,1.31,0.62
+s114,J,Arquero titular,Montero,22,11,8,3,50.0,-1.0,1.86,1.36,0.82
+s115,J,Dupla de centrales,Con la dupla habitual (Costa y Di Lollo),22,9,8,5,40.9,-10.1,1.59,1.36,0.86
+s115,J,Dupla de centrales,Con otra dupla,26,16,6,4,61.5,10.5,2.08,1.5,0.65
+s116,J,Edad del once,Menos de 25 años,2,1,0,1,50.0,-1.0,1.5,0.5,0.5
+s116,J,Edad del once,25 a 28 años,42,22,13,7,52.4,1.4,1.88,1.55,0.81
+s116,J,Edad del once,28 años o más,2,0,2,0,0.0,-51.0,1.0,0.5,0.5
+s117,J,Rotación del once,0 o 1 cambio,10,6,3,1,60.0,9.0,2.1,1.9,0.9
+s117,J,Rotación del once,2 o 3 cambios,15,6,6,3,40.0,-11.0,1.6,1.2,0.73
+s117,J,Rotación del once,4 o más cambios,22,11,6,5,50.0,-1.0,1.77,1.45,0.82
+s118,J,Formación,4-1-2-1-2,1,1,0,0,100.0,49.0,3.0,2.0,0.0
+s118,J,Formación,4-1-3-2,2,1,1,0,50.0,-1.0,2.0,1.5,1.0
+s118,J,Formación,4-2-2-2,1,0,1,0,0.0,-51.0,1.0,1.0,1.0
+s118,J,Formación,4-2-3-1,9,6,2,1,66.7,15.6,2.22,1.89,1.0
+s118,J,Formación,4-3-1-2,7,4,1,2,57.1,6.1,1.86,1.57,0.57
+s118,J,Formación,4-3-3,17,9,6,2,52.9,1.9,1.94,1.41,0.76
+s118,J,Formación,4-4-1-1,1,0,1,0,0.0,-51.0,1.0,1.0,1.0
+s118,J,Formación,4-4-2,11,4,3,4,36.4,-14.7,1.36,1.09,0.73
+s119,J,Tres partidos en una semana,Tercer partido en 7 días,5,4,1,0,80.0,29.0,2.6,1.8,0.6
+s119,J,Tres partidos en una semana,Con menos carga,44,21,14,9,47.7,-3.3,1.75,1.41,0.8
+s120,J,Minuto del primer cambio,Antes del 55',21,9,6,6,42.9,-8.2,1.57,1.57,1.0
+s120,J,Minuto del primer cambio,Del 55' al 70',22,12,7,3,54.5,3.5,1.95,1.27,0.68
+s120,J,Minuto del primer cambio,Después del 70',6,4,2,0,66.7,15.6,2.33,1.67,0.33
+s121,J,Cómo iba en el primer cambio,Primer cambio ganando,17,15,2,0,88.2,37.2,2.76,2.12,0.35
+s121,J,Cómo iba en el primer cambio,Primer cambio empatando,22,8,10,4,36.4,-14.7,1.55,0.95,0.64
+s121,J,Cómo iba en el primer cambio,Primer cambio perdiendo,10,2,3,5,20.0,-31.0,0.9,1.4,1.8
+s122,J,Gol después de un cambio,Gol en los 15 minutos tras un cambio,21,15,4,2,71.4,20.4,2.33,2.1,0.81
+s122,J,Gol después de un cambio,Sin gol tras los cambios,28,10,11,7,35.7,-15.3,1.46,0.96,0.75
+s123,J,Cuando marca o asiste,Merentiel,17,11,6,0,64.7,13.7,2.29,1.94,0.59
+s123,J,Cuando marca o asiste,Blanco,11,9,1,1,81.8,30.8,2.55,2.18,0.91
+s123,J,Cuando marca o asiste,Ascacibar,10,6,4,0,60.0,9.0,2.2,2.0,0.6
+s123,J,Cuando marca o asiste,Paredes,10,8,1,1,80.0,29.0,2.5,1.8,0.5
+s123,J,Cuando marca o asiste,Alan Velasco,7,5,2,0,71.4,20.4,2.43,2.71,0.71
+s123,J,Cuando marca o asiste,Flores,7,5,2,0,71.4,20.4,2.43,2.0,0.57
+s123,J,Cuando marca o asiste,Villa,7,6,1,0,85.7,34.7,2.71,2.43,0.86
+s123,J,Cuando marca o asiste,Delgado,6,5,1,0,83.3,32.3,2.67,2.5,0.67
+s123,J,Cuando marca o asiste,Bareiro,5,4,1,0,80.0,29.0,2.6,2.0,0.4
+s123,J,Cuando marca o asiste,Di Lollo,5,5,0,0,100.0,49.0,3.0,2.2,0.2
+s123,J,Cuando marca o asiste,Giménez,4,2,1,1,50.0,-1.0,1.75,2.25,1.25
+s123,J,Cuando marca o asiste,Valencia,4,3,1,0,75.0,24.0,2.5,2.75,1.25
+s123,J,Cuando marca o asiste,Zeballos,4,3,0,1,75.0,24.0,2.25,2.25,0.75
+s123,J,Cuando marca o asiste,Aranda,3,2,1,0,66.7,15.6,2.33,2.67,0.67
+s123,J,Cuando marca o asiste,Lozano,3,2,1,0,66.7,15.6,2.33,2.0,0.33
+s124,J,Sin cada jugador clave,Sin Blanco,1,1,0,0,100.0,49.0,3.0,1.0,0.0
+s124,J,Sin cada jugador clave,Sin Delgado,4,2,2,0,50.0,-1.0,2.0,1.5,0.75
+s124,J,Sin cada jugador clave,Sin Di Lollo,1,0,1,0,0.0,-51.0,1.0,1.0,1.0
+s124,J,Sin cada jugador clave,Sin Ascacibar,6,2,2,2,33.3,-17.7,1.33,1.17,1.0
+s124,J,Sin cada jugador clave,Sin Merentiel,3,2,0,1,66.7,15.6,2.0,1.33,0.67
+s124,J,Sin cada jugador clave,Sin Paredes,8,3,3,2,37.5,-13.5,1.5,1.25,0.88
+s124,J,Sin cada jugador clave,Sin Costa,9,5,3,1,55.6,4.5,2.0,1.44,0.78
+s124,J,Sin cada jugador clave,Sin Aranda,16,11,4,1,68.8,17.7,2.31,1.63,0.69
+s124,J,Sin cada jugador clave,Sin Montero,27,14,7,6,51.9,0.8,1.81,1.52,0.74
+s124,J,Sin cada jugador clave,Sin Flores,21,10,7,4,47.6,-3.4,1.76,1.33,0.62
+s124,J,Sin cada jugador clave,Sin Lozano,30,13,10,7,43.3,-7.7,1.63,1.37,0.83
+s124,J,Sin cada jugador clave,Sin Alan Velasco,11,3,5,3,27.3,-23.7,1.27,1.18,0.91
+s124,J,Sin cada jugador clave,Sin Marchesín,36,20,9,7,55.6,4.5,1.92,1.5,0.83
+s124,J,Sin cada jugador clave,Sin Tomás Belmonte,17,8,6,3,47.1,-4.0,1.76,1.29,0.82
+s124,J,Sin cada jugador clave,Sin Weigandt,27,16,8,3,59.3,8.2,2.07,1.56,0.78
+s124,J,Sin cada jugador clave,Sin Bareiro,36,18,11,7,50.0,-1.0,1.81,1.36,0.81
+s124,J,Sin cada jugador clave,Sin Herrera,31,14,10,7,45.2,-5.9,1.68,1.32,0.74
+s124,J,Sin cada jugador clave,Sin Pellegrino,4,3,1,0,75.0,24.0,2.5,2.25,0.5
+s124,J,Sin cada jugador clave,Sin Villa,25,12,7,6,48.0,-3.0,1.72,1.36,0.72
+s125,J,Titulares con tres partidos completos,0 a 3 titulares,33,17,9,7,51.5,0.5,1.82,1.45,0.88
+s125,J,Titulares con tres partidos completos,4 a 6 titulares,13,6,6,1,46.2,-4.9,1.85,1.46,0.54
+s126,K,Tiempo arriba o abajo,45 minutos o más ganando,15,14,1,0,93.3,42.3,2.87,2.33,0.4
+s126,K,Tiempo arriba o abajo,30 minutos o más perdiendo,9,2,1,6,22.2,-28.8,0.78,1.11,1.67
+s126,K,Tiempo arriba o abajo,Ni lo uno ni lo otro,25,9,13,3,36.0,-15.0,1.6,1.04,0.68
+s127,K,Cuándo marca goles,0-15,4,3,1,0,75.0,24.0,2.5,2.5,0.75
+s127,K,Cuándo marca goles,16-30,11,7,4,0,63.6,12.6,2.27,2.36,0.82
+s127,K,Cuándo marca goles,31-45+,12,8,4,0,66.7,15.6,2.33,1.83,0.58
+s127,K,Cuándo marca goles,46-60,13,9,4,0,69.2,18.2,2.38,2.0,0.62
+s127,K,Cuándo marca goles,61-75,7,7,0,0,100.0,49.0,3.0,2.29,0.57
+s127,K,Cuándo marca goles,76-90+,14,9,2,3,64.3,13.3,2.07,2.14,0.93
+s127,K,Cuándo marca goles,Prórroga,1,0,0,1,0.0,-51.0,0.0,2.0,3.0
+s128,K,Primer y segundo tiempo,Ganó el primer tiempo,17,14,3,0,82.4,31.3,2.65,2.24,0.53
+s128,K,Primer y segundo tiempo,Ganó el segundo tiempo,19,17,1,1,89.5,38.5,2.74,2.11,0.37
+s129,K,Del descanso al final,Ganando al descanso,17,14,3,0,82.4,31.3,2.65,2.24,0.53
+s129,K,Del descanso al final,Empatando al descanso,24,9,11,4,37.5,-13.5,1.58,0.96,0.63
+s129,K,Del descanso al final,Perdiendo al descanso,8,2,1,5,25.0,-26.0,0.88,1.25,1.75
+s130,K,Remontadas y ventajas perdidas,Sumó estando abajo,11,3,8,0,27.3,-23.7,1.55,1.64,1.27
+s130,K,Remontadas y ventajas perdidas,Perdió puntos estando arriba,5,0,5,0,0.0,-51.0,1.0,1.4,1.4
+s131,K,Minuto de la remontada,Hasta el 60',8,2,6,0,25.0,-26.0,1.5,1.5,1.13
+s131,K,Minuto de la remontada,Del 61' al 75',1,1,0,0,100.0,49.0,3.0,3.0,2.0
+s131,K,Minuto de la remontada,Desde el 76',2,0,2,0,0.0,-51.0,1.0,1.5,1.5

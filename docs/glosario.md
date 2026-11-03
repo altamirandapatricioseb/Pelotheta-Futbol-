@@ -1,0 +1,310 @@
+# Glosario
+
+Generado por `scripts/diccionario.py` desde `data/stat_catalog.csv`.
+
+## Términos
+
+- **n/d:** Sin dato: ninguna fuente lo publica o no alcanza la muestra. Nunca es cero.
+- **Nivel A, B o C:** A viene de una fuente; B la calcula el sistema desde datos crudos; C no tiene dato.
+- **Estimada:** El cálculo usa un supuesto; la web lo marca.
+- **Cada 90 minutos:** Valor dividido por los minutos jugados y multiplicado por 90.
+- **Percentil:** Porcentaje del plantel que queda por debajo; 50 es el medio.
+- **Ventana:** Partidos (últimos N, últimos días, local, por rival) sobre los que se resume un dato.
+- **Elo:** Fuerza de un equipo que cambia con cada resultado (K = 30, localía 50).
+- **xG:** Goles esperados: probabilidad de gol de cada remate según su calidad.
+- **Situación:** Condición de un partido (por ejemplo, perder al entretiempo) y cómo le fue a Boca.
+- **Desglosada:** Página de una estadística por ventanas de tiempo, con sus partidos.
+
+## Estadísticas
+
+- **Acciones defensivas** (jugador): Entradas más intercepciones: las acciones con las que recuperó o cortó la pelota.
+- **Acciones defensivas del PPDA** (equipo): Entradas, intercepciones y faltas propias: el denominador del PPDA.
+- **Altura** (jugador): Altura en centímetros según la ficha del plantel.
+- **Amarillas del rival** (equipo): Amonestaciones a jugadores del rival.
+- **Amarillas por partido del árbitro** (equipo): Amarillas por partido que muestra ese árbitro en los partidos de liga cargados.
+- **Asistencias** (jugador): Último pase antes de un gol de Boca, según el registro de la fuente.
+- **Asistencias con pase común** (jugador): Asistencias con un pase que no fue centro ni filtrado. Solo partidos de liga.
+- **Asistencias con pase filtrado** (jugador): Asistencias que fueron un pase filtrado entre defensores. Solo partidos de liga.
+- **Asistencias de cabeza** (jugador): Asistencias de cabeza. Solo partidos de liga.
+- **Asistencias de centro** (jugador): Asistencias que fueron un centro. Solo partidos de liga.
+- **Asistencias esperadas** (jugador): Probabilidad de que sus pases terminen en gol, sin importar cómo definió el compañero.
+- **Asistencias menos xA** (jugador): Asistencias por encima o por debajo de lo esperado por la calidad de sus pases.
+- **Atajadas** (jugador): Remates al arco que atajó.
+- **Atajadas de remates en el área** (jugador): Atajadas de remates hechos desde dentro del área.
+- **Ataques** (equipo): Avances con la pelota hacia el campo rival, según el conteo de la fuente.
+- **Ataques peligrosos** (equipo): Ataques que llegaron a zona de peligro cerca del arco rival.
+- **Ataques peligrosos (%)** (equipo): Porcentaje de los ataques que llegaron a zona de peligro.
+- **Ataques peligrosos del partido** (equipo): Ataques peligrosos de los dos equipos sumados: la base del dominio.
+- **Bajas del rival** (equipo): Jugadores del rival ausentes por lesión o suspensión.
+- **Bloqueos** (jugador): Remates o pases del rival que bloqueó con el cuerpo.
+- **Brier score del Elo** (equipo): Error del pronóstico del Elo en los partidos de la ventana. Más bajo = mejor calibrado.
+- **Calidad de definición** (equipo): xGOT menos xG: positivo si los remates al arco fueron mejores que la ocasión que los generó.
+- **Calidad del calendario** (equipo): Elo promedio de los rivales enfrentados en la ventana.
+- **Calificación media** (jugador): Nota por partido que publica la fuente, de 0 a 10, promediada sobre los partidos con nota.
+- **Carga de 14 días** (jugador): Minutos que jugó en los 14 días anteriores a su último partido, incluido ese partido.
+- **Carga de 28 días** (jugador): Minutos que jugó en los 28 días anteriores a su último partido, incluido ese partido.
+- **Carga de 7 días** (jugador): Minutos que jugó en los 7 días anteriores a su último partido, incluido ese partido.
+- **Centros** (jugador): Centros que intentó hacia el área.
+- **Centros atrapados** (jugador): Centros que cortó atrapando la pelota en el aire.
+- **Centros completados** (jugador): Centros que encontraron a un compañero.
+- **Cobertura del índice** (jugador): Parte de los pesos del índice que tienen datos. Con menos de 0,6 el índice queda n/d.
+- **Concentración de goles** (equipo): Suma de los cuadrados de la parte de goles de cada jugador. Cerca de 1 = depende de uno solo.
+- **Conducciones** (jugador): Veces que avanzó llevando la pelota.
+- **Conducciones progresivas** (jugador): Conducciones que acercaron la pelota de forma clara al arco rival.
+- **Consistencia de goles a favor** (equipo): Desvío estándar de los goles a favor por partido: más bajo = rinde más parejo.
+- **Consistencia de goles en contra** (equipo): Desvío estándar de los goles en contra por partido.
+- **Consistencia de la calificación** (jugador): Desvío estándar de su nota por partido: cuanto más bajo, más parejo rinde.
+- **Conversión de ocasiones claras** (equipo): Porcentaje de ocasiones claras que terminaron en gol.
+- **Córners a favor** (equipo): Tiros de esquina a favor.
+- **Córners en contra** (equipo): Tiros de esquina del rival.
+- **Dependencia del goleador** (jugador): Porcentaje de todos los goles de Boca en la ventana elegida que marcó o asistió.
+- **Despejes** (jugador): Pelotas que alejó de su área sin buscar a un compañero.
+- **Despejes de puños** (jugador): Pelotas que despejó con los puños.
+- **Despejes sobre la línea** (jugador): Pelotas que sacó sobre la línea del arco.
+- **Desposesiones** (jugador): Veces que un rival le sacó la pelota mientras la llevaba.
+- **Diferencia de gol** (equipo): Goles a favor menos goles en contra.
+- **Diferencia de xG** (equipo): xG a favor menos xG en contra: quién generó mejores ocasiones.
+- **Distancia recorrida** (jugador): Kilómetros recorridos. Ninguna fuente gratuita publica datos de seguimiento de los jugadores.
+- **Dominio** (equipo): Parte de los ataques peligrosos del partido que fueron de Boca. Aproxima el Field Tilt.
+- **Duelos aéreos disputados** (jugador): Duelos por arriba que disputó, ganados o perdidos.
+- **Duelos aéreos ganados** (jugador): Duelos por arriba que ganó.
+- **Duelos aéreos ganados (%)** (jugador): Porcentaje de duelos aéreos que ganó.
+- **Duelos aéreos perdidos** (jugador): Duelos por arriba que perdió.
+- **Duelos disputados** (jugador): Duelos que disputó, ganados o perdidos.
+- **Duelos ganados** (jugador): Disputas uno contra uno que ganó, por abajo o por arriba.
+- **Duelos ganados (%)** (jugador): Porcentaje de duelos que ganó.
+- **Duelos perdidos** (jugador): Disputas uno contra uno que perdió.
+- **Días de descanso** (equipo): Días entre este partido y el partido oficial anterior, promedio en la ventana.
+- **Edad** (jugador): Edad en años, con decimales, a la fecha del último partido cargado.
+- **Edad del equipo** (equipo): Edad promedio de los jugadores que usó, ponderada por los minutos que jugó cada uno.
+- **Efectividad en entradas** (jugador): Porcentaje de entradas ganadas sobre las que intentó.
+- **Efectividad en penales** (jugador): Porcentaje de penales convertidos sobre los que pateó.
+- **Efectividad en regates** (jugador): Porcentaje de regates que le salieron bien.
+- **Eficiencia como suplente** (jugador): Goles más asistencias cada 90 minutos cuando entró desde el banco.
+- **Elo de Boca** (equipo): Elo propio de Boca antes del partido, calculado con todos los resultados de la liga.
+- **Elo del rival** (equipo): Elo propio del rival antes del partido.
+- **Entradas** (jugador): Entradas que registra la fuente principal del partido.
+- **Entradas de último hombre** (jugador): Entradas como último defensor antes del arquero.
+- **Entradas desde el banco** (jugador): Veces que entró a la cancha desde el banco de suplentes.
+- **Entradas ganadas** (jugador): Entradas en las que se quedó con la pelota o se la sacó al rival.
+- **Entradas intentadas** (jugador): Entradas que intentó, las ganara o no.
+- **Errores que terminan en gol** (jugador): Errores propios que terminaron en un gol del rival.
+- **Errores que terminan en remate** (jugador): Errores propios que terminaron en un remate del rival.
+- **Estabilidad del once** (equipo): Titulares en común entre partidos seguidos sobre titulares distintos en total (índice de Jaccard).
+- **Estadio** (equipo): Estadio donde se jugó el partido.
+- **Expected Losses Added** (jugador): Derrotas esperadas que suma frente al reemplazo por los goles en contra. Negativo es bueno. Estimado.
+- **Expected Wins Added** (jugador): Victorias esperadas que aporta frente al reemplazo por los goles a favor con él en cancha. Estimado.
+- **Exponente pitagórico** (equipo): Exponente que mejor ajusta los puntos de la tabla de la liga, calibrado por mínimos cuadrados.
+- **Expulsiones** (jugador): Rojas directas y dobles amarillas.
+- **Expulsiones del rival** (equipo): Expulsiones de jugadores del rival.
+- **Faltas cometidas** (jugador): Faltas que cometió. Solo partidos de liga.
+- **Faltas recibidas** (jugador): Faltas que le cometieron. Solo partidos de liga.
+- **Field Tilt** (equipo): Parte de los pases en el último tercio que son propios. Sin pases por zona queda n/d; ver Dominio.
+- **Forma reciente** (equipo): Puntos en los últimos 5 partidos de la ventana elegida.
+- **Fueras de juego** (jugador): Veces que quedó en posición adelantada. Solo partidos de liga.
+- **G+A entrando desde el banco** (jugador): Goles más asistencias en los partidos en que entró desde el banco.
+- **Goles** (jugador): Goles convertidos, de jugada o de penal. La tanda de penales no cuenta.
+- **Goles a favor** (equipo): Goles convertidos, sin contar la tanda de penales.
+- **Goles a favor cada 90 en cancha** (jugador): Goles de Boca cada 90 minutos con el jugador en cancha.
+- **Goles a favor del minuto 0 al 15** (equipo): Goles convertidos entre el inicio y el minuto 15.
+- **Goles a favor del minuto 16 al 30** (equipo): Goles convertidos entre los minutos 16 y 30.
+- **Goles a favor del minuto 31 al 45** (equipo): Goles convertidos entre el minuto 31 y el final del primer tiempo, con el descuento.
+- **Goles a favor del minuto 46 al 60** (equipo): Goles convertidos entre el inicio del segundo tiempo y el minuto 60.
+- **Goles a favor del minuto 61 al 75** (equipo): Goles convertidos entre los minutos 61 y 75.
+- **Goles a favor del minuto 76 al 90** (equipo): Goles convertidos entre el minuto 76 y el final, con el descuento.
+- **Goles a favor en el primer tiempo** (equipo): Goles convertidos antes del descanso.
+- **Goles anulados por el VAR** (jugador): Goles que le anularon después de la revisión del VAR.
+- **Goles de Boca anulados por el VAR** (equipo): Goles de Boca que se anularon después de la revisión del VAR.
+- **Goles de Boca con él en cancha** (jugador): Goles que hizo Boca mientras el jugador estaba en cancha.
+- **Goles de cabeza** (jugador): Goles convertidos de cabeza. Solo partidos de liga.
+- **Goles de cabeza (%)** (equipo): Porcentaje de los goles que fueron de cabeza. Solo partidos de liga.
+- **Goles de cabeza en contra** (equipo): Goles de cabeza que recibió. Solo partidos de liga.
+- **Goles de contraataque** (equipo): Goles de contraataque. Solo partidos de liga.
+- **Goles de contraataque en contra** (equipo): Goles que recibió de contraataque. Solo partidos de liga.
+- **Goles de córner** (equipo): Goles en jugadas de córner. Solo partidos de liga.
+- **Goles de pelota parada** (equipo): Goles en jugadas de pelota parada. Solo partidos de liga.
+- **Goles de pelota parada (%)** (equipo): Porcentaje de los goles que llegaron de pelota parada. Solo partidos de liga.
+- **Goles de pelota parada en contra** (equipo): Goles que recibió en jugadas de pelota parada. Solo partidos de liga.
+- **Goles de penal** (jugador): Penales convertidos en el tiempo de juego, sin la tanda.
+- **Goles de pie derecho** (equipo): Goles con el pie derecho. Solo partidos de liga.
+- **Goles de pie izquierdo** (equipo): Goles con el pie izquierdo. Solo partidos de liga.
+- **Goles de tiro libre** (equipo): Goles de tiro libre directo. Solo partidos de liga.
+- **Goles del rival anulados por el VAR** (equipo): Goles del rival que se anularon después de la revisión del VAR.
+- **Goles desde el área chica** (equipo): Goles con remates desde el área chica. Solo partidos de liga.
+- **Goles desde fuera del área** (jugador): Goles convertidos con remates desde fuera del área. Solo partidos de liga.
+- **Goles desde fuera del área (%)** (equipo): Porcentaje de los goles que llegaron con remates desde fuera del área. Solo partidos de liga.
+- **Goles después de un centro** (equipo): Goles que llegaron después de un centro. Solo partidos de liga.
+- **Goles en contra** (jugador): Goles que metió en su propio arco.
+- **Goles en contra cada 90 en cancha** (jugador): Goles en contra cada 90 minutos con el jugador en cancha.
+- **Goles en contra con él en cancha** (jugador): Goles que recibió Boca mientras el jugador estaba en cancha.
+- **Goles en contra del minuto 0 al 15** (equipo): Goles recibidos entre el inicio y el minuto 15.
+- **Goles en contra del minuto 16 al 30** (equipo): Goles recibidos entre los minutos 16 y 30.
+- **Goles en contra del minuto 31 al 45** (equipo): Goles recibidos entre el minuto 31 y el final del primer tiempo, con el descuento.
+- **Goles en contra del minuto 46 al 60** (equipo): Goles recibidos entre el inicio del segundo tiempo y el minuto 60.
+- **Goles en contra del minuto 61 al 75** (equipo): Goles recibidos entre los minutos 61 y 75.
+- **Goles en contra del minuto 76 al 90** (equipo): Goles recibidos entre el minuto 76 y el final, con el descuento.
+- **Goles en contra del rival** (equipo): Goles que los rivales metieron en su propio arco a favor de Boca.
+- **Goles en contra desde fuera del área** (equipo): Goles que recibió con remates desde fuera del área. Solo partidos de liga.
+- **Goles en contra en el primer tiempo** (equipo): Goles recibidos antes del descanso.
+- **Goles en contra menos xGA** (equipo): Goles recibidos por encima o por debajo de lo esperado. Negativo es bueno.
+- **Goles esperados** (jugador): Suma de la probabilidad de gol de cada remate según el modelo de la fuente.
+- **Goles esperados en contra** (equipo): xG de los remates del rival.
+- **Goles esperados sin penales** (jugador): xG sin los penales. Estimado: resta 0,76 por cada penal pateado, el valor convencional de un penal.
+- **Goles evitados** (jugador): Goles que evitó frente a lo esperado por los remates al arco que recibió.
+- **Goles menos xG** (jugador): Goles por encima o por debajo de lo esperado por la calidad de sus remates.
+- **Goles más asistencias** (jugador): Participación directa en goles: los que hizo más los que asistió.
+- **Goles por remate** (jugador): Goles por cada remate: eficacia de la definición.
+- **Goles por remate al arco** (jugador): Goles por cada remate que fue al arco.
+- **Goles recibidos** (jugador): Goles que recibió Boca mientras el jugador estaba en cancha. Clave para arqueros.
+- **Goles sin penal** (jugador): Goles sin contar los de penal: mide la definición en jugada.
+- **Goles sin penal menos npxG** (jugador): Goles sin penal por encima o por debajo de lo esperado sin contar penales.
+- **Intercepciones** (jugador): Pases del rival que cortó leyendo la jugada.
+- **Lluvia** (equipo): Lluvia en la hora del partido en la ciudad del estadio.
+- **Malos controles** (jugador): Controles fallidos que le hicieron perder la pelota.
+- **Manos sancionadas** (jugador): Manos que le cobraron. Solo partidos de liga.
+- **Mejoría α** (jugador): Cuánto cambió su rendimiento reciente frente al resto de su temporada, en sus propias estadísticas. 50 = sin cambio.
+- **Mejoría β** (jugador): Puntos que subió o bajó su índice de rendimiento entre sus últimas 10 apariciones y las 10 anteriores.
+- **Metros de progresión** (jugador): Metros que hizo avanzar la pelota hacia el arco rival, con pases y conducciones.
+- **Metros en conducción** (jugador): Metros que recorrió con la pelota en sus conducciones.
+- **Minutos de jugadores de 22 a 26 años** (equipo): Parte de los minutos del plantel que jugaron futbolistas de 22 a 26 años.
+- **Minutos de jugadores de 27 a 31 años** (equipo): Parte de los minutos del plantel que jugaron futbolistas de 27 a 31 años.
+- **Minutos de jugadores de 32 años o más** (equipo): Parte de los minutos del plantel que jugaron futbolistas de 32 años o más.
+- **Minutos de jugadores de hasta 21 años** (equipo): Parte de los minutos del plantel que jugaron futbolistas de 21 años o menos.
+- **Minutos empatando** (equipo): Minutos con el marcador igualado.
+- **Minutos entrando desde el banco** (jugador): Minutos que jugó en los partidos en que entró desde el banco.
+- **Minutos ganando** (equipo): Minutos que Boca estuvo arriba en el marcador.
+- **Minutos jugados** (jugador): Minutos en cancha sin contar el descuento: de la entrada a la salida por cambio, expulsión o final.
+- **Minutos perdiendo** (equipo): Minutos que Boca estuvo abajo en el marcador.
+- **Minutos por partido** (jugador): Promedio de minutos que jugó en cada partido en el que estuvo en cancha.
+- **Nacionalidad** (jugador): País que figura en la ficha del plantel.
+- **Net Rating** (jugador): Diferencia de gol de Boca cada 90 minutos con el jugador en cancha. Es resultado del equipo, no producción individual.
+- **Net Rating con xG** (jugador): NR con goles esperados en lugar de goles: tiene menos ruido que el NR común. Solo partidos de liga.
+- **Net Rating del equipo** (equipo): Diferencia de gol por partido.
+- **Net Rating relativo** (jugador): NR del jugador menos el de los suplentes de su posición: lo que suma frente al reemplazo.
+- **npxG más xA** (jugador): Aporte esperado total al ataque: sus ocasiones sin penales más las que generó para otros.
+- **Ocasiones claras** (equipo): Ocasiones claras de gol que generó.
+- **Ocasiones claras concedidas** (equipo): Ocasiones claras de gol que le generó el rival.
+- **Ocasiones claras convertidas** (equipo): Ocasiones claras que terminaron en gol.
+- **Ocasiones claras creadas** (jugador): Pases que dejaron a un compañero ante una ocasión clara de gol.
+- **Ocasiones claras falladas** (jugador): Ocasiones claras de gol que tuvo y no convirtió.
+- **Ocasiones creadas** (jugador): Acciones que generaron un remate de un compañero. Solo partidos de liga con relato completo.
+- **Participación en goles** (jugador): Porcentaje de los goles de Boca con él en cancha en los que hizo el gol o la asistencia.
+- **Partidos como capitán** (jugador): Partidos en los que llevó la cinta de capitán.
+- **Partidos completos** (jugador): Partidos que jugó enteros, del arranque al final.
+- **Partidos empatados** (equipo): Partidos empatados, incluidos los que se definieron por penales.
+- **Partidos en el banco** (jugador): Partidos en los que empezó en el banco de suplentes, haya entrado o no.
+- **Partidos ganados** (equipo): Partidos ganados. Una definición por penales cuenta como empate.
+- **Partidos jugados** (jugador): Partidos oficiales en los que estuvo en cancha, como titular o entrando desde el banco.
+- **Partidos perdidos** (equipo): Partidos perdidos.
+- **Partidos por suspensión** (jugador): Partidos que se perdió por estar suspendido, por roja o por acumulación de amarillas.
+- **Partidos sin marcar** (equipo): Partidos en los que no convirtió.
+- **Partidos sin marcar (%)** (equipo): Porcentaje de partidos en los que no convirtió.
+- **Pases al último tercio** (jugador): Pases que llegan al último tercio de la cancha. Ninguna fuente permitida los publica.
+- **Pases clave** (jugador): Pases que terminaron en un remate de un compañero.
+- **Pases clave de juego abierto** (jugador): Pases clave sin contar la pelota parada. Ninguna fuente gratuita separa el tipo de jugada.
+- **Pases completados** (jugador): Pases que llegaron a un compañero.
+- **Pases completados en campo rival** (jugador): Pases que completó en el campo del rival.
+- **Pases del rival** (equipo): Pases que intentó el rival.
+- **Pases en campo rival** (jugador): Pases que intentó en el campo del rival.
+- **Pases intentados** (jugador): Pases que intentó, completados o no.
+- **Pases largos** (jugador): Pases largos que intentó.
+- **Pases largos completados** (jugador): Pases largos que llegaron a un compañero.
+- **Pases progresivos** (jugador): Pases que avanzan la pelota de forma clara hacia el arco rival. Ninguna fuente permitida los publica.
+- **Penales a favor** (equipo): Penales a favor en el tiempo de juego. Solo partidos de liga.
+- **Penales atajados** (jugador): Penales que atajó. Solo partidos de liga.
+- **Penales cometidos** (jugador): Penales en contra que se cobraron por una falta suya. Solo partidos de liga.
+- **Penales convertidos** (equipo): Penales a favor que terminaron en gol. Solo partidos de liga.
+- **Penales convertidos en contra** (equipo): Penales en contra que terminaron en gol. Solo partidos de liga.
+- **Penales en contra** (equipo): Penales en contra en el tiempo de juego. Solo partidos de liga.
+- **Penales enfrentados** (jugador): Penales en contra que le patearon. Solo partidos de liga.
+- **Penales fallados** (jugador): Penales que pateó y no convirtió: atajados, desviados o al palo.
+- **Penales lanzados** (jugador): Penales que pateó en el tiempo de juego, convertidos o no.
+- **Penales provocados** (jugador): Penales a favor que se cobraron por una falta sobre él. Solo partidos de liga.
+- **Peso** (jugador): Peso en kilos según su artículo de Wikipedia. Falta en algunos jugadores.
+- **Pie hábil** (jugador): Pie con el que patea habitualmente: derecho o izquierdo.
+- **Porcentaje de atajadas** (jugador): Porcentaje de remates al arco que atajó.
+- **Porcentaje de derrotas** (equipo): Porcentaje de partidos perdidos.
+- **Porcentaje de empates** (equipo): Porcentaje de partidos empatados.
+- **Porcentaje de minutos** (jugador): Parte de los minutos posibles del equipo en la ventana elegida que estuvo en cancha.
+- **Porcentaje de victorias** (equipo): Porcentaje de partidos ganados.
+- **Posesión** (equipo): Porcentaje del tiempo con la pelota, promedio por partido.
+- **Posición** (jugador): Grupo de posición en el plantel: arquero, defensor, mediocampista o delantero.
+- **Posición en la tabla** (equipo): Puesto en la tabla de su zona al último partido cargado del torneo.
+- **Potencial α** (jugador): Percentil que puede alcanzar en su pico de edad según su nivel y su tendencia. Proyección con rango de 8 puntos.
+- **Potencial β** (jugador): Índice de 0 a 100 que combina nivel actual, tendencia y edad para ordenar el plantel.
+- **PPDA** (equipo): Pases que deja dar al rival por cada acción defensiva propia. Más bajo = presión más intensa. Estimado sin zonas.
+- **Precisión de centro** (jugador): Porcentaje de centros que encontraron a un compañero.
+- **Precisión de pase** (jugador): Porcentaje de sus pases que llegaron a destino.
+- **Precisión de pase largo** (jugador): Porcentaje de pases largos que llegaron a destino.
+- **Precisión de remate** (jugador): Porcentaje de sus remates que fueron al arco.
+- **Precisión en campo rival** (jugador): Precisión de pase en el campo del rival, donde hay menos espacio.
+- **Presiones** (jugador): Presiones sobre un rival con la pelota. Ninguna fuente gratuita permitida las publica.
+- **Presiones exitosas** (jugador): Presiones que terminan en una recuperación en pocos segundos. Sin fuente gratuita.
+- **Presiones exitosas (%)** (jugador): Porcentaje de presiones que terminan en recuperación. Sin fuente gratuita.
+- **Probabilidad de derrota** (equipo): Probabilidad de perder antes del partido según el Elo. Estimado.
+- **Probabilidad de empate** (equipo): Probabilidad de empatar antes del partido según el Elo. Estimado.
+- **Probabilidad de victoria** (equipo): Probabilidad de ganar antes del partido según el Elo. Estimado.
+- **Puntos** (equipo): Puntos con el sistema de liga: 3 por victoria y 1 por empate.
+- **Puntos contra rivales del tercio alto** (equipo): Puntos por partido contra rivales del tercio alto de la tabla de liga.
+- **Puntos contra rivales del tercio bajo** (equipo): Puntos por partido contra rivales del tercio bajo de la tabla de liga.
+- **Puntos contra rivales del tercio medio** (equipo): Puntos por partido contra rivales del tercio medio de la tabla de liga.
+- **Puntos esperados** (equipo): Puntos esperados con el xG de ambos equipos y una distribución de Poisson. Estimado: supone goles independientes.
+- **Puntos esperados de la fuente** (equipo): Puntos esperados que publica la fuente. Sirven para validar los propios.
+- **Puntos menos xPts** (equipo): Puntos reales menos puntos esperados por el xG.
+- **Puntos perdidos desde la ventaja** (equipo): Puntos que dejó escapar en partidos en los que estuvo arriba en el marcador.
+- **Puntos pitagóricos** (equipo): Puntos esperados según goles a favor y en contra con la fórmula pitagórica. Estimado.
+- **Puntos por partido** (equipo): Puntos promedio por partido jugado.
+- **Puntos remontados** (equipo): Puntos que sumó en partidos en los que estuvo abajo en el marcador en algún momento.
+- **Pérdidas de posesión** (jugador): Veces que perdió la pelota por un pase errado, un mal control o un quite.
+- **Racha de asistencias** (jugador): Mayor cantidad de partidos seguidos con al menos una asistencia.
+- **Racha de derrotas** (equipo): Mayor cantidad de derrotas seguidas.
+- **Racha de vallas invictas** (jugador): Arqueros: mayor cantidad de partidos seguidos sin recibir goles.
+- **Racha de victorias** (equipo): Mayor cantidad de victorias seguidas.
+- **Racha goleadora** (jugador): Mayor cantidad de partidos seguidos en los que convirtió.
+- **Racha invicta** (equipo): Mayor cantidad de partidos seguidos sin perder.
+- **Recuperaciones** (jugador): Pelotas sueltas o del rival que recuperó para su equipo.
+- **Regates exitosos** (jugador): Regates en los que superó al rival con la pelota.
+- **Regates intentados** (jugador): Regates que intentó, le salieran bien o no.
+- **Remates** (jugador): Remates totales: al arco, afuera y bloqueados.
+- **Remates al arco** (jugador): Remates que iban al arco: los que fueron gol y los que atajó el arquero.
+- **Remates al arco del rival** (equipo): Remates del rival que fueron al arco de Boca.
+- **Remates al arco recibidos** (jugador): Remates al arco del rival mientras estaba en el arco.
+- **Remates al palo** (jugador): Remates que dieron en un palo o en el travesaño.
+- **Remates bloqueados** (jugador): Remates suyos que un rival bloqueó antes de que llegaran al arco.
+- **Remates de cabeza** (jugador): Remates de cabeza. Solo partidos de liga.
+- **Remates del rival** (equipo): Remates que hizo el rival.
+- **Remates dentro del área** (equipo): Remates desde dentro del área.
+- **Remates dentro del área (%)** (equipo): Porcentaje de remates desde dentro del área: más cerca del arco, mejores ocasiones.
+- **Remates desde fuera del área** (jugador): Remates desde fuera del área. Solo partidos de liga.
+- **Remates desviados** (equipo): Remates que se fueron afuera sin tocar a nadie.
+- **Remates desviados o bloqueados** (jugador): Remates que no fueron al arco, incluidos los que bloqueó un rival.
+- **Remates fuera del área** (equipo): Remates desde fuera del área.
+- **Rotación** (equipo): Cambios promedio en el once inicial respecto del partido anterior.
+- **Salidas** (jugador): Veces que salió de su área para anticipar al rival.
+- **Salidas exitosas** (jugador): Salidas que terminaron bien para su equipo.
+- **Salidas exitosas (%)** (jugador): Porcentaje de salidas que terminaron bien.
+- **Sorpresa** (equipo): Resultado menos la probabilidad que daba el Elo: lejos de 0 = resultado inesperado. Estimado.
+- **Sprints** (jugador): Carreras a máxima velocidad. Ninguna fuente gratuita publica datos de seguimiento.
+- **Tarjetas amarillas** (jugador): Amonestaciones. La segunda amarilla de un mismo partido cuenta como expulsión.
+- **Temperatura** (equipo): Temperatura a la hora del partido en la ciudad del estadio.
+- **Tiros libres a favor** (equipo): Tiros libres a favor.
+- **Titularidades** (jugador): Partidos que empezó desde el arranque.
+- **Toques** (jugador): Veces que tocó la pelota: mide cuánto participa del juego.
+- **Vallas invictas** (jugador): Partidos que jugó completos sin que Boca recibiera goles.
+- **Vallas invictas (%)** (equipo): Porcentaje de partidos sin recibir goles.
+- **Veces regateado** (jugador): Veces que un rival lo superó con un regate.
+- **Veces sustituido** (jugador): Veces que lo reemplazaron después de empezar como titular.
+- **Ventaja de localía** (equipo): Puntos por partido de local menos puntos por partido de visitante.
+- **Verticalidad** (equipo): Porcentaje de los pases que fueron largos: cuánto busca jugar directo.
+- **xG al arco** (jugador): xG de sus remates al arco medido después del remate: premia colocarla lejos del arquero.
+- **xG al arco en contra** (equipo): xG después del remate de los tiros al arco del rival.
+- **xG al arco recibido** (jugador): Peligro de los remates al arco que recibió, según el xG medido después del remate.
+- **xG de jugada** (equipo): xG generado en jugadas, sin contar la pelota parada.
+- **xG de pelota parada** (equipo): xG generado en córners, tiros libres y penales.
+- **xG de pelota parada (%)** (equipo): Parte del xG de Boca que llegó de pelota parada.
+- **xG de pelota parada en contra** (equipo): xG que generó el rival con pelota parada.
+- **xG por remate** (jugador): Calidad media de sus ocasiones: el xG de cada remate en promedio.
+- **xG sin penales** (equipo): xG sin contar los penales, según la fuente.
+- **xG sin penales en contra** (equipo): xG sin penales de los remates del rival.
+- **Árbitro** (equipo): Árbitro principal del partido.
+- **Índice de rendimiento** (jugador): Rendimiento global de 0 a 100 frente a los jugadores de su posición. Estimado.

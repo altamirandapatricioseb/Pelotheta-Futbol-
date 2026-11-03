@@ -67,3 +67,17 @@ ejemplo numérico reproducido en `tests/test_projection.py`. Detalle, supuestos,
 permitida) y el set de Mejoría α de mediocampistas no tiene pases progresivos cada 90; los pesos se reescalan como
 indica 6.1.1. La edad es en años enteros: la fecha de nacimiento no es pública en la base (dato personal, 14.7).
 Los parámetros viven en la tabla `core.projection_param` (con versión y fecha de vigencia; la vista `api.projection_param` da la vigente): el pipeline los lee antes de calcular y los valores del código son solo el arranque.
+
+## Validación (2-nov-2026, `notebooks/`)
+
+- **Elo (02 y 03):** con la liga 2026 (404 partidos evaluados), K = 30 y V = 50 dan un log-loss de 1,0539
+  contra 1,0718 de K = 20 y V = 100. Se aplicó como versión 2 de `projection_param`. El Elo le gana a un
+  pronóstico ingenuo (Brier 0,647 contra 0,661). La curva de calibración sobreestimaba al local con V = 100.
+- **Exponente pitagórico (02):** 1,30 en la tabla anual (entre 0,91 y 1,55 según la zona); el pipeline
+  lo calibra en cada corrida.
+- **Mejoría α (04):** con 202 casos, su correlación con el cambio de calificación del bloque siguiente es
+  negativa (Spearman −0,46) y la del nivel previo con ese cambio, más negativa (−0,62). Es la firma de la
+  regresión a la media: la Mejoría α describe lo que pasó y **no anticipa** el bloque siguiente; hay que
+  leerla como descripción, no como pronóstico.
+- **Potencial α:** no se puede validar con una sola temporada por jugador; queda pendiente para 2027.
+

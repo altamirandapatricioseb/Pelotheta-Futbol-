@@ -71,6 +71,16 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   # Semgrep con reglas OWASP para TypeScript y Python: bloquea con hallazgos de severidad ERROR.
+  # Notebooks de análisis y validación (16.3): se ejecutan de punta a punta contra la API pública
+  # (clave publicable por defecto en notebooks/datos.py). Falla si alguna celda da error.
+  notebooks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
+      - run: uv run --group notebooks pytest --nbmake notebooks -q
+
   semgrep:
     runs-on: ubuntu-latest
     timeout-minutes: 15

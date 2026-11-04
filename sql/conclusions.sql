@@ -14,7 +14,8 @@
 --   proporcion  suma de `clave_num` sobre suma de `clave_den` (× factor) del equipo o de una
 --               posición; el denominador solo cuenta los partidos que tienen el numerador.
 --   jugador     cada jugador con 450 minutos o más: su valor (cada 90 o proporción) y su percentil
---               entre los de su posición o entre todos los de campo («todos»).
+--               entre los de su posición o entre todos los de campo («todos»). Con «plantel» entran
+--               todos los que tienen 45 minutos o más, arqueros incluidos, y se comparan entre ellos.
 --   cuota       parte de la posición en el total del plantel de `clave_num`, dividida por su parte
 --               de los minutos: 1 es lo esperable para los minutos que juega.
 -- =============================================================================
@@ -138,7 +139,7 @@ begin
     from rules r
     join player nm on nm.key = r.num_key and nm.position = r.scope
     join player dn on dn.key = r.den_key and dn.player_id = nm.player_id and dn.match_id = nm.match_id
-    where r.kind = 'proporcion' and r.scope not in ('equipo', 'todos')
+    where r.kind = 'proporcion' and r.scope not in ('equipo', 'todos', 'plantel')
     group by r.rule_id
   ),
   share as (
@@ -163,13 +164,13 @@ begin
     join player d on d.key = r.den_key and d.player_id = p.player_id and d.match_id = p.match_id
     join minutes mn on mn.player_id = p.player_id
     where r.kind = 'jugador'
-      and ((r.scope = 'todos' and p.position <> 'Arquero') or p.position = r.scope)
+      and (r.scope = 'plantel' or (r.scope = 'todos' and p.position <> 'Arquero') or p.position = r.scope)
     group by r.rule_id, p.player_id, p.position
   ),
   jug_value as (
     select j.rule_id, j.player_id, j.num / j.den * r.factor as value, j.den
     from jug j join rules r using (rule_id)
-    where j.mins >= 450 and j.den > 0 and j.den >= r.min_n
+    where j.mins >= case r.scope when 'plantel' then 45 else 450 end and j.den > 0 and j.den >= r.min_n
   ),
   jug_rank as (
     select rule_id, player_id, value, den,

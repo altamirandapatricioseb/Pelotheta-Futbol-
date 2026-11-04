@@ -35,6 +35,14 @@ def test_every_rule_says_something_at_the_ends() -> None:
             assert r.texto_alto and r.texto_bajo, r.id
 
 
+def test_plantel_rule_speaks_in_every_band_so_no_player_is_left_out() -> None:
+    plantel = [r for r in RULES if r.alcance == "plantel"]
+    assert plantel
+    for r in plantel:
+        assert r.tipo == "jugador" and r.minimo == 0, r.id
+        assert r.texto_alto and r.texto_medio and r.texto_bajo, r.id
+
+
 def test_about_one_hundred_conclusions_half_team_half_players() -> None:
     team = [r for r in RULES if r.tipo != "jugador"]
     players = [r for r in RULES if r.tipo == "jugador"]

@@ -21,8 +21,8 @@ CATALOG_PATH = ROOT / "data" / "conclusion_catalog.csv"
 
 Tone = Literal["positivo", "negativo", "neutral", ""]
 PLACEHOLDERS = frozenset({"valor", "referencia", "percentil", "n", "jugador"})
-# «todos»: los jugadores de campo (reglas de tipo jugador).
-POSITIONS = frozenset({"equipo", "todos", "Arquero", "Defensor", "Mediocampista", "Delantero"})
+# «todos»: los de campo con 450 minutos. «plantel»: todos, arqueros incluidos, con 45 minutos.
+POSITIONS = frozenset({"equipo", "todos", "plantel", "Arquero", "Defensor", "Mediocampista", "Delantero"})
 
 
 class Rule(BaseModel):

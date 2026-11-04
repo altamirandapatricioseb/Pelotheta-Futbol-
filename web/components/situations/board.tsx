@@ -403,7 +403,7 @@ export function basisText(c: Conclusion): string {
   if (c.kind === 'cuota')
     return 'Su parte del total del plantel dividida por su parte de los minutos (1 = lo esperable)';
   if (c.kind === 'jugador')
-    return `Percentil ${N0.format(c.percentile ?? 0)} entre los jugadores con 450 minutos o más, en todas las competiciones`;
+    return `Percentil ${N0.format(c.percentile ?? 0)} entre los jugadores con ${c.scope === 'plantel' ? '45' : '450'} minutos o más, en todas las competiciones`;
   return `Sobre ${N0.format(c.n)} ${c.unit === 'pp90' ? 'minutos' : 'casos'} de la temporada`;
 }
 

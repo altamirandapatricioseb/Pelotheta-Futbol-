@@ -7,7 +7,6 @@ import { getMatchPage } from '@/lib/data/match';
 import { ErrorNotice } from '@/components/error-notice';
 
 export const metadata: Metadata = {
-  title: 'Partido',
   description: 'Un partido de Boca Juniors: marcador, goles, cara a cara, jugadores y estadísticas contra su promedio.',
 };
 

@@ -10,7 +10,6 @@ import { getCompetitions, getPlayerMaster } from '@/lib/data/players';
 import { ErrorNotice } from '@/components/error-notice';
 
 export const metadata: Metadata = {
-  title: 'Comparar',
   description:
     'Comparación de un jugador de Boca Juniors contra la media del equipo, de una línea, de su posición u otro jugador, por categoría y con el desglose de cada estadística.',
 };

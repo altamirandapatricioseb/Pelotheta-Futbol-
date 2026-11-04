@@ -1,11 +1,7 @@
-import type { Metadata } from 'next';
-
 import { FreshnessStrip } from '@/components/header/freshness-strip';
 import { UpdatePanel } from '@/components/update/update-panel';
 import { getFreshness } from '@/lib/data/freshness';
 import { getUpdateStatus } from '@/lib/update/status';
-
-export const metadata: Metadata = { title: 'Actualizar' };
 
 /** Interfaz 6: un botón que vuelve a correr el scraping, carga la base y refresca la web. */
 export default async function Page() {

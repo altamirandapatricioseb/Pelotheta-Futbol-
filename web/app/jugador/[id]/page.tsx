@@ -7,7 +7,6 @@ import { getPlayerDetail } from '@/lib/data/player';
 import { ErrorNotice } from '@/components/error-notice';
 
 export const metadata: Metadata = {
-  title: 'Jugador',
   description: 'Un jugador de Boca Juniors: ficha, conclusiones, todas sus estadísticas y sus partidos.',
 };
 

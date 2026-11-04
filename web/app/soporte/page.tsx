@@ -3,7 +3,6 @@ import type { Metadata } from 'next';
 import { ERRORS, type ErrorCode } from '@/lib/errors';
 
 export const metadata: Metadata = {
-  title: 'Soporte',
   description: 'Qué significa cada código de error de Pelotheta Θ y qué hacer.',
 };
 

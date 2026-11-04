@@ -8,7 +8,6 @@ import { getLeagueClubs, getTeamMatches, getTeamWindowValues } from '@/lib/data/
 import { ErrorNotice } from '@/components/error-notice';
 
 export const metadata: Metadata = {
-  title: 'Equipo',
   description:
     'Tablas de Boca Juniors 2026 por categoría: resultados, goles, remates, xG, posesión, defensa, balón parado, tramos y rachas.',
 };

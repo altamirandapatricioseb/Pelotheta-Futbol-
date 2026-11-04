@@ -1,4 +1,3 @@
-import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
@@ -6,8 +5,6 @@ import { StatDetailView } from '@/components/stats/stat-detail';
 import { parseRefs, refsToParam } from '@/lib/compare/compare';
 import { getStatDetail } from '@/lib/data/desglosada';
 import { ErrorNotice } from '@/components/error-notice';
-
-export const metadata: Metadata = { title: 'Estadística desglosada' };
 
 // Los parámetros de la URL vienen de afuera: se validan contra listas cerradas (14.3).
 const paramsSchema = z.object({ stat: z.string().regex(/^[a-z][a-z0-9_]{0,60}$/) });

@@ -33,8 +33,15 @@ const greek = Noto_Sans({
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: { default: SYSTEM_NAME, template: `%s · ${SYSTEM_NAME}` },
+  title: SYSTEM_NAME,
   description: SITE_DESCRIPTION,
+  icons: {
+    // El PNG es para los navegadores sin favicon SVG.
+    icon: [
+      { url: '/brand/pelotheta-futbol.svg', type: 'image/svg+xml' },
+      { url: '/brand/pelotheta-futbol.png', type: 'image/png', sizes: '64x64' },
+    ],
+  },
   robots: { index: true, follow: true },
 };
 

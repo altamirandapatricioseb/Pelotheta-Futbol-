@@ -4,7 +4,6 @@ import { readPublicEnv } from '@/lib/env';
 import spec from '@/public/openapi.json';
 
 export const metadata: Metadata = {
-  title: 'API',
   description: 'API de solo lectura de Pelotheta Θ: vistas, columnas, ejemplos y límites (OpenAPI 3.1).',
 };
 

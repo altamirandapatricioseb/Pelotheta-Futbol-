@@ -1,11 +1,7 @@
-import type { Metadata } from 'next';
-
 import { ErrorNotice } from '@/components/error-notice';
 import { articleUrl } from '@/lib/errors';
 import { daysSince, formatDateTime, formatNumber, formatRelativeDays } from '@/lib/format';
 import { createApiClient } from '@/lib/supabase/server';
-
-export const metadata: Metadata = { title: 'Estado' };
 
 const STATUS: Record<string, string> = { ok: 'Bien', parcial: 'Parcial', error: 'Con error', omitido: 'Omitida' };
 // SLO de frescura (docs/slo.md): los datos no pueden tener más de 35 días.

@@ -38,7 +38,7 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   env: {
     NEXT_PUBLIC_TEAM_PHOTO: findBrandAsset('team'),
-    NEXT_PUBLIC_SYSTEM_LOGO: findBrandAsset('system-logo'),
+    NEXT_PUBLIC_SYSTEM_LOGO: findBrandAsset('pelotheta-futbol'),
   },
   poweredByHeader: false,
   reactStrictMode: true,

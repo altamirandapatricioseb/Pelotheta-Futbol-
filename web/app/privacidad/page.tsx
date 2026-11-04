@@ -1,7 +1,3 @@
-import type { Metadata } from 'next';
-
-export const metadata: Metadata = { title: 'Privacidad' };
-
 /** Política de privacidad (sección 14.7, Ley 25.326). */
 export default function Page() {
   return (

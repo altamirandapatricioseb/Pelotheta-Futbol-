@@ -9,7 +9,6 @@ import { getCompetitions, getPlayerMaster } from '@/lib/data/players';
 import { ErrorNotice } from '@/components/error-notice';
 
 export const metadata: Metadata = {
-  title: 'Jugadores',
   description:
     'Tabla maestra del plantel de Boca Juniors 2026: estadísticas por categoría, por 90 minutos, métricas propias y proyección.',
 };

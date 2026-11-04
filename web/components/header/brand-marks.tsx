@@ -6,7 +6,7 @@ export function TeamMark() {
     <span className="flex items-center gap-3">
       {TEAM_PHOTO_SRC ? (
         // eslint-disable-next-line @next/next/no-img-element -- imagen local chica, sin optimizador
-        <img src={TEAM_PHOTO_SRC} alt="" width={36} height={36} className="size-9 rounded-md object-cover" />
+        <img src={TEAM_PHOTO_SRC} alt="" width={36} height={36} className="size-9 object-contain" />
       ) : (
         <span aria-hidden="true" className="team-monogram">
           BJ

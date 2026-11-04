@@ -5,7 +5,6 @@ import { getSituations } from '@/lib/data/situations';
 import { ErrorNotice } from '@/components/error-notice';
 
 export const metadata: Metadata = {
-  title: 'Situaciones',
   description:
     'Más de 100 situaciones de partido de Boca Juniors 2026: qué pasa cuando empieza perdiendo, cuando convierte primero, con uno menos o según el rival.',
 };

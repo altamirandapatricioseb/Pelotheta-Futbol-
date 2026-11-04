@@ -6,7 +6,6 @@ import { getLandingData } from '@/lib/data/landing';
 import { ErrorNotice } from '@/components/error-notice';
 
 export const metadata: Metadata = {
-  title: 'Gráficos',
   description:
     'Boca Juniors 2026 en más de 90 gráficos por categoría: forma, goles, xG, posesión, defensa, pelota parada, jugadores, competición, métricas propias y proyección.',
 };

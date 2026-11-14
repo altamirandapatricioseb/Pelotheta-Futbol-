@@ -20,7 +20,15 @@ const ICONS = {
 } as const;
 
 /** Ícono Phosphor de cada interfaz: peso regular y relleno en la pestaña activa (9.10). */
-export function InterfaceIcon({ name, weight = 'regular' }: { name: InterfaceLink['icon']; weight?: IconWeight }) {
+export function InterfaceIcon({
+  name,
+  weight = 'regular',
+  size = 18,
+}: {
+  name: InterfaceLink['icon'];
+  weight?: IconWeight;
+  size?: number;
+}) {
   const Icon = ICONS[name];
-  return <Icon size={18} weight={weight} aria-hidden="true" />;
+  return <Icon size={size} weight={weight} aria-hidden="true" />;
 }

@@ -6,7 +6,7 @@ export interface InterfaceLink {
 }
 
 export const INTERFACES: readonly InterfaceLink[] = [
-  { href: '/', label: 'Gráficos', icon: 'graficos' },
+  { href: '/graficos', label: 'Gráficos', icon: 'graficos' },
   { href: '/equipo', label: 'Equipo', icon: 'equipo' },
   { href: '/jugadores', label: 'Jugadores', icon: 'jugadores' },
   { href: '/situaciones', label: 'Situaciones', icon: 'situaciones' },

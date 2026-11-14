@@ -5,6 +5,7 @@
       "startServerReadyPattern": "Ready",
       "url": [
         "http://localhost:3100/",
+        "http://localhost:3100/graficos",
         "http://localhost:3100/equipo",
         "http://localhost:3100/jugadores",
         "http://localhost:3100/situaciones",

@@ -5,6 +5,9 @@ import { expect, test } from '@playwright/test';
 // estadística de cada entidad.
 const ROUTES = [
   '/',
+  '/graficos',
+  '/elegir',
+  '/elegir?pais=argentina&categoria=primera-division&equipo=boca-juniors',
   '/equipo',
   '/jugadores',
   '/situaciones',

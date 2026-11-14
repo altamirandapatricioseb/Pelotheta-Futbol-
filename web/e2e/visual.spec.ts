@@ -5,7 +5,7 @@ import { expect, test } from '@playwright/test';
 // espaciado). Después de una carga con cambios grandes: `pnpm e2e --update-snapshots`.
 test.skip(({ isMobile }) => isMobile, 'Solo escritorio');
 
-const PAGES = ['/', '/equipo', '/jugadores', '/situaciones', '/comparar?jugador=6'];
+const PAGES = ['/', '/graficos', '/elegir', '/equipo', '/jugadores', '/situaciones', '/comparar?jugador=6'];
 
 for (const theme of ['light', 'dark'] as const) {
   for (const path of PAGES) {

@@ -1,18 +1,20 @@
 'use client';
 
 // El camino del dato, contado mientras pasa: la sección queda pegada durante 320 vh. A la derecha el
-// diagrama se traza con el scroll (fuentes → pipeline → métricas → Supabase) y una pelota recorre el
+// diagrama se traza con el scroll (fuentes → pipeline → familias de métricas → Supabase) y una pelota recorre el
 // camino; a la izquierda, el párrafo de cada etapa aparece justo cuando la pelota llega. En el
 // celular no hay pegado: el diagrama arriba y los párrafos abajo, uno por uno al entrar.
 
 import { motion, type MotionValue, useMotionValueEvent, useScroll, useSpring, useTransform } from 'motion/react';
 import { useRef } from 'react';
 
+import { FAMILIES } from './metric-families';
+
 const SOURCES = ['Promiedos · Opta', 'StrikerAPI', 'ScoutingStats', 'Statshub'];
-const METRICS = ['Elo', 'xPts', 'Pitagórico', 'NR · EWA', 'Mejoría α β'];
 const SOURCE_Y = [70, 150, 230, 310];
 const PIPE = { x: 420, y: 190 };
-const METRIC_X = [560, 680, 800, 920, 1040];
+// Un nodo por familia de métricas: el número adentro es cuántas tiene (suman las 24).
+const FAMILY_X = FAMILIES.map((_, i) => 525 + i * 105);
 const DB = { x: 1180, y: 190 };
 
 const sourcePath = (y: number) =>
@@ -36,7 +38,7 @@ export const STEPS = [
   {
     at: 0.5,
     title: 'Veinticuatro métricas propias',
-    text: 'Del equipo: Elo, probabilidades previas, xPts, pitagórico, rachas y forma. De cada jugador: NR, EWA y ELA con él en cancha, y la Mejoría y el Potencial α y β.',
+    text: 'En seis familias. Del equipo: fuerza, rendimiento esperado, estado de forma y armado del once. De cada jugador: su impacto con él en cancha, y la Mejoría y el Potencial.',
   },
   {
     at: 0.8,
@@ -52,6 +54,8 @@ function Node({
   at,
   progress,
   big = false,
+  count,
+  above = false,
 }: {
   x: number;
   y: number;
@@ -59,15 +63,29 @@ function Node({
   at: number;
   progress: MotionValue<number>;
   big?: boolean;
+  /** Número dentro del punto (cuántas métricas tiene la familia). */
+  count?: number;
+  /** Etiqueta arriba del punto en vez de abajo, para que las vecinas no se pisen. */
+  above?: boolean;
 }) {
   const scale = useTransform(progress, [at - 0.03, at + 0.03], [0.5, 1]);
   const opacity = useTransform(progress, [at - 0.03, at + 0.02], [0, 1]);
   return (
     <motion.g style={{ scale, opacity, transformOrigin: `${String(x)}px ${String(y)}px` }}>
-      <circle cx={x} cy={y} r={big ? 40 : 8} className={big ? 'show-flow__hub' : 'show-flow__dot'} />
+      <circle
+        cx={x}
+        cy={y}
+        r={big ? 40 : count === undefined ? 8 : 17}
+        className={big ? 'show-flow__hub' : 'show-flow__dot'}
+      />
+      {count !== undefined && (
+        <text x={x} y={y + 6} textAnchor="middle" className="show-flow__count">
+          {count}
+        </text>
+      )}
       <text
         x={x}
-        y={big ? y + 5 : y + 32}
+        y={big ? y + 5 : above ? y - 30 : y + 44}
         textAnchor="middle"
         className={big ? 'show-flow__hub-label' : 'show-flow__label'}
       >
@@ -88,7 +106,7 @@ interface StepProps {
 }
 
 function Step({ index, at, until, title, text, progress }: StepProps) {
-  const opacity = useTransform(progress, [at - 0.02, at + 0.04, until - 0.03, until + 0.02], [0, 1, 1, 0]);
+  const opacity = useTransform(progress, [at - 0.02, at + 0.04, until - 0.06, until - 0.02], [0, 1, 1, 0]);
   const y = useTransform(progress, [at - 0.02, at + 0.04], [24, 0]);
   return (
     <motion.div className="show-story__step" style={{ opacity, y }} aria-hidden="true">
@@ -153,7 +171,7 @@ export function FlowStory() {
           viewBox="0 0 1280 400"
           className="show-flow__svg"
           role="img"
-          aria-label="Cuatro fuentes entran a un pipeline, salen las métricas propias y terminan en Supabase"
+          aria-label="Cuatro fuentes entran a un pipeline, salen seis familias de métricas propias y terminan en Supabase"
         >
           <path ref={pathRef} d={BALL_PATH} fill="none" stroke="none" />
           {SOURCE_Y.map((y, i) => (
@@ -166,8 +184,17 @@ export function FlowStory() {
           <path d={TRUNK} className="show-flow__rail" />
           <motion.path d={TRUNK} className="show-flow__ink" style={{ pathLength: trunk }} />
           <Node x={PIPE.x} y={PIPE.y} label="pipeline" at={0.3} progress={progress} big />
-          {METRIC_X.map((x, i) => (
-            <Node key={x} x={x} y={PIPE.y} label={METRICS[i] ?? ''} at={0.46 + i * 0.07} progress={progress} />
+          {FAMILIES.map((family, i) => (
+            <Node
+              key={family.slug}
+              x={FAMILY_X[i] ?? 0}
+              y={PIPE.y}
+              label={family.name}
+              count={family.metrics.length}
+              above={i % 2 === 1}
+              at={0.44 + i * 0.06}
+              progress={progress}
+            />
           ))}
           <Node x={DB.x} y={DB.y} label="Supabase" at={0.8} progress={progress} big />
           <circle ref={ballRef} r="11" className="show-flow__ball" opacity="0" />

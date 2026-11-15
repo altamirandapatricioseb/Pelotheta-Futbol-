@@ -2,9 +2,8 @@
 
 // Portada del sistema. Una escena tras otra, casi sin texto: PELOTHETA llena la pantalla sobre el
 // campo de remates que arma la Θ, tres verbos a escala de pantalla, el camino del dato contado
-// mientras una pelota lo recorre, las métricas propias en cintas, las seis interfaces sobre una
-// pizarra táctica, Sudamérica punteada
-// como selector y un pie completo. Sin header: la marca es lo primero. Por pedido del dueño, acá no
+// mientras una pelota lo recorre, la tabla de las 24 métricas propias, las seis interfaces sobre una
+// pizarra táctica, Sudamérica punteada como selector y un pie completo. Sin header: la marca es lo primero. Por pedido del dueño, acá no
 // hay versión con menos movimiento.
 
 import { motion, MotionConfig, useScroll, useSpring, useTransform } from 'motion/react';

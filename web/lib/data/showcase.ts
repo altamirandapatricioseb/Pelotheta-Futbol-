@@ -1,7 +1,6 @@
 import 'server-only';
 
 import { getChartCatalog } from '@/lib/data/charts';
-import { getTeamMatches } from '@/lib/data/team';
 import { createApiClient } from '@/lib/supabase/server';
 
 export interface ShowcaseShot {
@@ -14,24 +13,24 @@ export interface ShowcaseShot {
 }
 
 export interface ShowcaseData {
-  matches: number;
-  goals: number;
+  /** Tamaño del sistema, no de un equipo: gráficos y situaciones del catálogo. */
   charts: number;
+  situations: number;
+  /** Remates reales para el canvas de la portada (material visual, sin cifras en pantalla). */
   shots: ShowcaseShot[];
 }
 
-/** Lo mínimo que necesita la portada: cuatro números y los remates de Boca para el canvas. */
+/** Lo mínimo que necesita la portada; si la base no responde, la portada igual se dibuja. */
 export async function getShowcaseData(): Promise<ShowcaseData> {
-  const [matches, charts, shots] = await Promise.all([
-    getTeamMatches(),
+  const api = createApiClient();
+  const [charts, situations, shots] = await Promise.all([
     getChartCatalog(),
-    createApiClient().from('boca_shot').select('outcome, xg, x, y').eq('boca_shot', true).limit(2000),
+    api.from('situational_catalog').select('card_id', { count: 'exact', head: true }),
+    api.from('boca_shot').select('outcome, xg, x, y').eq('boca_shot', true).limit(2000),
   ]);
-  const ms = matches.ok ? matches.data : [];
   return {
-    matches: ms.length,
-    goals: ms.reduce((a, m) => a + m.goalsFor, 0),
     charts: charts.ok ? charts.data.length : 0,
+    situations: situations.count ?? 0,
     shots: (shots.data ?? []).flatMap((s) =>
       s.x === null || s.y === null || s.xg === null ? [] : [{ x: s.x, y: s.y, xg: s.xg, goal: s.outcome === 'goal' }],
     ),

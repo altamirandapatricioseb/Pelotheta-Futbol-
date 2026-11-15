@@ -626,10 +626,11 @@ h3 {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  /* Reducir movimiento en todo el sitio: animaciones y transiciones casi instantáneas. */
-  *,
-  *::before,
-  *::after {
+  /* Reducir movimiento en todo el sitio menos en la portada y el selector (pedido del dueño): ahí
+     el movimiento es el contenido. */
+  :where(body:not(:has(.show-root, .show-choose))) *,
+  :where(body:not(:has(.show-root, .show-choose))) *::before,
+  :where(body:not(:has(.show-root, .show-choose))) *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;

@@ -3,10 +3,10 @@
 // Canvas de la portada: cada remate de Boca 2026 como una partícula en su posición real de la
 // cancha (tamaño por xG, los goles en neón). Con el scroll las partículas migran y arman la Θ de
 // Pelotheta: el glifo es, literalmente, el círculo central y la línea de mitad de cancha.
-// Un solo requestAnimationFrame, solo mientras está en pantalla; con «reducir movimiento» se
-// dibuja un cuadro fijo por cada cambio de progreso.
+// Un solo requestAnimationFrame, solo mientras está en pantalla. Por pedido del dueño no hay
+// versión quieta para «reducir movimiento»: la portada es movimiento.
 
-import { useMotionValueEvent, useReducedMotion, type MotionValue } from 'motion/react';
+import type { MotionValue } from 'motion/react';
 import { useEffect, useRef } from 'react';
 
 import type { ShowcaseShot } from '@/lib/data/showcase';
@@ -72,8 +72,6 @@ function sampleTheta(size: number, count: number, font: string): { x: number; y:
 
 export function ShotField({ shots, progress, className }: ShotFieldProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const reduced = useReducedMotion();
-  const drawRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -108,22 +106,20 @@ export function ShotField({ shots, progress, className }: ShotFieldProps) {
       canvas.height = Math.round(height * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-      // Media cancha vertical (arco arriba). En escritorio ocupa la mitad derecha; en el celular, la
-      // franja superior, por encima del título.
-      const wide = width >= 860;
-      const areaW = wide ? width * 0.5 : width;
-      const areaH = wide ? height : height * 0.56;
-      const areaLeft = wide ? width * 0.5 : 0;
-      const size = Math.min(areaW * 0.72, areaH * 0.78);
+      // Media cancha vertical (arco arriba), centrada en la franja que queda debajo del nombre.
+      const narrow = width < 860;
+      const areaTop = height * (narrow ? 0.2 : 0.3);
+      const areaH = height - areaTop;
+      const size = Math.min(width * (narrow ? 0.92 : 0.52), areaH * 0.95);
       pitch = {
         w: size,
         h: size * (52.5 / 68),
-        left: areaLeft + (areaW - size) / 2,
-        top: (areaH - size * (52.5 / 68)) / 2 + (wide ? 0 : height * 0.02),
+        left: (width - size) / 2,
+        top: areaTop + (areaH - size * (52.5 / 68)) / 2,
       };
-      const glyph = Math.min(areaW * 0.86, areaH * 0.86);
-      const gLeft = areaLeft + (areaW - glyph) / 2;
-      const gTop = (areaH - glyph) / 2;
+      const glyph = Math.min(width * 0.6, areaH * 0.92);
+      const gLeft = (width - glyph) / 2;
+      const gTop = areaTop + (areaH - glyph) / 2;
       const font = getComputedStyle(document.body).fontFamily;
       const targets = sampleTheta(Math.round(Math.min(360, glyph)), shots.length, font);
       particles = shots.map((s, i) => {
@@ -142,7 +138,7 @@ export function ShotField({ shots, progress, className }: ShotFieldProps) {
 
     const draw = () => {
       const p = smooth((progress.get() - 0.08) / 0.78);
-      const t = reduced ? 0 : performance.now() / 1000;
+      const t = performance.now() / 1000;
       ctx.clearRect(0, 0, width, height);
 
       // Líneas de la cancha, que se apagan a medida que las partículas se van.
@@ -168,18 +164,16 @@ export function ShotField({ shots, progress, className }: ShotFieldProps) {
       for (const q of particles) {
         let x = q.px + (q.tx - q.px) * p;
         let y = q.py + (q.ty - q.py) * p;
-        if (!reduced) {
-          x += Math.sin(t * 0.9 + q.phase) * 1.6;
-          y += Math.cos(t * 0.7 + q.phase) * 1.6;
-          const dx = x - pointer.x;
-          const dy = y - pointer.y;
-          const d2 = dx * dx + dy * dy;
-          if (d2 < POINTER_RADIUS * POINTER_RADIUS && d2 > 0.01) {
-            const d = Math.sqrt(d2);
-            const push = (1 - d / POINTER_RADIUS) * 26;
-            x += (dx / d) * push;
-            y += (dy / d) * push;
-          }
+        x += Math.sin(t * 0.9 + q.phase) * 1.6;
+        y += Math.cos(t * 0.7 + q.phase) * 1.6;
+        const dx = x - pointer.x;
+        const dy = y - pointer.y;
+        const d2 = dx * dx + dy * dy;
+        if (d2 < POINTER_RADIUS * POINTER_RADIUS && d2 > 0.01) {
+          const d = Math.sqrt(d2);
+          const push = (1 - d / POINTER_RADIUS) * 26;
+          x += (dx / d) * push;
+          y += (dy / d) * push;
         }
         const r = q.r * (1 - p * 0.45) + p * 2.2;
         if (q.goal) {
@@ -202,7 +196,6 @@ export function ShotField({ shots, progress, className }: ShotFieldProps) {
       }
       ctx.globalAlpha = 1;
     };
-    drawRef.current = draw;
 
     const loop = () => {
       if (frame++ % 30 === 0) readColors();
@@ -210,7 +203,7 @@ export function ShotField({ shots, progress, className }: ShotFieldProps) {
       raf = requestAnimationFrame(loop);
     };
     const start = () => {
-      if (reduced || raf || !visible) return;
+      if (raf || !visible) return;
       raf = requestAnimationFrame(loop);
     };
     const stop = () => {
@@ -257,14 +250,8 @@ export function ShotField({ shots, progress, className }: ShotFieldProps) {
       theme.disconnect();
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerleave', onLeave);
-      drawRef.current = null;
     };
-  }, [shots, progress, reduced]);
-
-  // Con «reducir movimiento» no hay bucle: se redibuja solo cuando cambia el progreso del scroll.
-  useMotionValueEvent(progress, 'change', () => {
-    if (reduced) drawRef.current?.();
-  });
+  }, [shots, progress]);
 
   return (
     <canvas ref={canvasRef} className={className} aria-hidden="true">

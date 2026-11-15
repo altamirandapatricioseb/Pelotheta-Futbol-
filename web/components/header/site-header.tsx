@@ -26,6 +26,8 @@ const UNDERLINE_SPRING = { type: 'spring', stiffness: 420, damping: 36 } as cons
 export function SiteHeader({ teamMark, systemMark }: SiteHeaderProps) {
   const pathname = usePathname();
   const [compact, setCompact] = useState(false);
+  // Sin equipo elegido no hay header: la portada y el selector llevan su propia barra (LandingBar).
+  const hidden = pathname === '/' || pathname === '/elegir';
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuPath, setMenuPath] = useState(pathname);
 
@@ -47,12 +49,13 @@ export function SiteHeader({ teamMark, systemMark }: SiteHeaderProps) {
     };
   }, []);
 
+  if (hidden) return null;
   return (
     <header className="site-header" data-compact={compact || undefined}>
       <div className="site-header__bar">
-        <Link href="/" className="site-header__side focus-ring rounded-md">
+        <Link href="/graficos" className="site-header__side focus-ring rounded-md">
           {teamMark}
-          <span className="sr-only">, ir al inicio</span>
+          <span className="sr-only">, ir a los gráficos del equipo</span>
         </Link>
 
         <nav aria-label="Interfaces" className="site-header__nav">
@@ -80,7 +83,10 @@ export function SiteHeader({ teamMark, systemMark }: SiteHeaderProps) {
         </nav>
 
         <div className="site-header__side site-header__side--end">
-          {systemMark}
+          <Link href="/" className="focus-ring rounded-md">
+            {systemMark}
+            <span className="sr-only">, ir a la portada</span>
+          </Link>
           <ThemeToggle />
           <button
             type="button"

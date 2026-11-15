@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 
+import { LandingBar } from '@/components/showcase/landing-bar';
 import { TeamChooser } from '@/components/showcase/team-chooser';
 
 export const metadata: Metadata = {
@@ -8,5 +9,10 @@ export const metadata: Metadata = {
 
 // Los parámetros de la URL se resuelven en el cliente contra las listas cerradas de config/teams.ts.
 export default function Page() {
-  return <TeamChooser />;
+  return (
+    <>
+      <LandingBar />
+      <TeamChooser />
+    </>
+  );
 }

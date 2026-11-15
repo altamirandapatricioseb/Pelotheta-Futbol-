@@ -4,7 +4,7 @@
 // (/elegir?pais=…&categoria=…&equipo=…), así que el botón «atrás» funciona y se puede compartir.
 // Lo que no tiene datos se ve pero no se puede elegir. Al final, las seis interfaces.
 
-import { AnimatePresence, motion, stagger, type Variants } from 'motion/react';
+import { AnimatePresence, motion, MotionConfig, stagger, type Variants } from 'motion/react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 
@@ -120,65 +120,67 @@ export function TeamChooser() {
   };
 
   return (
-    <div className="show-choose">
-      <nav aria-label="Lo elegido hasta ahora" className="flex flex-wrap items-center justify-between gap-4">
-        <ol className="show-crumbs">
-          <AnimatePresence initial={false}>
-            {crumbs.map((c, i) => (
-              <motion.li
-                key={c.href}
-                layout
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -10 }}
-                transition={{ duration: 0.35, ease: EASE }}
-              >
-                {i > 0 ? <span aria-hidden="true">/</span> : null}
-                {i === crumbs.length - 1 && step === 3 ? (
-                  <span>{c.label}</span>
-                ) : (
-                  <Link href={c.href} className="focus-ring">
-                    {c.label}
-                  </Link>
-                )}
-              </motion.li>
+    <MotionConfig reducedMotion="never">
+      <div className="show-choose">
+        <nav aria-label="Lo elegido hasta ahora" className="flex flex-wrap items-center justify-between gap-4">
+          <ol className="show-crumbs">
+            <AnimatePresence initial={false}>
+              {crumbs.map((c, i) => (
+                <motion.li
+                  key={c.href}
+                  layout
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -10 }}
+                  transition={{ duration: 0.35, ease: EASE }}
+                >
+                  {i > 0 ? <span aria-hidden="true">/</span> : null}
+                  {i === crumbs.length - 1 && step === 3 ? (
+                    <span>{c.label}</span>
+                  ) : (
+                    <Link href={c.href} className="focus-ring">
+                      {c.label}
+                    </Link>
+                  )}
+                </motion.li>
+              ))}
+            </AnimatePresence>
+          </ol>
+          <p className="show-steps">
+            <span className="sr-only">Paso {String(Math.min(step + 1, 3))} de 3</span>
+            {[0, 1, 2].map((i) => (
+              <i key={i} data-on={i <= step || undefined} aria-hidden="true" />
             ))}
-          </AnimatePresence>
-        </ol>
-        <p className="show-steps">
-          <span className="sr-only">Paso {String(Math.min(step + 1, 3))} de 3</span>
-          {[0, 1, 2].map((i) => (
-            <i key={i} data-on={i <= step || undefined} aria-hidden="true" />
-          ))}
-        </p>
-      </nav>
+          </p>
+        </nav>
 
-      <AnimatePresence mode="wait" initial={false}>
-        <motion.section key={step} variants={SCREEN} initial="hidden" animate="show" exit="exit" aria-live="polite">
-          {step < 3 ? (
-            <>
-              <h1 className="show-title">{title}</h1>
-              <ul className="show-tiles">{tiles(country, category)}</ul>
-            </>
-          ) : (
-            <>
-              <div className="show-chosen">
-                {TEAM_PHOTO_SRC ? (
-                  // eslint-disable-next-line @next/next/no-img-element -- escudo local chico
-                  <img src={TEAM_PHOTO_SRC} alt="" width={72} height={72} />
-                ) : null}
-                <div>
-                  <h1 className="show-title">{title}</h1>
-                  <p className="text-muted mt-2">
-                    {category?.name}, {country?.name}. Temporada 2026, partidos oficiales.
-                  </p>
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.section key={step} variants={SCREEN} initial="hidden" animate="show" exit="exit" aria-live="polite">
+            {step < 3 ? (
+              <>
+                <h1 className="show-title">{title}</h1>
+                <ul className="show-tiles">{tiles(country, category)}</ul>
+              </>
+            ) : (
+              <>
+                <div className="show-chosen">
+                  {TEAM_PHOTO_SRC ? (
+                    // eslint-disable-next-line @next/next/no-img-element -- escudo local chico
+                    <img src={TEAM_PHOTO_SRC} alt="" width={72} height={72} />
+                  ) : null}
+                  <div>
+                    <h1 className="show-title">{title}</h1>
+                    <p className="text-muted mt-2">
+                      {category?.name}, {country?.name}. Temporada 2026, partidos oficiales.
+                    </p>
+                  </div>
                 </div>
-              </div>
-              <InterfaceGrid />
-            </>
-          )}
-        </motion.section>
-      </AnimatePresence>
-    </div>
+                <InterfaceGrid />
+              </>
+            )}
+          </motion.section>
+        </AnimatePresence>
+      </div>
+    </MotionConfig>
   );
 }

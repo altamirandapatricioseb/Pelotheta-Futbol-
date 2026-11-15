@@ -28,10 +28,10 @@ export function Cursor() {
       setLabel(target?.dataset.cursor ?? null);
     };
     window.addEventListener('pointermove', move, { passive: true });
-    document.documentElement.dataset.cursor = 'custom';
+    document.documentElement.dataset.showCursor = '';
     return () => {
       window.removeEventListener('pointermove', move);
-      delete document.documentElement.dataset.cursor;
+      delete document.documentElement.dataset.showCursor;
     };
   }, [fine, x, y]);
 

@@ -29,7 +29,6 @@ export function Verbs() {
             <span>{line}</span>
           </motion.div>
         ))}
-        <p className="show-verbs__note">Cuatro fuentes, un pipeline, seis interfaces.</p>
       </div>
     </section>
   );

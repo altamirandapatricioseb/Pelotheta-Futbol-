@@ -108,7 +108,7 @@ export function ShotField({ shots, progress, className }: ShotFieldProps) {
 
       // Media cancha vertical (arco arriba), centrada en la franja que queda debajo del nombre.
       const narrow = width < 860;
-      const areaTop = height * (narrow ? 0.2 : 0.3);
+      const areaTop = height * (narrow ? 0.3 : 0.44);
       const areaH = height - areaTop;
       const size = Math.min(width * (narrow ? 0.92 : 0.52), areaH * 0.95);
       pitch = {

@@ -1,8 +1,8 @@
 'use client';
 
-// Las seis interfaces como galería horizontal pegada al scroll: cada pantalla es una captura real a
-// gran tamaño que se destapa con una máscara, con el nombre de la interfaz detrás, enorme. En el
-// celular la galería se apila y cada captura se destapa al entrar.
+// Las seis interfaces como galería horizontal pegada al scroll: cada pantalla es un gráfico generado
+// que se destapa con una máscara, con el nombre de la interfaz detrás, enorme. En el celular la
+// galería se apila y cada pantalla se destapa al entrar.
 
 import { motion, type MotionValue, useScroll, useSpring, useTransform } from 'motion/react';
 import Link from 'next/link';
@@ -10,43 +10,8 @@ import { useEffect, useRef, useState } from 'react';
 
 import { INTERFACES, type InterfaceLink } from '@/config/navigation';
 
+import { Poster } from './posters';
 import { useWide } from './use-wide';
-
-const SHOT: Record<InterfaceLink['icon'], { kind: 'png' | 'gif'; name: string }> = {
-  graficos: { kind: 'png', name: 'graficos' },
-  equipo: { kind: 'png', name: 'equipo' },
-  jugadores: { kind: 'png', name: 'jugadores' },
-  situaciones: { kind: 'png', name: 'situaciones' },
-  comparar: { kind: 'png', name: 'comparar' },
-  actualizar: { kind: 'gif', name: 'demo' },
-};
-
-/** Captura de una interfaz en el tema vigente: dos imágenes y CSS decide cuál se ve. */
-export function Shot({ icon, className }: { icon: InterfaceLink['icon']; className?: string }) {
-  const s = SHOT[icon];
-  if (s.kind === 'gif') {
-    // eslint-disable-next-line @next/next/no-img-element -- GIF local de la demo
-    return <img src="/showcase/demo.gif" alt="" className={className} loading="lazy" />;
-  }
-  return (
-    <>
-      {/* eslint-disable-next-line @next/next/no-img-element -- capturas locales grandes, sin optimizador */}
-      <img
-        src={`/showcase/${s.name}-oscuro.png`}
-        alt=""
-        className={`${className ?? ''} show-img--dark`}
-        loading="lazy"
-      />
-      {/* eslint-disable-next-line @next/next/no-img-element -- capturas locales grandes, sin optimizador */}
-      <img
-        src={`/showcase/${s.name}-claro.png`}
-        alt=""
-        className={`${className ?? ''} show-img--light`}
-        loading="lazy"
-      />
-    </>
-  );
-}
 
 function Slide({
   item,
@@ -74,7 +39,7 @@ function Slide({
         {wide ? (
           <motion.figure key="wide" className="show-slide__frame" style={{ clipPath: clip }}>
             <motion.span className="show-slide__img" style={{ y: imgY }}>
-              <Shot icon={item.icon} />
+              <Poster icon={item.icon} />
             </motion.span>
             <figcaption>
               <span className="show-slide__index tabular">{String(index + 1).padStart(2, '0')}</span>
@@ -91,7 +56,7 @@ function Slide({
             transition={{ duration: 0.9, ease: [0.65, 0, 0.35, 1] }}
           >
             <span className="show-slide__img">
-              <Shot icon={item.icon} />
+              <Poster icon={item.icon} />
             </span>
             <figcaption>
               <span className="show-slide__index tabular">{String(index + 1).padStart(2, '0')}</span>

@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 
 import { LandingBar } from '@/components/showcase/landing-bar';
 import { ShowcaseLanding } from '@/components/showcase/landing';
@@ -14,13 +13,7 @@ export default async function Page() {
   const data = await getShowcaseData();
   return (
     <>
-      <LandingBar
-        action={
-          <Link href="/elegir" className="show-button focus-ring" data-cursor="Ir">
-            Elegir equipo
-          </Link>
-        }
-      />
+      <LandingBar afterScroll />
       <ShowcaseLanding {...data} />
     </>
   );

@@ -62,7 +62,7 @@ export function Wordmark({ progress, ready, heading = true }: WordmarkProps) {
       // Se mide a 100px y se escala: la palabra ocupa el ancho del contenedor menos un respiro.
       w.style.fontSize = '100px';
       const natural = w.getBoundingClientRect().width;
-      w.style.fontSize = `${String(natural ? ((b.clientWidth - 8) / natural) * 100 : 100)}px`;
+      w.style.fontSize = `${String(natural ? ((b.clientWidth - 24) / natural) * 100 : 100)}px`;
     };
     fit();
     const ro = new ResizeObserver(fit);

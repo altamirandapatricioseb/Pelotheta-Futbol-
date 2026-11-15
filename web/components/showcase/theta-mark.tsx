@@ -1,6 +1,7 @@
 'use client';
 
-// El logo de Pelotheta como SVG animable: anillo (círculo central), barra (mitad de cancha) y los
+// El logo de Pelotheta como SVG animable: anillo (círculo central), barra interior (no toca el anillo,
+// como en la letra theta) y los
 // cuatro gajos de la pelota. Mismas formas que public/brand/pelotheta-futbol.svg, en currentColor.
 
 import { motion, type Variants } from 'motion/react';
@@ -58,10 +59,11 @@ export function ThetaMark({ className, draw = false }: ThetaMarkProps) {
         />
       ))}
       <motion.rect
-        x="6"
+        x="19"
         y="29"
-        width="52"
+        width="26"
         height="6"
+        rx="3"
         fill="currentColor"
         variants={BAR}
         style={{ transformOrigin: '32px 32px' }}

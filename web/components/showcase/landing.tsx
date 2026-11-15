@@ -2,7 +2,8 @@
 
 // Portada del sistema. Una escena tras otra, casi sin texto: PELOTHETA llena la pantalla sobre el
 // campo de remates que arma la Θ, tres verbos a escala de pantalla, el camino del dato contado
-// mientras una pelota lo recorre, las seis interfaces con gráficos generados, Sudamérica punteada
+// mientras una pelota lo recorre, las métricas propias en cintas, las seis interfaces sobre una
+// pizarra táctica, Sudamérica punteada
 // como selector y un pie completo. Sin header: la marca es lo primero. Por pedido del dueño, acá no
 // hay versión con menos movimiento.
 
@@ -18,10 +19,12 @@ import type { ShowcaseData } from '@/lib/data/showcase';
 
 import { Cursor } from './cursor';
 import { FlowStory } from './flow-story';
-import { Gallery } from './gallery';
+import { MetricsWall } from './metrics-wall';
+import { PitchStory } from './pitch-story';
 import { ShotField } from './shot-field';
 import { SouthAmerica } from './south-america';
 import { ThetaMark } from './theta-mark';
+import { useWide } from './use-wide';
 import { Verbs } from './verbs';
 import { Wordmark } from './wordmark';
 
@@ -36,9 +39,14 @@ export function ShowcaseLanding({ shots }: ShowcaseData) {
   const tagOpacity = useTransform(hero, [0, 0.35], [1, 0]);
   const tagY = useTransform(hero, [0, 0.35], [0, -30]);
 
-  // Mapa: termina de imprimirse cuando la sección llega arriba; sirve pegada y apilada.
+  // Mapa: en escritorio la sección queda pegada y los puntos se arman durante la primera mitad de
+  // ese recorrido, así que al volver hacia arriba se ven dispersarse. En el celular (sin pegado) se
+  // arman mientras la sección entra.
+  const wide = useWide();
   const mapRef = useRef<HTMLElement>(null);
-  const { scrollYProgress: mapRaw } = useScroll({ target: mapRef, offset: ['start 85%', 'start 0%'] });
+  const { scrollYProgress: mapPinned } = useScroll({ target: mapRef, offset: ['start start', 'end end'] });
+  const { scrollYProgress: mapEnter } = useScroll({ target: mapRef, offset: ['start 85%', 'start 15%'] });
+  const mapRaw = useTransform(() => (wide ? Math.min(1, mapPinned.get() / 0.55) : mapEnter.get()));
   const map = useSpring(mapRaw, { stiffness: 80, damping: 24 });
   const [hot, setHot] = useState<string | null>(null);
   const onHover = useCallback((slug: string | null) => {
@@ -70,7 +78,8 @@ export function ShowcaseLanding({ shots }: ShowcaseData) {
 
         <Verbs />
         <FlowStory />
-        <Gallery />
+        <MetricsWall />
+        <PitchStory />
 
         <section ref={mapRef} className="show-map show-bleed" aria-labelledby="map-title">
           <div className="show-map__stage">

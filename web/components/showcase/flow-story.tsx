@@ -9,7 +9,7 @@ import { motion, type MotionValue, useMotionValueEvent, useScroll, useSpring, us
 import { useRef } from 'react';
 
 const SOURCES = ['Promiedos · Opta', 'StrikerAPI', 'ScoutingStats', 'Statshub'];
-const METRICS = ['Elo', 'Pitagórico', 'xPts', 'Mejoría α β', 'Proyección'];
+const METRICS = ['Elo', 'xPts', 'Pitagórico', 'NR · EWA', 'Mejoría α β'];
 const SOURCE_Y = [70, 150, 230, 310];
 const PIPE = { x: 420, y: 190 };
 const METRIC_X = [560, 680, 800, 920, 1040];
@@ -35,8 +35,8 @@ export const STEPS = [
   },
   {
     at: 0.5,
-    title: 'Cinco métricas propias',
-    text: 'Un Elo del equipo partido a partido, la expectativa pitagórica, los puntos esperados (xPts), la mejoría α y β de cada jugador y un índice de proyección.',
+    title: 'Veinticuatro métricas propias',
+    text: 'Del equipo: Elo, probabilidades previas, xPts, pitagórico, rachas y forma. De cada jugador: NR, EWA y ELA con él en cancha, y la Mejoría y el Potencial α y β.',
   },
   {
     at: 0.8,
@@ -153,7 +153,7 @@ export function FlowStory() {
           viewBox="0 0 1280 400"
           className="show-flow__svg"
           role="img"
-          aria-label="Cuatro fuentes entran a un pipeline, salen cinco métricas propias y terminan en Supabase"
+          aria-label="Cuatro fuentes entran a un pipeline, salen las métricas propias y terminan en Supabase"
         >
           <path ref={pathRef} d={BALL_PATH} fill="none" stroke="none" />
           {SOURCE_Y.map((y, i) => (

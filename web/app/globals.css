@@ -1050,7 +1050,8 @@ h3 {
 /* Números destacados de cada sección de la landing (9.2). */
 .tile-row {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 170px), 1fr));
+  /* auto-fit: con pocos números, cada uno se estira y la fila ocupa todo el ancho (sin hueco a la derecha). */
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr));
   gap: 12px 24px;
   border: 1px solid var(--color-border);
   border-radius: 12px;
@@ -1115,15 +1116,13 @@ h3 {
   line-height: 1.4;
   text-align: left;
   white-space: normal;
-  opacity: 0;
+  /* Fuera del flujo hasta que se usa: invisible igual ensanchaba la página en el celular. */
+  display: none;
   pointer-events: none;
-  transition:
-    opacity var(--dur-fast) var(--ease-out-quart),
-    translate var(--dur-fast) var(--ease-out-quart);
 }
 .hint:hover .hint-pop,
 .hint:focus .hint-pop {
-  opacity: 1;
+  display: block;
   translate: -50% 0;
 }
 .data-table .cell-text {
@@ -1133,6 +1132,25 @@ h3 {
   min-width: 16rem;
   max-width: 30rem;
   white-space: normal;
+}
+/* Selectores en fila que ocupan todo el ancho (predictor): uno por columna, se apilan en el celular. */
+.selector-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+  gap: 12px 16px;
+  align-items: end;
+}
+.field {
+  display: grid;
+  gap: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.field .select {
+  width: 100%;
+}
+.field .select:disabled {
+  opacity: 0.55;
 }
 .sort-definition {
   font-size: 0.875rem;

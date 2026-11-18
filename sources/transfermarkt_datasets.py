@@ -143,6 +143,45 @@ def club_values(
     return out
 
 
+# Ligas de la zona (Conmebol) que trae el dataset: país y nombre para el selector del predictor.
+ZONE = {
+    "ARG1": ("Argentina", "Liga Profesional"),
+    "BRA1": ("Brasil", "Brasileirão Série A"),
+    "COL1": ("Colombia", "Liga BetPlay"),
+}
+
+
+def club_leagues(players: list[dict[str, str]], since_season: int) -> dict[str, str]:
+    """Liga (código del dataset) de cada club, según sus jugadores actuales."""
+    out: dict[str, str] = {}
+    for r in players:
+        club = (r.get("current_club_name") or "").strip()
+        comp = r.get("current_club_domestic_competition_id") or ""
+        try:
+            recent = int(r.get("last_season") or 0) >= since_season
+        except ValueError:
+            recent = False
+        if club and comp and recent:
+            out.setdefault(club, comp)
+    return out
+
+
+def valuation_history(rows: list[dict[str, str]], ids: set[str]) -> dict[str, list[tuple[date, int]]]:
+    """Historial de valuaciones de algunos jugadores: {player_id: [(fecha, valor)]} en orden de fecha."""
+    out: dict[str, list[tuple[date, int]]] = {}
+    for r in rows:
+        pid = r.get("player_id", "")
+        if pid not in ids:
+            continue
+        try:
+            out.setdefault(pid, []).append(
+                (date.fromisoformat(r["date"][:10]), int(float(r["market_value_in_eur"])))
+            )
+        except (KeyError, ValueError):
+            continue
+    return {k: sorted(v) for k, v in out.items()}
+
+
 def fetch(client: PoliteClient, today: date) -> list[PoolPlayerRecord]:
     players = read_csv(client, "players")
     return parse_players(players, latest_valuations(read_csv(client, "player_valuations")), today)

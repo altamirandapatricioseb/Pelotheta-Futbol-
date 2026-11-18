@@ -206,8 +206,10 @@ def test_simulation_agrees_with_exact_probabilities() -> None:
 def test_predictor_run_with_backtest_and_tests() -> None:
     out = match_predictor.run(_league(), "Boca Juniors", "boca-juniors")
     assert out["run"]["status"] == "ok"
-    scenarios = [p for p in out["predictions"] if p["kind"] == "escenario" and p["competition"] == "liga"]
-    assert len(scenarios) == 10  # 5 rivales × local y visitante
+    league = [s for s in out["strengths"] if s["competition"] == "liga"]
+    assert len(league) == 6 and all(s["country"] == "Argentina" for s in league)
+    glm = out["run"]["metrics"]["glm"]
+    assert len(glm["beta"]) == len(glm["names"]) + 1  # intercepto y una por variable
     assert out["run"]["metrics"]["evaluated"] > 0
     assert out["run"]["metrics"]["chosen"] in match_predictor.CANDIDATES
     ids = {t["test_id"] for t in out["tests"]}
@@ -391,9 +393,7 @@ def test_old_games_weigh_less_and_old_teams_are_not_rivals() -> None:
     assert decayed < plain  # las goleadas viejas en contra pesan menos
     out = match_predictor.run(old + league, "Boca Juniors", "boca-juniors")
     assert "Descendido" not in {s["team_name"] for s in out["strengths"]}
-    assert (
-        len([p for p in out["predictions"] if p["kind"] == "escenario" and p["competition"] == "liga"]) == 10
-    )
+    assert len([s for s in out["strengths"] if s["competition"] == "liga"]) == 6
     boca = {s["team_name"]: s for s in out["strengths"]}["Boca Juniors"]
     assert boca["home_games"] == 30  # solo la temporada actual
 
@@ -433,12 +433,19 @@ def test_predictor_cup_rivals_and_squad_value() -> None:
         {"name": "Cruzeiro", "competition": "conmebol_copa_libertadores", "value_eur": 2e8},
         {"name": "Desconocido FC", "competition": "conmebol_copa_sudamericana", "value_eur": None},
     ]
-    out = match_predictor.run(_league(), "Boca Juniors", "boca-juniors", values, cups)
-    cup = [p for p in out["predictions"] if p["kind"] == "escenario" and p["competition"] != "liga"]
-    # Libertadores y Sudamericana: local y visitante; Copa Argentina (la genérica de la B): neutral.
-    assert len(cup) == 5
-    assert [p["neutral"] for p in cup if p["competition"] == "copa_argentina"] == [True]
+    zone = [
+        {"name": "Cruzeiro", "value_eur": 1.5e8, "country": "Brasil", "league": "Brasileirão Série A"},
+        {"name": "Millonarios", "value_eur": 3e7, "country": "Colombia", "league": "Liga BetPlay"},
+    ]
+    cups = [{**c, "country": "Brasil" if c["name"] == "Cruzeiro" else "Chile"} for c in cups]
+    out = match_predictor.run(_league(), "Boca Juniors", "boca-juniors", values, cups, zone)
     rows = {s["team_name"]: s for s in out["strengths"]}
+    # El rival de copa con datos en la zona toma su liga; el de la zona sin cruce figura igual.
+    assert rows["Cruzeiro"]["league"] == "Brasileirão Série A" and rows["Cruzeiro"]["competition"] != "zona"
+    assert rows["Millonarios"]["competition"] == "zona" and rows["Millonarios"]["country"] == "Colombia"
+    assert rows["Desconocido FC"]["league"] == match_predictor.UNKNOWN_LEAGUE
+    assert rows[match_predictor.LOWER_DIVISION]["league"] == "Primera Nacional"
+    assert not [p for p in out["predictions"] if p["kind"] == "escenario"]  # la web calcula los cruces
     assert rows["Desconocido FC"]["estimated"] and not rows["Cruzeiro"]["estimated"]
     assert rows[match_predictor.LOWER_DIVISION]["squad_value_eur"] < rows["Huracán"]["squad_value_eur"]
     labels = {v["label"] for v in out["run"]["metrics"]["variables"]}

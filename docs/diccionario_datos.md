@@ -2,7 +2,7 @@
 
 Generado por `scripts/diccionario.py` desde la especificación de la API y el catálogo
 de estadísticas.
-53 vistas del esquema `api` y 344 estadísticas. Las vistas no declaran nulabilidad: toda columna puede venir vacía (n/d). Las tablas
+54 vistas del esquema `api` y 344 estadísticas. Las vistas no declaran nulabilidad: toda columna puede venir vacía (n/d). Las tablas
 privadas de `core` están en `docs/diagramas/der.md` y sus reglas en `data/contracts.yml`.
 
 ## Vistas del esquema `api`
@@ -834,6 +834,15 @@ Estado público del sistema. Fila de prueba de la etapa 1.
 | `value` | text |  |
 | `updated_at` | timestamp with time zone |  |
 
+### `team_country`
+
+País de cada club (código de Promiedos: ba Argentina, cb Brasil, ci Chile...).
+
+| Columna | Tipo | Nota |
+|---|---|---|
+| `team_name` | text |  |
+| `country` | text |  |
+
 ### `team_match_master`
 
 Partidos de Boca con valores base y métricas propias por partido (Interfaz 2).
@@ -883,8 +892,12 @@ Fuerza de ataque y defensa de cada club (1 = promedio de la liga).
 | `goals_for` | int32 |  |
 | `goals_against` | int32 |  |
 | `squad_value_eur` | int64 |  |
-| `competition` | text |  |
+| `competition` | text | Clave primaria. |
 | `estimated` | boolean |  |
+| `country` | text |  |
+| `league` | text |  |
+| `elo` | numeric |  |
+| `form` | numeric |  |
 
 ### `team_window_value`
 

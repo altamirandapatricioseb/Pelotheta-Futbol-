@@ -88,6 +88,8 @@ export interface ValueDetail {
   clubRest: number | null;
   performance: Record<string, number | null>;
   comparables: Comparable[];
+  /** Historial del valor de mercado (transfermarkt-datasets), en orden de fecha. */
+  history: { date: string; value: number }[];
 }
 
 const numOrNull = (v: Json | undefined): number | null => (typeof v === 'number' && Number.isFinite(v) ? v : null);
@@ -112,6 +114,11 @@ function valueDetail(v: Json | null): ValueDetail {
         age: numOrNull(q.age),
         value: numOrNull(q.value_eur),
       };
+    }),
+    history: (Array.isArray(o.history) ? o.history : []).flatMap((h) => {
+      const q = obj(h);
+      const value = numOrNull(q.value);
+      return typeof q.date === 'string' && value !== null ? [{ date: q.date, value }] : [];
     }),
   };
 }
@@ -376,6 +383,15 @@ export interface Strength {
   value: number | null;
   competition: string;
   estimated: boolean;
+  country: string | null;
+  league: string | null;
+  /** Variables del modelo para calcular cualquier cruce en la web. */
+  attackHome: number;
+  attackAway: number;
+  defenseHome: number;
+  defenseAway: number;
+  elo: number | null;
+  form: number | null;
 }
 
 export async function getPredictions(
@@ -395,10 +411,10 @@ export async function getPredictions(
       client
         .from('team_strength')
         .select(
-          'team_name, attack_home, attack_away, defense_home, defense_away, goals_for, goals_against, squad_value_eur, competition, estimated',
+          'team_name, attack_home, attack_away, defense_home, defense_away, goals_for, goals_against, squad_value_eur, competition, estimated, country, league, elo, form',
         )
         .eq('team_slug', team)
-        .limit(100),
+        .limit(1000),
     ]);
     if (pr.error) return fail(pr.error.message);
     if (st.error) return fail(st.error.message);
@@ -443,6 +459,14 @@ export async function getPredictions(
                   value: s.squad_value_eur,
                   competition: s.competition ?? 'liga',
                   estimated: s.estimated ?? false,
+                  country: s.country,
+                  league: s.league,
+                  attackHome: s.attack_home ?? 1,
+                  attackAway: s.attack_away ?? 1,
+                  defenseHome: s.defense_home ?? 1,
+                  defenseAway: s.defense_away ?? 1,
+                  elo: s.elo,
+                  form: s.form,
                 },
               ],
         ),

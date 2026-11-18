@@ -57,9 +57,9 @@ Elegí un jugador y se compara contra el plantel, su zona y su posición (sin co
 ## Valor
 
 Cada jugador con su valor de mercado real contra el que se esperaría para alguien de su edad, posición,
-contrato, nacionalidad y club (aprendido con toda la liga) y corregido por su rendimiento. Elegí un jugador (o
-tocá su fila) para ver de dónde sale su precio, dónde queda en la nube de edad y valor de la liga, sus
-comparables y su rendimiento. «¿Paga el rendimiento?» dice si los que rinden más valen más de lo que sus
+contrato, nacionalidad y club (aprendido con toda la liga) y corregido por su rendimiento. Tocá un jugador de la
+tabla para abrir su pantalla: de dónde sale su precio paso a paso, su historial de valor, dónde queda en la liga
+y en el plantel, sus comparables y su rendimiento. «¿Paga el rendimiento?» dice si los que rinden más valen más de lo que sus
 papeles dirían. El error se mide sin trampa (sin el club en el entrenamiento) y se explica al pasar el mouse.
 
 ## Alternativas
@@ -72,9 +72,11 @@ Las dos primeras listas se llenan cuando hay estadísticas de jugadores de otros
 
 ## Predictor
 
-Elegí un rival de la liga o de una copa (Libertadores, Sudamericana, Copa Argentina, incluido uno genérico de
-Primera Nacional) y la localía: probabilidad de ganar, empatar y perder, los marcadores más probables y la matriz
-completa. Mira los goles que hace y recibe cada equipo (con más peso a lo reciente), el valor de cada plantel y
+Por defecto compara contra el equipo promedio de la liga. Elegí el país del rival, su liga y el equipo, o quedate
+con la media de una liga, de un país o de toda la zona (Argentina, Brasil y Colombia con datos abiertos; los
+rivales de copa de Chile, Ecuador o Paraguay y uno genérico de Primera Nacional, con supuestos), y si se juega de
+local, de visitante o en cancha neutral: probabilidad de ganar, empatar y perder, los marcadores más probables y
+la matriz completa. Mira los goles que hace y recibe cada equipo (con más peso a lo reciente), el valor de cada plantel y
 la localía; «Qué estadísticas usa» muestra las combinaciones probadas y por qué quedó esa. Un rival sin datos se
 marca como supuesto. No son cuotas de apuestas.
 

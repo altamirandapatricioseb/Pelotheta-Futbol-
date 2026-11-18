@@ -82,6 +82,7 @@ export function SortableTable<T>({ caption, columns, rows, rowKey, rowHref, curr
                     key={c.id}
                     scope="col"
                     title={c.help ?? c.label}
+                    className={cellClass(c)}
                     data-current-stat={selected === c.id || undefined}
                     aria-sort={on ? (sort.dir === 'asc' ? 'ascending' : 'descending') : 'none'}
                   >

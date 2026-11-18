@@ -16,6 +16,8 @@ interface Props {
   styles: StyleRow[];
   alternatives: AlternativeRow[];
   initialPlayer: number | null;
+  /** Valor, edad y minutos de cada jugador propio (para el resumen del elegido). */
+  facts?: Record<number, { value: number | null; age: number | null; minutes: number | null }>;
 }
 
 const SOURCE = 'Pipeline Pelotheta (estadísticas del sistema cada 90 minutos; valores: transfermarkt-datasets)';
@@ -43,7 +45,7 @@ const SECTIONS: { id: AlternativeSection; title: string; intro: string; empty: s
   },
 ];
 
-export function AlternativesView({ team, run, styles, alternatives, initialPlayer }: Props) {
+export function AlternativesView({ team, run, styles, alternatives, initialPlayer, facts = {} }: Props) {
   const sorted = [...styles].sort((a, b) => a.name.localeCompare(b.name, 'es'));
   const [playerId, setPlayerId] = useState(initialPlayer ?? sorted[0]?.playerId ?? 0);
   if (!run || run.status !== 'ok' || styles.length === 0) {
@@ -62,6 +64,7 @@ export function AlternativesView({ team, run, styles, alternatives, initialPlaye
   const slotOf = (label: string) => SLOTS[labels.indexOf(label) % SLOTS.length] ?? 1;
   const target = byId.get(playerId) ?? sorted[0];
   const mine = alternatives.filter((a) => a.playerId === target?.playerId);
+  const best = [...mine].sort((a, b) => b.similarity - a.similarity)[0];
   const bySection = (id: AlternativeSection) =>
     mine.filter((a) => a.section === id).sort((a, b) => b.similarity - a.similarity || a.rank - b.rank);
   const curve = (Array.isArray(run.metrics.k_curve) ? run.metrics.k_curve : []) as { k: number; silhouette: number }[];
@@ -97,12 +100,28 @@ export function AlternativesView({ team, run, styles, alternatives, initialPlaye
         {target ? (
           <Tiles
             items={[
-              { label: 'Perfil', value: target.label },
-              { label: 'Posición', value: target.position ?? 'n/d' },
               {
-                label: 'Jugadores de otros clubes con estadísticas',
-                value: String(others),
-                hint: `${String(othersTotal)} cargados con nombre y valor`,
+                label: 'Perfil',
+                value: target.label,
+                hint: target.position ?? 'Posición n/d',
+                help: 'Grupo de K-means: jugadores que se parecen entre sí; el nombre sale de sus dos rasgos más fuertes.',
+              },
+              {
+                label: 'Valor de mercado',
+                value: eur(facts[target.playerId]?.value ?? null),
+                hint: `${String(facts[target.playerId]?.age ?? 'n/d')} años · ${String(facts[target.playerId]?.minutes ?? 'n/d')} minutos`,
+              },
+              {
+                label: 'Más parecido',
+                value: best ? `${dec2(best.similarity)} %` : 'n/d',
+                hint: best ? best.members.map((m) => m.name).join(' + ') : undefined,
+                help: 'La alternativa más parecida entre todas las secciones. Tocala abajo para ver la comparación completa.',
+              },
+              {
+                label: 'Opciones',
+                value: String(mine.length),
+                hint: `${String(bySection('externo').length)} de afuera · ${String(bySection('dupla').length)} duplas · ${String(bySection('club').length)} del plantel`,
+                help: `Jugadores de otros clubes con estadísticas para comparar: ${String(others)} de ${String(othersTotal)} cargados con nombre y valor. Las listas de afuera se llenan cuando haya más.`,
               },
             ]}
           />

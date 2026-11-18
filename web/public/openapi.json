@@ -6334,6 +6334,62 @@
     }
    }
   },
+  "/team_country": {
+   "get": {
+    "operationId": "team_country",
+    "summary": "País de cada club (código de Promiedos: ba Argentina, cb Brasil, ci Chile...).",
+    "tags": [
+     "Vistas"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/select"
+     },
+     {
+      "$ref": "#/components/parameters/order"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     },
+     {
+      "name": "team_name",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "country",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Filas de la vista.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/team_country"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
   "/team_match_master": {
    "get": {
     "operationId": "team_match_master",
@@ -6702,6 +6758,42 @@
      },
      {
       "name": "estimated",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "country",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "league",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "elo",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "form",
       "in": "query",
       "required": false,
       "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
@@ -9143,6 +9235,20 @@
      }
     }
    },
+   "team_country": {
+    "type": "object",
+    "description": "País de cada club (código de Promiedos: ba Argentina, cb Brasil, ci Chile...).",
+    "properties": {
+     "team_name": {
+      "type": "string",
+      "format": "text"
+     },
+     "country": {
+      "type": "string",
+      "format": "text"
+     }
+    }
+   },
    "team_match_master": {
     "type": "object",
     "description": "Partidos de Boca con valores base y métricas propias por partido (Interfaz 2).",
@@ -9279,11 +9385,28 @@
      },
      "competition": {
       "type": "string",
-      "format": "text"
+      "format": "text",
+      "description": "Clave primaria."
      },
      "estimated": {
       "type": "boolean",
       "format": "boolean"
+     },
+     "country": {
+      "type": "string",
+      "format": "text"
+     },
+     "league": {
+      "type": "string",
+      "format": "text"
+     },
+     "elo": {
+      "type": "number",
+      "format": "numeric"
+     },
+     "form": {
+      "type": "number",
+      "format": "numeric"
      }
     }
    },

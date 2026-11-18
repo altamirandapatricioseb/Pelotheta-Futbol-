@@ -252,6 +252,7 @@ def fit(
                     "contract_years": round(f["contrato"], 1),
                     "foreign": bool(f["extranjero"]),
                     "club_rest_eur": round(math.exp(f["ln_club"])),
+                    "history": list(p.get("history") or []),
                     "performance": perf,
                     "comparables": [
                         {

@@ -155,6 +155,10 @@ export type Database = {
           squad_value_eur: number | null;
           competition: string | null;
           estimated: boolean | null;
+          country: string | null;
+          league: string | null;
+          elo: number | null;
+          form: number | null;
         };
         Relationships: [];
       };

@@ -4,7 +4,8 @@ import { ErrorNotice } from '@/components/error-notice';
 import { AlternativesView } from '@/components/models/alternatives-view';
 import { ModelHeader } from '@/components/models/common';
 import { CURRENT_TEAM } from '@/config/teams';
-import { getAlternatives, getModelRun } from '@/lib/data/models';
+import { getAlternatives, getMarketValues, getModelRun } from '@/lib/data/models';
+import { getPlayerMaster } from '@/lib/data/players';
 
 export const metadata: Metadata = {
   description:
@@ -18,10 +19,19 @@ interface PageProps {
 export default async function AlternativasPage({ searchParams }: PageProps) {
   const raw = await searchParams;
   const requested = Number(Array.isArray(raw.jugador) ? raw.jugador[0] : raw.jugador);
-  const [run, data] = await Promise.all([
+  const [run, data, values, master] = await Promise.all([
     getModelRun(CURRENT_TEAM.slug, 'alternativas'),
     getAlternatives(CURRENT_TEAM.slug),
+    getMarketValues(CURRENT_TEAM.slug),
+    getPlayerMaster('todas'),
   ]);
+  const valueOf = new Map((values.ok ? values.data.rows : []).map((r) => [r.playerId, r.actual]));
+  const facts = Object.fromEntries(
+    (master.ok ? master.data : []).map((p) => [
+      p.playerId,
+      { value: valueOf.get(p.playerId) ?? null, age: p.age, minutes: p.minutes },
+    ]),
+  );
   return (
     <div className="grid gap-6">
       <ModelHeader
@@ -39,6 +49,7 @@ export default async function AlternativasPage({ searchParams }: PageProps) {
           run={run.data}
           {...data.data}
           initialPlayer={Number.isInteger(requested) && requested > 0 ? requested : null}
+          facts={facts}
         />
       )}
     </div>

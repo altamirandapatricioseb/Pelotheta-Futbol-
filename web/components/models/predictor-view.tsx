@@ -5,6 +5,16 @@ import { useState } from 'react';
 import { ChartCard } from '@/components/charts/chart-card';
 import { BarChart, Heatmap, ScatterChart } from '@/components/charts/primitives';
 import type { ModelRun, Prediction, StatTest, Strength } from '@/lib/data/models';
+import {
+  average,
+  type Glm,
+  lambdas,
+  outcomes,
+  type Profile,
+  scoreMatrix,
+  simulate,
+  type Venue,
+} from '@/lib/models/predictor';
 
 import { dec2, dec3, num, pct, pValue, Section, Tiles, WaitingData } from './common';
 import { SortableTable } from './sortable-table';
@@ -86,21 +96,34 @@ function mostLikely(p: Prediction, team: string): 'Ganó' | 'Empató' | 'Perdió
   return v.win >= v.draw && v.win >= v.loss ? 'Ganó' : v.draw >= v.loss ? 'Empató' : 'Perdió';
 }
 
+const ZONE = 'zona';
+const COUNTRY_MEAN = 'pais';
+const LEAGUE_MEAN = 'media';
+
 export function PredictorView({ team, run, predictions, strengths, tests }: Props) {
-  const scenarios = predictions.filter((p) => p.kind === 'escenario');
-  // Un rival es un club en una competición: en copa puede tocar uno de otra liga o de la segunda.
-  const rivalKey = (p: Prediction) => `${p.competition}|${p.home === team ? p.away : p.home}`;
-  const rivals = [...new Set(scenarios.map(rivalKey))].sort((a, b) => a.localeCompare(b, 'es'));
-  const [rival, setRival] = useState(rivals.find((r) => r.startsWith('liga|')) ?? rivals[0] ?? '');
-  const [home, setHome] = useState(true);
-  const [competition = 'liga', rivalName = ''] = rival.split('|');
-  const neutral = scenarios.some((p) => rivalKey(p) === rival && p.neutral);
-  const strength = strengths.find((s) => s.team === rivalName);
-  const own = strengths.find((s) => s.team === team);
   const updated = run?.trainedAt ?? null;
   const m = run?.metrics ?? {};
+  const glm = (m.glm ?? null) as unknown as Glm | null;
+  const leagueElo = num(m.league_elo) ?? 1500;
+  const defaultForm = num(m.default_form) ?? 1.35;
+  const homeCountry = typeof run?.params.league_country === 'string' ? run.params.league_country : 'Argentina';
+  const homeLeague = typeof run?.params.league_name === 'string' ? run.params.league_name : 'Liga Profesional';
+  const others = strengths.filter((s) => s.team !== team);
+  const countries = [...new Set(others.map((s) => s.country ?? 'Sin datos'))].sort((a, b) =>
+    a === homeCountry ? -1 : b === homeCountry ? 1 : a.localeCompare(b, 'es'),
+  );
+  const leaguesOf = (c: string) =>
+    [...new Set(others.filter((s) => (s.country ?? 'Sin datos') === c).map((s) => s.league ?? 'Sin datos'))].sort(
+      (a, b) => (a === homeLeague ? -1 : b === homeLeague ? 1 : a.localeCompare(b, 'es')),
+    );
+  // Por defecto: contra la media de la liga propia.
+  const [country, setCountry] = useState(homeCountry);
+  const [league, setLeague] = useState(homeLeague);
+  const [rival, setRival] = useState(LEAGUE_MEAN);
+  const [venue, setVenue] = useState<Venue>('local');
+  const ownRow = strengths.find((s) => s.team === team);
 
-  if (!run || run.status !== 'ok' || rivals.length === 0) {
+  if (!run || run.status !== 'ok' || !glm || !ownRow) {
     return (
       <div className="grid gap-8">
         <WaitingData
@@ -114,19 +137,44 @@ export function PredictorView({ team, run, predictions, strengths, tests }: Prop
     );
   }
 
-  const chosen = scenarios.find(
-    (p) => rivalKey(p) === rival && (neutral ? p.neutral : !p.neutral && (home ? p.home === team : p.away === team)),
-  );
-  const view = chosen ? fromTeam(chosen, chosen.home === team) : null;
+  const profileOf = (s: Strength): Profile => ({
+    name: s.team,
+    attackHome: s.attackHome,
+    attackAway: s.attackAway,
+    defenseHome: s.defenseHome,
+    defenseAway: s.defenseAway,
+    value: s.value ?? 1,
+    elo: s.elo ?? leagueElo,
+    form: s.form ?? defaultForm,
+    estimated: s.estimated,
+    count: 1,
+  });
+  const inCountry = (s: Strength) => (s.country ?? 'Sin datos') === country;
+  const group =
+    country === ZONE
+      ? others
+      : league === COUNTRY_MEAN
+        ? others.filter(inCountry)
+        : others.filter((s) => inCountry(s) && (s.league ?? 'Sin datos') === league);
+  const clubs = [...group].sort((a, b) => a.team.localeCompare(b.team, 'es'));
+  const single = country !== ZONE && league !== COUNTRY_MEAN && rival !== LEAGUE_MEAN;
+  const picked = single ? clubs.find((s) => s.team === rival) : undefined;
+  const meanLabel =
+    country === ZONE ? 'Media de toda la zona' : league === COUNTRY_MEAN ? `Media de ${country}` : `Media de ${league}`;
+  const rivalProfile = picked ? profileOf(picked) : average(meanLabel, group.map(profileOf));
+  const rivalName = rivalProfile.name;
+  const lam = lambdas(glm, profileOf(ownRow), rivalProfile, venue);
+  const matrix = scoreMatrix(lam.own, lam.rival);
+  const result = outcomes(matrix);
+  const sim = simulate(lam.own, lam.rival);
+  const view = { matrix, lambdaOwn: lam.own, lambdaRival: lam.rival, ...result, sim };
   const variables = (Array.isArray(m.variables) ? m.variables : []) as unknown as VariableRow[];
   const coefs = (Array.isArray(m.coefs) ? m.coefs : []) as unknown as CoefRow[];
   const chosenSet = typeof m.chosen === 'string' ? m.chosen : '';
   const leagueStrengths = strengths.filter((s) => s.competition === 'liga');
-  const size = view?.matrix.length ?? 0;
-  const ownPmf = view ? view.matrix.map((row) => row.reduce((a, b) => a + b, 0)) : [];
-  const rivalPmf = view
-    ? (view.matrix[0] ?? []).map((_, j) => view.matrix.reduce((a, row) => a + (row[j] ?? 0), 0))
-    : [];
+  const size = view.matrix.length;
+  const ownPmf = view.matrix.map((row) => row.reduce((a, b) => a + b, 0));
+  const rivalPmf = (view.matrix[0] ?? []).map((_, j) => view.matrix.reduce((a, row) => a + (row[j] ?? 0), 0));
   const backtest = predictions.filter((p) => p.kind === 'backtest');
   const calibration = (Array.isArray(m.calibration) ? m.calibration : []) as {
     bin: number;
@@ -139,190 +187,223 @@ export function PredictorView({ team, run, predictions, strengths, tests }: Prop
     const other = p.home === team ? p.actualAway : p.actualHome;
     return own > other ? 'Ganó' : own === other ? 'Empató' : 'Perdió';
   };
+  const venueText =
+    venue === 'local' ? `${team} de local` : venue === 'visitante' ? `${team} de visitante` : 'cancha neutral';
 
   return (
     <div className="grid gap-10">
       <Section
         id="partido"
-        title="Elegí el partido"
-        intro="El modelo calcula cuántos goles espera de cada equipo con lo que hace y recibe cada uno (con más peso a lo reciente), cuánto vale cada plantel y la localía; después reparte las probabilidades de cada marcador. No son cuotas: son probabilidades del modelo."
+        title="Elegí el rival"
+        intro="Por defecto, contra el equipo promedio de la liga. Elegí país, liga y equipo, o quedate con la media de una liga, de un país o de toda la zona. El modelo espera goles para cada uno con lo que hace y recibe (con más peso a lo reciente), el valor de los planteles y la localía. No son cuotas: son probabilidades del modelo."
       >
-        <div className="flex flex-wrap items-center gap-3">
-          <label className="flex items-center gap-2 text-sm font-semibold">
-            Rival
+        <div className="selector-grid">
+          <label className="field">
+            <span>País del rival</span>
+            <select
+              className="select"
+              value={country}
+              onChange={(e) => {
+                const c = e.target.value;
+                setCountry(c);
+                setLeague(c === ZONE ? COUNTRY_MEAN : (leaguesOf(c)[0] ?? COUNTRY_MEAN));
+                setRival(LEAGUE_MEAN);
+              }}
+            >
+              <option value={ZONE}>Toda la zona (media)</option>
+              {countries.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="field">
+            <span>Liga</span>
+            <select
+              className="select"
+              value={league}
+              disabled={country === ZONE}
+              onChange={(e) => {
+                setLeague(e.target.value);
+                setRival(LEAGUE_MEAN);
+              }}
+            >
+              <option value={COUNTRY_MEAN}>Todas (media del país)</option>
+              {country !== ZONE
+                ? leaguesOf(country).map((l) => (
+                    <option key={l} value={l}>
+                      {l}
+                    </option>
+                  ))
+                : null}
+            </select>
+          </label>
+          <label className="field">
+            <span>Equipo</span>
             <select
               className="select"
               value={rival}
+              disabled={country === ZONE || league === COUNTRY_MEAN}
               onChange={(e) => {
                 setRival(e.target.value);
               }}
             >
-              {Object.keys(COMPETITIONS)
-                .filter((c) => rivals.some((r) => r.startsWith(`${c}|`)))
-                .map((c) => (
-                  <optgroup key={c} label={compName(c)}>
-                    {rivals
-                      .filter((r) => r.startsWith(`${c}|`))
-                      .map((r) => (
-                        <option key={r} value={r}>
-                          {r.split('|')[1]}
-                        </option>
-                      ))}
-                  </optgroup>
-                ))}
+              <option value={LEAGUE_MEAN}>Media de la liga</option>
+              {country !== ZONE && league !== COUNTRY_MEAN
+                ? clubs.map((s) => (
+                    <option key={s.team} value={s.team}>
+                      {s.team}
+                      {s.estimated ? ' (supuesto)' : ''}
+                    </option>
+                  ))
+                : null}
             </select>
           </label>
-          {neutral ? (
-            <span className="chip" aria-pressed="true">
-              Cancha neutral ({compName(competition)})
-            </span>
-          ) : (
-            <div role="group" aria-label="Localía" className="flex gap-2">
-              <button
-                type="button"
-                className="chip focus-ring"
-                aria-pressed={home}
-                onClick={() => {
-                  setHome(true);
-                }}
-              >
-                {team} de local
-              </button>
-              <button
-                type="button"
-                className="chip focus-ring"
-                aria-pressed={!home}
-                onClick={() => {
-                  setHome(false);
-                }}
-              >
-                {team} de visitante
-              </button>
+          <div className="field">
+            <span>Dónde</span>
+            <div role="group" aria-label="Localía" className="flex flex-wrap gap-2">
+              {(['local', 'visitante', 'neutral'] as const).map((v) => (
+                <button
+                  key={v}
+                  type="button"
+                  className="chip focus-ring"
+                  aria-pressed={venue === v}
+                  onClick={() => {
+                    setVenue(v);
+                  }}
+                >
+                  {v === 'local' ? 'Local' : v === 'visitante' ? 'Visitante' : 'Neutral'}
+                </button>
+              ))}
             </div>
-          )}
+          </div>
         </div>
-        {strength?.estimated ? (
-          <p className="text-sm text-muted">
-            {rivalName} no tiene datos en las fuentes abiertas: su valor de plantel es un supuesto (
-            {competition === 'copa_argentina'
-              ? 'el 40 % del plantel más barato de Primera'
-              : 'el valor típico de un club de la liga'}
-            ). Tomá el resultado como orientativo.
-          </p>
-        ) : null}
-        {view ? (
-          <>
-            <Tiles
-              items={[
+        <p className="text-sm text-muted">
+          {team} contra <strong>{rivalName}</strong>
+          {rivalProfile.count > 1 ? ` (${String(rivalProfile.count)} equipos)` : ''} · {venueText}.
+          {rivalProfile.estimated
+            ? ' Hay clubes sin datos en las fuentes abiertas: su valor de plantel es un supuesto (el típico de un club de la liga; uno de Primera Nacional, el 40 % del más barato de Primera). Tomalo como orientativo.'
+            : ''}
+          {picked && picked.competition !== 'liga' && COMPETITIONS[picked.competition]
+            ? ` Rival de ${compName(picked.competition)} esta temporada.`
+            : ''}
+        </p>
+        <Tiles
+          items={[
+            {
+              label: `Goles esperados de ${team}`,
+              value: dec2(view.lambdaOwn),
+              help: 'λ: el promedio de goles que haría si se jugara este partido muchas veces.',
+            },
+            {
+              label: 'Goles esperados del rival',
+              value: dec2(view.lambdaRival),
+              help: 'λ del rival, con la misma idea.',
+            },
+            { label: 'Gana', value: pct(view.win) },
+            { label: 'Empata', value: pct(view.draw) },
+            { label: 'Pierde', value: pct(view.loss) },
+            {
+              label: 'Marcador más probable',
+              value: (() => {
+                let best = { i: 0, j: 0, p: -1 };
+                view.matrix.forEach((row, i) => {
+                  row.forEach((p, j) => {
+                    if (p > best.p) best = { i, j, p };
+                  });
+                });
+                return `${String(best.i)} a ${String(best.j)}`;
+              })(),
+              help: 'La celda más alta de la matriz de marcadores: el resultado exacto más probable (igual es poco probable por sí solo).',
+            },
+            {
+              label: 'Puntos esperados',
+              value: dec2(3 * view.win + view.draw),
+              help: '3 × P(gana) + 1 × P(empata): los puntos que sacaría en promedio.',
+            },
+            {
+              label: 'Valor de los planteles',
+              value: `${dec2(M(ownRow.value))} M €`,
+              hint: `Rival: ${dec2(M(rivalProfile.value))} M €${rivalProfile.estimated ? ' (con supuestos)' : ''}`,
+              help: 'Suma de los valores de mercado de cada plantel (transfermarkt-datasets); en una media, la media geométrica. Es la variable que más mejoró las predicciones.',
+            },
+          ]}
+        />
+        <div className="chart-grid-layout">
+          <ChartCard
+            id="pred-resultado"
+            number="M1"
+            title="Gana, empata o pierde: cuenta exacta contra simulación"
+            source={SOURCE}
+            updated={updated}
+            coverage={`Monte Carlo: ${view.sim.n.toLocaleString('es-AR')} partidos simulados`}
+            table={{
+              head: ['Resultado', 'Exacta', 'Simulación'],
+              rows: [
+                ['Gana', view.win, view.sim.win],
+                ['Empata', view.draw, view.sim.draw],
+                ['Pierde', view.loss, view.sim.loss],
+              ],
+            }}
+          >
+            <BarChart
+              labels={['Gana', 'Empata', 'Pierde']}
+              format={(v) => pct(v)}
+              series={[
+                { id: 'exacta', label: 'Cuenta exacta', slot: 1, values: [view.win, view.draw, view.loss] },
                 {
-                  label: `Goles esperados de ${team}`,
-                  value: dec2(view.lambdaOwn),
-                  help: 'λ: el promedio de goles que haría si se jugara este partido muchas veces.',
-                },
-                {
-                  label: `Goles esperados de ${rivalName}`,
-                  value: dec2(view.lambdaRival),
-                  help: 'λ del rival, con la misma idea.',
-                },
-                { label: 'Gana', value: pct(view.win) },
-                { label: 'Empata', value: pct(view.draw) },
-                { label: 'Pierde', value: pct(view.loss) },
-                {
-                  label: 'Puntos esperados',
-                  value: dec2(3 * view.win + view.draw),
-                  help: '3 × P(gana) + 1 × P(empata): los puntos que sacaría en promedio.',
-                },
-                {
-                  label: 'Valor de los planteles',
-                  value: `${dec2(M(own?.value ?? null))} M €`,
-                  hint: `${rivalName}: ${dec2(M(strength?.value ?? null))} M €${strength?.estimated ? ' (supuesto)' : ''}`,
-                  help: 'Suma de los valores de mercado de cada plantel (transfermarkt-datasets). Es la variable que más mejoró las predicciones.',
+                  id: 'sim',
+                  label: 'Frecuencia simulada',
+                  slot: 2,
+                  values: [view.sim.win, view.sim.draw, view.sim.loss],
                 },
               ]}
+              label="Probabilidad de ganar, empatar y perder, exacta y simulada"
             />
-            <div className="chart-grid-layout">
-              <ChartCard
-                id="pred-resultado"
-                number="M1"
-                title="Gana, empata o pierde: cuenta exacta contra simulación"
-                source={SOURCE}
-                updated={updated}
-                coverage={
-                  view.sim ? `Monte Carlo: ${view.sim.n.toLocaleString('es-AR')} partidos simulados` : undefined
-                }
-                table={{
-                  head: ['Resultado', 'Exacta', 'Simulación'],
-                  rows: [
-                    ['Gana', view.win, view.sim?.win ?? null],
-                    ['Empata', view.draw, view.sim?.draw ?? null],
-                    ['Pierde', view.loss, view.sim?.loss ?? null],
-                  ],
-                }}
-              >
-                <BarChart
-                  labels={['Gana', 'Empata', 'Pierde']}
-                  format={(v) => pct(v)}
-                  series={[
-                    {
-                      id: 'exacta',
-                      label: 'Cuenta exacta',
-                      slot: 1,
-                      values: [view.win, view.draw, view.loss],
-                    },
-                    {
-                      id: 'sim',
-                      label: 'Frecuencia simulada',
-                      slot: 2,
-                      values: view.sim ? [view.sim.win, view.sim.draw, view.sim.loss] : [null, null, null],
-                    },
-                  ]}
-                  label="Probabilidad de ganar, empatar y perder, exacta y simulada"
-                />
-              </ChartCard>
-              <ChartCard
-                id="pred-matriz"
-                number="M2"
-                title={`Marcadores posibles: P(${team} = i, ${rivalName} = j)`}
-                source={SOURCE}
-                updated={updated}
-                coverage="Función de probabilidad conjunta: producto de las marginales por independencia"
-                table={{
-                  head: [`${team} \\ ${rivalName}`, ...goals(size)],
-                  rows: view.matrix.map((row, i) => [String(i), ...row.map((c) => Number((c * 100).toFixed(1)))]),
-                }}
-              >
-                <Heatmap
-                  rows={goals(size).map((g) => `${team.split(' ')[0] ?? team} ${g}`)}
-                  cols={goals(size)}
-                  values={view.matrix.map((row) => row.map((c) => Number((c * 100).toFixed(1))))}
-                  label={`Probabilidad en porcentaje de cada marcador entre ${team} y ${rivalName}`}
-                />
-              </ChartCard>
-              <ChartCard
-                id="pred-marginales"
-                number="M3"
-                title="Goles de cada equipo: distribuciones marginales Poisson"
-                source={SOURCE}
-                updated={updated}
-                coverage={`E[X] = Var[X] = λ: ${dec2(view.lambdaOwn)} y ${dec2(view.lambdaRival)}`}
-                table={{
-                  head: ['Goles', team, rivalName],
-                  rows: ownPmf.map((p, i) => [String(i), p, rivalPmf[i] ?? 0]),
-                }}
-              >
-                <BarChart
-                  labels={goals(size)}
-                  format={(v) => pct(v)}
-                  series={[
-                    { id: 'own', label: team, slot: 1, values: ownPmf },
-                    { id: 'rival', label: rivalName, slot: 2, values: rivalPmf },
-                  ]}
-                  label={`Probabilidad de cada cantidad de goles de ${team} y de ${rivalName}`}
-                />
-              </ChartCard>
-            </div>
-          </>
-        ) : null}
+          </ChartCard>
+          <ChartCard
+            id="pred-matriz"
+            number="M2"
+            title={`Marcadores posibles: P(${team} = i, rival = j)`}
+            source={SOURCE}
+            updated={updated}
+            coverage="Cada celda: probabilidad de ese marcador. Se multiplican las de cada equipo porque sus goles se toman independientes"
+            table={{
+              head: [`${team} \\ ${rivalName}`, ...goals(size)],
+              rows: view.matrix.map((row, i) => [String(i), ...row.map((c) => Number((c * 100).toFixed(1)))]),
+            }}
+          >
+            <Heatmap
+              rows={goals(size).map((g) => `${team.split(' ')[0] ?? team} ${g}`)}
+              cols={goals(size)}
+              values={view.matrix.map((row) => row.map((c) => Number((c * 100).toFixed(1))))}
+              label={`Probabilidad en porcentaje de cada marcador entre ${team} y ${rivalName}`}
+            />
+          </ChartCard>
+          <ChartCard
+            id="pred-marginales"
+            number="M3"
+            title="Goles de cada equipo"
+            source={SOURCE}
+            updated={updated}
+            coverage={`Distribución de Poisson: el promedio es λ (${dec2(view.lambdaOwn)} y ${dec2(view.lambdaRival)})`}
+            table={{
+              head: ['Goles', team, rivalName],
+              rows: ownPmf.map((p, i) => [String(i), p, rivalPmf[i] ?? 0]),
+            }}
+          >
+            <BarChart
+              labels={goals(size)}
+              format={(v) => pct(v)}
+              series={[
+                { id: 'own', label: team, slot: 1, values: ownPmf },
+                { id: 'rival', label: rivalName, slot: 2, values: rivalPmf },
+              ]}
+              label={`Probabilidad de cada cantidad de goles de ${team} y de ${rivalName}`}
+            />
+          </ChartCard>
+        </div>
       </Section>
 
       <Section

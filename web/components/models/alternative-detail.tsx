@@ -136,6 +136,16 @@ export function AlternativeDetail({
               hint: `${target.name}: ${String(targetAge ?? 'n/d')}`,
             },
             {
+              label: 'Posición',
+              value: chosen.members.map((m) => m.position ?? 'n/d').join(' / '),
+              hint: `${target.name}: ${target.position ?? 'n/d'}`,
+            },
+            {
+              label: 'Club',
+              value: [...new Set(chosen.members.map((m) => m.team))].join(' / '),
+              help: 'Dónde juega hoy la alternativa.',
+            },
+            {
               label: 'Minutos',
               value: chosen.members.map((m) => String(m.minutes ?? 'n/d')).join(' y '),
               hint: `${target.name}: ${String(targetMinutes ?? 'n/d')}`,

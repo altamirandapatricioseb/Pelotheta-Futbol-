@@ -167,18 +167,24 @@ def _tokens(name: str) -> set[str]:
     return {t for t in re.split(r"[^a-z0-9]+", plain) if t and t not in _STOP}
 
 
-def club_value(name: str, values: dict[str, int]) -> int | None:
-    """Valor del plantel de un club por su nombre corto («São Paulo» → «São Paulo Futebol Clube»).
+def club_match(name: str, names: Sequence[str]) -> str | None:
+    """Nombre del club del dataset para un nombre corto («São Paulo» → «São Paulo Futebol Clube»).
 
     Primero por clave de club (alias incluidos); si no, el único club del dataset cuyo nombre contiene
     todas las palabras del buscado. Si hay más de uno o ninguno, None: mejor estimado que equivocado.
     """
-    keyed = {team_key(k): v for k, v in values.items()}
+    keyed = {team_key(k): k for k in names}
     if (hit := keyed.get(team_key(name))) is not None:
         return hit
     want = _tokens(name)
-    found = [v for k, v in values.items() if want and want <= _tokens(k)]
+    found = [k for k in names if want and want <= _tokens(k)]
     return found[0] if len(found) == 1 else None
+
+
+def club_value(name: str, values: dict[str, int]) -> int | None:
+    """Valor del plantel de un club por su nombre corto (ver `club_match`)."""
+    hit = club_match(name, list(values))
+    return values[hit] if hit is not None else None
 
 
 def league_rows(
@@ -186,6 +192,7 @@ def league_rows(
     match: Callable[[str], int | None],
     club_id: str,
     values: dict[int, float],
+    history: dict[str, list[tuple[date, int]]] | None = None,
 ) -> list[dict[str, Any]]:
     """Jugadores de la liga para el modelo de valor; los del club propio llevan su player_id (y el
     valor cargado en la base, si hay uno más nuevo o manual)."""
@@ -203,9 +210,41 @@ def league_rows(
                 "foreign": r.foreign,
                 "value_eur": values.get(pid, r.value_eur) if pid is not None else r.value_eur,
                 "player_id": pid,
+                "history": [
+                    {"date": d.isoformat(), "value": v} for d, v in (history or {}).get(r.ext_id, [])
+                ],
             }
         )
     return rows
+
+
+def zone_clubs(values: dict[str, int], leagues: dict[str, str]) -> list[dict[str, Any]]:
+    """Clubes de otras ligas de la zona con valor de plantel: rivales posibles en las copas."""
+    return [
+        {"name": name, "value_eur": v, "country": tmd.ZONE[comp][0], "league": tmd.ZONE[comp][1]}
+        for name, v in values.items()
+        if (comp := leagues.get(name, "")) in tmd.ZONE and comp != "ARG1"
+    ]
+
+
+# Códigos de país de Promiedos (core.team.country) que aparecen en las copas.
+PROMIEDOS_COUNTRY = {
+    "ba": "Argentina",
+    "cb": "Brasil",
+    "ci": "Chile",
+    "fb": "Ecuador",
+    "bai": "Paraguay",
+}
+
+
+def fetch_countries(url: str, key: str, client: httpx.Client) -> dict[str, str]:
+    """País de cada club por su nombre en Promiedos; un código sin traducir queda como está."""
+    rows = om._fetch("team_country", "team_name,country", url, key, client)
+    return {
+        r["team_name"]: PROMIEDOS_COUNTRY.get(r.get("country") or "", r.get("country") or "Sin datos")
+        for r in rows
+        if r.get("team_name")
+    }
 
 
 def compute(
@@ -218,6 +257,7 @@ def compute(
     club_values: dict[str, int] | None = None,
     cups: Sequence[dict[str, Any]] = (),
     today: date | None = None,
+    zone: Sequence[dict[str, Any]] = (),
 ) -> dict[str, Any]:
     """Lote de `ingest.load_models` para un equipo.
 
@@ -231,8 +271,23 @@ def compute(
     club_values = club_values or {}
     keys = {match_predictor.norm(t) for g in games for t in (g.home, g.away)}
     team_values = {k: float(v) for k in keys if (v := club_value(k, club_values))}
-    cup_rows = [{**c, "value_eur": club_value(c["name"], club_values)} for c in cups]
-    mp = match_predictor.run(games, team["name"], team_slug, team_values, cup_rows)
+    # Un rival de copa que está en otra liga del dataset toma su liga y país, y no se repite en la zona.
+    by_name = {z["name"]: z for z in zone}
+    cup_rows, matched = [], set()
+    for c in cups:
+        hit = club_match(c["name"], list(by_name))
+        z = by_name.get(hit or "", {})
+        matched.add(hit)
+        cup_rows.append(
+            {
+                **c,
+                "value_eur": club_value(c["name"], club_values),
+                "league": z.get("league"),
+                "country": c.get("country") or z.get("country"),
+            }
+        )
+    rest = [z for z in zone if z["name"] not in matched]
+    mp = match_predictor.run(games, team["name"], team_slug, team_values, cup_rows, rest)
     return {
         "team_slug": team_slug,
         "runs": [mv["run"], alt["run"], mp["run"]],
@@ -280,14 +335,20 @@ def run(url: str, key: str, dry_run: bool = False) -> dict[str, Any]:
                 past_games = tmd.parse_games(
                     tmd.read_csv(polite, "games"), today.year - match_predictor.MAX_SEASONS + 1
                 )
+                players_csv = tmd.read_csv(polite, "players")
+                valuations_csv = tmd.read_csv(polite, "player_valuations")
                 club_vals = tmd.club_values(
-                    tmd.read_csv(polite, "players"),
-                    tmd.latest_valuations(tmd.read_csv(polite, "player_valuations")),
-                    today.year - 1,
+                    players_csv, tmd.latest_valuations(valuations_csv), today.year - 1
+                )
+                leagues = tmd.club_leagues(players_csv, today.year - 1)
+                own_clubs = {t["club_id"] for t in TEAMS.values()}
+                history = tmd.valuation_history(
+                    valuations_csv, {r.ext_id for r in dataset if r.club_ext_id in own_clubs}
                 )
         except (FetchError, RetryableFetchError, OSError, ValueError) as exc:
             warnings.append(f"transfermarkt-datasets no disponible: {exc}")
-            dataset, past_games, club_vals = [], [], {}
+            dataset, past_games, club_vals, leagues, history = [], [], {}, {}, {}
+        zone = zone_clubs(club_vals, leagues)
         own_values, pool = split_pool(dataset, match, today)
         records += own_values
         summary["valores_propios"] = len(own_values)
@@ -300,6 +361,8 @@ def run(url: str, key: str, dry_run: bool = False) -> dict[str, Any]:
         games = fetch_games(url, key, client, past_games)
         summary["partidos_liga"] = len(games)
         cups = fetch_cups(url, key, client, max(g.date for g in games)[:4]) if games else []
+        countries = fetch_countries(url, key, client)
+        cups = [{**c, "country": countries.get(c["name"])} for c in cups]
         summary["rivales_de_copa"] = len(cups)
         for team_slug in TEAMS:
             if dry_run:
@@ -310,8 +373,8 @@ def run(url: str, key: str, dry_run: bool = False) -> dict[str, Any]:
             else:
                 values = fetch_values(url, key, client, team_slug)
                 others = fetch_pool(url, key, client)
-            league = league_rows(dataset, match, TEAMS[team_slug]["club_id"], values)
-            payload = compute(players, values, games, team_slug, others, league, club_vals, cups, today)
+            league = league_rows(dataset, match, TEAMS[team_slug]["club_id"], values, history)
+            payload = compute(players, values, games, team_slug, others, league, club_vals, cups, today, zone)
             summary[team_slug] = {r["model"]: f"{r['status']} (n = {r['n']})" for r in payload["runs"]}
             if not dry_run:
                 summary[f"{team_slug}_filas"] = load.send_models(payload, url, key)

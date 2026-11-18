@@ -565,6 +565,9 @@ COMPETITIONS = {
     "conmebol_copa_libertadores": "Copa Libertadores",
     "conmebol_copa_sudamericana": "Copa Sudamericana",
 }
+LEAGUE_COUNTRY = "Argentina"
+LEAGUE_NAME = "Liga Profesional"
+UNKNOWN_LEAGUE = "Liga sin datos abiertos"
 
 
 def _elo_final(games: Sequence[m.Game]) -> dict[str, float]:
@@ -583,11 +586,14 @@ def run(
     team_slug: str,
     values: dict[str, float] | None = None,
     cups: Sequence[dict[str, Any]] = (),
+    zone: Sequence[dict[str, Any]] = (),
 ) -> dict[str, Any]:
-    """Run del predictor: escenarios (liga y copas), backtest por combinación de variables, fuerzas y pruebas.
+    """Run del predictor: el modelo (β), cada club con sus variables, el backtest y las pruebas.
 
-    `values`: valor del plantel por clave de club (`norm`). `cups`: rivales de copas de la temporada,
-    {name, competition, value_eur | None}; sin valor se estima por competición y se marca.
+    La web calcula cualquier cruce con esos β: un club, o la media de una liga, de un país o de
+    toda la zona. `values`: valor del plantel por clave de club (`norm`). `cups`: rivales de copas
+    de la temporada {name, competition, value_eur | None, country}. `zone`: clubes de otras ligas
+    del dataset abierto {name, value_eur, country, league}. Sin valor, se estima y se marca.
     """
     if len(games) < MIN_TRAIN:
         return {
@@ -628,70 +634,61 @@ def run(
     league_elo = stats.mean([elo[k] for k in current if k in elo]) if current else m.ELO_START
     forms = {k: _form(games, k) for k in every}
 
-    def scenario(home: str, away: str, neutral: bool, competition: str) -> dict[str, Any]:
-        h, a = norm(home), norm(away)
-        sh, sa = sides(
-            model,
-            home,
-            away,
-            vals,
-            elo.get(h, league_elo),
-            elo.get(a, league_elo),
-            forms.get(h, DEFAULT_FORM),
-            forms.get(a, DEFAULT_FORM),
-            neutral,
-        )
+    def club(
+        name: str, k: str, competition: str, country: str | None, league: str, value: float, estimated: bool
+    ) -> dict[str, Any]:
+        s = model.teams.get(k) if competition == "liga" else None
         return {
-            **predict(home, away, lam(beta, sh.row(names)), lam(beta, sa.row(names))),
-            "kind": "escenario",
+            "team_name": name,
+            "home_games": s.home_games if s else 0,
+            "away_games": s.away_games if s else 0,
+            # Fuera de la liga no hay goles comparables: ataque y defensa promedio (1); el valor decide.
+            "attack_home": s.attack_home if s else 1.0,
+            "defense_home": s.defense_home if s else 1.0,
+            "attack_away": s.attack_away if s else 1.0,
+            "defense_away": s.defense_away if s else 1.0,
+            "goals_for": s.goals_for if s else 0,
+            "goals_against": s.goals_against if s else 0,
+            "squad_value_eur": round(value),
             "competition": competition,
-            "neutral": neutral,
+            "estimated": estimated,
+            "country": country,
+            "league": league,
+            "elo": elo.get(k, league_elo) if competition == "liga" else league_elo,
+            "form": forms.get(k, DEFAULT_FORM) if competition == "liga" else DEFAULT_FORM,
         }
 
-    names_by_key = {k: s.team for k, s in model.teams.items()}
-    rivals = sorted(names_by_key[k] for k in current if k != key and k in names_by_key)
-    scenarios = [
-        s for r in rivals for s in (scenario(team, r, False, "liga"), scenario(r, team, False, "liga"))
+    strengths = [
+        club(s.team, k, "liga", LEAGUE_COUNTRY, LEAGUE_NAME, vals[k], k not in known)
+        for k, s in model.teams.items()
+        if k in current
     ]
-    cup_rows: list[dict[str, Any]] = []
-    done: set[tuple[str, str]] = set()
+    seen = set(current)
+    by_zone = {norm(z["name"]): z for z in zone}
     lowest = league_values[0] if league_values else median
-    for c in [*cups, {"name": LOWER_DIVISION, "competition": "copa_argentina", "value_eur": None}]:
+    extra = {"name": LOWER_DIVISION, "competition": "copa_argentina", "value_eur": None, "country": None}
+    for c in [*cups, extra]:
         k = norm(c["name"])
-        if k == key or (k, c["competition"]) in done:
+        if k in seen:
             continue
-        done.add((k, c["competition"]))
-        estimated = not c.get("value_eur") and k not in known
-        if c.get("value_eur"):
-            vals[k] = float(c["value_eur"])
-        elif k not in known:
-            vals[k] = lowest * LOWER_DIVISION_SHARE if c["competition"] == "copa_argentina" else median
-        neutral = c["competition"] == "copa_argentina"
-        if neutral:
-            scenarios.append(scenario(team, c["name"], True, c["competition"]))
+        seen.add(k)
+        z = by_zone.get(k)
+        value = c.get("value_eur") or (z or {}).get("value_eur")
+        country: str | None
+        if c["name"] == LOWER_DIVISION:
+            country, league = LEAGUE_COUNTRY, "Primera Nacional"
         else:
-            scenarios += [
-                scenario(team, c["name"], False, c["competition"]),
-                scenario(c["name"], team, False, c["competition"]),
-            ]
-        if k in current or any(r["team_name"] == c["name"] for r in cup_rows):
-            continue  # ya tiene su fila (club de la liga o de otra copa)
-        cup_rows.append(
-            {
-                "team_name": c["name"],
-                "home_games": 0,
-                "away_games": 0,
-                "attack_home": 1.0,
-                "defense_home": 1.0,
-                "attack_away": 1.0,
-                "defense_away": 1.0,
-                "goals_for": 0,
-                "goals_against": 0,
-                "squad_value_eur": round(vals[k]),
-                "competition": c["competition"],
-                "estimated": estimated,
-            }
-        )
+            country = c.get("country") or (z or {}).get("country")
+            league = c.get("league") or (z or {}).get("league") or UNKNOWN_LEAGUE
+        estimate = lowest * LOWER_DIVISION_SHARE if c["name"] == LOWER_DIVISION else median
+        strengths.append(club(c["name"], k, c["competition"], country, league, value or estimate, not value))
+    for z in zone:
+        k = norm(z["name"])
+        if k in seen or not z.get("value_eur"):
+            continue
+        seen.add(k)
+        league = z.get("league") or UNKNOWN_LEAGUE
+        strengths.append(club(z["name"], k, "zona", z.get("country"), league, z["value_eur"], False))
 
     chosen = tried[best]
     backtest_rows = [
@@ -707,24 +704,6 @@ def run(
         for pr, lams in chosen["rows"]
         if key in (norm(pr.game.home), norm(pr.game.away))
     ]
-    strengths = [
-        {
-            "team_name": s.team,
-            "home_games": s.home_games,
-            "away_games": s.away_games,
-            "attack_home": s.attack_home,
-            "defense_home": s.defense_home,
-            "attack_away": s.attack_away,
-            "defense_away": s.defense_away,
-            "goals_for": s.goals_for,
-            "goals_against": s.goals_against,
-            "squad_value_eur": round(vals[k]),
-            "competition": "liga",
-            "estimated": k not in known,
-        }
-        for k, s in model.teams.items()
-        if k in current
-    ] + cup_rows
     metrics = {key2: v for key2, v in chosen.items() if key2 != "rows"}
     return {
         "run": {
@@ -737,6 +716,10 @@ def run(
                 "mu_away": model.mu_away,
                 **metrics,
                 "chosen": best,
+                # Lo que necesita la web para calcular cualquier cruce: ln λ = β₀ + Σ β·variable.
+                "glm": {"names": names, "beta": beta},
+                "league_elo": league_elo,
+                "default_form": DEFAULT_FORM,
                 "variables": [
                     {
                         "label": label,
@@ -772,10 +755,12 @@ def run(
                 "variables": [{"id": k, "label": v[0], "help": v[1]} for k, v in VARIABLES.items()],
                 "competitions": COMPETITIONS,
                 "lower_division_share": LOWER_DIVISION_SHARE,
+                "league_country": LEAGUE_COUNTRY,
+                "league_name": LEAGUE_NAME,
             },
             "message": None if key in model.teams else f"{team} no aparece en los resultados de la liga.",
         },
-        "predictions": scenarios + backtest_rows,
+        "predictions": backtest_rows,
         "strengths": strengths,
         "tests": stat_tests([g for g in games if g.date[:4] == season], team),
     }

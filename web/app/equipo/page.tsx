@@ -6,6 +6,10 @@ import { TeamTableView } from '@/components/team/team-table';
 import { getCatalog, getStatSets } from '@/lib/data/catalog';
 import { getLeagueClubs, getTeamMatches, getTeamWindowValues } from '@/lib/data/team';
 import { ErrorNotice } from '@/components/error-notice';
+import { Section } from '@/components/models/common';
+import { ProbabilityPanel } from '@/components/models/probability-panel';
+import { CURRENT_TEAM } from '@/config/teams';
+import { getStatTests } from '@/lib/data/models';
 
 export const metadata: Metadata = {
   description:
@@ -29,12 +33,13 @@ interface PageProps {
 export default async function EquipoPage({ searchParams }: PageProps) {
   const raw = await searchParams;
   const params = searchSchema.parse({ conjunto: raw.conjunto, vista: raw.vista });
-  const [matches, catalog, sets, windowValues, clubs] = await Promise.all([
+  const [matches, catalog, sets, windowValues, clubs, tests] = await Promise.all([
     getTeamMatches(),
     getCatalog('team'),
     getStatSets('team'),
     getTeamWindowValues(),
     getLeagueClubs(),
+    getStatTests(CURRENT_TEAM.slug),
   ]);
   const failed = [matches, catalog, sets, windowValues].flatMap((r) => (r.ok ? [] : [r]))[0];
 
@@ -61,6 +66,15 @@ export default async function EquipoPage({ searchParams }: PageProps) {
           initialSet={params.conjunto ?? null}
           initialView={params.vista}
         />
+      ) : null}
+      {tests.ok && tests.data.length > 0 ? (
+        <Section
+          id="probabilidad"
+          title="Probabilidad"
+          intro="Pruebas de hipótesis e intervalos con los partidos de liga. El detalle y el predictor de partidos que se apoya en estas distribuciones están en Predictor."
+        >
+          <ProbabilityPanel tests={tests.data} updated={null} />
+        </Section>
       ) : null}
     </div>
   );

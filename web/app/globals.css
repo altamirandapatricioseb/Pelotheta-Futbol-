@@ -246,7 +246,8 @@ h3 {
   background: var(--color-surface-2);
 }
 
-@media (max-width: 1080px) {
+/* 10 pestañas (con Valor, Alternativas y Predictor): debajo de 1500 px no entran junto a las marcas. */
+@media (max-width: 1500px) {
   .site-header__bar {
     grid-template-columns: 1fr auto;
   }

@@ -17,6 +17,154 @@ export type Database = {
       [_ in never]: never;
     };
     Views: {
+      model_run: {
+        Row: {
+          model: string | null;
+          team_slug: string | null;
+          status: string | null;
+          n: number | null;
+          metrics: Json | null;
+          params: Json | null;
+          message: string | null;
+          trained_at: string | null;
+        };
+        Relationships: [];
+      };
+      market_value_prediction: {
+        Row: {
+          team_slug: string | null;
+          player_id: number | null;
+          player_name: string | null;
+          position_group: string | null;
+          actual_eur: number | null;
+          predicted_eur: number | null;
+          low_eur: number | null;
+          high_eur: number | null;
+          residual_pct: number | null;
+          features: Json | null;
+        };
+        Relationships: [];
+      };
+      market_value_coef: {
+        Row: {
+          team_slug: string | null;
+          feature: string | null;
+          coef: number | null;
+          std_err: number | null;
+          t_stat: number | null;
+          p_value: number | null;
+          ci_low: number | null;
+          ci_high: number | null;
+        };
+        Relationships: [];
+      };
+      player_market_value: {
+        Row: {
+          player_id: number | null;
+          player_name: string | null;
+          team_slug: string | null;
+          as_of: string | null;
+          value_eur: number | null;
+          source: string | null;
+          source_url: string | null;
+        };
+        Relationships: [];
+      };
+      player_style: {
+        Row: {
+          team_slug: string | null;
+          player_id: number | null;
+          player_name: string | null;
+          position_group: string | null;
+          cluster: number | null;
+          cluster_label: string | null;
+          pc1: number | null;
+          pc2: number | null;
+          features: Json | null;
+          z: Json | null;
+          percentiles: Json | null;
+        };
+        Relationships: [];
+      };
+      player_pool: {
+        Row: {
+          source: string | null;
+          ext_id: string | null;
+          player_name: string | null;
+          team_name: string | null;
+          club_ext_id: string | null;
+          competition: string | null;
+          position_group: string | null;
+          age: number | null;
+          minutes: number | null;
+          stats: Json | null;
+          value_eur: number | null;
+          value_as_of: string | null;
+          source_url: string | null;
+        };
+        Relationships: [];
+      };
+      player_alternative: {
+        Row: {
+          team_slug: string | null;
+          player_id: number | null;
+          section: string | null;
+          rank: number | null;
+          members: Json | null;
+          similarity: number | null;
+          total_value_eur: number | null;
+          savings_eur: number | null;
+        };
+        Relationships: [];
+      };
+      match_prediction: {
+        Row: {
+          team_slug: string | null;
+          kind: string | null;
+          match_date: string | null;
+          home_team: string | null;
+          away_team: string | null;
+          lambda_home: number | null;
+          lambda_away: number | null;
+          p_home: number | null;
+          p_draw: number | null;
+          p_away: number | null;
+          top_scores: Json | null;
+          score_matrix: Json | null;
+          sim: Json | null;
+          actual_home: number | null;
+          actual_away: number | null;
+        };
+        Relationships: [];
+      };
+      team_strength: {
+        Row: {
+          team_slug: string | null;
+          team_name: string | null;
+          home_games: number | null;
+          away_games: number | null;
+          attack_home: number | null;
+          defense_home: number | null;
+          attack_away: number | null;
+          defense_away: number | null;
+          goals_for: number | null;
+          goals_against: number | null;
+        };
+        Relationships: [];
+      };
+      stat_test: {
+        Row: {
+          team_slug: string | null;
+          test_id: string | null;
+          title_es: string | null;
+          statistic: number | null;
+          df: number | null;
+          p_value: number | null;
+          decision_es: string | null;
+          detail: Json | null;
+        };
+        Relationships: [];
+      };
       boca_match: {
         Row: {
           boca_home: boolean | null;

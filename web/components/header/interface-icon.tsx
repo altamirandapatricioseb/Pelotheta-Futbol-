@@ -2,9 +2,12 @@ import {
   ArrowsClockwiseIcon,
   ArrowsLeftRightIcon,
   ChartLineUpIcon,
+  CoinsIcon,
+  CrosshairIcon,
   ShieldIcon,
   SquaresFourIcon,
   UserListIcon,
+  UsersThreeIcon,
 } from '@phosphor-icons/react/dist/ssr';
 import type { IconWeight } from '@phosphor-icons/react';
 
@@ -16,6 +19,9 @@ const ICONS = {
   jugadores: UserListIcon,
   situaciones: SquaresFourIcon,
   comparar: ArrowsLeftRightIcon,
+  valor: CoinsIcon,
+  alternativas: UsersThreeIcon,
+  predictor: CrosshairIcon,
   actualizar: ArrowsClockwiseIcon,
 } as const;
 

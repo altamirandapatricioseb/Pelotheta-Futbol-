@@ -15,7 +15,14 @@ from typing import Any
 
 import httpx
 
-from pipeline.models import MatchContextRecord, PlayerRecord, Record, SquadRecord, WeatherRecord
+from pipeline.models import (
+    MarketValueRecord,
+    MatchContextRecord,
+    PlayerRecord,
+    Record,
+    SquadRecord,
+    WeatherRecord,
+)
 from sources.promiedos import SOURCE, ParsedGame
 
 SUPABASE_URL_RE = re.compile(r"^https://[a-z0-9]{1,40}\.supabase\.co/?$")
@@ -278,3 +285,22 @@ def send_player_stats(
             _rpc("load_player_stats", {"p_rows": rows[start : start + chunk]}, url, key, client) or 0
         )
     return total
+
+
+def send_market_values(
+    rows: list[MarketValueRecord], url: str, key: str, client: httpx.Client | None = None
+) -> Any:
+    """Valores de mercado (CSV manual): upsert por jugador, fecha y fuente."""
+    return _rpc("load_market_values", {"p_rows": [_dump(r) for r in rows]}, url, key, client)
+
+
+def send_models(payload: dict[str, Any], url: str, key: str, client: httpx.Client | None = None) -> Any:
+    """Resultados de los modelos de un equipo: reemplaza los anteriores en una transacción."""
+    return _rpc("load_models", {"p_payload": payload}, url, key, client)
+
+
+def send_player_pool(
+    rows: list[dict[str, Any]], url: str, key: str, client: httpx.Client | None = None
+) -> Any:
+    """Jugadores de otros clubes (identidad, edad y valor): upsert por fuente e id externo."""
+    return _rpc("load_player_pool", {"p_rows": rows}, url, key, client)

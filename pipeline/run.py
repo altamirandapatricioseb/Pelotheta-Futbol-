@@ -26,7 +26,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from pipeline import catalog, charts, conclusions, enrich, load, own_metrics, situations
+from pipeline import analytics, catalog, charts, conclusions, enrich, load, own_metrics, situations
 from pipeline.models import (
     CompetitionMetricRecord,
     LeagueResultRecord,
@@ -678,6 +678,15 @@ def run_pipeline(dry_run: bool, url: str, key: str) -> int:
         with contextlib.suppress(load.LoadError):
             load.log_failure("metricas_propias", f"Métricas propias: {exc}", url, key)
             load.refresh_stats(url, key)
+    # Modelos (valor de mercado, estilos y predictor): igual que las métricas propias, un fallo se
+    # registra y la corrida sigue siendo válida.
+    try:
+        result["modelos"] = analytics.run(url, key)
+    except load.LoadError as exc:
+        errors += 1
+        print(f"Aviso: modelos no calculados: {exc}", file=sys.stderr)
+        with contextlib.suppress(load.LoadError):
+            load.log_failure("modelos", f"Modelos: {exc}", url, key)
     try:
         failing = load.run_quality_checks(url, key)
         result["calidad_fallan"] = failing

@@ -1,6 +1,6 @@
 'use client';
 
-// Las seis interfaces como tarjetas grandes: en la portada (fila ligada al scroll) y al final del
+// Las interfaces como tarjetas grandes: en la portada (fila ligada al scroll) y al final del
 // selector de equipo (grilla). Entran escalonadas con curva exponencial de salida (9.10).
 
 import { motion, stagger, type Variants } from 'motion/react';
@@ -15,6 +15,9 @@ const COPY: Record<InterfaceLink['icon'], string> = {
   jugadores: 'El plantel completo con percentiles, conjuntos de estadísticas y la ficha de cada jugador.',
   situaciones: 'Qué pasa cuando empieza perdiendo, cuando convierte primero o cuando se queda con uno menos.',
   comparar: 'Dos jugadores frente a frente, estadística por estadística, con el plantel como referencia.',
+  valor: 'Lo que vale cada jugador en el mercado contra lo que una regresión lineal cree que vale.',
+  alternativas: 'Para cada jugador, las opciones más parecidas: de otro club, en dupla o dentro del plantel.',
+  predictor: 'Probabilidad de ganar, empatar y perder con un modelo de Poisson, con backtest y pruebas.',
   actualizar: 'La carga de datos a un botón: última actualización, estado de la fuente y corrida manual.',
 };
 

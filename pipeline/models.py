@@ -298,3 +298,14 @@ class CompetitionMetricRecord(Record):
     comp_average: float | None = None
     rank: int | None = Field(default=None, ge=1)
     n_teams: int | None = Field(default=None, ge=1)
+
+
+class MarketValueRecord(Record):
+    """Valor de mercado de un jugador en una fecha (Transfermarkt u otra fuente, cargado a mano)."""
+
+    player_id: int = Field(ge=1)
+    team_slug: str = Field(pattern=r"^[a-z0-9-]+$")
+    as_of: date
+    value_eur: int = Field(gt=0, le=500_000_000)
+    source: str = Field(pattern=r"^[a-z_]+$")
+    source_url: str | None = Field(default=None, pattern=r"^https://")

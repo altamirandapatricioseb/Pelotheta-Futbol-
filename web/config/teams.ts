@@ -179,3 +179,6 @@ export function resolveChoice(pais: string | null, categoria: string | null, equ
   const team = category?.teams.find((t) => t.slug === equipo && t.available);
   return { country, category, team };
 }
+
+/** Equipo con datos que muestran las interfaces. Las tablas de modelos se filtran por este slug. */
+export const CURRENT_TEAM = { slug: 'boca-juniors', name: 'Boca Juniors' } as const;

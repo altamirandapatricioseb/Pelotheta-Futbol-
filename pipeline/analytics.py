@@ -16,7 +16,6 @@ from __future__ import annotations
 import argparse
 import os
 import sys
-from collections import Counter
 from collections.abc import Callable, Sequence
 from datetime import date
 from typing import Any
@@ -85,8 +84,12 @@ def fetch_pool(url: str, key: str, client: httpx.Client) -> list[dict[str, Any]]
     return [pool_row(r) for r in rows]
 
 
-def fetch_games(url: str, key: str, client: httpx.Client) -> list[Any]:
-    """Partidos de liga de la última temporada cargada, sin repetir entre fuentes."""
+def fetch_games(url: str, key: str, client: httpx.Client, extra: Sequence[dict[str, Any]] = ()) -> list[Any]:
+    """Partidos de liga de las últimas `MAX_SEASONS` temporadas, de todas las fuentes, sin repetir.
+
+    `extra` son filas con la misma forma que no están en la base (transfermarkt-datasets). Los
+    nombres de club se unifican con `metrics.team_key`; un mismo partido se queda una sola vez.
+    """
     rows = om._fetch(
         "league_result",
         "source,season,match_date,home_team,away_team,home_goals,away_goals",
@@ -94,15 +97,11 @@ def fetch_games(url: str, key: str, client: httpx.Client) -> list[Any]:
         key,
         client,
     )
+    rows = [*rows, *extra]
     if not rows:
         return []
-    season = max(r["season"] for r in rows)
-    current = [r for r in rows if r["season"] == season]
-    # Una sola fuente: Promiedos y StrikerAPI nombran distinto a los clubes («Instituto» e «Instituto
-    # (Córdoba)») y mezcladas parten a un equipo en dos. Se usa la que trae más partidos.
-    counts = Counter(r["source"] for r in current)
-    best = max(counts, key=lambda s: counts[s])
-    return om.dedupe_games([r for r in current if r["source"] == best])
+    since = max(int(r["season"]) for r in rows) - match_predictor.MAX_SEASONS + 1
+    return om.dedupe_games([r for r in rows if int(r["season"]) >= since])
 
 
 def player_matcher(players: Sequence[dict[str, Any]]) -> Callable[[str], int | None]:
@@ -194,9 +193,12 @@ def run(url: str, key: str, dry_run: bool = False) -> dict[str, Any]:
         try:
             with PoliteClient(source=tmd.SOURCE) as polite:
                 dataset = tmd.fetch(polite, today)
+                past_games = tmd.parse_games(
+                    tmd.read_csv(polite, "games"), today.year - match_predictor.MAX_SEASONS + 1
+                )
         except (FetchError, RetryableFetchError, OSError, ValueError) as exc:
             warnings.append(f"transfermarkt-datasets no disponible: {exc}")
-            dataset = []
+            dataset, past_games = [], []
         own_values, pool = split_pool(dataset, match, today)
         records += own_values
         summary["valores_propios"] = len(own_values)
@@ -206,10 +208,13 @@ def run(url: str, key: str, dry_run: bool = False) -> dict[str, Any]:
                 load.send_market_values(records, url, key)
             if pool:
                 load.send_player_pool(tmd.dump(pool), url, key)
-        games = fetch_games(url, key, client)
+        games = fetch_games(url, key, client, past_games)
+        summary["partidos_liga"] = len(games)
         for team_slug in TEAMS:
             if dry_run:
-                values = {r.player_id: r.value_eur for r in records if r.team_slug == team_slug}
+                values: dict[int, float] = {
+                    r.player_id: r.value_eur for r in records if r.team_slug == team_slug
+                }
                 others = [pool_row(r) for r in tmd.dump(pool)]
             else:
                 values = fetch_values(url, key, client, team_slug)

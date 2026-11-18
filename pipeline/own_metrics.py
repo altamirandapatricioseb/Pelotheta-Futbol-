@@ -16,7 +16,6 @@ from __future__ import annotations
 import os
 import statistics
 import sys
-import unicodedata
 from collections import defaultdict
 from collections.abc import Iterable
 from dataclasses import dataclass, field
@@ -123,8 +122,7 @@ class Inputs:
 
 
 def _norm(name: str) -> str:
-    text = unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode().lower()
-    return " ".join(text.split())
+    return m.team_key(name)
 
 
 def _row(

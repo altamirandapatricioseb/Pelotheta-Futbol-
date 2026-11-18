@@ -296,3 +296,84 @@ def test_football_data_parse() -> None:
 def test_football_data_without_key_skips(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("FOOTBALL_DATA_ORG_KEY", raising=False)
     assert football_data.fetch_matches(None, "BSA", 2026) == []  # type: ignore[arg-type]
+
+
+def test_team_key_joins_names_across_sources() -> None:
+    from pipeline.metrics import team_key
+
+    assert (
+        team_key("Instituto")
+        == team_key("Instituto (Córdoba)")
+        == team_key("Instituto Atlético Central Córdoba")
+    )
+    assert team_key("Club Atlético Newell’s Old Boys") == team_key("Newell's Old Boys")
+    assert team_key("Gimnasia de Mendoza") != team_key("Gimnasia La Plata")
+
+
+def test_dedupe_games_merges_sources_with_different_names() -> None:
+    from pipeline import own_metrics
+
+    row = {"home_goals": 1, "away_goals": 0}
+    games = own_metrics.dedupe_games(
+        [
+            {
+                **row,
+                "source": "promiedos",
+                "match_date": "2026-03-01",
+                "home_team": "Instituto",
+                "away_team": "Belgrano",
+            },
+            {
+                **row,
+                "source": "strikerapi",
+                "match_date": "2026-03-02",
+                "home_team": "Instituto (Córdoba)",
+                "away_team": "Belgrano (Córdoba)",
+            },
+        ]
+    )
+    assert len(games) == 1
+
+
+def test_old_games_weigh_less_and_old_teams_are_not_rivals() -> None:
+    old = [Game("2025-01-10", "Boca Juniors", "Descendido", 0, 3) for _ in range(10)]
+    league = _league()
+    assert match_predictor.weight(
+        "2025-07-01", __import__("datetime").date(2025, 12, 28), 180
+    ) == pytest.approx(0.5)
+    plain = match_predictor.fit(old + league, half_life=None).teams["boca juniors"].defense_home
+    decayed = match_predictor.fit(old + league).teams["boca juniors"].defense_home
+    assert decayed < plain  # las goleadas viejas en contra pesan menos
+    out = match_predictor.run(old + league, "Boca Juniors", "boca-juniors")
+    assert "Descendido" not in {s["team_name"] for s in out["strengths"]}
+    assert len([p for p in out["predictions"] if p["kind"] == "escenario"]) == 10
+    boca = {s["team_name"]: s for s in out["strengths"]}["Boca Juniors"]
+    assert boca["home_games"] == 30  # solo la temporada actual
+
+
+def test_transfermarkt_datasets_games() -> None:
+    from sources import transfermarkt_datasets as tmd
+
+    base = {
+        "competition_id": "ARG1",
+        "home_club_name": "Club Atlético Tigre",
+        "away_club_name": "Club Atlético Lanús",
+    }
+    rows = tmd.parse_games(
+        [
+            {**base, "date": "2025-02-01", "home_club_goals": "2", "away_club_goals": "1"},
+            {**base, "date": "2023-02-01", "home_club_goals": "2", "away_club_goals": "1"},
+            {
+                **base,
+                "competition_id": "ES1",
+                "date": "2025-02-01",
+                "home_club_goals": "2",
+                "away_club_goals": "1",
+            },
+            {**base, "date": "2025-02-01", "home_club_goals": "", "away_club_goals": "1"},
+        ],
+        since_year=2024,
+    )
+    assert [(r["season"], r["home_goals"], r["source"]) for r in rows] == [
+        (2025, 2, "transfermarkt_datasets")
+    ]

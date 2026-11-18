@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import math
 import statistics
+import unicodedata
 from collections.abc import Iterable, Sequence
 from datetime import date, timedelta
 from typing import NamedTuple
@@ -18,6 +19,58 @@ ELO_K = 20.0
 ELO_HOME_ADVANTAGE = 100.0
 # Goles máximos por equipo en la suma de Poisson: más allá, la probabilidad es despreciable.
 MAX_GOALS = 20
+
+# Mismo club, distinto nombre según la fuente (Promiedos, transfermarkt-datasets → StrikerAPI).
+# Sin esto un club se parte en dos equipos en el Elo y en el predictor. Claves ya normalizadas.
+TEAM_ALIASES = {
+    "belgrano": "belgrano (cordoba)",
+    "central cordoba sde": "central cordoba (santiago del estero)",
+    "estudiantes rc": "estudiantes de rio cuarto",
+    "gimnasia de mendoza": "gimnasia (mendoza)",
+    "instituto": "instituto (cordoba)",
+    "sarmiento junin": "sarmiento (junin)",
+    "talleres de cordoba": "talleres (cordoba)",
+    "union de santa fe": "union (santa fe)",
+    "asociacion atletica argentinos juniors": "argentinos juniors",
+    "asociacion atletica estudiantes": "estudiantes de rio cuarto",
+    "asociacion de fomento deportivo riestra barrio colon": "deportivo riestra",
+    "ca san martin (san juan)": "san martin (san juan)",
+    "cd godoy cruz antonio tomba": "godoy cruz",
+    "club atletico aldosivi": "aldosivi",
+    "club atletico banfield": "banfield",
+    "club atletico barracas central": "barracas central",
+    "club atletico belgrano": "belgrano (cordoba)",
+    "club atletico boca juniors": "boca juniors",
+    "club atletico central cordoba": "central cordoba (santiago del estero)",
+    "club atletico gimnasia y esgrima de mendoza": "gimnasia (mendoza)",
+    "club atletico huracan": "huracan",
+    "club atletico independiente de avellaneda": "independiente",
+    "club atletico lanus": "lanus",
+    "club atletico newell's old boys": "newell's old boys",
+    "club atletico platense": "platense",
+    "club atletico river plate": "river plate",
+    "club atletico rosario central": "rosario central",
+    "club atletico san lorenzo de almagro": "san lorenzo",
+    "club atletico sarmiento": "sarmiento (junin)",
+    "club atletico talleres": "talleres (cordoba)",
+    "club atletico tigre": "tigre",
+    "club atletico tucuman": "atletico tucuman",
+    "club atletico union": "union (santa fe)",
+    "club atletico velez sarsfield": "velez sarsfield",
+    "club estudiantes de la plata": "estudiantes de la plata",
+    "club social y deportivo defensa y justicia": "defensa y justicia",
+    "club sportivo independiente rivadavia": "independiente rivadavia",
+    "club de gimnasia y esgrima la plata": "gimnasia la plata",
+    "instituto atletico central cordoba": "instituto (cordoba)",
+    "racing club asociacion civil de avellaneda": "racing club",
+}
+
+
+def team_key(name: str) -> str:
+    """Clave de un club comparable entre fuentes: sin tildes, minúsculas y con el alias aplicado."""
+    plain = unicodedata.normalize("NFKD", name.replace("’", "'")).encode("ascii", "ignore").decode()
+    key = " ".join(plain.lower().split())
+    return TEAM_ALIASES.get(key, key)
 
 
 class Game(NamedTuple):

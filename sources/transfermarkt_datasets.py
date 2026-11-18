@@ -6,7 +6,8 @@ un bucket público, y en 2026 incluye la Liga Profesional Argentina (`ARG1`): 12
 32 clubes, con valor de mercado, posición y club actual. Se baja con PoliteClient (robots.txt,
 pausa, caché y manifiesto con SHA-256) y nunca se guarda la fecha de nacimiento: solo la edad.
 
-No trae estadísticas por partido de la liga argentina: esas quedan para otra fuente.
+También trae los resultados de liga (`games`), que el predictor suma a los de Promiedos y StrikerAPI.
+No trae estadísticas por jugador y partido de la liga argentina: esas quedan para otra fuente.
 """
 
 from __future__ import annotations
@@ -117,3 +118,30 @@ def fetch(client: PoliteClient, today: date) -> list[PoolPlayerRecord]:
 
 def dump(rows: list[PoolPlayerRecord]) -> list[dict[str, Any]]:
     return [r.model_dump(mode="json") for r in rows]
+
+
+def parse_games(rows: list[dict[str, str]], since_year: int) -> list[dict[str, Any]]:
+    """Resultados de liga de `COMPETITIONS` desde `since_year`, con la forma de `api.league_result`.
+
+    La temporada sale del año de la fecha: el dataset rotula «2025» al Apertura jugado en 2026.
+    """
+    out = []
+    for r in rows:
+        try:
+            day = date.fromisoformat(r["date"][:10])
+            home_goals, away_goals = int(r["home_club_goals"]), int(r["away_club_goals"])
+        except (KeyError, ValueError):
+            continue
+        if r.get("competition_id") in COMPETITIONS and day.year >= since_year and r.get("home_club_name"):
+            out.append(
+                {
+                    "source": SOURCE,
+                    "season": day.year,
+                    "match_date": day.isoformat(),
+                    "home_team": r["home_club_name"],
+                    "away_team": r["away_club_name"],
+                    "home_goals": home_goals,
+                    "away_goals": away_goals,
+                }
+            )
+    return out

@@ -17,7 +17,7 @@ interface Props {
   tests: StatTest[];
 }
 
-const SOURCE = 'Pipeline Pelotheta (resultados de la liga: Promiedos y StrikerAPI)';
+const SOURCE = 'Pipeline Pelotheta (resultados de la liga: Promiedos, StrikerAPI y transfermarkt-datasets)';
 const goals = (n: number) => Array.from({ length: n }, (_, i) => (i === n - 1 ? `${String(i)}+` : String(i)));
 
 /** Vista desde el equipo elegido: en el escenario de visitante se dan vuelta filas y columnas. */
@@ -232,7 +232,7 @@ export function PredictorView({ team, run, predictions, strengths, tests }: Prop
       <Section
         id="backtest"
         title="¿Acierta? Backtest sin mirar el futuro"
-        intro="Cada partido de la liga se predijo solo con los partidos anteriores. Brier y log-loss: más bajo es mejor. La línea de base predice siempre la frecuencia histórica de local, empate y visitante."
+        intro="Cada partido de la liga de este año se predijo solo con los partidos anteriores, incluidos los de temporadas pasadas: un partido de hace seis meses pesa la mitad que uno de hoy. Brier y log-loss: más bajo es mejor. La línea de base predice siempre la frecuencia histórica de local, empate y visitante."
       >
         <Tiles
           items={[

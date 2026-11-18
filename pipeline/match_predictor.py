@@ -8,6 +8,11 @@ entre lo que el equipo convierte / recibe por partido y ese promedio. La media m
 estimador de máxima verosimilitud de λ en una Poisson. Con pocos partidos se encoge
 hacia 1 (el promedio de la liga) sumando `SHRINK_GAMES` partidos «promedio».
 
+Usa hasta `MAX_SEASONS` temporadas, cada partido pesado por su antigüedad: 0,5^(días / vida media).
+Un partido de hace `HALF_LIFE_DAYS` días pesa la mitad que uno de hoy. La vida media se eligió por
+backtest (la de menor Brier sobre la temporada actual): en la liga argentina los planteles cambian
+mucho entre torneos, así que lo viejo informa poco pero ayuda en los primeros partidos del año.
+
 Goles independientes ⇒ P(L = i, V = j) = P(L = i) × P(V = j): la matriz de marcadores
 es la función de probabilidad conjunta y P(gana), P(empata), P(pierde) salen de sumar sus celdas.
 Una simulación de Monte Carlo repite el partido 10.000 veces para mostrar
@@ -20,10 +25,10 @@ from __future__ import annotations
 
 import math
 import random
-import unicodedata
 from collections import Counter, defaultdict
 from collections.abc import Sequence
 from dataclasses import dataclass
+from datetime import date
 from typing import Any
 
 from pipeline import metrics as m
@@ -34,12 +39,13 @@ SHRINK_GAMES = 3.0
 SIMULATIONS = 10_000
 MIN_TRAIN = 60  # partidos de liga previos para empezar el backtest
 SEED = 2026
+MAX_SEASONS = 3  # la temporada actual y las dos anteriores
+HALF_LIFE_DAYS = 180.0
 
 
 def norm(name: str) -> str:
-    """Nombre comparable entre fuentes (sin tildes, minúsculas, sin puntos)."""
-    plain = unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode()
-    return " ".join(plain.lower().replace(".", " ").split())
+    """Nombre comparable entre fuentes (sin tildes, minúsculas, alias de cada fuente)."""
+    return m.team_key(name)
 
 
 @dataclass(frozen=True)
@@ -62,24 +68,44 @@ class Model:
     teams: dict[str, Strength]  # clave: nombre normalizado
 
 
-def fit(games: Sequence[m.Game]) -> Model:
-    """Fuerzas de ataque y defensa de cada equipo, separadas por localía."""
+def weight(game_date: str, ref: date, half_life: float | None) -> float:
+    """Peso de un partido según su antigüedad respecto de `ref` (1 sin vida media)."""
+    if half_life is None:
+        return 1.0
+    return float(0.5 ** ((ref - date.fromisoformat(game_date)).days / half_life))
+
+
+def fit(games: Sequence[m.Game], as_of: str | None = None, half_life: float | None = HALF_LIFE_DAYS) -> Model:
+    """Fuerzas de ataque y defensa de cada equipo, separadas por localía y pesadas por antigüedad.
+
+    Partidos y goles de cada `Strength` son solo los de la temporada de `as_of` (lo que se muestra).
+    """
     if not games:
         raise ValueError("sin partidos de liga")
-    mu_home = stats.mean([g.home_goals for g in games])
-    mu_away = stats.mean([g.away_goals for g in games])
+    ref = date.fromisoformat(as_of or max(g.date for g in games))
+    ws = [weight(g.date, ref, half_life) for g in games]
+    total = sum(ws)
+    mu_home = sum(w * g.home_goals for w, g in zip(ws, games, strict=True)) / total
+    mu_away = sum(w * g.away_goals for w, g in zip(ws, games, strict=True)) / total
     acc: dict[str, dict[str, float]] = defaultdict(lambda: defaultdict(float))
     names: dict[str, str] = {}
-    for g in games:
+    season = str(ref.year)
+    for w, g in sorted(zip(ws, games, strict=True), key=lambda x: x[1].date):
         h, a = norm(g.home), norm(g.away)
-        names.setdefault(h, g.home)
-        names.setdefault(a, g.away)
-        acc[h]["hg"] += 1
-        acc[h]["hs"] += g.home_goals
-        acc[h]["hc"] += g.away_goals
-        acc[a]["ag"] += 1
-        acc[a]["as"] += g.away_goals
-        acc[a]["ac"] += g.home_goals
+        names[h], names[a] = g.home, g.away  # el nombre más reciente
+        acc[h]["hg"] += w
+        acc[h]["hs"] += w * g.home_goals
+        acc[h]["hc"] += w * g.away_goals
+        acc[a]["ag"] += w
+        acc[a]["as"] += w * g.away_goals
+        acc[a]["ac"] += w * g.home_goals
+        if g.date[:4] == season:
+            acc[h]["n_hg"] += 1
+            acc[a]["n_ag"] += 1
+            acc[h]["gf"] += g.home_goals
+            acc[h]["ga"] += g.away_goals
+            acc[a]["gf"] += g.away_goals
+            acc[a]["ga"] += g.home_goals
 
     def ratio(goals: float, played: float, mu: float) -> float:
         # Encogido hacia el promedio: (goles + K·μ) / (partidos + K) / μ.
@@ -88,14 +114,14 @@ def fit(games: Sequence[m.Game]) -> Model:
     teams = {
         key: Strength(
             team=names[key],
-            home_games=int(v["hg"]),
-            away_games=int(v["ag"]),
+            home_games=int(v["n_hg"]),
+            away_games=int(v["n_ag"]),
             attack_home=ratio(v["hs"], v["hg"], mu_home),
             defense_home=ratio(v["hc"], v["hg"], mu_away),
             attack_away=ratio(v["as"], v["ag"], mu_away),
             defense_away=ratio(v["ac"], v["ag"], mu_home),
-            goals_for=int(v["hs"] + v["as"]),
-            goals_against=int(v["hc"] + v["ac"]),
+            goals_for=int(v["gf"]),
+            goals_against=int(v["ga"]),
         )
         for key, v in acc.items()
     }
@@ -181,8 +207,11 @@ def _result(home_goals: int, away_goals: int) -> int:
     return 0 if home_goals > away_goals else 1 if home_goals == away_goals else 2
 
 
-def backtest(games: Sequence[m.Game], team: str) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-    """Predicción de cada partido con solo los partidos anteriores (sin mirar el futuro).
+def backtest(
+    games: Sequence[m.Game], team: str, half_life: float | None = HALF_LIFE_DAYS
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Predicción de cada partido de la temporada actual con solo los partidos anteriores
+    (sin mirar el futuro); las temporadas pasadas solo entrenan.
 
     Métricas sobre toda la liga (más partidos, más estables): Brier y log-loss del modelo contra
     la línea de base «frecuencias de local, empate y visitante», y la tabla de
@@ -194,11 +223,14 @@ def backtest(games: Sequence[m.Game], team: str) -> tuple[list[dict[str, Any]], 
     bins: dict[int, list[int]] = defaultdict(lambda: [0, 0])
     evaluated = 0
     key = norm(team)
+    season = max(g.date for g in ordered)[:4]
     for idx, g in enumerate(ordered):
+        if g.date[:4] != season:
+            continue
         train = [x for x in ordered[:idx] if x.date < g.date]
         if len(train) < MIN_TRAIN:
             continue
-        model = fit(train)
+        model = fit(train, as_of=g.date, half_life=half_life)
         probs = outcome_probs(score_matrix(*lambdas(model, g.home, g.away)))
         counts = Counter(_result(x.home_goals, x.away_goals) for x in train)
         base = [counts[i] / len(train) for i in range(3)]
@@ -387,7 +419,9 @@ def run(games: Sequence[m.Game], team: str, team_slug: str) -> dict[str, Any]:
         }
     model = fit(games)
     key = norm(team)
-    rivals = sorted(s.team for k, s in model.teams.items() if k != key)
+    season = max(g.date for g in games)[:4]
+    current = {norm(t) for g in games if g.date[:4] == season for t in (g.home, g.away)}
+    rivals = sorted(s.team for k, s in model.teams.items() if k != key and k in current)
     scenarios = []
     for rival in rivals:
         scenarios.append({**predict(model, team, rival), "kind": "escenario"})
@@ -405,7 +439,8 @@ def run(games: Sequence[m.Game], team: str, team_slug: str) -> dict[str, Any]:
             "goals_for": s.goals_for,
             "goals_against": s.goals_against,
         }
-        for s in model.teams.values()
+        for k, s in model.teams.items()
+        if k in current
     ]
     return {
         "run": {
@@ -420,10 +455,13 @@ def run(games: Sequence[m.Game], team: str, team_slug: str) -> dict[str, Any]:
                 "simulations": SIMULATIONS,
                 "min_train": MIN_TRAIN,
                 "team_name": team,
+                "max_seasons": MAX_SEASONS,
+                "half_life_days": HALF_LIFE_DAYS,
+                "seasons": sorted({g.date[:4] for g in games}),
             },
             "message": None if key in model.teams else f"{team} no aparece en los resultados de la liga.",
         },
         "predictions": scenarios + [{**r, "kind": "backtest"} for r in rows],
         "strengths": strengths,
-        "tests": stat_tests(games, team),
+        "tests": stat_tests([g for g in games if g.date[:4] == season], team),
     }

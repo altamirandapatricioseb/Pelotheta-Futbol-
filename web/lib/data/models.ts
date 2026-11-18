@@ -67,6 +67,53 @@ export interface ValueRow {
   high: number | null;
   residualPct: number | null;
   features: Record<string, number>;
+  detail: ValueDetail;
+}
+
+export interface Comparable {
+  name: string;
+  team: string;
+  age: number | null;
+  value: number | null;
+}
+
+/** Análisis de un jugador: aporte de cada variable al precio, comparables de la liga y rendimiento. */
+export interface ValueDetail {
+  average: number | null;
+  market: number | null;
+  effects: Record<string, number>;
+  age: number | null;
+  contractYears: number | null;
+  foreign: boolean | null;
+  clubRest: number | null;
+  performance: Record<string, number | null>;
+  comparables: Comparable[];
+}
+
+const numOrNull = (v: Json | undefined): number | null => (typeof v === 'number' && Number.isFinite(v) ? v : null);
+
+function valueDetail(v: Json | null): ValueDetail {
+  const o = obj(v);
+  const perf = obj(o.performance ?? null);
+  return {
+    average: numOrNull(o.average_eur),
+    market: numOrNull(o.market_eur),
+    effects: nums(o.effects ?? null),
+    age: numOrNull(o.age),
+    contractYears: numOrNull(o.contract_years),
+    foreign: typeof o.foreign === 'boolean' ? o.foreign : null,
+    clubRest: numOrNull(o.club_rest_eur),
+    performance: Object.fromEntries(Object.entries(perf).map(([k, x]) => [k, numOrNull(x)])),
+    comparables: (Array.isArray(o.comparables) ? o.comparables : []).map((c) => {
+      const q = obj(c);
+      return {
+        name: typeof q.name === 'string' ? q.name : 'Jugador',
+        team: typeof q.team === 'string' ? q.team : '',
+        age: numOrNull(q.age),
+        value: numOrNull(q.value_eur),
+      };
+    }),
+  };
 }
 
 export interface CoefRow {
@@ -86,7 +133,7 @@ export async function getMarketValues(team: string): Promise<DataResult<{ rows: 
       client
         .from('market_value_prediction')
         .select(
-          'player_id, player_name, position_group, actual_eur, predicted_eur, low_eur, high_eur, residual_pct, features',
+          'player_id, player_name, position_group, actual_eur, predicted_eur, low_eur, high_eur, residual_pct, features, detail',
         )
         .eq('team_slug', team)
         .limit(500),
@@ -115,6 +162,7 @@ export async function getMarketValues(team: string): Promise<DataResult<{ rows: 
                   high: r.high_eur,
                   residualPct: r.residual_pct,
                   features: nums(r.features),
+                  detail: valueDetail(r.detail),
                 },
               ],
         ),
@@ -140,6 +188,38 @@ export async function getMarketValues(team: string): Promise<DataResult<{ rows: 
   }
 }
 
+export interface PoolPlayer {
+  name: string;
+  team: string;
+  age: number | null;
+  position: string | null;
+  value: number | null;
+}
+
+/** Jugadores de la liga (otros clubes) con edad y valor: la nube de referencia de Valor. */
+export async function getLeaguePool(): Promise<DataResult<PoolPlayer[]>> {
+  try {
+    const { data, error } = await createApiClient()
+      .from('player_pool')
+      .select('player_name, team_name, age, position_group, value_eur')
+      .not('value_eur', 'is', null)
+      .limit(3000);
+    if (error) return fail(error.message);
+    return {
+      ok: true,
+      data: data.map((r) => ({
+        name: r.player_name ?? 'Jugador',
+        team: r.team_name ?? '',
+        age: r.age,
+        position: r.position_group,
+        value: r.value_eur,
+      })),
+    };
+  } catch (cause) {
+    return fail(cause);
+  }
+}
+
 export interface StyleRow {
   playerId: number;
   name: string;
@@ -159,6 +239,11 @@ export interface AlternativeMember {
   position: string | null;
   profile: string;
   value: number | null;
+  age: number | null;
+  minutes: number | null;
+  /** Estadísticas cada 90 (null donde la fuente no la tiene) y su valor en escala z. */
+  features: Record<string, number | null>;
+  z: Record<string, number>;
 }
 
 export type AlternativeSection = 'externo' | 'dupla' | 'club';
@@ -183,6 +268,10 @@ function members(v: Json | null): AlternativeMember[] {
       position: typeof o.position === 'string' ? o.position : null,
       profile: typeof o.profile === 'string' ? o.profile : '',
       value: typeof o.value_eur === 'number' ? o.value_eur : null,
+      age: numOrNull(o.age),
+      minutes: numOrNull(o.minutes),
+      features: Object.fromEntries(Object.entries(obj(o.features ?? null)).map(([k, x]) => [k, numOrNull(x)])),
+      z: nums(o.z ?? null),
     };
   });
 }
@@ -273,6 +362,9 @@ export interface Prediction {
   sim: Simulation | null;
   actualHome: number | null;
   actualAway: number | null;
+  /** 'liga' o el código de la copa; neutral: cancha neutral (Copa Argentina). */
+  competition: string;
+  neutral: boolean;
 }
 
 export interface Strength {
@@ -281,6 +373,9 @@ export interface Strength {
   defense: number;
   goalsFor: number;
   goalsAgainst: number;
+  value: number | null;
+  competition: string;
+  estimated: boolean;
 }
 
 export async function getPredictions(
@@ -292,14 +387,16 @@ export async function getPredictions(
       client
         .from('match_prediction')
         .select(
-          'kind, match_date, home_team, away_team, lambda_home, lambda_away, p_home, p_draw, p_away, top_scores, score_matrix, sim, actual_home, actual_away',
+          'kind, match_date, home_team, away_team, lambda_home, lambda_away, p_home, p_draw, p_away, top_scores, score_matrix, sim, actual_home, actual_away, competition, neutral',
         )
         .eq('team_slug', team)
         .order('match_date')
         .limit(1000),
       client
         .from('team_strength')
-        .select('team_name, attack_home, attack_away, defense_home, defense_away, goals_for, goals_against')
+        .select(
+          'team_name, attack_home, attack_away, defense_home, defense_away, goals_for, goals_against, squad_value_eur, competition, estimated',
+        )
         .eq('team_slug', team)
         .limit(100),
     ]);
@@ -327,6 +424,8 @@ export async function getPredictions(
                   sim: (r.sim ?? null) as unknown as Simulation | null,
                   actualHome: r.actual_home,
                   actualAway: r.actual_away,
+                  competition: r.competition ?? 'liga',
+                  neutral: r.neutral ?? false,
                 },
               ],
         ),
@@ -341,6 +440,9 @@ export async function getPredictions(
                   defense: ((s.defense_home ?? 1) + (s.defense_away ?? 1)) / 2,
                   goalsFor: s.goals_for ?? 0,
                   goalsAgainst: s.goals_against ?? 0,
+                  value: s.squad_value_eur,
+                  competition: s.competition ?? 'liga',
+                  estimated: s.estimated ?? false,
                 },
               ],
         ),

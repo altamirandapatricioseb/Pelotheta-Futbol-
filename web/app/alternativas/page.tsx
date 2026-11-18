@@ -11,7 +11,13 @@ export const metadata: Metadata = {
     'Alternativas para cada jugador con K-means: de otro club 1 a 1, en dupla o dentro del plantel, de la más parecida a la menos.',
 };
 
-export default async function AlternativasPage() {
+interface PageProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
+
+export default async function AlternativasPage({ searchParams }: PageProps) {
+  const raw = await searchParams;
+  const requested = Number(Array.isArray(raw.jugador) ? raw.jugador[0] : raw.jugador);
   const [run, data] = await Promise.all([
     getModelRun(CURRENT_TEAM.slug, 'alternativas'),
     getAlternatives(CURRENT_TEAM.slug),
@@ -27,7 +33,13 @@ export default async function AlternativasPage() {
       ) : !data.ok ? (
         <ErrorNotice code={data.code} />
       ) : (
-        <AlternativesView team={CURRENT_TEAM.name} run={run.data} {...data.data} />
+        <AlternativesView
+          key={Number.isInteger(requested) ? requested : 'inicio'}
+          team={CURRENT_TEAM.name}
+          run={run.data}
+          {...data.data}
+          initialPlayer={Number.isInteger(requested) && requested > 0 ? requested : null}
+        />
       )}
     </div>
   );

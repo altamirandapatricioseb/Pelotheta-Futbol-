@@ -109,14 +109,19 @@ def _best_k(
     return k, labels, centers, score, [{"k": t[1], "silhouette": t[0], "inertia": t[4]} for t in trials]
 
 
-def _member(c: Player, label: str) -> dict[str, Any]:
+def _member(c: Player, label: str, raw: Mapping[str, float | None], z: Sequence[float]) -> dict[str, Any]:
+    """Una opción con lo necesario para su desglose: sus estadísticas cada 90 y en escala z."""
     return {
         "name": c["name"],
         "team": c["team"],
         "player_id": c.get("player_id"),
         "position": c.get("position_group"),
+        "age": c.get("age"),
+        "minutes": c.get("minutes"),
         "profile": label,
         "value_eur": c.get("value_eur"),
+        "features": {k: None if (v := raw.get(k)) is None else round(v, 3) for k in KEYS},
+        "z": {k: round(z[j], 3) for j, k in enumerate(KEYS)},
     }
 
 
@@ -204,7 +209,7 @@ def fit(own: Sequence[Player], others: Sequence[Player], team_slug: str) -> dict
                         "player_id": target["player_id"],
                         "section": section,
                         "rank": rank,
-                        "members": [_member(cand, names[labels[j]])],
+                        "members": [_member(cand, names[labels[j]], everyone[j][1], points[j])],
                         "similarity": similarity(stats.dist(points[i], points[j])),
                         "total_value_eur": price,
                         "savings_eur": value - price if value and price else None,
@@ -226,8 +231,8 @@ def fit(own: Sequence[Player], others: Sequence[Player], team_slug: str) -> dict
                     "section": "dupla",
                     "rank": rank,
                     "members": [
-                        _member(everyone[a][0], names[labels[a]]),
-                        _member(everyone[b][0], names[labels[b]]),
+                        _member(everyone[a][0], names[labels[a]], everyone[a][1], points[a]),
+                        _member(everyone[b][0], names[labels[b]], everyone[b][1], points[b]),
                     ],
                     "similarity": similarity(d),
                     "total_value_eur": total,

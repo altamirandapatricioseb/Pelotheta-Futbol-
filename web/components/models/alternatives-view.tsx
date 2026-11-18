@@ -3,28 +3,23 @@
 import { useState } from 'react';
 
 import { ChartCard } from '@/components/charts/chart-card';
-import { BarChart, Heatmap, Radar, ScatterChart, type Slot } from '@/components/charts/primitives';
+import { BarChart, Heatmap, ScatterChart, type Slot } from '@/components/charts/primitives';
 import type { AlternativeRow, AlternativeSection, ModelRun, StyleRow } from '@/lib/data/models';
 
-import { dec2, eur, num, pct, Section, Tiles, WaitingData } from './common';
+import { optionHref } from './alternative-detail';
+import { dec2, eur, num, pct, Section, shortLabels, Tiles, WaitingData } from './common';
+import { SortableTable } from './sortable-table';
 
 interface Props {
   team: string;
   run: ModelRun | null;
   styles: StyleRow[];
   alternatives: AlternativeRow[];
+  initialPlayer: number | null;
 }
 
 const SOURCE = 'Pipeline Pelotheta (estadísticas del sistema cada 90 minutos; valores: transfermarkt-datasets)';
 const SLOTS: Slot[] = [1, 2, 4, 5, 6, 7];
-
-/** Etiqueta corta para ejes: la primera palabra, salvo que dos variables la compartan («Pases»). */
-function shortLabels(labels: string[]): (label: string) => string {
-  const first = (l: string) => l.split(' ')[0] ?? l;
-  const count = new Map<string, number>();
-  for (const l of labels) count.set(first(l), (count.get(first(l)) ?? 0) + 1);
-  return (l) => ((count.get(first(l)) ?? 0) > 1 ? l : first(l));
-}
 
 const SECTIONS: { id: AlternativeSection; title: string; intro: string; empty: string }[] = [
   {
@@ -48,9 +43,9 @@ const SECTIONS: { id: AlternativeSection; title: string; intro: string; empty: s
   },
 ];
 
-export function AlternativesView({ team, run, styles, alternatives }: Props) {
+export function AlternativesView({ team, run, styles, alternatives, initialPlayer }: Props) {
   const sorted = [...styles].sort((a, b) => a.name.localeCompare(b.name, 'es'));
-  const [playerId, setPlayerId] = useState(sorted[0]?.playerId ?? 0);
+  const [playerId, setPlayerId] = useState(initialPlayer ?? sorted[0]?.playerId ?? 0);
   if (!run || run.status !== 'ok' || styles.length === 0) {
     return (
       <WaitingData
@@ -69,8 +64,6 @@ export function AlternativesView({ team, run, styles, alternatives }: Props) {
   const mine = alternatives.filter((a) => a.playerId === target?.playerId);
   const bySection = (id: AlternativeSection) =>
     mine.filter((a) => a.section === id).sort((a, b) => b.similarity - a.similarity || a.rank - b.rank);
-  const bestClub = bySection('club')[0]?.members[0];
-  const twin = bestClub?.playerId ? byId.get(bestClub.playerId) : undefined;
   const curve = (Array.isArray(run.metrics.k_curve) ? run.metrics.k_curve : []) as { k: number; silhouette: number }[];
   const corr = (Array.isArray(run.metrics.correlation) ? run.metrics.correlation : []) as number[][];
   const share = (Array.isArray(run.metrics.pca_share) ? run.metrics.pca_share : []) as number[];
@@ -123,45 +116,67 @@ export function AlternativesView({ team, run, styles, alternatives }: Props) {
             {rows.length === 0 ? (
               <p className="text-muted">{sec.empty}</p>
             ) : (
-              <div className="data-table-wrap">
-                <table className="data-table">
-                  <caption className="sr-only">
-                    {sec.title}: alternativas para {target?.name}, de la más parecida a la menos
-                  </caption>
-                  <thead>
-                    <tr>
-                      <th scope="col">#</th>
-                      <th scope="col">{sec.id === 'dupla' ? 'Jugadores' : 'Jugador'}</th>
-                      <th scope="col">Club</th>
-                      <th scope="col">Perfil</th>
-                      <th scope="col">Parecido</th>
-                      <th scope="col">Valor</th>
-                      <th scope="col">Diferencia</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {rows.map((a, i) => (
-                      <tr key={`${sec.id}-${String(a.rank)}`}>
-                        <th scope="row" className="tabular">
-                          {i + 1}
-                        </th>
-                        <td>{a.members.map((m) => m.name).join(' + ')}</td>
-                        <td>{[...new Set(a.members.map((m) => m.team))].join(' / ')}</td>
-                        <td>{a.members.map((m) => m.profile).join(' / ')}</td>
-                        <td className="tabular">{dec2(a.similarity)} %</td>
-                        <td className="tabular">{eur(a.total)}</td>
-                        <td className="tabular">
-                          {a.savings === null
-                            ? 'n/d'
-                            : a.savings >= 0
-                              ? `ahorra ${eur(a.savings)}`
-                              : `cuesta ${eur(-a.savings)} más`}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <SortableTable
+                caption={`${sec.title}: alternativas para ${target?.name ?? ''}, de la más parecida a la menos`}
+                rows={rows}
+                rowKey={(a) => `${sec.id}-${String(a.rank)}`}
+                rowHref={optionHref}
+                columns={[
+                  {
+                    id: 'who',
+                    label: sec.id === 'dupla' ? 'Jugadores' : 'Jugador',
+                    help: 'Tocá la fila para ver la comparación completa.',
+                    value: (a) => a.members.map((m) => m.name).join(' + '),
+                  },
+                  {
+                    id: 'club',
+                    label: 'Club',
+                    value: (a) => [...new Set(a.members.map((m) => m.team))].join(' / '),
+                  },
+                  {
+                    id: 'profile',
+                    label: 'Perfil',
+                    help: 'Grupo de K-means al que pertenece: el nombre sale de sus dos rasgos más fuertes.',
+                    value: (a) => a.members.map((m) => m.profile).join(' / '),
+                  },
+                  {
+                    id: 'sim',
+                    label: 'Parecido',
+                    numeric: true,
+                    help: 'Cercanía en las 17 estadísticas cada 90, de 0 a 100 %. 100 % sería el mismo jugador.',
+                    value: (a) => a.similarity,
+                    render: (a) => `${dec2(a.similarity)} %`,
+                  },
+                  {
+                    id: 'age',
+                    label: 'Edad',
+                    numeric: true,
+                    value: (a) => a.members[0]?.age ?? null,
+                    render: (a) => a.members.map((m) => String(m.age ?? 'n/d')).join(' y '),
+                  },
+                  {
+                    id: 'value',
+                    label: 'Valor',
+                    numeric: true,
+                    help: 'Valor de mercado (transfermarkt-datasets). En una dupla, la suma.',
+                    value: (a) => a.total,
+                    render: (a) => eur(a.total),
+                  },
+                  {
+                    id: 'savings',
+                    label: 'Diferencia',
+                    numeric: true,
+                    help: 'Valor del jugador que se va menos el de la alternativa: positivo, el club ahorra.',
+                    value: (a) => a.savings,
+                    render: (a) =>
+                      a.savings === null
+                        ? 'n/d'
+                        : a.savings >= 0
+                          ? `ahorra ${eur(a.savings)}`
+                          : `cuesta ${eur(-a.savings)} más`,
+                  },
+                ]}
+              />
             )}
           </Section>
         );
@@ -188,39 +203,6 @@ export function AlternativesView({ team, run, styles, alternatives }: Props) {
           ]}
         />
         <div className="chart-grid-layout">
-          {target ? (
-            <ChartCard
-              id="alt-radar"
-              number="A1"
-              title={`${target.name} contra su compañero más parecido${twin ? `: ${twin.name}` : ''}`}
-              source={SOURCE}
-              updated={updated}
-              coverage="Percentil dentro del plantel en cada estadística"
-              table={{
-                head: ['Estadística', target.name, twin?.name ?? 'Compañero'],
-                rows: features.map((f) => [f.label, target.percentiles[f.id] ?? null, twin?.percentiles[f.id] ?? null]),
-              }}
-            >
-              <Radar
-                axes={features.map((f) => short(f.label))}
-                titles={features.map((f) => f.label)}
-                series={[
-                  { id: 't', label: target.name, slot: 1, values: features.map((f) => target.percentiles[f.id] ?? 0) },
-                  ...(twin
-                    ? [
-                        {
-                          id: 's',
-                          label: twin.name,
-                          slot: 2 as Slot,
-                          values: features.map((f) => twin.percentiles[f.id] ?? 0),
-                        },
-                      ]
-                    : []),
-                ]}
-                label={`Perfil de ${target.name} comparado con ${twin?.name ?? 'su compañero más parecido'}`}
-              />
-            </ChartCard>
-          ) : null}
           <ChartCard
             id="alt-mapa"
             number="A2"

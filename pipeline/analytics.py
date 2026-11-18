@@ -15,7 +15,9 @@ from __future__ import annotations
 
 import argparse
 import os
+import re
 import sys
+import unicodedata
 from collections.abc import Callable, Sequence
 from datetime import date
 from typing import Any
@@ -25,6 +27,7 @@ import httpx
 from pipeline import load, market_value, match_predictor, similarity
 from pipeline import own_metrics as om
 from pipeline.enrich import match_player
+from pipeline.metrics import team_key
 from pipeline.models import MarketValueRecord
 from sources import market_values
 from sources import transfermarkt_datasets as tmd
@@ -156,19 +159,80 @@ def own_rows(players: Sequence[dict[str, Any]], values: dict[int, float], team: 
     ]
 
 
+_STOP = {"club", "de", "da", "do", "del", "la", "el", "y", "e"}
+
+
+def _tokens(name: str) -> set[str]:
+    plain = unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode().lower()
+    return {t for t in re.split(r"[^a-z0-9]+", plain) if t and t not in _STOP}
+
+
+def club_value(name: str, values: dict[str, int]) -> int | None:
+    """Valor del plantel de un club por su nombre corto («São Paulo» → «São Paulo Futebol Clube»).
+
+    Primero por clave de club (alias incluidos); si no, el único club del dataset cuyo nombre contiene
+    todas las palabras del buscado. Si hay más de uno o ninguno, None: mejor estimado que equivocado.
+    """
+    keyed = {team_key(k): v for k, v in values.items()}
+    if (hit := keyed.get(team_key(name))) is not None:
+        return hit
+    want = _tokens(name)
+    found = [v for k, v in values.items() if want and want <= _tokens(k)]
+    return found[0] if len(found) == 1 else None
+
+
+def league_rows(
+    dataset: Sequence[tmd.PoolPlayerRecord],
+    match: Callable[[str], int | None],
+    club_id: str,
+    values: dict[int, float],
+) -> list[dict[str, Any]]:
+    """Jugadores de la liga para el modelo de valor; los del club propio llevan su player_id (y el
+    valor cargado en la base, si hay uno más nuevo o manual)."""
+    rows = []
+    for r in dataset:
+        pid = match(r.player_name) if r.club_ext_id == club_id else None
+        rows.append(
+            {
+                "name": r.player_name,
+                "team": r.team_name,
+                "club_id": r.club_ext_id,
+                "age": r.age,
+                "position_group": r.position_group,
+                "contract_until": r.contract_until,
+                "foreign": r.foreign,
+                "value_eur": values.get(pid, r.value_eur) if pid is not None else r.value_eur,
+                "player_id": pid,
+            }
+        )
+    return rows
+
+
 def compute(
     players: Sequence[dict[str, Any]],
     values: dict[int, float],
     games: Sequence[Any],
     team_slug: str,
     others: Sequence[dict[str, Any]] = (),
+    league: Sequence[dict[str, Any]] = (),
+    club_values: dict[str, int] | None = None,
+    cups: Sequence[dict[str, Any]] = (),
+    today: date | None = None,
 ) -> dict[str, Any]:
-    """Lote de `ingest.load_models` para un equipo."""
+    """Lote de `ingest.load_models` para un equipo.
+
+    `league`: jugadores de la liga para el modelo de valor (ver `league_rows`). `club_values`: valor
+    del plantel por nombre de club (dataset abierto). `cups`: rivales de copas {name, competition}.
+    """
     team = TEAMS[team_slug]
     rivals = [o for o in others if o.get("club_id") != team["club_id"]]
-    mv = market_value.fit(players, values, team_slug, rivals)
+    mv = market_value.fit(league, players, team_slug, team["club_id"], today or date.today())
     alt = similarity.fit(own_rows(players, values, team["name"]), rivals, team_slug)
-    mp = match_predictor.run(games, team["name"], team_slug)
+    club_values = club_values or {}
+    keys = {match_predictor.norm(t) for g in games for t in (g.home, g.away)}
+    team_values = {k: float(v) for k in keys if (v := club_value(k, club_values))}
+    cup_rows = [{**c, "value_eur": club_value(c["name"], club_values)} for c in cups]
+    mp = match_predictor.run(games, team["name"], team_slug, team_values, cup_rows)
     return {
         "team_slug": team_slug,
         "runs": [mv["run"], alt["run"], mp["run"]],
@@ -180,6 +244,26 @@ def compute(
         "strengths": mp["strengths"],
         "tests": mp["tests"],
     }
+
+
+def fetch_cups(url: str, key: str, client: httpx.Client, season: str) -> list[dict[str, Any]]:
+    """Rivales de copas del equipo en la temporada (Libertadores, Sudamericana, Copa Argentina)."""
+    rows = om._fetch(
+        "team_match_master",
+        "competition_code,opponent",
+        url,
+        key,
+        client,
+        {"match_date": f"gte.{season}-01-01"},
+    )
+    seen: dict[tuple[str, str], dict[str, Any]] = {}
+    for r in rows:
+        if r["competition_code"] in match_predictor.COMPETITIONS and r.get("opponent"):
+            seen.setdefault(
+                (r["opponent"], r["competition_code"]),
+                {"name": r["opponent"], "competition": r["competition_code"]},
+            )
+    return list(seen.values())
 
 
 def run(url: str, key: str, dry_run: bool = False) -> dict[str, Any]:
@@ -196,9 +280,14 @@ def run(url: str, key: str, dry_run: bool = False) -> dict[str, Any]:
                 past_games = tmd.parse_games(
                     tmd.read_csv(polite, "games"), today.year - match_predictor.MAX_SEASONS + 1
                 )
+                club_vals = tmd.club_values(
+                    tmd.read_csv(polite, "players"),
+                    tmd.latest_valuations(tmd.read_csv(polite, "player_valuations")),
+                    today.year - 1,
+                )
         except (FetchError, RetryableFetchError, OSError, ValueError) as exc:
             warnings.append(f"transfermarkt-datasets no disponible: {exc}")
-            dataset, past_games = [], []
+            dataset, past_games, club_vals = [], [], {}
         own_values, pool = split_pool(dataset, match, today)
         records += own_values
         summary["valores_propios"] = len(own_values)
@@ -210,6 +299,8 @@ def run(url: str, key: str, dry_run: bool = False) -> dict[str, Any]:
                 load.send_player_pool(tmd.dump(pool), url, key)
         games = fetch_games(url, key, client, past_games)
         summary["partidos_liga"] = len(games)
+        cups = fetch_cups(url, key, client, max(g.date for g in games)[:4]) if games else []
+        summary["rivales_de_copa"] = len(cups)
         for team_slug in TEAMS:
             if dry_run:
                 values: dict[int, float] = {
@@ -219,7 +310,8 @@ def run(url: str, key: str, dry_run: bool = False) -> dict[str, Any]:
             else:
                 values = fetch_values(url, key, client, team_slug)
                 others = fetch_pool(url, key, client)
-            payload = compute(players, values, games, team_slug, others)
+            league = league_rows(dataset, match, TEAMS[team_slug]["club_id"], values)
+            payload = compute(players, values, games, team_slug, others, league, club_vals, cups, today)
             summary[team_slug] = {r["model"]: f"{r['status']} (n = {r['n']})" for r in payload["runs"]}
             if not dry_run:
                 summary[f"{team_slug}_filas"] = load.send_models(payload, url, key)

@@ -1,4 +1,4 @@
-import { HourglassIcon } from '@phosphor-icons/react/dist/ssr';
+import { HourglassIcon, InfoIcon } from '@phosphor-icons/react/dist/ssr';
 import type { ReactNode } from 'react';
 
 // Piezas compartidas de las interfaces de modelos: título, números destacados y el aviso «sin datos».
@@ -29,12 +29,35 @@ export function ModelHeader({ title, subtitle }: { title: string; subtitle: stri
   );
 }
 
-export function Tiles({ items }: { items: { label: string; value: string; hint?: string }[] }) {
+/** «i» con la explicación al pasar el mouse o al enfocarla con el teclado (y al tocarla en el celular). */
+export function Hint({ text, label = 'Qué significa' }: { text: string; label?: string }) {
+  return (
+    <span className="hint" tabIndex={0} role="button" aria-label={`${label}: ${text}`}>
+      <InfoIcon size={14} weight="bold" aria-hidden="true" />
+      <span className="hint-pop" role="tooltip">
+        {text}
+      </span>
+    </span>
+  );
+}
+
+export interface TileItem {
+  label: string;
+  value: string;
+  hint?: string;
+  /** Explicación al pasar el mouse. */
+  help?: string;
+}
+
+export function Tiles({ items }: { items: TileItem[] }) {
   return (
     <ul className="tile-row" aria-label="Números del modelo">
       {items.map((t) => (
         <li key={t.label} className="tile">
-          <span className="tile-label">{t.label}</span>
+          <span className="tile-label">
+            {t.label}
+            {t.help ? <Hint text={t.help} label={t.label} /> : null}
+          </span>
           <span className="tile-value tabular">{t.value}</span>
           {t.hint ? <span className="tile-hint">{t.hint}</span> : null}
         </li>
@@ -79,4 +102,12 @@ export function Section({
       {children}
     </section>
   );
+}
+
+/** Etiqueta corta para ejes: la primera palabra, salvo que dos variables la compartan («Pases»). */
+export function shortLabels(labels: string[]): (label: string) => string {
+  const first = (l: string) => l.split(' ')[0] ?? l;
+  const count = new Map<string, number>();
+  for (const l of labels) count.set(first(l), (count.get(first(l)) ?? 0) + 1);
+  return (l) => ((count.get(first(l)) ?? 0) > 1 ? l : first(l));
 }

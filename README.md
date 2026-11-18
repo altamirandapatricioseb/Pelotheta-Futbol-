@@ -31,9 +31,9 @@ calcula el sistema (nivel A, B o C), si es estimado y de qué partidos viene.
 | [Jugadores](https://pelotheta-futbol.vercel.app/jugadores) | Tabla maestra del plantel con percentiles, cada 90 y el panel del jugador |
 | [Situaciones](https://pelotheta-futbol.vercel.app/situaciones) | 132 tarjetas («cuando pasa X, ¿cómo le va a Boca?»), 123 con datos |
 | [Comparar](https://pelotheta-futbol.vercel.app/comparar) | Un jugador contra plantel, zona, posición u otro jugador |
-| [Valor](https://pelotheta-futbol.vercel.app/valor) | Valor de mercado real contra el que predice una regresión lineal (edad, minutos, rendimiento), con inferencia sobre cada coeficiente |
-| [Alternativas](https://pelotheta-futbol.vercel.app/alternativas) | Para cada jugador, los más parecidos (K-means sobre 17 estadísticas cada 90): de otro club, en dupla o del plantel |
-| [Predictor](https://pelotheta-futbol.vercel.app/predictor) | Poisson con tres temporadas pesadas por antigüedad: ganar, empatar, perder, marcadores y backtest |
+| [Valor](https://pelotheta-futbol.vercel.app/valor) | Valor de mercado real contra el esperado por edad, posición, contrato y club (toda la liga) y rendimiento, con análisis por jugador |
+| [Alternativas](https://pelotheta-futbol.vercel.app/alternativas) | Para cada jugador, los más parecidos (K-means sobre 17 estadísticas cada 90), con desglose Moneyball de cada opción |
+| [Predictor](https://pelotheta-futbol.vercel.app/predictor) | Poisson con goles y valor del plantel, rivales de liga y de copas, selección de variables por backtest |
 | Estadística desglosada | Doble clic en cualquier número: ventanas de tiempo, gráficos y partidos |
 | Actualizar | Dispara la carga de datos desde la web |
 

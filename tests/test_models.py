@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import math
 import random
+from datetime import date
 from pathlib import Path
 
 import pytest
@@ -34,28 +36,70 @@ def squad() -> list[dict[str, object]]:
     return [_player(i, rng) for i in range(1, 25)] + [_player(99, rng, "Arquero")]
 
 
-def test_market_value_without_values_is_sin_datos(squad: list[dict[str, object]]) -> None:
-    out = market_value.fit(squad, {}, "boca-juniors")
+TODAY = date(2026, 11, 18)
+
+
+def _league_players(n: int = 120, seed: int = 4) -> list[dict[str, object]]:
+    """Liga sintética: seis clubes; el primero es el propio («189») y sus jugadores tienen player_id."""
+    rng = random.Random(seed)  # noqa: S311
+    return [
+        {
+            "name": f"Liga {i}",
+            "team": f"Club {i % 6}",
+            "club_id": "189" if i % 6 == 0 else f"c{i % 6}",
+            "age": rng.randint(18, 34),
+            "position_group": ["Arquero", "Defensor", "Mediocampista", "Delantero"][i % 4],
+            "contract_until": date(2026 + rng.randint(1, 4), 6, 30),
+            "foreign": rng.random() < 0.3,
+            "value_eur": round(rng.uniform(3e5, 8e6)),
+            "player_id": i + 1 if i % 6 == 0 else None,
+        }
+        for i in range(n)
+    ]
+
+
+def test_market_value_without_league_is_sin_datos(squad: list[dict[str, object]]) -> None:
+    out = market_value.fit([], squad, "boca-juniors", "189", TODAY)
     assert out["run"]["status"] == "sin_datos"
-    assert out["coefs"] == []
-    assert all(p.get("predicted_eur") is None for p in out["predictions"])
-    assert out["predictions"]  # las variables igual quedan, para mostrar qué entra al modelo
+    assert out["coefs"] == [] and out["predictions"] == []
 
 
-def test_market_value_recovers_a_known_relation(squad: list[dict[str, object]]) -> None:
-    # Valor sintético exacto: ln(valor) = 13 + 0,02 × índice ⇒ el β del índice tiene que dar 0,02.
-    values = {
-        int(p["player_id"]): 2.718281828 ** (13 + 0.02 * p["stats"]["rendimiento_indice"])  # type: ignore[index]
-        for p in squad
-    }
-    out = market_value.fit(squad, values, "boca-juniors")
-    assert out["run"]["status"] == "ok"
+def test_market_value_recovers_a_known_relation() -> None:
+    league = _league_players()
+    totals: dict[str, float] = {}
+    for q in league:
+        totals[str(q["club_id"])] = totals.get(str(q["club_id"]), 0.0) + float(q["value_eur"])  # type: ignore[arg-type]
+    # Valor exacto según edad, contrato y nacionalidad: el β de contrato tiene que dar 0,3.
+    for q in league:
+        f = market_value.features_of(q, totals, TODAY)
+        assert f is not None
+        q["value_eur"] = round(math.exp(9 + 0.1 * f["edad"] + 0.3 * f["contrato"] + 0.4 * f["extranjero"]))
+    out = market_value.fit(league, [{"player_id": 1}], "boca-juniors", "189", TODAY)
     coef = {c["feature"]: c["coef"] for c in out["coefs"]}
-    assert coef["indice"] == pytest.approx(0.02, abs=1e-6)
-    assert out["run"]["metrics"]["r2"] == pytest.approx(1.0)
+    assert out["run"]["status"] == "ok"
+    assert coef["contrato"] == pytest.approx(0.3, abs=0.05)
+    assert coef["extranjero"] == pytest.approx(0.4, abs=0.05)
     row = out["predictions"][0]
     assert row["low_eur"] <= row["predicted_eur"] <= row["high_eur"]
-    assert abs(row["residual_pct"]) < 0.01
+    assert set(row["detail"]["effects"]) >= {"edad", "contrato", "extranjero", "ln_club"}
+    assert len(row["detail"]["comparables"]) == market_value.N_COMPARABLES
+    assert all(c["team"] != "Club 0" for c in row["detail"]["comparables"])  # de otros clubes
+    assert out["run"]["metrics"]["median_ape_oos"] is not None
+
+
+def test_market_value_performance_adjustment() -> None:
+    league = _league_players(240)
+    rng = random.Random(2)  # noqa: S311
+    own = []
+    for q in league:
+        if q["player_id"] is not None:
+            idx = rng.uniform(30, 80)
+            q["value_eur"] = round(float(q["value_eur"]) * math.exp(0.03 * (idx - 55)))  # type: ignore[arg-type]
+            own.append({"player_id": q["player_id"], "minutes": 900, "stats": {"rendimiento_indice": idx}})
+    out = market_value.fit(league, own, "boca-juniors", "189", TODAY)
+    adjust = out["run"]["metrics"]["performance_adjust"]
+    assert adjust is not None and adjust["b"] > 0  # el mercado paga el rendimiento
+    assert "rendimiento" in out["predictions"][0]["detail"]["effects"]
 
 
 def _own(squad: list[dict[str, object]]) -> list[dict[str, object]]:
@@ -162,9 +206,10 @@ def test_simulation_agrees_with_exact_probabilities() -> None:
 def test_predictor_run_with_backtest_and_tests() -> None:
     out = match_predictor.run(_league(), "Boca Juniors", "boca-juniors")
     assert out["run"]["status"] == "ok"
-    scenarios = [p for p in out["predictions"] if p["kind"] == "escenario"]
+    scenarios = [p for p in out["predictions"] if p["kind"] == "escenario" and p["competition"] == "liga"]
     assert len(scenarios) == 10  # 5 rivales × local y visitante
     assert out["run"]["metrics"]["evaluated"] > 0
+    assert out["run"]["metrics"]["chosen"] in match_predictor.CANDIDATES
     ids = {t["test_id"] for t in out["tests"]}
     assert {"gof_goles_favor", "ic_goles_favor", "indep_localia_resultado", "gof_goles_liga"} <= ids
     boca = {s["team_name"]: s for s in out["strengths"]}["Boca Juniors"]
@@ -183,7 +228,7 @@ def test_poisson_gof_merges_small_classes() -> None:
 
 
 def test_analytics_compute_builds_one_payload(squad: list[dict[str, object]]) -> None:
-    payload = analytics.compute(squad, {}, _league(), "boca-juniors")
+    payload = analytics.compute(squad, {}, _league(), "boca-juniors", league=_league_players())
     assert [r["model"] for r in payload["runs"]] == ["valor_mercado", "alternativas", "predictor_partido"]
     assert payload["styles"] and payload["alternatives"] and payload["match_predictions"] and payload["tests"]
     match = analytics.player_matcher(squad)
@@ -346,7 +391,9 @@ def test_old_games_weigh_less_and_old_teams_are_not_rivals() -> None:
     assert decayed < plain  # las goleadas viejas en contra pesan menos
     out = match_predictor.run(old + league, "Boca Juniors", "boca-juniors")
     assert "Descendido" not in {s["team_name"] for s in out["strengths"]}
-    assert len([p for p in out["predictions"] if p["kind"] == "escenario"]) == 10
+    assert (
+        len([p for p in out["predictions"] if p["kind"] == "escenario" and p["competition"] == "liga"]) == 10
+    )
     boca = {s["team_name"]: s for s in out["strengths"]}["Boca Juniors"]
     assert boca["home_games"] == 30  # solo la temporada actual
 
@@ -377,3 +424,46 @@ def test_transfermarkt_datasets_games() -> None:
     assert [(r["season"], r["home_goals"], r["source"]) for r in rows] == [
         (2025, 2, "transfermarkt_datasets")
     ]
+
+
+def test_predictor_cup_rivals_and_squad_value() -> None:
+    teams = ["Boca Juniors", "River Plate", "Racing", "Independiente", "San Lorenzo", "Huracán"]
+    values = {match_predictor.norm(t): 1e8 / (i + 1) for i, t in enumerate(teams)}
+    cups = [
+        {"name": "Cruzeiro", "competition": "conmebol_copa_libertadores", "value_eur": 2e8},
+        {"name": "Desconocido FC", "competition": "conmebol_copa_sudamericana", "value_eur": None},
+    ]
+    out = match_predictor.run(_league(), "Boca Juniors", "boca-juniors", values, cups)
+    cup = [p for p in out["predictions"] if p["kind"] == "escenario" and p["competition"] != "liga"]
+    # Libertadores y Sudamericana: local y visitante; Copa Argentina (la genérica de la B): neutral.
+    assert len(cup) == 5
+    assert [p["neutral"] for p in cup if p["competition"] == "copa_argentina"] == [True]
+    rows = {s["team_name"]: s for s in out["strengths"]}
+    assert rows["Desconocido FC"]["estimated"] and not rows["Cruzeiro"]["estimated"]
+    assert rows[match_predictor.LOWER_DIVISION]["squad_value_eur"] < rows["Huracán"]["squad_value_eur"]
+    labels = {v["label"] for v in out["run"]["metrics"]["variables"]}
+    assert set(match_predictor.CANDIDATES) <= labels
+
+
+def test_irls_recovers_poisson_coefficients() -> None:
+    rng = random.Random(5)  # noqa: S311
+    xs = [[rng.uniform(-1, 1)] for _ in range(3000)]
+    ys = [float(match_predictor._poisson_sample(rng, math.exp(0.2 + 0.5 * x[0]))) for x in xs]
+    beta = match_predictor.irls(xs, ys, ridge=0.0)
+    assert beta[0] == pytest.approx(0.2, abs=0.06)
+    assert beta[1] == pytest.approx(0.5, abs=0.06)
+    assert match_predictor.glm_inference(xs, ys, beta)[1]["p_value"] < 0.001
+
+
+def test_club_value_matches_short_names() -> None:
+    values = {"São Paulo Futebol Clube": 81, "FC Barcelona": 1000, "Club Atlético River Plate": 112}
+    assert analytics.club_value("São Paulo", values) == 81
+    assert analytics.club_value("River Plate", values) == 112
+    assert analytics.club_value("Barcelona SC", values) is None  # no es el de España
+
+
+def test_alternative_members_carry_their_stats(squad: list[dict[str, object]]) -> None:
+    out = similarity.fit(_own(squad), _others(30, value=1e6), "boca-juniors")
+    member = next(a for a in out["alternatives"] if a["section"] == "externo")["members"][0]
+    assert set(member["z"]) == set(similarity.KEYS)
+    assert set(member["features"]) == set(similarity.KEYS)

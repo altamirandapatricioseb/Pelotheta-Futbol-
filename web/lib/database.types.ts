@@ -42,6 +42,7 @@ export type Database = {
           high_eur: number | null;
           residual_pct: number | null;
           features: Json | null;
+          detail: Json | null;
         };
         Relationships: [];
       };
@@ -134,6 +135,8 @@ export type Database = {
           sim: Json | null;
           actual_home: number | null;
           actual_away: number | null;
+          competition: string | null;
+          neutral: boolean | null;
         };
         Relationships: [];
       };
@@ -149,6 +152,9 @@ export type Database = {
           defense_away: number | null;
           goals_for: number | null;
           goals_against: number | null;
+          squad_value_eur: number | null;
+          competition: string | null;
+          estimated: boolean | null;
         };
         Relationships: [];
       };

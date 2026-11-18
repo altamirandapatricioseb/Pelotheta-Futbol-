@@ -1077,6 +1077,82 @@ h3 {
   font-size: 0.75rem;
   color: var(--color-text-muted);
 }
+/* Explicación al pasar el mouse (interfaces de modelos): «i» con un globo, también con teclado. */
+.tile-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.hint {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  color: var(--color-text-muted);
+  border-radius: 999px;
+  cursor: help;
+}
+.hint:hover,
+.hint:focus-visible {
+  color: var(--color-link);
+  outline: none;
+}
+.hint-pop {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  z-index: var(--z-tooltip);
+  width: max-content;
+  max-width: min(280px, 80vw);
+  translate: -50% 4px;
+  padding: 8px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+  color: var(--color-text);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.4;
+  text-align: left;
+  white-space: normal;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity var(--dur-fast) var(--ease-out-quart),
+    translate var(--dur-fast) var(--ease-out-quart);
+}
+.hint:hover .hint-pop,
+.hint:focus .hint-pop {
+  opacity: 1;
+  translate: -50% 0;
+}
+.data-table .cell-text {
+  text-align: left;
+}
+.data-table .cell-wrap {
+  min-width: 16rem;
+  max-width: 30rem;
+  white-space: normal;
+}
+.sort-definition {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+.data-table tr[data-link] {
+  cursor: pointer;
+}
+.data-table tr[aria-current] > * {
+  background: var(--color-surface-2);
+}
+.row-link {
+  border-radius: 4px;
+  font-weight: 700;
+  color: var(--color-link);
+}
+.row-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 .icon-button {
   display: inline-grid;
   place-items: center;

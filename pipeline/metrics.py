@@ -123,12 +123,12 @@ def elo_run(
     ratings: dict[str, float] = {}
     before: list[tuple[float, float]] = []
     for g in games:
-        home = ratings.get(g.home, ELO_START)
-        away = ratings.get(g.away, ELO_START)
+        # Por clave de club y no por nombre: cada fuente lo escribe distinto («Instituto (Córdoba)»).
+        h, a = team_key(g.home), team_key(g.away)
+        home = ratings.get(h, ELO_START)
+        away = ratings.get(a, ELO_START)
         before.append((home, away))
-        ratings[g.home], ratings[g.away] = elo_update(
-            home, away, g.home_goals, g.away_goals, k, home_advantage
-        )
+        ratings[h], ratings[a] = elo_update(home, away, g.home_goals, g.away_goals, k, home_advantage)
     return before
 
 

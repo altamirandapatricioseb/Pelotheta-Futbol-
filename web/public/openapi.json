@@ -2681,6 +2681,15 @@
       "schema": {
        "type": "string"
       }
+     },
+     {
+      "name": "detail",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
      }
     ],
     "responses": {
@@ -3050,6 +3059,24 @@
      },
      {
       "name": "actual_away",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "competition",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "neutral",
       "in": "query",
       "required": false,
       "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
@@ -6654,6 +6681,33 @@
       "schema": {
        "type": "string"
       }
+     },
+     {
+      "name": "squad_value_eur",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "competition",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "estimated",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
      }
     ],
     "responses": {
@@ -7802,6 +7856,9 @@
      },
      "features": {
       "format": "jsonb"
+     },
+     "detail": {
+      "format": "jsonb"
      }
     }
    },
@@ -7935,6 +7992,14 @@
      "actual_away": {
       "type": "integer",
       "format": "int32"
+     },
+     "competition": {
+      "type": "string",
+      "format": "text"
+     },
+     "neutral": {
+      "type": "boolean",
+      "format": "boolean"
      }
     }
    },
@@ -9207,6 +9272,18 @@
      "goals_against": {
       "type": "integer",
       "format": "int32"
+     },
+     "squad_value_eur": {
+      "type": "integer",
+      "format": "int64"
+     },
+     "competition": {
+      "type": "string",
+      "format": "text"
+     },
+     "estimated": {
+      "type": "boolean",
+      "format": "boolean"
      }
     }
    },

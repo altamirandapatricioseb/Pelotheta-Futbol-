@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import math
 import random
+import statistics
 from collections import Counter, defaultdict
 from collections.abc import Sequence
 from dataclasses import dataclass
@@ -182,8 +183,7 @@ def simulate(lam_home: float, lam_away: float, n: int = SIMULATIONS, seed: int =
     }
 
 
-def predict(model: Model, home: str, away: str, simulate_it: bool = True) -> dict[str, Any]:
-    lam_h, lam_a = lambdas(model, home, away)
+def predict(home: str, away: str, lam_h: float, lam_a: float, simulate_it: bool = True) -> dict[str, Any]:
     matrix = score_matrix(lam_h, lam_a)
     p_home, p_draw, p_away = outcome_probs(matrix)
     cells = sorted(
@@ -207,34 +207,200 @@ def _result(home_goals: int, away_goals: int) -> int:
     return 0 if home_goals > away_goals else 1 if home_goals == away_goals else 2
 
 
-def backtest(
-    games: Sequence[m.Game], team: str, half_life: float | None = HALF_LIFE_DAYS
-) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-    """Predicción de cada partido de la temporada actual con solo los partidos anteriores
-    (sin mirar el futuro); las temporadas pasadas solo entrenan.
+# --- Modelo con más variables: Poisson con enlace log (GLM) ------------------------------------
+#
+# ln λ = β₀ + β₁·ln(ataque propio) + β₂·ln(defensa del rival) + β₃·ln(valor propio / valor rival)
+#        + β₄·(Elo propio − Elo rival)/400 + β₅·(forma propia − forma rival) + β₆·local
+# Cada partido da dos filas (los goles de cada equipo). Ataque y defensa son los de Maher (con los
+# partidos anteriores, pesados por antigüedad); el valor del plantel es la suma de valores de mercado
+# (transfermarkt-datasets) y sirve también para rivales de otras ligas. Qué variables entran lo
+# decide el backtest: se prueban varias combinaciones y queda la de menor Brier.
 
-    Métricas sobre toda la liga (más partidos, más estables): Brier y log-loss del modelo contra
-    la línea de base «frecuencias de local, empate y visitante», y la tabla de
-    calibración: de lo que se predijo con ~40 %, ¿cuánto pasó?
+VARIABLES: dict[str, tuple[str, str]] = {
+    "ataque": ("Ataque propio", "Goles que hace el equipo contra el promedio de la liga (en ln)."),
+    "defensa": ("Defensa del rival", "Goles que recibe el rival contra el promedio de la liga (en ln)."),
+    "valor": ("Valor del plantel", "Cuántas veces más vale el plantel propio que el del rival (en ln)."),
+    "elo": ("Elo", "Diferencia de Elo antes del partido, dividida por 400."),
+    "forma": ("Forma", "Puntos por partido en los últimos 5 menos los del rival."),
+    "local": ("Localía", "1 si juega en su cancha; 0 de visitante o en cancha neutral."),
+}
+CANDIDATES: dict[str, list[str]] = {
+    "goles": ["ataque", "defensa", "local"],
+    "goles + valor": ["ataque", "defensa", "valor", "local"],
+    "goles + valor + Elo": ["ataque", "defensa", "valor", "elo", "local"],
+    "goles + valor + forma": ["ataque", "defensa", "valor", "forma", "local"],
+    "todas": ["ataque", "defensa", "valor", "elo", "forma", "local"],
+}
+REFIT_EVERY = 30  # partidos evaluados entre reajustes del GLM en el backtest
+MIN_GLM_TRAIN = 30  # partidos ya preparados antes de evaluar con el GLM
+FORM_GAMES = 5
+DEFAULT_FORM = 1.35  # puntos por partido de un equipo promedio
+
+
+@dataclass(frozen=True)
+class Side:
+    """Variables de un equipo en un partido, desde su punto de vista."""
+
+    ataque: float
+    defensa: float
+    valor: float
+    elo: float
+    forma: float
+    local: float
+
+    def row(self, names: Sequence[str]) -> list[float]:
+        return [float(getattr(self, n)) for n in names]
+
+
+def irls(
+    rows: Sequence[Sequence[float]], y: Sequence[float], ridge: float = 1e-3, iters: int = 30
+) -> list[float]:
+    """Poisson con enlace log por mínimos cuadrados reponderados. β[0] es el intercepto.
+
+    Un poco de ridge en los β (no en el intercepto) evita que diverja con pocas filas.
     """
+    x = [[1.0, *r] for r in rows]
+    p = len(x[0])
+    beta = [math.log(max(stats.mean(list(y)), 1e-6))] + [0.0] * (p - 1)
+    for _ in range(iters):
+        eta = [sum(b * v for b, v in zip(beta, r, strict=True)) for r in x]
+        mu = [math.exp(min(e, 5.0)) for e in eta]
+        z = [e + (t - u) / u for e, t, u in zip(eta, y, mu, strict=True)]
+        xtwx = [
+            [
+                sum(r[i] * u * r[j] for r, u in zip(x, mu, strict=True)) + (ridge if i == j and i else 0.0)
+                for j in range(p)
+            ]
+            for i in range(p)
+        ]
+        xtwz = [sum(r[i] * u * t for r, u, t in zip(x, mu, z, strict=True)) for i in range(p)]
+        new = [sum(a * b for a, b in zip(row, xtwz, strict=True)) for row in stats.inverse(xtwx)]
+        done = max(abs(a - b) for a, b in zip(new, beta, strict=True)) < 1e-9
+        beta = new
+        if done:
+            break
+    return beta
+
+
+def glm_inference(
+    rows: Sequence[Sequence[float]], y: Sequence[float], beta: Sequence[float]
+) -> list[dict[str, float]]:
+    """Error estándar de cada β (inversa de la información de Fisher), z y p (normal)."""
+    x = [[1.0, *r] for r in rows]
+    p = len(x[0])
+    mu = [math.exp(sum(b * v for b, v in zip(beta, r, strict=True))) for r in x]
+    # El mismo ridge que el ajuste: una variable sin variación (todos los valores iguales) no rompe la cuenta.
+    info = [
+        [
+            sum(r[i] * u * r[j] for r, u in zip(x, mu, strict=True)) + (1e-3 if i == j and i else 0.0)
+            for j in range(p)
+        ]
+        for i in range(p)
+    ]
+    cov = stats.inverse(info)
+    out = []
+    for i, b in enumerate(beta):
+        se = math.sqrt(max(cov[i][i], 0.0))
+        z = b / se if se else 0.0
+        out.append({"coef": b, "std_err": se, "z": z, "p_value": stats.t_two_sided_p(z, 1e6)})
+    return out
+
+
+def lam(beta: Sequence[float], row: Sequence[float]) -> float:
+    return math.exp(beta[0] + sum(b * v for b, v in zip(beta[1:], row, strict=True)))
+
+
+def _form(prior: Sequence[m.Game], key: str) -> float:
+    pts: list[int] = []
+    for g in reversed(prior):
+        if norm(g.home) == key:
+            pts.append(3 if g.home_goals > g.away_goals else 1 if g.home_goals == g.away_goals else 0)
+        elif norm(g.away) == key:
+            pts.append(3 if g.away_goals > g.home_goals else 1 if g.home_goals == g.away_goals else 0)
+        if len(pts) == FORM_GAMES:
+            break
+    return stats.mean([float(p) for p in pts]) if pts else DEFAULT_FORM
+
+
+def sides(
+    model: Model,
+    home: str,
+    away: str,
+    values: dict[str, float],
+    elo_h: float,
+    elo_a: float,
+    form_h: float,
+    form_a: float,
+    neutral: bool = False,
+) -> tuple[Side, Side]:
+    """Las dos filas de un partido. En cancha neutral, ataque y defensa promedian local y visitante."""
+    zero = Strength("", 0, 0, 1.0, 1.0, 1.0, 1.0, 0, 0)
+    h, a = model.teams.get(norm(home), zero), model.teams.get(norm(away), zero)
+    if neutral:
+        att_h, att_a = math.sqrt(h.attack_home * h.attack_away), math.sqrt(a.attack_home * a.attack_away)
+        def_h, def_a = math.sqrt(h.defense_home * h.defense_away), math.sqrt(a.defense_home * a.defense_away)
+    else:
+        att_h, att_a, def_h, def_a = h.attack_home, a.attack_away, h.defense_home, a.defense_away
+    v_ratio = math.log(values[norm(home)] / values[norm(away)])
+    at_home = 0.0 if neutral else 1.0
+    return (
+        Side(math.log(att_h), math.log(def_a), v_ratio, (elo_h - elo_a) / 400, form_h - form_a, at_home),
+        Side(math.log(att_a), math.log(def_h), -v_ratio, (elo_a - elo_h) / 400, form_a - form_h, 0.0),
+    )
+
+
+@dataclass(frozen=True)
+class Prepared:
+    game: m.Game
+    home: Side
+    away: Side
+    maher: tuple[float, float]
+
+
+def prepare(games: Sequence[m.Game], values: dict[str, float]) -> list[Prepared]:
+    """Variables de cada partido con solo lo anterior (Maher, Elo y forma sin mirar el futuro)."""
     ordered = sorted(games, key=lambda g: g.date)
-    rows: list[dict[str, Any]] = []
+    elos = m.elo_run(ordered)
+    out = []
+    for idx, g in enumerate(ordered):
+        prior = [x for x in ordered[:idx] if x.date < g.date]
+        if len(prior) < MIN_TRAIN:
+            continue
+        model = fit(prior, as_of=g.date)
+        eh, ea = elos[idx]
+        h, a = sides(
+            model, g.home, g.away, values, eh, ea, _form(prior, norm(g.home)), _form(prior, norm(g.away))
+        )
+        out.append(Prepared(g, h, a, lambdas(model, g.home, g.away)))
+    return out
+
+
+def evaluate(prepared: Sequence[Prepared], names: Sequence[str] | None, season: str) -> dict[str, Any]:
+    """Backtest de una combinación de variables (None = Maher solo) sobre la temporada `season`."""
     brier = log_loss = brier_base = log_base = 0.0
     bins: dict[int, list[int]] = defaultdict(lambda: [0, 0])
-    evaluated = 0
-    key = norm(team)
-    season = max(g.date for g in ordered)[:4]
-    for idx, g in enumerate(ordered):
-        if g.date[:4] != season:
+    rows: list[tuple[Prepared, tuple[float, float]]] = []
+    beta: list[float] | None = None
+    n = 0
+    for idx, pr in enumerate(prepared):
+        if pr.game.date[:4] != season:
             continue
-        train = [x for x in ordered[:idx] if x.date < g.date]
-        if len(train) < MIN_TRAIN:
+        train = [x for x in prepared[:idx] if x.game.date < pr.game.date]
+        if len(train) < MIN_GLM_TRAIN:  # lo mismo para todas las combinaciones: se comparan igual
             continue
-        model = fit(train, as_of=g.date, half_life=half_life)
-        probs = outcome_probs(score_matrix(*lambdas(model, g.home, g.away)))
-        counts = Counter(_result(x.home_goals, x.away_goals) for x in train)
-        base = [counts[i] / len(train) for i in range(3)]
-        actual = _result(g.home_goals, g.away_goals)
+        if names is None:
+            lams = pr.maher
+        else:
+            if beta is None or n % REFIT_EVERY == 0:
+                beta = irls(
+                    [s.row(names) for x in train for s in (x.home, x.away)],
+                    [float(goals) for x in train for goals in (x.game.home_goals, x.game.away_goals)],
+                )
+            lams = (lam(beta, pr.home.row(names)), lam(beta, pr.away.row(names)))
+        probs = outcome_probs(score_matrix(*lams))
+        counts = Counter(_result(x.game.home_goals, x.game.away_goals) for x in train)
+        base = [counts[i] / max(1, len(train)) for i in range(3)]
+        actual = _result(pr.game.home_goals, pr.game.away_goals)
         brier += sum((p - (i == actual)) ** 2 for i, p in enumerate(probs))
         brier_base += sum((p - (i == actual)) ** 2 for i, p in enumerate(base))
         log_loss -= math.log(max(probs[actual], 1e-12))
@@ -243,28 +409,20 @@ def backtest(
             b = min(9, int(p * 10))
             bins[b][0] += 1
             bins[b][1] += int(i == actual)
-        evaluated += 1
-        if key in (norm(g.home), norm(g.away)):
-            rows.append(
-                {
-                    **predict(model, g.home, g.away, simulate_it=False),
-                    "match_date": g.date,
-                    "actual_home": g.home_goals,
-                    "actual_away": g.away_goals,
-                }
-            )
-    metrics = {
-        "evaluated": evaluated,
-        "brier": brier / evaluated if evaluated else None,
-        "brier_base": brier_base / evaluated if evaluated else None,
-        "log_loss": log_loss / evaluated if evaluated else None,
-        "log_loss_base": log_base / evaluated if evaluated else None,
+        rows.append((pr, lams))
+        n += 1
+    return {
+        "evaluated": n,
+        "brier": brier / n if n else None,
+        "brier_base": brier_base / n if n else None,
+        "log_loss": log_loss / n if n else None,
+        "log_loss_base": log_base / n if n else None,
         "calibration": [
-            {"bin": b / 10, "predicted": n, "observed": hits / n if n else None}
-            for b, (n, hits) in sorted(bins.items())
+            {"bin": b / 10, "predicted": k, "observed": hits / k if k else None}
+            for b, (k, hits) in sorted(bins.items())
         ],
+        "rows": rows,
     }
-    return rows, metrics
 
 
 # --- Pruebas e intervalos para el panel «Probabilidad» ------------------
@@ -400,8 +558,37 @@ def stat_tests(games: Sequence[m.Game], team: str) -> list[dict[str, Any]]:
     return tests
 
 
-def run(games: Sequence[m.Game], team: str, team_slug: str) -> dict[str, Any]:
-    """Run del predictor: escenarios contra cada rival, backtest, fuerzas y pruebas."""
+LOWER_DIVISION = "Rival de Primera Nacional"
+LOWER_DIVISION_SHARE = 0.4  # supuesto: un plantel de la segunda vale el 40 % del más barato de Primera
+COMPETITIONS = {
+    "copa_argentina": "Copa Argentina",
+    "conmebol_copa_libertadores": "Copa Libertadores",
+    "conmebol_copa_sudamericana": "Copa Sudamericana",
+}
+
+
+def _elo_final(games: Sequence[m.Game]) -> dict[str, float]:
+    ratings: dict[str, float] = {}
+    for g in sorted(games, key=lambda x: x.date):
+        h, a = norm(g.home), norm(g.away)
+        ratings[h], ratings[a] = m.elo_update(
+            ratings.get(h, m.ELO_START), ratings.get(a, m.ELO_START), g.home_goals, g.away_goals
+        )
+    return ratings
+
+
+def run(
+    games: Sequence[m.Game],
+    team: str,
+    team_slug: str,
+    values: dict[str, float] | None = None,
+    cups: Sequence[dict[str, Any]] = (),
+) -> dict[str, Any]:
+    """Run del predictor: escenarios (liga y copas), backtest por combinación de variables, fuerzas y pruebas.
+
+    `values`: valor del plantel por clave de club (`norm`). `cups`: rivales de copas de la temporada,
+    {name, competition, value_eur | None}; sin valor se estima por competición y se marca.
+    """
     if len(games) < MIN_TRAIN:
         return {
             "run": {
@@ -417,16 +604,109 @@ def run(games: Sequence[m.Game], team: str, team_slug: str) -> dict[str, Any]:
             "strengths": [],
             "tests": stat_tests(games, team),
         }
-    model = fit(games)
     key = norm(team)
     season = max(g.date for g in games)[:4]
     current = {norm(t) for g in games if g.date[:4] == season for t in (g.home, g.away)}
-    rivals = sorted(s.team for k, s in model.teams.items() if k != key and k in current)
-    scenarios = []
-    for rival in rivals:
-        scenarios.append({**predict(model, team, rival), "kind": "escenario"})
-        scenarios.append({**predict(model, rival, team), "kind": "escenario"})
-    rows, metrics = backtest(games, team)
+    every = {norm(t) for g in games for t in (g.home, g.away)}
+    known = {k: float(v) for k, v in (values or {}).items() if v and v > 0}
+    league_values = sorted(known[k] for k in current if k in known)
+    median = statistics.median(league_values) if league_values else 1.0
+    vals = {k: known.get(k, median) for k in every}
+
+    prepared = prepare(games, vals)
+    tried = {label: evaluate(prepared, names, season) for label, names in CANDIDATES.items()}
+    maher = evaluate(prepared, None, season)
+    best = min(tried, key=lambda label: tried[label]["brier"] or math.inf)
+    names = CANDIDATES[best]
+    rows = [s.row(names) for p in prepared for s in (p.home, p.away)]
+    goals = [float(x) for p in prepared for x in (p.game.home_goals, p.game.away_goals)]
+    beta = irls(rows, goals)
+    inference = glm_inference(rows, goals, beta)
+
+    model = fit(games)
+    elo = _elo_final(games)
+    league_elo = stats.mean([elo[k] for k in current if k in elo]) if current else m.ELO_START
+    forms = {k: _form(games, k) for k in every}
+
+    def scenario(home: str, away: str, neutral: bool, competition: str) -> dict[str, Any]:
+        h, a = norm(home), norm(away)
+        sh, sa = sides(
+            model,
+            home,
+            away,
+            vals,
+            elo.get(h, league_elo),
+            elo.get(a, league_elo),
+            forms.get(h, DEFAULT_FORM),
+            forms.get(a, DEFAULT_FORM),
+            neutral,
+        )
+        return {
+            **predict(home, away, lam(beta, sh.row(names)), lam(beta, sa.row(names))),
+            "kind": "escenario",
+            "competition": competition,
+            "neutral": neutral,
+        }
+
+    names_by_key = {k: s.team for k, s in model.teams.items()}
+    rivals = sorted(names_by_key[k] for k in current if k != key and k in names_by_key)
+    scenarios = [
+        s for r in rivals for s in (scenario(team, r, False, "liga"), scenario(r, team, False, "liga"))
+    ]
+    cup_rows: list[dict[str, Any]] = []
+    done: set[tuple[str, str]] = set()
+    lowest = league_values[0] if league_values else median
+    for c in [*cups, {"name": LOWER_DIVISION, "competition": "copa_argentina", "value_eur": None}]:
+        k = norm(c["name"])
+        if k == key or (k, c["competition"]) in done:
+            continue
+        done.add((k, c["competition"]))
+        estimated = not c.get("value_eur") and k not in known
+        if c.get("value_eur"):
+            vals[k] = float(c["value_eur"])
+        elif k not in known:
+            vals[k] = lowest * LOWER_DIVISION_SHARE if c["competition"] == "copa_argentina" else median
+        neutral = c["competition"] == "copa_argentina"
+        if neutral:
+            scenarios.append(scenario(team, c["name"], True, c["competition"]))
+        else:
+            scenarios += [
+                scenario(team, c["name"], False, c["competition"]),
+                scenario(c["name"], team, False, c["competition"]),
+            ]
+        if k in current or any(r["team_name"] == c["name"] for r in cup_rows):
+            continue  # ya tiene su fila (club de la liga o de otra copa)
+        cup_rows.append(
+            {
+                "team_name": c["name"],
+                "home_games": 0,
+                "away_games": 0,
+                "attack_home": 1.0,
+                "defense_home": 1.0,
+                "attack_away": 1.0,
+                "defense_away": 1.0,
+                "goals_for": 0,
+                "goals_against": 0,
+                "squad_value_eur": round(vals[k]),
+                "competition": c["competition"],
+                "estimated": estimated,
+            }
+        )
+
+    chosen = tried[best]
+    backtest_rows = [
+        {
+            **predict(pr.game.home, pr.game.away, lams[0], lams[1], simulate_it=False),
+            "kind": "backtest",
+            "match_date": pr.game.date,
+            "actual_home": pr.game.home_goals,
+            "actual_away": pr.game.away_goals,
+            "competition": "liga",
+            "neutral": False,
+        }
+        for pr, lams in chosen["rows"]
+        if key in (norm(pr.game.home), norm(pr.game.away))
+    ]
     strengths = [
         {
             "team_name": s.team,
@@ -438,17 +718,48 @@ def run(games: Sequence[m.Game], team: str, team_slug: str) -> dict[str, Any]:
             "defense_away": s.defense_away,
             "goals_for": s.goals_for,
             "goals_against": s.goals_against,
+            "squad_value_eur": round(vals[k]),
+            "competition": "liga",
+            "estimated": k not in known,
         }
         for k, s in model.teams.items()
         if k in current
-    ]
+    ] + cup_rows
+    metrics = {key2: v for key2, v in chosen.items() if key2 != "rows"}
     return {
         "run": {
             "model": "predictor_partido",
             "team_slug": team_slug,
             "status": "ok" if key in model.teams else "sin_datos",
             "n": len(games),
-            "metrics": {"mu_home": model.mu_home, "mu_away": model.mu_away, **metrics},
+            "metrics": {
+                "mu_home": model.mu_home,
+                "mu_away": model.mu_away,
+                **metrics,
+                "chosen": best,
+                "variables": [
+                    {
+                        "label": label,
+                        "names": CANDIDATES[label],
+                        "brier": r["brier"],
+                        "log_loss": r["log_loss"],
+                    }
+                    for label, r in tried.items()
+                ]
+                + [
+                    {
+                        "label": "solo Maher (sin GLM)",
+                        "names": [],
+                        "brier": maher["brier"],
+                        "log_loss": maher["log_loss"],
+                    }
+                ],
+                "coefs": [
+                    {"id": n, "label": VARIABLES[n][0] if n in VARIABLES else "Intercepto", **c}
+                    for n, c in zip(["intercepto", *names], inference, strict=True)
+                ],
+                "league_value_median": median,
+            },
             "params": {
                 "max_goals": MAX_GOALS,
                 "shrink_games": SHRINK_GAMES,
@@ -458,10 +769,13 @@ def run(games: Sequence[m.Game], team: str, team_slug: str) -> dict[str, Any]:
                 "max_seasons": MAX_SEASONS,
                 "half_life_days": HALF_LIFE_DAYS,
                 "seasons": sorted({g.date[:4] for g in games}),
+                "variables": [{"id": k, "label": v[0], "help": v[1]} for k, v in VARIABLES.items()],
+                "competitions": COMPETITIONS,
+                "lower_division_share": LOWER_DIVISION_SHARE,
             },
             "message": None if key in model.teams else f"{team} no aparece en los resultados de la liga.",
         },
-        "predictions": scenarios + [{**r, "kind": "backtest"} for r in rows],
+        "predictions": scenarios + backtest_rows,
         "strengths": strengths,
         "tests": stat_tests([g for g in games if g.date[:4] == season], team),
     }

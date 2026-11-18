@@ -56,25 +56,27 @@ Elegí un jugador y se compara contra el plantel, su zona y su posición (sin co
 
 ## Valor
 
-Cada jugador con su valor de mercado real (transfermarkt-datasets) contra el que predice una regresión lineal
-con su edad, sus minutos, goles y asistencias, npxG + xA y el índice de rendimiento. Arriba de la diagonal, el
-mercado lo paga más de lo que rinde; abajo, sale barato. La tabla de coeficientes muestra cuánto mueve el valor
-cada variable y si esa diferencia es significativa. Con pocos jugadores el modelo avisa en vez de inventar.
+Cada jugador con su valor de mercado real contra el que se esperaría para alguien de su edad, posición,
+contrato, nacionalidad y club (aprendido con toda la liga) y corregido por su rendimiento. Elegí un jugador (o
+tocá su fila) para ver de dónde sale su precio, dónde queda en la nube de edad y valor de la liga, sus
+comparables y su rendimiento. «¿Paga el rendimiento?» dice si los que rinden más valen más de lo que sus
+papeles dirían. El error se mide sin trampa (sin el club en el entrenamiento) y se explica al pasar el mouse.
 
 ## Alternativas
 
 Elegí un jugador del plantel y aparecen tres listas, de la opción más parecida a la menos: un jugador de otro
 club, una dupla de otro club (con precios, tiene que costar menos que el original) y un compañero. El parecido
-sale de 17 estadísticas cada 90 minutos llevadas a la misma escala. Los perfiles de juego (K-means), el mapa y
-la correlación entre estadísticas están al final. Las dos primeras listas se llenan cuando hay estadísticas de
-jugadores de otros clubes.
+sale de 17 estadísticas cada 90 minutos llevadas a la misma escala. Tocá una opción para ver la comparación
+completa: perfil, qué se gana y qué se pierde, dónde están las diferencias y el mapa de precio contra parecido.
+Las dos primeras listas se llenan cuando hay estadísticas de jugadores de otros clubes.
 
 ## Predictor
 
-Elegí un rival y local o visitante: probabilidad de ganar, empatar y perder, los marcadores más probables y la
-matriz completa. Usa los resultados de la liga de las últimas tres temporadas, cada partido pesado por su
-antigüedad (uno de hace seis meses pesa la mitad). El backtest muestra cuánto acertó en la temporada actual
-contra predecir siempre la frecuencia histórica. No son cuotas de apuestas.
+Elegí un rival de la liga o de una copa (Libertadores, Sudamericana, Copa Argentina, incluido uno genérico de
+Primera Nacional) y la localía: probabilidad de ganar, empatar y perder, los marcadores más probables y la matriz
+completa. Mira los goles que hace y recibe cada equipo (con más peso a lo reciente), el valor de cada plantel y
+la localía; «Qué estadísticas usa» muestra las combinaciones probadas y por qué quedó esa. Un rival sin datos se
+marca como supuesto. No son cuotas de apuestas.
 
 ## Estadística desglosada
 

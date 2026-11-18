@@ -26,6 +26,7 @@ from sources.http_client import PoliteClient
 SOURCE = "transfermarkt_datasets"
 BASE = "https://pub-e682421888d945d684bcae8890b0ec20.r2.dev/data"
 COMPETITIONS = ("ARG1",)  # ligas del dataset que se cargan; sumar otras cuando entren equipos de otras ligas
+COUNTRY = {"ARG1": "Argentina"}  # país de cada liga cargada: «extranjero» es otra nacionalidad
 POSITIONS = {
     "Goalkeeper": "Arquero",
     "Defender": "Defensor",
@@ -48,6 +49,9 @@ class PoolPlayerRecord(Record):
     value_eur: int | None = Field(default=None, gt=0, le=500_000_000)
     value_as_of: date | None = None
     source_url: str | None = Field(default=None, pattern=r"^https://")
+    # Para el modelo de valor: hasta cuándo tiene contrato y si es extranjero en esa liga.
+    contract_until: date | None = None
+    foreign: bool | None = None
 
 
 def read_csv(client: PoliteClient, name: str) -> list[dict[str, str]]:
@@ -56,6 +60,13 @@ def read_csv(client: PoliteClient, name: str) -> list[dict[str, str]]:
         raise ValueError("nombre de archivo inválido")
     body = client.get(f"{BASE}/{name}.csv.gz").body
     return list(csv.DictReader(io.StringIO(gzip.decompress(body).decode("utf-8"))))
+
+
+def _date(text: str) -> date | None:
+    try:
+        return date.fromisoformat(text[:10])
+    except ValueError:
+        return None
 
 
 def _age(birth: str, today: date) -> int | None:
@@ -93,6 +104,7 @@ def parse_players(
         value = val[1] if val else (int(float(raw_value)) if raw_value else None)
         age = _age(r.get("date_of_birth") or "", today)
         url = r.get("url") or ""
+        citizenship = (r.get("country_of_citizenship") or "").strip()
         out.append(
             PoolPlayerRecord(
                 source=SOURCE,
@@ -106,8 +118,28 @@ def parse_players(
                 value_eur=value or None,
                 value_as_of=val[0] if val else None,
                 source_url=url if url.startswith("https://") else None,
+                contract_until=_date(r.get("contract_expiration_date") or ""),
+                foreign=citizenship != COUNTRY.get(competition) if citizenship else None,
             )
         )
+    return out
+
+
+def club_values(
+    players: list[dict[str, str]], valuations: dict[str, tuple[date, int]], since_season: int
+) -> dict[str, int]:
+    """Valor del plantel de cada club del dataset (todas sus ligas): suma de la última valuación de
+    los jugadores que siguen ahí desde `since_season`. Sirve para medir rivales de otras ligas."""
+    out: dict[str, int] = {}
+    for r in players:
+        val = valuations.get(r.get("player_id", ""))
+        club = (r.get("current_club_name") or "").strip()
+        try:
+            recent = int(r.get("last_season") or 0) >= since_season
+        except ValueError:
+            recent = False
+        if val and club and recent:
+            out[club] = out.get(club, 0) + val[1]
     return out
 
 

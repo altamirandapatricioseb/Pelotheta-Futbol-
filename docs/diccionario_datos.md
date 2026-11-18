@@ -361,6 +361,7 @@ Valor de mercado real contra el que predice la regresión (ln valor).
 | `high_eur` | int64 |  |
 | `residual_pct` | numeric |  |
 | `features` | jsonb |  |
+| `detail` | jsonb |  |
 
 ### `match_context`
 
@@ -411,6 +412,8 @@ Predicción Poisson por partido: escenarios contra cada rival y backtest sin mir
 | `sim` | jsonb |  |
 | `actual_home` | int32 |  |
 | `actual_away` | int32 |  |
+| `competition` | text |  |
+| `neutral` | boolean |  |
 
 ### `model_run`
 
@@ -879,6 +882,9 @@ Fuerza de ataque y defensa de cada club (1 = promedio de la liga).
 | `defense_away` | numeric |  |
 | `goals_for` | int32 |  |
 | `goals_against` | int32 |  |
+| `squad_value_eur` | int64 |  |
+| `competition` | text |  |
+| `estimated` | boolean |  |
 
 ### `team_window_value`
 

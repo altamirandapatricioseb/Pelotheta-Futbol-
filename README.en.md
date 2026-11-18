@@ -25,6 +25,9 @@ puts the whole season in one free place and explains every number: its source, w
 - **Team** and **Players:** master tables with percentiles, per-90 values and a context panel.
 - **Situations:** 132 cards such as "when Boca is losing at half-time, how does it end?" (123 with data).
 - **Compare:** a player against the squad, his zone, his position or another player (never against himself).
+- **Value:** real market value against the one a linear regression predicts (age, minutes, performance), with inference on each coefficient.
+- **Alternatives:** for each player, the most similar ones (K-means on 17 per-90 stats): from another club, as a pair or from the squad.
+- **Predictor:** Poisson model over three seasons weighted by age: win, draw, loss, likely scores and a backtest.
 - **Drill-down:** double-click any number to see it by time window, with charts and the underlying matches.
 - **Exports:** Excel workbooks with native charts and interactive sheets; a Power BI star schema; a
   [read-only API](https://pelotheta-futbol.vercel.app/api-docs) (OpenAPI 3.1); a
@@ -61,4 +64,4 @@ Full documentation (in Spanish) is linked from [README.md](README.md#documentaci
 
 Code under [MIT](LICENSE). Data belongs to its sources and keeps their licenses (Promiedos/Opta,
 ScoutingStats, Statshub, Bzzoiro, StrikerAPI, NoFluffPicks/FootyStats, Open-Meteo CC BY 4.0, Wikipedia
-CC BY-SA 4.0). Non-commercial portfolio project.
+CC BY-SA 4.0, transfermarkt-datasets CC0). Non-commercial portfolio project.

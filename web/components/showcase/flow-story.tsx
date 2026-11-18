@@ -3,37 +3,68 @@
 // El camino del dato, contado mientras pasa: la sección queda pegada durante 320 vh. A la derecha el
 // diagrama se traza con el scroll (fuentes → pipeline → familias de métricas → Supabase) y una pelota recorre el
 // camino; a la izquierda, el párrafo de cada etapa aparece justo cuando la pelota llega. En el
-// celular no hay pegado: el diagrama arriba y los párrafos abajo, uno por uno al entrar.
+// celular no hay pegado: el diagrama va vertical (de arriba hacia abajo, legible a 375 px) y se
+// traza mientras cruza la pantalla; los párrafos van debajo.
 
 import { motion, type MotionValue, useMotionValueEvent, useScroll, useSpring, useTransform } from 'motion/react';
 import { useRef } from 'react';
 
 import { FAMILIES } from './metric-families';
+import { useWide } from './use-wide';
 
-const SOURCES = ['Promiedos · Opta', 'StrikerAPI', 'ScoutingStats', 'Statshub'];
-const SOURCE_Y = [70, 150, 230, 310];
-const PIPE = { x: 420, y: 190 };
-// Un nodo por familia de métricas: el número adentro es cuántas tiene (suman las 24).
-const FAMILY_X = FAMILIES.map((_, i) => 525 + i * 105);
-const DB = { x: 1180, y: 190 };
+type Pt = readonly [number, number];
+interface Layout {
+  view: string;
+  vertical: boolean;
+  labels: readonly string[];
+  sources: readonly Pt[];
+  pipe: Pt;
+  families: readonly Pt[];
+  db: Pt;
+}
 
-const sourcePath = (y: number) =>
-  `M120 ${String(y)} C 260 ${String(y)}, 300 ${String(PIPE.y)}, ${String(PIPE.x - 40)} ${String(PIPE.y)}`;
-// La pelota viaja por la tercera fuente, cruza el pipeline y sigue por el tronco hasta la base.
-const BALL_PATH = `M120 ${String(SOURCE_Y[1] ?? 150)} C 260 ${String(SOURCE_Y[1] ?? 150)}, 300 ${String(PIPE.y)}, ${String(PIPE.x - 40)} ${String(PIPE.y)} H ${String(DB.x - 44)}`;
-const TRUNK = `M${String(PIPE.x + 40)} ${String(PIPE.y)} H ${String(DB.x - 44)}`;
+const WIDE: Layout = {
+  view: '0 0 1280 420',
+  vertical: false,
+  labels: ['Promiedos · Opta', 'StrikerAPI', 'ScoutingStats', 'Statshub', 'transfermarkt-datasets'],
+  sources: [40, 115, 190, 265, 340].map((y) => [120, y] as const),
+  pipe: [420, 190],
+  families: FAMILIES.map((_, i) => [525 + i * 105, 190] as const),
+  db: [1180, 190],
+};
+const TALL: Layout = {
+  view: '-20 0 440 940',
+  vertical: true,
+  labels: ['Promiedos', 'StrikerAPI', 'Scouting', 'Statshub', 'Transfermarkt'],
+  sources: [40, 120, 200, 280, 360].map((x) => [x, 70] as const),
+  pipe: [200, 250],
+  families: FAMILIES.map((_, i) => [200, 365 + i * 80] as const),
+  db: [200, 860],
+};
+
+const n = (v: number) => String(v);
+// Curva de una fuente al pipeline: sale derecho y entra derecho, en la dirección del diagrama.
+const sourcePath = ({ vertical, pipe: [px, py] }: Layout, [x, y]: Pt) =>
+  vertical
+    ? `M${n(x)} ${n(y)} C ${n(x)} ${n(y + 90)}, ${n(px)} ${n(py - 110)}, ${n(px)} ${n(py - 40)}`
+    : `M${n(x)} ${n(y)} C ${n(x + 140)} ${n(y)}, ${n(x + 180)} ${n(py)}, ${n(px - 40)} ${n(py)}`;
+const trunkEnd = ({ vertical, db: [dx, dy] }: Layout) => (vertical ? ` V ${n(dy - 44)}` : ` H ${n(dx - 44)}`);
+const trunk = (l: Layout) =>
+  `M${n(l.pipe[0] + (l.vertical ? 0 : 40))} ${n(l.pipe[1] + (l.vertical ? 40 : 0))}${trunkEnd(l)}`;
+// La pelota viaja por la segunda fuente, cruza el pipeline y sigue por el tronco hasta la base.
+const ballPath = (l: Layout) => `${sourcePath(l, l.sources[1] ?? [0, 0])}${trunkEnd(l)}`;
 
 // Etapas: desde qué progreso se enciende cada una y qué cuenta.
 export const STEPS = [
   {
     at: 0.06,
-    title: 'Cuatro fuentes',
-    text: 'Entran las estadísticas de Opta que publica Promiedos, los remates con posición y xG de StrikerAPI, los perfiles de ScoutingStats y las fichas de Statshub. Cada fuente se baja con una pausa entre pedidos y respetando su robots.txt.',
+    title: 'Cinco fuentes',
+    text: 'Entran las estadísticas de Opta que publica Promiedos, los remates con posición y xG de StrikerAPI, los perfiles de ScoutingStats, las fichas de Statshub y los valores de mercado abiertos de transfermarkt-datasets. Cada fuente se baja con una pausa entre pedidos y respetando su robots.txt.',
   },
   {
     at: 0.3,
     title: 'Un pipeline en Python',
-    text: 'Limpia, cruza y valida todo: unifica nombres de jugadores y rivales, detecta lo que falta y deja cada partido con sus valores base y sus métricas calculadas.',
+    text: 'Limpia, cruza y valida todo: unifica nombres de jugadores y clubes entre fuentes, detecta lo que falta y entrena tres modelos: valor de mercado, alternativas y predictor de partidos.',
   },
   {
     at: 0.5,
@@ -55,7 +86,9 @@ function Node({
   progress,
   big = false,
   count,
-  above = false,
+  lx = x,
+  ly = y + 44,
+  anchor = 'middle',
 }: {
   x: number;
   y: number;
@@ -65,8 +98,10 @@ function Node({
   big?: boolean;
   /** Número dentro del punto (cuántas métricas tiene la familia). */
   count?: number;
-  /** Etiqueta arriba del punto en vez de abajo, para que las vecinas no se pisen. */
-  above?: boolean;
+  /** Posición y alineación de la etiqueta (por defecto, centrada abajo del punto). */
+  lx?: number;
+  ly?: number;
+  anchor?: 'start' | 'middle' | 'end';
 }) {
   const scale = useTransform(progress, [at - 0.03, at + 0.03], [0.5, 1]);
   const opacity = useTransform(progress, [at - 0.03, at + 0.02], [0, 1]);
@@ -84,9 +119,9 @@ function Node({
         </text>
       )}
       <text
-        x={x}
-        y={big ? y + 5 : above ? y - 30 : y + 44}
-        textAnchor="middle"
+        x={big ? x : lx}
+        y={big ? y + 5 : ly}
+        textAnchor={big ? 'middle' : anchor}
         className={big ? 'show-flow__hub-label' : 'show-flow__label'}
       >
         {label}
@@ -119,10 +154,20 @@ function Step({ index, at, until, title, text, progress }: StepProps) {
 
 export function FlowStory() {
   const ref = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end end'] });
-  const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 28, mass: 0.6 });
+  const svgRef = useRef<SVGSVGElement>(null);
+  const wide = useWide();
+  const l = wide ? WIDE : TALL;
+  // Escritorio: el progreso de la sección pegada. Celular: el del diagrama mientras cruza la pantalla
+  // (la sección no se pega, así que su propio progreso se recorría en pocos píxeles).
+  const { scrollYProgress: pinned } = useScroll({ target: ref, offset: ['start start', 'end end'] });
+  const { scrollYProgress: passing } = useScroll({
+    // motion mide el elemento con getBoundingClientRect, que un SVG también tiene; el tipo pide HTML.
+    target: svgRef as unknown as React.RefObject<HTMLElement>,
+    offset: ['start 85%', 'end 60%'],
+  });
+  const progress = useSpring(wide ? pinned : passing, { stiffness: 120, damping: 28, mass: 0.6 });
   const sources = useTransform(progress, [0.04, 0.28], [0, 1]);
-  const trunk = useTransform(progress, [0.32, 0.8], [0, 1]);
+  const trunkDraw = useTransform(progress, [0.32, 0.8], [0, 1]);
   const ballRef = useRef<SVGCircleElement>(null);
   const pathRef = useRef<SVGPathElement>(null);
 
@@ -168,35 +213,55 @@ export function FlowStory() {
           </ol>
         </div>
         <svg
-          viewBox="0 0 1280 400"
+          ref={svgRef}
+          viewBox={l.view}
           className="show-flow__svg"
+          data-vertical={l.vertical || undefined}
           role="img"
-          aria-label="Cuatro fuentes entran a un pipeline, salen seis familias de métricas propias y terminan en Supabase"
+          aria-label="Cinco fuentes entran a un pipeline, salen seis familias de métricas propias y terminan en Supabase"
         >
-          <path ref={pathRef} d={BALL_PATH} fill="none" stroke="none" />
-          {SOURCE_Y.map((y, i) => (
-            <g key={y}>
-              <path d={sourcePath(y)} className="show-flow__rail" />
-              <motion.path d={sourcePath(y)} className="show-flow__ink" style={{ pathLength: sources }} />
-              <Node x={120} y={y} label={SOURCES[i] ?? ''} at={0.06 + i * 0.03} progress={progress} />
-            </g>
-          ))}
-          <path d={TRUNK} className="show-flow__rail" />
-          <motion.path d={TRUNK} className="show-flow__ink" style={{ pathLength: trunk }} />
-          <Node x={PIPE.x} y={PIPE.y} label="pipeline" at={0.3} progress={progress} big />
-          {FAMILIES.map((family, i) => (
-            <Node
-              key={family.slug}
-              x={FAMILY_X[i] ?? 0}
-              y={PIPE.y}
-              label={family.name}
-              count={family.metrics.length}
-              above={i % 2 === 1}
-              at={0.44 + i * 0.06}
-              progress={progress}
-            />
-          ))}
-          <Node x={DB.x} y={DB.y} label="Supabase" at={0.8} progress={progress} big />
+          <path ref={pathRef} d={ballPath(l)} fill="none" stroke="none" />
+          {l.sources.map((pt, i) => {
+            const [x, y] = pt;
+            return (
+              <g key={i}>
+                <path d={sourcePath(l, pt)} className="show-flow__rail" />
+                <motion.path d={sourcePath(l, pt)} className="show-flow__ink" style={{ pathLength: sources }} />
+                <Node
+                  x={x}
+                  y={y}
+                  label={l.labels[i] ?? ''}
+                  at={0.06 + i * 0.03}
+                  progress={progress}
+                  // Escritorio: abajo del punto. Celular: arriba y abajo alternados, para no pisarse.
+                  ly={l.vertical && i % 2 === 0 ? y - 24 : y + 40}
+                />
+              </g>
+            );
+          })}
+          <path d={trunk(l)} className="show-flow__rail" />
+          <motion.path d={trunk(l)} className="show-flow__ink" style={{ pathLength: trunkDraw }} />
+          <Node x={l.pipe[0]} y={l.pipe[1]} label="pipeline" at={0.3} progress={progress} big />
+          {FAMILIES.map((family, i) => {
+            const [x, y] = l.families[i] ?? [0, 0];
+            const odd = i % 2 === 1;
+            return (
+              <Node
+                key={family.slug}
+                x={x}
+                y={y}
+                label={family.name}
+                count={family.metrics.length}
+                at={0.44 + i * 0.06}
+                progress={progress}
+                // Escritorio: abajo y arriba alternados. Celular: a la derecha y a la izquierda.
+                lx={l.vertical ? (odd ? x - 30 : x + 30) : x}
+                ly={l.vertical ? y + 6 : odd ? y - 30 : y + 44}
+                anchor={l.vertical ? (odd ? 'end' : 'start') : 'middle'}
+              />
+            );
+          })}
+          <Node x={l.db[0]} y={l.db[1]} label="Supabase" at={0.8} progress={progress} big />
           <circle ref={ballRef} r="11" className="show-flow__ball" opacity="0" />
         </svg>
       </div>

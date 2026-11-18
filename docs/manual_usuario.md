@@ -54,6 +54,28 @@ completa (verde mejor, rojo peor, siempre con el texto). «Ver los partidos» li
 Elegí un jugador y se compara contra el plantel, su zona y su posición (sin contarlo a él en la referencia).
 «Comparar con» suma otro jugador. Cada categoría tiene su gráfico y su desglose.
 
+## Valor
+
+Cada jugador con su valor de mercado real (transfermarkt-datasets) contra el que predice una regresión lineal
+con su edad, sus minutos, goles y asistencias, npxG + xA y el índice de rendimiento. Arriba de la diagonal, el
+mercado lo paga más de lo que rinde; abajo, sale barato. La tabla de coeficientes muestra cuánto mueve el valor
+cada variable y si esa diferencia es significativa. Con pocos jugadores el modelo avisa en vez de inventar.
+
+## Alternativas
+
+Elegí un jugador del plantel y aparecen tres listas, de la opción más parecida a la menos: un jugador de otro
+club, una dupla de otro club (con precios, tiene que costar menos que el original) y un compañero. El parecido
+sale de 17 estadísticas cada 90 minutos llevadas a la misma escala. Los perfiles de juego (K-means), el mapa y
+la correlación entre estadísticas están al final. Las dos primeras listas se llenan cuando hay estadísticas de
+jugadores de otros clubes.
+
+## Predictor
+
+Elegí un rival y local o visitante: probabilidad de ganar, empatar y perder, los marcadores más probables y la
+matriz completa. Usa los resultados de la liga de las últimas tres temporadas, cada partido pesado por su
+antigüedad (uno de hace seis meses pesa la mitad). El backtest muestra cuánto acertó en la temporada actual
+contra predecir siempre la frecuencia histórica. No son cuotas de apuestas.
+
 ## Estadística desglosada
 
 ![Desglosada](capturas/desglosada-oscuro.png)

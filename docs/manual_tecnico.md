@@ -23,6 +23,7 @@ cd web && pnpm e2e      # Playwright: accesibilidad, seguridad y regresión visu
 | `SUPABASE_URL` | `.env`, GitHub Secrets | Proyecto de Supabase del pipeline |
 | `SUPABASE_SECRET_KEY` (o `API_SUPABASE_SECRET_KEY`) | `.env`, GitHub Secrets | Carga del pipeline. Nunca en la web |
 | `STRIKER_API_KEY`, `BZZOIRO_API_KEY` | `.env`, GitHub Secrets | Fuentes con clave (opcionales) |
+| `FOOTBALL_DATA_ORG_KEY` | `.env` | Cliente de football-data.org (opcional; hoy sin uso: no cubre la Liga Profesional gratis) |
 | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | `web/.env.local`, Vercel | Lectura de la web (la clave publicable es pública) |
 | `GITHUB_DISPATCH_TOKEN` | Vercel | Botón Actualizar (token fine-grained, solo Actions de este repositorio) |
 | `E2E_BASE_URL` | Opcional | Correr Playwright contra otro sitio |
@@ -47,6 +48,10 @@ atrapando sus errores como aviso; la fila en `docs/source_audit.md` y en
 `docs/security/compliance_register.md`. Si el sitio desafía a clientes automáticos, no se evade (ver
 `sources/elnine.py`).
 
+**Un equipo a los modelos.** Su slug, nombre en la liga e id de club de transfermarkt-datasets en `TEAMS`
+(`pipeline/analytics.py`) y el mismo slug en `web/config/teams.ts`. Si una fuente nombra distinto a un club,
+su alias en `TEAM_ALIASES` (`pipeline/metrics.py`): sin eso el club se parte en dos en el Elo y el predictor.
+
 **Un chequeo de calidad.** Una fila en `sql/quality/checks.sql`, la misma en una migración nueva y su id en
 `data/contracts.yml`; `tests/test_contracts.py` controla que coincidan.
 
@@ -55,6 +60,10 @@ atrapando sus errores como aviso; la fila en `docs/source_audit.md` y en
 **Carga fallida.** 1. Abrir la corrida en Actions (o `/actualizar`, que muestra el paso). 2. Si es una
 fuente: el resto ya cargó; corregir el adaptador y volver a correr. 3. Si es la base: ver «Supabase
 pausado». 4. Volver a correr: la carga es idempotente.
+
+**Modelos en «sin datos».** El paso `modelos` de `pipeline.run` (o `python -m pipeline.analytics`) explica el
+motivo en `model_run.message` y en la página: pocos jugadores con valor o minutos, o pocos partidos de liga.
+Con `--dry-run` calcula y muestra el resumen sin cargar nada.
 
 **Supabase pausado.** Panel de Supabase → Restore project; `/api/health` vuelve a `ok`; correr
 `keepalive.yml` a mano. El keepalive corre dos veces por semana para que no pase.

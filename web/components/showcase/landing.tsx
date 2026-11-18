@@ -2,7 +2,7 @@
 
 // Portada del sistema. Una escena tras otra, casi sin texto: PELOTHETA llena la pantalla sobre el
 // campo de remates que arma la Θ, tres verbos a escala de pantalla, el camino del dato contado
-// mientras una pelota lo recorre, la tabla de las 24 métricas propias, las seis interfaces sobre una
+// mientras una pelota lo recorre, la tabla de las 24 métricas propias, las nueve interfaces sobre una
 // pizarra táctica, Sudamérica punteada como selector y un pie completo. Sin header: la marca es lo primero. Por pedido del dueño, acá no
 // hay versión con menos movimiento.
 
@@ -28,7 +28,13 @@ import { Verbs } from './verbs';
 import { Wordmark } from './wordmark';
 
 const EASE = [0.16, 1, 0.3, 1] as const;
-const SOURCES = ['Promiedos (estadísticas de Opta)', 'StrikerAPI', 'ScoutingStats', 'Statshub'];
+const SOURCES = [
+  'Promiedos (estadísticas de Opta)',
+  'StrikerAPI',
+  'ScoutingStats',
+  'Statshub',
+  'transfermarkt-datasets (CC0)',
+];
 
 export function ShowcaseLanding({ shots }: ShowcaseData) {
   // Héroe: 220 vh de recorrido con la escena pegada. El canvas sigue al scroll con inercia.

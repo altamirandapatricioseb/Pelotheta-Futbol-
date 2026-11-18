@@ -2,7 +2,7 @@
 
 // Selector de equipo en tres pantallas: país, categoría y equipo. Cada paso es una URL
 // (/elegir?pais=…&categoria=…&equipo=…), así que el botón «atrás» funciona y se puede compartir.
-// Lo que no tiene datos se ve pero no se puede elegir. Al final, las seis interfaces.
+// Lo que no tiene datos se ve pero no se puede elegir. Al final, todas las interfaces.
 
 import { AnimatePresence, motion, MotionConfig, stagger, type Variants } from 'motion/react';
 import Link from 'next/link';

@@ -20,7 +20,7 @@ flowchart LR
 ```mermaid
 flowchart TB
     subgraph Vercel
-        W[Web Next.js 16: 6 interfaces, desglosada, /estado, /soporte, /api-docs]
+        W[Web Next.js 16: 9 interfaces (6 de datos, 3 modelos), desglosada, /estado, /soporte, /api-docs]
         H[/api/health y /api/actualizar/]
     end
     subgraph GitHub

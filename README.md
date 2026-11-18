@@ -31,6 +31,9 @@ calcula el sistema (nivel A, B o C), si es estimado y de qué partidos viene.
 | [Jugadores](https://pelotheta-futbol.vercel.app/jugadores) | Tabla maestra del plantel con percentiles, cada 90 y el panel del jugador |
 | [Situaciones](https://pelotheta-futbol.vercel.app/situaciones) | 132 tarjetas («cuando pasa X, ¿cómo le va a Boca?»), 123 con datos |
 | [Comparar](https://pelotheta-futbol.vercel.app/comparar) | Un jugador contra plantel, zona, posición u otro jugador |
+| [Valor](https://pelotheta-futbol.vercel.app/valor) | Valor de mercado real contra el que predice una regresión lineal (edad, minutos, rendimiento), con inferencia sobre cada coeficiente |
+| [Alternativas](https://pelotheta-futbol.vercel.app/alternativas) | Para cada jugador, los más parecidos (K-means sobre 17 estadísticas cada 90): de otro club, en dupla o del plantel |
+| [Predictor](https://pelotheta-futbol.vercel.app/predictor) | Poisson con tres temporadas pesadas por antigüedad: ganar, empatar, perder, marcadores y backtest |
 | Estadística desglosada | Doble clic en cualquier número: ventanas de tiempo, gráficos y partidos |
 | Actualizar | Dispara la carga de datos desde la web |
 
@@ -124,11 +127,12 @@ mensual, modelo de amenazas y plan de respuesta a incidentes. Ver [`SECURITY.md`
 
 ## Hoja de ruta
 
-Landing calculada en el servidor (rendimiento en celular), validación del Potencial α con la temporada 2027 y
-una fuente de xG para toda la liga. Detalle en [`docs/producto/vision.md`](docs/producto/vision.md).
+Landing calculada en el servidor (rendimiento en celular), validación del Potencial α con la temporada 2027,
+una fuente de xG para toda la liga y estadísticas por jugador de los otros clubes para que Alternativas sume
+opciones de afuera. Detalle en [`docs/producto/vision.md`](docs/producto/vision.md).
 
 ## Licencia y fuentes
 
 Código bajo [MIT](LICENSE). Los datos pertenecen a sus fuentes y conservan sus licencias: Promiedos
 (estadísticas de Opta), ScoutingStats, Statshub, Bzzoiro, StrikerAPI, NoFluffPicks (datos de FootyStats),
-Open-Meteo (CC BY 4.0) y Wikipedia (CC BY-SA 4.0). Proyecto de portfolio sin fines comerciales.
+Open-Meteo (CC BY 4.0), Wikipedia (CC BY-SA 4.0) y transfermarkt-datasets (CC0, datos de Transfermarkt). Proyecto de portfolio sin fines comerciales.

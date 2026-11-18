@@ -101,17 +101,19 @@ def build() -> str:
         title = re.search(r"<h1[^>]*>(.*?)</h1>", body, re.S)
         toc.append(f'<li><a href="#c{i}">{title.group(1) if title else html.escape(rel)}</a></li>')
         parts.append(body)
-    return NL.join([
-        "<!doctype html><html lang='es'><head><meta charset='utf-8'>",
-        "<link href='https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap'",
-        " rel='stylesheet'>",
-        f"<title>Pelotheta Θ: documentación</title><style>{CSS}</style></head><body>",
-        "<section class='cover'><h1>Pelotheta Θ</h1><p>Documentación del sistema</p>",
-        "<p>Boca Juniors, temporada 2026 · v1.0.0</p></section>",
-        f"<section class='toc'><h1>Índice</h1><ol>{''.join(toc)}</ol></section>",
-        *parts,
-        "</body></html>",
-    ])
+    return NL.join(
+        [
+            "<!doctype html><html lang='es'><head><meta charset='utf-8'>",
+            "<link href='https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap'",
+            " rel='stylesheet'>",
+            f"<title>Pelotheta Θ: documentación</title><style>{CSS}</style></head><body>",
+            "<section class='cover'><h1>Pelotheta Θ</h1><p>Documentación del sistema</p>",
+            "<p>Boca Juniors, temporada 2026 · v1.0.0</p></section>",
+            f"<section class='toc'><h1>Índice</h1><ol>{''.join(toc)}</ol></section>",
+            *parts,
+            "</body></html>",
+        ]
+    )
 
 
 def main() -> None:

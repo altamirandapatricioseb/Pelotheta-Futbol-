@@ -4,7 +4,7 @@ import pytest
 
 pytest.importorskip("mistune")
 
-from scripts import entrega  # noqa: E402
+from scripts import entrega
 
 
 def test_every_chapter_exists_and_is_indexed():

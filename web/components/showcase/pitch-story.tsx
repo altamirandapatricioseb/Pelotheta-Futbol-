@@ -1,11 +1,12 @@
 'use client';
 
-// Las seis interfaces contadas sobre una pizarra táctica. La sección queda pegada durante 600 vh: la
-// cancha (vista desde arriba, vertical) va en el centro y la cámara se mueve con el scroll. Primero
-// se ve el partido entero (Equipo), después se acerca a los once puntos del equipo (Jugadores),
-// aísla a dos (Comparar), saca a uno con roja (Situaciones), se aleja para trazar una jugada hasta el
-// arco (Gráficos) y vuelve al círculo central (Actualizar). El texto de cada interfaz aparece a un
-// costado y cambia de lado en cada paso.
+// Las nueve interfaces contadas sobre una pizarra táctica. La sección queda pegada (100 vh por paso
+// en escritorio, 80 en el celular): la cancha (vista desde arriba, vertical) va en el centro y la
+// cámara se mueve con el scroll. Partido entero (Equipo), los once puntos (Jugadores), dos aislados
+// (Comparar), uno y sus parecidos de otros clubes (Alternativas), la línea del valor (Valor), una
+// roja (Situaciones), la barra de probabilidades (Predictor), una jugada hasta el arco (Gráficos) y
+// vuelta al círculo central (Actualizar). El texto cambia de lado en cada paso; en el celular va
+// debajo de la cancha.
 
 import { motion, type MotionValue, useMotionValueEvent, useScroll, useSpring, useTransform } from 'motion/react';
 import Link from 'next/link';
@@ -13,41 +14,7 @@ import { useRef } from 'react';
 
 import { INTERFACES, type InterfaceLink } from '@/config/navigation';
 
-const N = 6;
-/** Medio ancho de la transición alrededor de cada frontera entre pasos (en progreso 0 a 1). */
-const H = 0.045;
-
-type Six<T> = readonly [T, T, T, T, T, T];
-
-/** Entrada y salida para useTransform: cada valor se mantiene en su paso y cambia en la frontera. */
-function hold<T>(values: Six<T>): { input: number[]; output: T[] } {
-  const input = [0];
-  const output: T[] = [values[0]];
-  values.slice(1).forEach((v, i) => {
-    const k = i + 1;
-    input.push(k / N - H, k / N + H);
-    output.push(values[i] as T, v);
-  });
-  input.push(1);
-  output.push(values[5]);
-  return { input, output };
-}
-
-/** Lo mismo que `hold`, evaluado a mano (para la cámara, que se escribe como atributo SVG). */
-function at(values: Six<number>, p: number): number {
-  const { input, output } = hold(values);
-  for (let i = 1; i < input.length; i++) {
-    const a = input[i - 1] ?? 0;
-    const b = input[i] ?? 1;
-    if (p <= b) {
-      const t = b === a ? 1 : Math.min(1, Math.max(0, (p - a) / (b - a)));
-      const e = t * t * (3 - 2 * t);
-      const from = output[i - 1] ?? 0;
-      return from + ((output[i] ?? from) - from) * e;
-    }
-  }
-  return values[5];
-}
+import { useWide } from './use-wide';
 
 interface StepCopy {
   icon: InterfaceLink['icon'];
@@ -55,7 +22,7 @@ interface StepCopy {
   text: string;
 }
 
-const STEPS: Six<StepCopy> = [
+const STEPS: readonly StepCopy[] = [
   {
     icon: 'equipo',
     lead: 'El partido entero, de arriba.',
@@ -72,9 +39,24 @@ const STEPS: Six<StepCopy> = [
     text: 'Estadística por estadística, en totales o cada 90 minutos, con la media del equipo y la de su posición como referencia.',
   },
   {
+    icon: 'alternativas',
+    lead: 'Si se va, ¿quién se le parece?',
+    text: 'Para cada jugador, las opciones más parecidas: uno de otro club, una dupla o un compañero, de la mejor a la peor. K-means sobre 17 estadísticas cada 90 minutos.',
+  },
+  {
+    icon: 'valor',
+    lead: '¿Cuánto vale de verdad?',
+    text: 'El valor de mercado de cada jugador contra el que predice una regresión lineal con su edad, sus minutos y su rendimiento. Arriba de la línea el mercado lo paga más; abajo, sale barato.',
+  },
+  {
     icon: 'situaciones',
     lead: '¿Y si se queda con uno menos?',
     text: 'Más de cien situaciones de partido: empezar perdiendo, convertir primero, jugar de visitante, según el rival o el árbitro. Cada una contra el promedio de la temporada.',
+  },
+  {
+    icon: 'predictor',
+    lead: 'El próximo partido, en porcentajes.',
+    text: 'Probabilidad de ganar, empatar y perder contra cada rival con un modelo de Poisson entrenado con tres temporadas de la liga, el marcador más probable y un backtest de cuánto acierta.',
   },
   {
     icon: 'graficos',
@@ -84,65 +66,136 @@ const STEPS: Six<StepCopy> = [
   {
     icon: 'actualizar',
     lead: 'Vuelta al círculo central.',
-    text: 'Un botón vuelve a correr el pipeline, trae los partidos nuevos y recalcula todo. Se ve la última actualización y el estado de cada fuente.',
+    text: 'Un botón vuelve a correr el pipeline: trae los partidos nuevos, recalcula las métricas y vuelve a entrenar los tres modelos. Se ve la última actualización y el estado de cada fuente.',
   },
 ];
 
+const N = STEPS.length;
+/** Medio ancho de la transición alrededor de cada frontera entre pasos (en progreso 0 a 1). */
+const H = 0.028;
+const stepOf = (icon: InterfaceLink['icon']) => STEPS.findIndex((s) => s.icon === icon);
+const ALT = stepOf('alternativas');
+const RED = stepOf('situaciones');
+const PRED = stepOf('predictor');
+const GRAF = stepOf('graficos');
+
+/** Un valor por paso: el de base, salvo en los pasos que se nombran. */
+function per<T>(base: T, overrides: Partial<Record<InterfaceLink['icon'], T>>): T[] {
+  return STEPS.map((s) => overrides[s.icon] ?? base);
+}
+
+/** Entrada y salida para useTransform: cada valor se mantiene en su paso y cambia en la frontera. */
+function hold<T>(values: readonly T[]): { input: number[]; output: T[] } {
+  const input = [0];
+  const output: T[] = [values[0] as T];
+  values.slice(1).forEach((v, i) => {
+    const k = i + 1;
+    input.push(k / N - H, k / N + H);
+    output.push(values[i] as T, v);
+  });
+  input.push(1);
+  output.push(values[N - 1] as T);
+  return { input, output };
+}
+
+/** Lo mismo que `hold`, evaluado a mano (para la cámara, que se escribe como atributo SVG). */
+function at(values: readonly number[], p: number): number {
+  const { input, output } = hold(values);
+  for (let i = 1; i < input.length; i++) {
+    const a = input[i - 1] ?? 0;
+    const b = input[i] ?? 1;
+    if (p <= b) {
+      const t = b === a ? 1 : Math.min(1, Math.max(0, (p - a) / (b - a)));
+      const e = t * t * (3 - 2 * t);
+      const from = output[i - 1] ?? 0;
+      return from + ((output[i] ?? from) - from) * e;
+    }
+  }
+  return values[N - 1] ?? 0;
+}
+
 // Cámara por paso: zoom y punto de la cancha que queda en el centro (cancha de 680 × 1050).
-const ZOOM: Six<number> = [1, 1.75, 1.9, 1.6, 1.05, 1];
-const FOCUS_X: Six<number> = [340, 340, 340, 340, 340, 340];
-const FOCUS_Y: Six<number> = [525, 770, 690, 700, 470, 525];
+const ZOOM = per(1, {
+  jugadores: 1.75,
+  comparar: 1.9,
+  alternativas: 1.35,
+  situaciones: 1.6,
+  predictor: 1.15,
+  graficos: 1.05,
+});
+const FOCUS_Y = per(525, { jugadores: 770, comparar: 690, alternativas: 560, situaciones: 700, graficos: 470 });
 
 type Pos = readonly [number, number];
 interface Player {
   n: number;
   pct: number;
-  pos: Six<Pos>;
+  pos: Pos[];
 }
-const same = (p: Pos, s3: Pos, s4: Pos): Six<Pos> => [p, p, p, s3, s4, p];
+// Tres formas del equipo: la base, con uno menos (Situaciones) y adelantado (Gráficos).
+const shape = (p: Pos, red: Pos, attack: Pos): Pos[] =>
+  STEPS.map((_, i) => (i === RED ? red : i === GRAF ? attack : p));
 
-// El equipo propio ataca hacia arriba. Paso 3: 4-4-1 con uno menos. Paso 4: el equipo sube.
+// El equipo propio ataca hacia arriba.
 const HOME: Player[] = [
-  { n: 1, pct: 0.7, pos: same([340, 985], [340, 985], [340, 900]) },
-  { n: 4, pct: 0.55, pos: same([575, 830], [575, 830], [590, 600]) },
-  { n: 2, pct: 0.8, pos: same([430, 870], [430, 870], [440, 660]) },
-  { n: 6, pct: 0.62, pos: same([250, 870], [250, 870], [240, 660]) },
-  { n: 3, pct: 0.48, pos: same([105, 830], [105, 830], [90, 600]) },
-  { n: 5, pct: 0.9, pos: same([340, 730], [340, 730], [340, 520]) },
-  { n: 8, pct: 0.74, pos: same([480, 680], [430, 700], [470, 400]) },
-  { n: 10, pct: 0.86, pos: same([200, 680], [250, 700], [210, 420]) },
-  { n: 7, pct: 0.66, pos: same([550, 520], [560, 660], [560, 230]) },
-  { n: 9, pct: 0.93, pos: same([340, 480], [340, 540], [350, 170]) },
-  { n: 11, pct: 0.58, pos: same([130, 520], [120, 660], [120, 260]) },
+  { n: 1, pct: 0.7, pos: shape([340, 985], [340, 985], [340, 900]) },
+  { n: 4, pct: 0.55, pos: shape([575, 830], [575, 830], [590, 600]) },
+  { n: 2, pct: 0.8, pos: shape([430, 870], [430, 870], [440, 660]) },
+  { n: 6, pct: 0.62, pos: shape([250, 870], [250, 870], [240, 660]) },
+  { n: 3, pct: 0.48, pos: shape([105, 830], [105, 830], [90, 600]) },
+  { n: 5, pct: 0.9, pos: shape([340, 730], [340, 730], [340, 520]) },
+  { n: 8, pct: 0.74, pos: shape([480, 680], [430, 700], [470, 400]) },
+  { n: 10, pct: 0.86, pos: shape([200, 680], [250, 700], [210, 420]) },
+  { n: 7, pct: 0.66, pos: shape([550, 520], [560, 660], [560, 230]) },
+  { n: 9, pct: 0.93, pos: shape([340, 480], [340, 540], [350, 170]) },
+  { n: 11, pct: 0.58, pos: shape([130, 520], [120, 660], [120, 260]) },
 ];
-// Índices dentro de HOME: el expulsado del paso 3 y los dos comparados del paso 2.
+// Índices dentro de HOME: el expulsado y los dos comparados (el primero es el de Alternativas).
 const SENT_OFF = 5;
 const PAIR = [6, 7];
+// Índices dentro de RIVAL: las tres opciones de otro club en Alternativas.
+const OPTIONS = [6, 7, 8];
 
-const RIVAL: Six<Pos>[] = HOME.map(({ pos }) => {
-  const [x, y] = pos[0];
+const RIVAL: Pos[][] = HOME.map(({ pos }) => {
+  const [x, y] = pos[0] ?? [340, 525];
   const base: Pos = [680 - x, 1050 - y];
   const deep: Pos = [680 - x, 50 + (1050 - y - 50) * 0.55];
-  return same(base, base, deep);
+  return shape(base, base, deep);
 });
 
-// La jugada del paso 4: del arquero al arco rival, pasando por seis compañeros.
-const PLAY = [0, 3, 7, 5, 6, 8, 9].map((i) => HOME[i]?.pos[4] ?? ([340, 525] as const));
+// La jugada de Gráficos: del arquero al arco rival, pasando por seis compañeros.
+const PLAY = [0, 3, 7, 5, 6, 8, 9].map((i) => HOME[i]?.pos[GRAF] ?? ([340, 525] as const));
 const PLAY_PATH = `${PLAY.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${String(x)} ${String(y)}`).join(' ')} L340 14`;
+const TARGET = HOME[PAIR[0] ?? 0]?.pos[ALT] ?? ([340, 525] as const);
+
+// Barra del paso Predictor: un ejemplo ilustrativo (gana, empata, pierde), no un partido real.
+const ODDS = [
+  { key: 'gana', share: 0.48, className: 'show-pitch__bar' },
+  { key: 'empata', share: 0.27, className: 'show-pitch__bar show-pitch__bar--mid' },
+  { key: 'pierde', share: 0.25, className: 'show-pitch__bar show-pitch__bar--alt' },
+].map((o, i, all) => ({ ...o, x: 120 + 440 * all.slice(0, i).reduce((s, p) => s + p.share, 0), w: 440 * o.share }));
 
 function Dot({ player, index, progress }: { player: Player; index: number; progress: MotionValue<number> }) {
-  const xs = hold(player.pos.map((p) => p[0]) as unknown as Six<number>);
-  const ys = hold(player.pos.map((p) => p[1]) as unknown as Six<number>);
+  const xs = hold(player.pos.map((p) => p[0]));
+  const ys = hold(player.pos.map((p) => p[1]));
   const x = useTransform(progress, xs.input, xs.output);
   const y = useTransform(progress, ys.input, ys.output);
   const paired = PAIR.includes(index);
-  const dim = hold<number>(index === SENT_OFF ? [1, 1, 0.25, 0.14, 1, 1] : [1, 1, paired ? 1 : 0.25, 1, 1, 1]);
+  const target = index === PAIR[0];
+  const dim = hold(
+    per(1, {
+      comparar: paired ? 1 : 0.25,
+      alternativas: target ? 1 : 0.25,
+      situaciones: index === SENT_OFF ? 0.14 : 1,
+    }),
+  );
   const opacity = useTransform(progress, dim.input, dim.output);
-  const grow = hold<number>([1, 1, paired ? 1.45 : 1, 1, 1, 1]);
+  const grow = hold(per(1, { comparar: paired ? 1.45 : 1, alternativas: target ? 1.45 : 1 }));
   const scale = useTransform(progress, grow.input, grow.output);
-  const ring = hold<number>([0, 1, paired ? 1 : 0.2, 0.5, 0, 0]);
+  const ring = hold(
+    per(0, { jugadores: 1, comparar: paired ? 1 : 0.2, alternativas: target ? 1 : 0.2, valor: 1, situaciones: 0.5 }),
+  );
   const ringOpacity = useTransform(progress, ring.input, ring.output);
-  const label = hold<number>([0, 1, 1, 1, 0, 0]);
+  const label = hold(per(0, { jugadores: 1, comparar: 1, alternativas: 1, valor: 1, situaciones: 1 }));
   const labelOpacity = useTransform(progress, label.input, label.output);
   const c = 2 * Math.PI * 30;
   return (
@@ -162,14 +215,26 @@ function Dot({ player, index, progress }: { player: Player; index: number; progr
   );
 }
 
-function RivalDot({ pos, progress }: { pos: Six<Pos>; progress: MotionValue<number> }) {
-  const xs = hold(pos.map((p) => p[0]) as unknown as Six<number>);
-  const ys = hold(pos.map((p) => p[1]) as unknown as Six<number>);
+function RivalDot({ pos, index, progress }: { pos: Pos[]; index: number; progress: MotionValue<number> }) {
+  const xs = hold(pos.map((p) => p[0]));
+  const ys = hold(pos.map((p) => p[1]));
   const x = useTransform(progress, xs.input, xs.output);
   const y = useTransform(progress, ys.input, ys.output);
-  const fade = hold<number>([0.55, 0.2, 0.12, 0.3, 0.6, 0.55]);
+  const option = OPTIONS.includes(index);
+  const fade = hold(
+    per(0.55, {
+      jugadores: 0.2,
+      comparar: 0.12,
+      alternativas: option ? 0.95 : 0.12,
+      valor: 0.2,
+      situaciones: 0.3,
+      graficos: 0.6,
+    }),
+  );
   const opacity = useTransform(progress, fade.input, fade.output);
-  return <motion.circle r={16} className="show-pitch__rival" style={{ x, y, opacity }} />;
+  const grow = hold(per(1, { alternativas: option ? 1.35 : 1 }));
+  const scale = useTransform(progress, grow.input, grow.output);
+  return <motion.circle r={16} className="show-pitch__rival" style={{ x, y, opacity, scale }} />;
 }
 
 /** Capa que solo se ve en un paso. */
@@ -182,21 +247,20 @@ function Layer({
   progress: MotionValue<number>;
   children: React.ReactNode;
 }) {
-  const values = [0, 0, 0, 0, 0, 0].map((_, i) => (i === step ? 1 : 0)) as unknown as Six<number>;
-  const { input, output } = hold(values);
+  const { input, output } = hold(STEPS.map((_, i) => (i === step ? 1 : 0)));
   const opacity = useTransform(progress, input, output);
   return <motion.g style={{ opacity }}>{children}</motion.g>;
 }
 
 function Panel({
   index,
-  step,
+  copy,
   href,
   label,
   progress,
 }: {
   index: number;
-  step: StepCopy;
+  copy: StepCopy;
   href: string;
   label: string;
   progress: MotionValue<number>;
@@ -205,20 +269,26 @@ function Panel({
   const to = (index + 1) / N;
   const first = index === 0;
   const last = index === N - 1;
-  // Aparece mientras la camara termina de llegar a su paso y se va cuando empieza a irse al siguiente.
+  // Aparece mientras la cámara termina de llegar a su paso y se va cuando empieza a irse al siguiente.
   const opacity = useTransform(
     progress,
     [first ? -1 : from, first ? -0.5 : from + H, to - H, last ? 2 : to],
     [0, 1, 1, last ? 1 : 0],
   );
-  const y = useTransform(progress, [from, from + H], [first ? 0 : 32, 0]);
+  const y = useTransform(progress, [from, from + H], [first ? 0 : 24, 0]);
+  // Un panel apagado no recibe toques: si no, el enlace invisible de otro paso tapa al visible.
+  const pointerEvents = useTransform(opacity, (o) => (o > 0.5 ? 'auto' : 'none'));
   return (
-    <motion.article className="show-pitch__panel" data-side={index % 2 === 0 ? 'left' : 'right'} style={{ opacity, y }}>
+    <motion.article
+      className="show-pitch__panel"
+      data-side={index % 2 === 0 ? 'left' : 'right'}
+      style={{ opacity, y, pointerEvents }}
+    >
       <p className="show-pitch__index tabular">
         {String(index + 1).padStart(2, '0')} · {label}
       </p>
-      <h3 className="show-pitch__lead">{step.lead}</h3>
-      <p className="show-pitch__text">{step.text}</p>
+      <h3 className="show-pitch__lead">{copy.lead}</h3>
+      <p className="show-pitch__text">{copy.text}</p>
       <Link href={href} className="show-pitch__go focus-ring" data-cursor="Entrar">
         Entrar a {label}
       </Link>
@@ -231,9 +301,16 @@ export function PitchStory() {
   const camera = useRef<SVGGElement>(null);
   const ball = useRef<SVGCircleElement>(null);
   const play = useRef<SVGPathElement>(null);
+  const wide = useWide();
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end end'] });
-  const progress = useSpring(scrollYProgress, { stiffness: 110, damping: 28, mass: 0.7 });
-  const playDraw = useTransform(progress, [4 / N + H, 5 / N - H], [0, 1]);
+  // Con mouse, inercia suave. Con el dedo el teléfono ya trae inercia y el resorte encima se sentía
+  // trabado: ahí el progreso sigue al scroll tal cual.
+  const smooth = useSpring(scrollYProgress, { stiffness: 110, damping: 28, mass: 0.7 });
+  // Derivado y no el scrollYProgress mismo: motion acelera con WAAPI las transformaciones directas del
+  // scroll y rechaza los rangos de entrada de los paneles (fuera de 0 a 1).
+  const direct = useTransform(() => scrollYProgress.get());
+  const progress = wide ? smooth : direct;
+  const playDraw = useTransform(progress, [GRAF / N + H, (GRAF + 1) / N - H], [0, 1]);
 
   // Cámara y pelota: se escriben como atributos SVG en cada cambio de progreso, sin re-render.
   useMotionValueEvent(progress, 'change', (p) => {
@@ -242,18 +319,18 @@ export function PitchStory() {
       const s = at(ZOOM, p);
       g.setAttribute(
         'transform',
-        `translate(340 525) scale(${s.toFixed(4)}) translate(${(-at(FOCUS_X, p)).toFixed(2)} ${(-at(FOCUS_Y, p)).toFixed(2)})`,
+        `translate(340 525) scale(${s.toFixed(4)}) translate(-340 ${(-at(FOCUS_Y, p)).toFixed(2)})`,
       );
     }
     const b = ball.current;
     const path = play.current;
     if (!b || !path) return;
-    const t = Math.min(1, Math.max(0, (p - (4 / N + H)) / (1 / N - 2 * H)));
-    const back = Math.min(1, Math.max(0, (p - (5 / N - H)) / (2 * H)));
+    const t = Math.min(1, Math.max(0, (p - (GRAF / N + H)) / (1 / N - 2 * H)));
+    const back = Math.min(1, Math.max(0, (p - ((GRAF + 1) / N - H)) / (2 * H)));
     const pt = path.getPointAtLength(path.getTotalLength() * t);
     b.setAttribute('cx', String(pt.x + (340 - pt.x) * back));
     b.setAttribute('cy', String(pt.y + (525 - pt.y) * back));
-    b.setAttribute('opacity', p > 4 / N ? '1' : '0');
+    b.setAttribute('opacity', p > GRAF / N ? '1' : '0');
   });
 
   const byIcon = new Map(INTERFACES.map((i) => [i.icon, i]));
@@ -262,23 +339,8 @@ export function PitchStory() {
     <section ref={ref} className="show-pitch show-bleed" aria-labelledby="pitch-title">
       <div className="show-pitch__stage">
         <h2 id="pitch-title" className="sr-only">
-          Las seis interfaces
+          Las {N} interfaces
         </h2>
-        <div className="show-pitch__panels">
-          {STEPS.map((s, i) => {
-            const item = byIcon.get(s.icon);
-            return (
-              <Panel
-                key={s.icon}
-                index={i}
-                step={s}
-                href={item?.href ?? '/'}
-                label={item?.label ?? ''}
-                progress={progress}
-              />
-            );
-          })}
-        </div>
         <svg
           viewBox="0 0 680 1050"
           className="show-pitch__board"
@@ -303,7 +365,7 @@ export function PitchStory() {
               <path d="M267 169 A 91.5 91.5 0 0 0 413 169" />
               <path d="M267 881 A 91.5 91.5 0 0 1 413 881" />
             </g>
-            <Layer step={2} progress={progress}>
+            <Layer step={stepOf('comparar')} progress={progress}>
               <line x1="200" x2="480" y1="680" y2="680" className="show-pitch__link" />
               {[0.7, -0.45, 0.3, -0.8, 0.55].map((v, i) => (
                 <rect
@@ -317,11 +379,20 @@ export function PitchStory() {
                 />
               ))}
             </Layer>
-            <Layer step={4} progress={progress}>
+            <Layer step={ALT} progress={progress}>
+              {OPTIONS.map((r) => {
+                const [x, y] = RIVAL[r]?.[ALT] ?? [340, 525];
+                return <line key={r} x1={TARGET[0]} y1={TARGET[1]} x2={x} y2={y} className="show-pitch__link" />;
+              })}
+            </Layer>
+            <Layer step={stepOf('valor')} progress={progress}>
+              <line x1="70" y1="990" x2="610" y2="70" className="show-pitch__link" />
+            </Layer>
+            <Layer step={GRAF} progress={progress}>
               <motion.path ref={play} d={PLAY_PATH} className="show-pitch__play" style={{ pathLength: playDraw }} />
               <circle cx="340" cy="40" r="26" className="show-pitch__xg" />
             </Layer>
-            <Layer step={5} progress={progress}>
+            <Layer step={N - 1} progress={progress}>
               {[0, 1, 2].map((i) => (
                 <circle
                   key={i}
@@ -334,12 +405,12 @@ export function PitchStory() {
               ))}
             </Layer>
             {RIVAL.map((pos, i) => (
-              <RivalDot key={i} pos={pos} progress={progress} />
+              <RivalDot key={i} pos={pos} index={i} progress={progress} />
             ))}
             {HOME.map((player, i) => (
               <Dot key={player.n} player={player} index={i} progress={progress} />
             ))}
-            <Layer step={3} progress={progress}>
+            <Layer step={RED} progress={progress}>
               <rect
                 x="356"
                 y="690"
@@ -356,9 +427,35 @@ export function PitchStory() {
                 </text>
               </g>
             </Layer>
+            <Layer step={PRED} progress={progress}>
+              <rect x="100" y="470" width="480" height="110" rx="16" className="show-pitch__score" />
+              {ODDS.map((o) => (
+                <g key={o.key}>
+                  <rect x={o.x} y="490" width={o.w - 4} height="70" rx="8" className={o.className} />
+                  <text x={o.x + o.w / 2} y="534" textAnchor="middle" className="show-pitch__odds">
+                    {Math.round(o.share * 100)} %
+                  </text>
+                </g>
+              ))}
+            </Layer>
             <circle ref={ball} r="9" cx="340" cy="525" className="show-pitch__ball" opacity="0" />
           </g>
         </svg>
+        <div className="show-pitch__panels">
+          {STEPS.map((s, i) => {
+            const item = byIcon.get(s.icon);
+            return (
+              <Panel
+                key={s.icon}
+                index={i}
+                copy={s}
+                href={item?.href ?? '/'}
+                label={item?.label ?? ''}
+                progress={progress}
+              />
+            );
+          })}
+        </div>
       </div>
     </section>
   );

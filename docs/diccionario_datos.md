@@ -2,7 +2,7 @@
 
 Generado por `scripts/diccionario.py` desde la especificación de la API y el catálogo
 de estadísticas.
-43 vistas del esquema `api` y 344 estadísticas. Las vistas no declaran nulabilidad: toda columna puede venir vacía (n/d). Las tablas
+53 vistas del esquema `api` y 344 estadísticas. Las vistas no declaran nulabilidad: toda columna puede venir vacía (n/d). Las tablas
 privadas de `core` están en `docs/diagramas/der.md` y sus reglas en `data/contracts.yml`.
 
 ## Vistas del esquema `api`
@@ -330,6 +330,38 @@ Sin descripción.
 | `points` | int32 |  |
 | `average` | numeric |  |
 
+### `market_value_coef`
+
+Coeficientes de la regresión con error estándar, t, p e intervalo del 95 %.
+
+| Columna | Tipo | Nota |
+|---|---|---|
+| `team_slug` | text | Clave primaria. |
+| `feature` | text | Clave primaria. |
+| `coef` | numeric |  |
+| `std_err` | numeric |  |
+| `t_stat` | numeric |  |
+| `p_value` | numeric |  |
+| `ci_low` | numeric |  |
+| `ci_high` | numeric |  |
+
+### `market_value_prediction`
+
+Valor de mercado real contra el que predice la regresión (ln valor).
+
+| Columna | Tipo | Nota |
+|---|---|---|
+| `team_slug` | text | Clave primaria. |
+| `player_id` | int32 | Clave primaria. |
+| `player_name` | text |  |
+| `position_group` | text |  |
+| `actual_eur` | int64 |  |
+| `predicted_eur` | int64 |  |
+| `low_eur` | int64 |  |
+| `high_eur` | int64 |  |
+| `residual_pct` | numeric |  |
+| `features` | jsonb |  |
+
 ### `match_context`
 
 DT de Boca y del rival y estadio con su capacidad, por partido (ELNINE).
@@ -358,6 +390,43 @@ Sin descripción.
 | `minute_in` | int32 |  |
 | `minute_out` | int32 |  |
 
+### `match_prediction`
+
+Predicción Poisson por partido: escenarios contra cada rival y backtest sin mirar el futuro.
+
+| Columna | Tipo | Nota |
+|---|---|---|
+| `team_slug` | text |  |
+| `kind` | text |  |
+| `match_date` | date |  |
+| `home_team` | text |  |
+| `away_team` | text |  |
+| `lambda_home` | numeric |  |
+| `lambda_away` | numeric |  |
+| `p_home` | numeric |  |
+| `p_draw` | numeric |  |
+| `p_away` | numeric |  |
+| `top_scores` | jsonb |  |
+| `score_matrix` | jsonb |  |
+| `sim` | jsonb |  |
+| `actual_home` | int32 |  |
+| `actual_away` | int32 |  |
+
+### `model_run`
+
+Estado, muestra, métricas y parámetros de cada modelo por equipo.
+
+| Columna | Tipo | Nota |
+|---|---|---|
+| `model` | text | Clave primaria. |
+| `team_slug` | text | Clave primaria. |
+| `status` | text |  |
+| `n` | int32 |  |
+| `metrics` | jsonb |  |
+| `params` | jsonb |  |
+| `message` | text |  |
+| `trained_at` | timestamp with time zone |  |
+
 ### `pipeline_run_metrics`
 
 Una fila por corrida del pipeline: duración, partidos, filas cargadas, avisos, errores y tamaño de la base.
@@ -375,6 +444,35 @@ Una fila por corrida del pipeline: duración, partidos, filas cargadas, avisos, 
 | `errors` | int32 |  |
 | `db_size_bytes` | int64 |  |
 | `commit_sha` | text |  |
+
+### `player_alternative`
+
+Alternativas de cada jugador de mejor a peor: otro club, dupla y compañero.
+
+| Columna | Tipo | Nota |
+|---|---|---|
+| `team_slug` | text | Clave primaria. |
+| `player_id` | int32 | Clave primaria. |
+| `section` | text | Clave primaria. |
+| `rank` | int32 | Clave primaria. |
+| `members` | jsonb |  |
+| `similarity` | numeric |  |
+| `total_value_eur` | int64 |  |
+| `savings_eur` | int64 |  |
+
+### `player_market_value`
+
+Valores de mercado reales por jugador y fecha, con su fuente.
+
+| Columna | Tipo | Nota |
+|---|---|---|
+| `player_id` | int32 | Clave primaria. |
+| `player_name` | text |  |
+| `team_slug` | text |  |
+| `as_of` | date | Clave primaria. |
+| `value_eur` | int64 |  |
+| `source` | text | Clave primaria. |
+| `source_url` | text |  |
 
 ### `player_master`
 
@@ -407,6 +505,26 @@ Sin descripción.
 | `player_id` | int32 |  |
 | `key` | text |  |
 | `value` | numeric |  |
+
+### `player_pool`
+
+Jugadores de otros clubes: valor de mercado y, cuando haya, estadísticas de temporada.
+
+| Columna | Tipo | Nota |
+|---|---|---|
+| `source` | text |  |
+| `ext_id` | text |  |
+| `player_name` | text |  |
+| `team_name` | text |  |
+| `club_ext_id` | text |  |
+| `competition` | text |  |
+| `position_group` | text |  |
+| `age` | int32 |  |
+| `minutes` | int32 |  |
+| `stats` | jsonb |  |
+| `value_eur` | int64 |  |
+| `value_as_of` | date |  |
+| `source_url` | text |  |
 
 ### `player_position`
 
@@ -471,6 +589,24 @@ Estadísticas avanzadas por jugador de Boca: total, promedio por partido y parti
 | `total` | numeric |  |
 | `average` | numeric |  |
 | `source` | text |  |
+
+### `player_style`
+
+Perfil de juego (grupo de K-means) y proyección en 2 componentes principales.
+
+| Columna | Tipo | Nota |
+|---|---|---|
+| `team_slug` | text | Clave primaria. |
+| `player_id` | int32 | Clave primaria. |
+| `player_name` | text |  |
+| `position_group` | text |  |
+| `cluster` | int32 |  |
+| `cluster_label` | text |  |
+| `pc1` | numeric |  |
+| `pc2` | numeric |  |
+| `features` | jsonb |  |
+| `z` | jsonb |  |
+| `percentiles` | jsonb |  |
 
 ### `player_summary`
 
@@ -659,6 +795,21 @@ Conjuntos de columnas del desplegable de las Interfaces 2 y 3.
 | `sort_order` | int32 |  |
 | `stat_ids` | array |  |
 
+### `stat_test`
+
+Pruebas de hipótesis e intervalos de confianza del equipo (panel Probabilidad).
+
+| Columna | Tipo | Nota |
+|---|---|---|
+| `team_slug` | text | Clave primaria. |
+| `test_id` | text | Clave primaria. |
+| `title_es` | text |  |
+| `statistic` | numeric |  |
+| `df` | int32 |  |
+| `p_value` | numeric |  |
+| `decision_es` | text |  |
+| `detail` | jsonb |  |
+
 ### `stat_value_detail`
 
 Sin descripción.
@@ -711,6 +862,23 @@ Valores base por partido de Boca y del rival (sufijo _against).
 | `match_id` | int32 |  |
 | `key` | text |  |
 | `value` | numeric |  |
+
+### `team_strength`
+
+Fuerza de ataque y defensa de cada club (1 = promedio de la liga).
+
+| Columna | Tipo | Nota |
+|---|---|---|
+| `team_slug` | text | Clave primaria. |
+| `team_name` | text | Clave primaria. |
+| `home_games` | int32 |  |
+| `away_games` | int32 |  |
+| `attack_home` | numeric |  |
+| `defense_home` | numeric |  |
+| `attack_away` | numeric |  |
+| `defense_away` | numeric |  |
+| `goals_for` | int32 |  |
+| `goals_against` | int32 |  |
 
 ### `team_window_value`
 

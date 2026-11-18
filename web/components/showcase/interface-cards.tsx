@@ -48,7 +48,7 @@ export function InterfaceCard({ item }: { item: InterfaceLink }) {
   );
 }
 
-/** Grilla de las seis interfaces, que entra cuando aparece en pantalla. */
+/** Grilla de las interfaces, que entra cuando aparece en pantalla. */
 export function InterfaceGrid() {
   return (
     <motion.ul className="show-grid" variants={LIST_VARIANTS} initial="hidden" animate="show">

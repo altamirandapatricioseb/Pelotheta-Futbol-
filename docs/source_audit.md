@@ -137,6 +137,17 @@ distancia recorrida, altura de línea, mapas de calor y redes de pases. Todas ne
 coordenadas o tracking (Opta, StatsBomb, Wyscout o SofaScore), que solo se consiguen pagando o en
 sitios que prohíben el scraping. La cobertura se calcula con `scripts/coverage_report.py`.
 
+## Quinta ronda (18-nov-2026): fuentes para Valor, Alternativas y Predictor
+
+| Fuente | Estado | Qué aporta | Decisión |
+|---|---|---|---|
+| transfermarkt-datasets (`dcaribou/transfermarkt-datasets`, CC0) | funciona: CSV públicos en un bucket | valor de mercado e historial de valuaciones, club, posición y edad de 1261 jugadores de la Liga Profesional; resultados de liga (`games`) desde el Apertura 2025 | **Usada** para Valor (valores), Alternativas (nombre, club, edad y valor de otros clubes) y Predictor (temporada anterior). No trae estadísticas por jugador de la liga argentina |
+| Transfermarkt | términos prohíben el acceso automatizado | ninguno | Descartada (se usa el dataset abierto) |
+| football-data.org | cliente listo en `sources/football_data.py`, sin conectar | resultados | El plan gratis no incluye la Liga Profesional |
+| football-data.co.uk | robots.txt bloquea a clientes automáticos como el nuestro desde nov-2026 | resultados | No se usa (ADR 0008) |
+| StrikerAPI, temporada anterior completa | responde 402 (fuera del plan) | resultados | Solo los partidos de Boca de 2025 |
+| Bzzoiro, Statshub, ScoutingStats, Promiedos | funcionan para toda la liga | estadísticas por jugador y partido de los dos equipos | Hoy se filtran a Boca (minimización de datos personales). Abrirlas a toda la liga es lo que falta para las listas de afuera de Alternativas |
+
 ## Dato crudo mínimo y lo que se deriva
 
 | Dato crudo | Fuentes que lo traen hoy | Qué se deriva | Qué se pierde si cae la fuente principal |

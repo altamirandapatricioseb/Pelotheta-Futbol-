@@ -102,3 +102,6 @@ g82,N,Desglose del Potencial,barras_apiladas,partes del Potencial β de 6.1,juga
 g83,N,Ranking del plantel por Potencial β con cobertura,ranking,métricas de 6.1 y cobertura,jugadores:evolucion_proyeccion,sí,sí,true,
 g84,N,Acuerdo entre variantes α y β,dispersion,métricas de 6.1,jugadores:evolucion_proyeccion,sí,sí,true,
 g107,N,Índice de rendimiento frente a Potencial β,dispersion,métricas de 6.1 y minutos,jugadores:evolucion_proyeccion,sí,sí,true,
+g108,M,Valor de mercado real contra esperado,dispersion,valores de mercado y modelo de valor,jugadores:evolucion_proyeccion,sí,sí,true,
+g109,M,Probabilidad previa de ganar y resultado,linea,predictor de partidos (backtest),equipo:eq_resultados,sí,sí,true,
+g110,M,Valor del plantel de cada club de la liga,barras,valor de planteles,equipo:eq_resultados,sí,sí,true,

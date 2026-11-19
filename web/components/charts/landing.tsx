@@ -64,6 +64,9 @@ const CHART_SOURCE: Record<string, string> = {
   g77: 'Open-Meteo y Promiedos',
   g87: 'ScoutingStats',
   g88: 'StrikerAPI',
+  g108: 'transfermarkt-datasets y modelo de valor propio',
+  g109: 'Predictor propio (resultados de Promiedos, StrikerAPI y transfermarkt-datasets)',
+  g110: 'transfermarkt-datasets',
 };
 
 type Venue = 'todos' | 'local' | 'visitante';

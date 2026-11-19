@@ -6,6 +6,7 @@
 
 import { useState, type ReactNode } from 'react';
 
+import { CURRENT_TEAM } from '@/config/teams';
 import type { LandingData } from '@/lib/data/landing';
 import { bins, countMatrix, cumulative, pearson, rolling, spearman } from '@/lib/charts/transform';
 import { playerValue, rankAndPercentile, type PlayerRow, type StatDef, type TeamMatchRow } from '@/lib/stats/catalog';
@@ -191,6 +192,79 @@ const statOptions = (catalog: StatDef[]) =>
     .map((c) => ({ value: c.id, label: c.name }));
 
 export const CHARTS: Record<string, ChartRender> = {
+  // --- Modelos (categoría M): valor de mercado y predictor -----------------------------------
+  g108: ({ data }) => {
+    const rows = data.models.values.filter((r) => r.actual !== null && r.predicted !== null);
+    if (rows.length === 0) return { empty: 'Todavía no corrió el modelo de valor.' };
+    const M = (v: number | null) => (v ?? 0) / 1e6;
+    return {
+      node: (
+        <ScatterChart
+          points={rows.map((r) => ({ x: M(r.predicted), y: M(r.actual), label: r.name }))}
+          xLabel="Esperado (M €)"
+          yLabel="Real (M €)"
+          diagonal
+          label="Valor de mercado real contra el esperado por el modelo"
+        />
+      ),
+      table: {
+        head: ['Jugador', 'Real (M €)', 'Esperado (M €)', 'Diferencia %'],
+        rows: rows.map((r) => [r.name, M(r.actual), M(r.predicted), r.residualPct]),
+      },
+      coverage: 'Arriba de la diagonal, el mercado lo paga más de lo esperado por edad, contrato, club y rendimiento',
+    };
+  },
+  g109: ({ data }) => {
+    const rows = data.models.backtest;
+    if (rows.length === 0) return { empty: 'Todavía no hay partidos evaluados por el predictor.' };
+    const team = CURRENT_TEAM.name;
+    const win = (p: (typeof rows)[number]) => (p.home === team ? p.pHome : p.pAway);
+    const res = (p: (typeof rows)[number]) => {
+      const own = p.home === team ? p.actualHome : p.actualAway;
+      const other = p.home === team ? p.actualAway : p.actualHome;
+      return own === null || other === null ? '' : own > other ? 'G' : own === other ? 'E' : 'P';
+    };
+    return {
+      node: (
+        <LineChart
+          labels={rows.map((p) => `${(p.date ?? '').slice(8, 10)}/${(p.date ?? '').slice(5, 7)}`)}
+          series={[{ id: 'pg', label: 'Probabilidad previa de ganar', slot: 1, values: rows.map(win) }]}
+          pointSlots={rows.map((p) => RESULT_SLOT[res(p)] ?? null)}
+          label="Probabilidad de ganar que daba el modelo antes de cada partido, coloreada por el resultado"
+        />
+      ),
+      table: {
+        head: ['Fecha', 'Partido', 'P(gana)', 'Resultado'],
+        rows: rows.map((p) => [
+          p.date,
+          `${p.home} ${String(p.actualHome)}–${String(p.actualAway)} ${p.away}`,
+          win(p),
+          RESULT_NAME[res(p)] ?? null,
+        ]),
+      },
+      coverage: 'Cada punto: lo que el modelo daba antes del partido, solo con lo jugado hasta ahí. Color: resultado',
+    };
+  },
+  g110: ({ data }) => {
+    const rows = [...data.models.clubs].filter((s) => s.value !== null).sort((a, b) => (b.value ?? 0) - (a.value ?? 0));
+    if (rows.length === 0) return { empty: 'Todavía no hay valores de plantel cargados.' };
+    return {
+      node: (
+        <BarChart
+          labels={rows.map((s) => s.team)}
+          horizontal
+          highlight={rows.findIndex((s) => s.team === CURRENT_TEAM.name)}
+          series={[
+            { id: 'valor', label: 'Valor del plantel (M €)', slot: 1, values: rows.map((s) => (s.value ?? 0) / 1e6) },
+          ]}
+          label="Valor de mercado del plantel de cada club de la liga"
+        />
+      ),
+      table: { head: ['Club', 'Valor del plantel (M €)'], rows: rows.map((s) => [s.team, (s.value ?? 0) / 1e6]) },
+      coverage: 'Suma de los valores de mercado de cada plantel: la variable que más mejoró las predicciones',
+    };
+  },
+
   // --- A. Forma y resultados -----------------------------------------------------------------
   g01: ({ matches }) => {
     if (!matches.length) return { empty: 'No hay partidos en el filtro elegido.' };

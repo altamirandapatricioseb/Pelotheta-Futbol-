@@ -15,6 +15,7 @@ import { useMemo } from 'react';
 
 import { LineChart, ShotMap } from '@/components/charts/primitives';
 import type { MatchPage } from '@/lib/data/match';
+import type { Prediction } from '@/lib/data/models';
 import { formatDateTime, formatNumber, NOT_AVAILABLE } from '@/lib/format';
 import { playerMatchValue, teamVsSeason, type TeamStatLine } from '@/lib/match/match';
 import { formatStat, type StatDef } from '@/lib/stats/catalog';
@@ -74,7 +75,7 @@ const lineRank = (position: string | null) => {
 const day = (iso: string) => iso.split('-').reverse().join('/');
 
 /** Página de un partido de Boca: ficha, goles, cara a cara, jugadores y estadísticas contra la temporada. */
-export function MatchView({ data }: { data: MatchPage }) {
+export function MatchView({ data, pre }: { data: MatchPage; pre?: Prediction }) {
   const router = useRouter();
   const { match } = data;
   const teamById = useMemo(() => new Map(data.teamCatalog.map((s) => [s.id, s])), [data.teamCatalog]);
@@ -226,6 +227,7 @@ export function MatchView({ data }: { data: MatchPage }) {
       </header>
 
       <div className="match-grid">
+        {pre ? <PreMatch pre={pre} home={match.home} /> : null}
         <section aria-labelledby="goles" className="chart-card">
           <h2 id="goles" className="text-base font-bold">
             Goles
@@ -472,6 +474,45 @@ export function MatchView({ data }: { data: MatchPage }) {
         </div>
       ) : null}
     </div>
+  );
+}
+
+const PCT = (v: number) => `${String(Math.round(v * 100))} %`;
+
+/** Previa del predictor: lo que daba el modelo con lo jugado hasta ese día (backtest sin mirar el futuro). */
+function PreMatch({ pre, home }: { pre: Prediction; home: boolean }) {
+  const win = home ? pre.pHome : pre.pAway;
+  const loss = home ? pre.pAway : pre.pHome;
+  const best = win >= pre.pDraw && win >= loss ? 'ganar' : pre.pDraw >= loss ? 'empatar' : 'perder';
+  return (
+    <section aria-labelledby="previa" className="chart-card">
+      <h2 id="previa" className="text-base font-bold">
+        Antes del partido, según el modelo
+      </h2>
+      <dl className="match-facts">
+        {[
+          ['Gana', PCT(win)],
+          ['Empata', PCT(pre.pDraw)],
+          ['Pierde', PCT(loss)],
+          [
+            'Goles esperados',
+            `${(home ? pre.lambdaHome : pre.lambdaAway).toFixed(2).replace('.', ',')} a ${(home ? pre.lambdaAway : pre.lambdaHome).toFixed(2).replace('.', ',')}`,
+          ],
+        ].map(([k, v]) => (
+          <div key={k}>
+            <dt>{k}</dt>
+            <dd className="tabular">{v}</dd>
+          </div>
+        ))}
+      </dl>
+      <p className="text-sm text-muted">
+        Lo más probable era {best}. El modelo usa solo los partidos anteriores a este: goles, valor de los planteles y
+        localía.{' '}
+        <Link href="/predictor" className="link">
+          Ver el predictor
+        </Link>
+      </p>
+    </section>
   );
 }
 

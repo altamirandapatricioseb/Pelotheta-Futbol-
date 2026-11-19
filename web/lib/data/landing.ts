@@ -3,7 +3,9 @@ import 'server-only';
 import { getCatalog } from '@/lib/data/catalog';
 import { getFreshness } from '@/lib/data/freshness';
 import { getPlayerMaster } from '@/lib/data/players';
+import { getMarketValues, getPredictions, type Prediction, type Strength, type ValueRow } from '@/lib/data/models';
 import { getLeagueClubs, getTeamMatches, getTeamWindowValues } from '@/lib/data/team';
+import { CURRENT_TEAM } from '@/config/teams';
 import type { PlayerRow, StatDef, TeamMatchRow } from '@/lib/stats/catalog';
 import type { ClubRow } from '@/lib/stats/league';
 import { createApiClient } from '@/lib/supabase/server';
@@ -49,6 +51,8 @@ export interface LandingData {
   projectionDetail: Record<number, { components: Record<string, number>; parts: Record<string, number> }>;
   /** Mejoría α y β de cada jugador partido a partido (gráfico 80): {jugador: {partido: {métrica: valor}}}. */
   metricSeries: Record<number, Record<number, Record<string, number>>>;
+  /** Modelos (gráficos 108 a 110): valor de mercado, backtest del predictor y planteles de la liga. */
+  models: { values: ValueRow[]; backtest: Prediction[]; clubs: Strength[] };
   updated: string | null;
 }
 
@@ -69,15 +73,18 @@ async function all<T>(query: (from: number, to: number) => PromiseLike<{ data: T
 /** Todo lo que necesita la landing en una sola carga (con la caché de datos de 6 horas). */
 export async function getLandingData(): Promise<LandingData | null> {
   const api = createApiClient();
-  const [matches, players, playerCatalog, teamCatalog, windowValues, clubs, freshness] = await Promise.all([
-    getTeamMatches(),
-    getPlayerMaster('todas'),
-    getCatalog('player'),
-    getCatalog('team'),
-    getTeamWindowValues(),
-    getLeagueClubs(),
-    getFreshness(),
-  ]);
+  const [matches, players, playerCatalog, teamCatalog, windowValues, clubs, freshness, values, predictions] =
+    await Promise.all([
+      getTeamMatches(),
+      getPlayerMaster('todas'),
+      getCatalog('player'),
+      getCatalog('team'),
+      getTeamWindowValues(),
+      getLeagueClubs(),
+      getFreshness(),
+      getMarketValues(CURRENT_TEAM.slug),
+      getPredictions(CURRENT_TEAM.slug),
+    ]);
   if (!matches.ok || !players.ok || !playerCatalog.ok || !teamCatalog.ok) return null;
 
   const [shots, formations, momentum, series, leaders, referees, previous, table, params, situ, metric, detail] =
@@ -265,6 +272,12 @@ export async function getLandingData(): Promise<LandingData | null> {
       if (r.stat_id === 'potencial_beta') entry.parts = numbers(r.detail.partes);
       return acc;
     }, {}),
+    // Sin modelos cargados, los gráficos 108 a 110 muestran su aviso de «sin datos».
+    models: {
+      values: values.ok ? values.data.rows : [],
+      backtest: predictions.ok ? predictions.data.predictions.filter((p) => p.kind === 'backtest') : [],
+      clubs: predictions.ok ? predictions.data.strengths.filter((s) => s.competition === 'liga') : [],
+    },
     updated: freshness.lastUpdate,
   };
 }

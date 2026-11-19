@@ -4,6 +4,8 @@ import { z } from 'zod';
 
 import { MatchView } from '@/components/match/match-view';
 import { getMatchPage } from '@/lib/data/match';
+import { getPredictions } from '@/lib/data/models';
+import { CURRENT_TEAM } from '@/config/teams';
 import { ErrorNotice } from '@/components/error-notice';
 
 export const metadata: Metadata = {
@@ -20,10 +22,18 @@ interface PageProps {
 export default async function PartidoPage({ params }: PageProps) {
   const parsed = paramsSchema.safeParse(await params);
   if (!parsed.success) notFound();
-  const page = await getMatchPage(parsed.data.id);
+  const [page, predictions] = await Promise.all([getMatchPage(parsed.data.id), getPredictions(CURRENT_TEAM.slug)]);
   if (page === null) notFound();
   if (!page.ok) {
     return <ErrorNotice code={page.code} />;
   }
-  return <MatchView data={page.data} />;
+  // El backtest del predictor guarda la previa de cada partido de liga; la fecha puede diferir en un
+  // día entre fuentes (StrikerAPI fecha en UTC).
+  const day = Date.parse(page.data.match.date);
+  const pre = predictions.ok
+    ? predictions.data.predictions.find(
+        (p) => p.kind === 'backtest' && p.date !== null && Math.abs(Date.parse(p.date) - day) <= 86_400_000,
+      )
+    : undefined;
+  return <MatchView data={page.data} pre={pre} />;
 }

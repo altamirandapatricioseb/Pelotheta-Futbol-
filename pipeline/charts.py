@@ -26,7 +26,7 @@ Export = Literal["sí", "alternativa", "no"]
 TargetType = Literal["tabla", "tarjeta", "desglosada", "partido", "comparar"]
 # Página de la web de cada tipo de destino (la tabla puede ser la de equipo o la de jugadores).
 TARGET_PAGES: dict[str, tuple[str, ...]] = {
-    "tabla": ("equipo", "jugadores"),
+    "tabla": ("equipo", "jugadores", "valor", "predictor"),
     "tarjeta": ("situaciones",),
     "desglosada": ("estadistica",),
     "partido": ("partido",),

@@ -22,7 +22,7 @@ function fail(cause: unknown): { ok: false; code: 'PEL-DB-001'; detail: string }
 }
 
 /** Páginas a las que puede llevar el botón de origen; cualquier otra se descarta (sin enlaces rotos). */
-const PAGES = new Set(['equipo', 'jugadores', 'situaciones', 'comparar']);
+const PAGES = new Set(['equipo', 'jugadores', 'situaciones', 'comparar', 'valor', 'predictor']);
 const PARAMS = /^([a-z]+=[a-z0-9_]+(&[a-z]+=[a-z0-9_]+)*)?$/;
 
 /** Catálogo de gráficos de la Interfaz 1 con su origen (`api.chart_catalog` y `api.chart_source_map`). */

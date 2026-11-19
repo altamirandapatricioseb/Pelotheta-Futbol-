@@ -132,3 +132,6 @@ g101,tabla,equipo,conjunto=eq_local_visitante,Origen: Equipo › Local y visitan
 g101,desglosada,estadistica,stat=eq_xg&entidad=equipo,Desglosada: Goles esperados
 g102,tabla,equipo,conjunto=eq_local_visitante,Origen: Equipo › Local y visitante
 g107,tabla,jugadores,conjunto=evolucion_proyeccion,Origen: Jugadores › Evolución y proyección
+g108,tabla,valor,,Origen: Valor › El plantel
+g109,tabla,predictor,,Origen: Predictor › Backtest
+g110,tabla,predictor,,Origen: Predictor › Elegí el rival

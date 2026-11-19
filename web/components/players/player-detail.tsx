@@ -7,6 +7,8 @@ import { useState } from 'react';
 
 import { basisText, fillText } from '@/components/situations/board';
 import { comparableStats, isGoalkeeper, lineOf, referencePool, sectionOf, sectionsFor } from '@/lib/compare/compare';
+import { optionHref } from '@/components/models/alternative-detail';
+import type { AlternativeRow, ValueRow } from '@/lib/data/models';
 import type { PlayerDetail } from '@/lib/data/player';
 import { NOT_AVAILABLE } from '@/lib/format';
 import { formatStat, playerValue, rankAndPercentile } from '@/lib/stats/catalog';
@@ -22,7 +24,22 @@ const num = (v: unknown): v is number => typeof v === 'number' && Number.isFinit
  * puesto en el plantel) y sus partidos. Se llega desde Jugadores (doble clic en el nombre o «Ver
  * detalle»), Comparar y la página de cada partido.
  */
-export function PlayerDetailView({ data }: { data: PlayerDetail }) {
+const EUR = (v: number | null) =>
+  v === null
+    ? NOT_AVAILABLE
+    : v >= 1e6
+      ? `€ ${(v / 1e6).toFixed(2).replace('.', ',')} M`
+      : `€ ${Math.round(v).toLocaleString('es-AR')}`;
+
+export function PlayerDetailView({
+  data,
+  market,
+  alternatives = [],
+}: {
+  data: PlayerDetail;
+  market?: ValueRow;
+  alternatives?: AlternativeRow[];
+}) {
   const router = useRouter();
   const { player, squad, catalog, conclusions, matches } = data;
   // Cálculos baratos (un plantel): sin memo, el compilador de React se encarga.
@@ -107,6 +124,46 @@ export function PlayerDetailView({ data }: { data: PlayerDetail }) {
           ))}
         </dl>
       </header>
+
+      {market || alternatives.length ? (
+        <section aria-labelledby="mercado" className="grid gap-3">
+          <h2 id="mercado" className="text-xl font-bold">
+            Mercado y alternativas
+          </h2>
+          {market ? (
+            <dl className="match-facts">
+              {[
+                ['Valor de mercado', EUR(market.actual)],
+                ['Lo que se esperaría', EUR(market.predicted)],
+                [
+                  'Diferencia',
+                  market.residualPct === null
+                    ? NOT_AVAILABLE
+                    : `${market.residualPct > 0 ? '+' : ''}${market.residualPct.toFixed(1).replace('.', ',')} %`,
+                ],
+                ['Años de contrato', market.detail.contractYears?.toFixed(1).replace('.', ',') ?? NOT_AVAILABLE],
+              ].map(([k, v]) => (
+                <div key={k}>
+                  <dt>{k}</dt>
+                  <dd className="tabular">{v}</dd>
+                </div>
+              ))}
+            </dl>
+          ) : null}
+          <div className="flex flex-wrap gap-2">
+            {market ? (
+              <Link href={`/valor/${String(player.playerId)}`} className="chip focus-ring">
+                Cómo se arma su valor
+              </Link>
+            ) : null}
+            {alternatives.slice(0, 3).map((a) => (
+              <Link key={`${a.section}-${String(a.rank)}`} href={optionHref(a)} className="chip focus-ring">
+                Se parece a {a.members.map((m) => m.name).join(' + ')} · {Math.round(a.similarity)} %
+              </Link>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       {conclusions.length ? (
         <section aria-labelledby="conclusiones" className="grid gap-3">

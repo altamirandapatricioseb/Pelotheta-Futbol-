@@ -285,6 +285,8 @@ export function scoutReports(market: MarketPlayer[], needs: Need[], perCategory 
   const needOf = new Map(needs.map((n) => [n.group, n]));
   const valued = market.filter((p) => isGroup(p.position) && p.value !== null && p.value > 0);
   const leagueMedian = median(valued.map((p) => p.value as number));
+  // Respaldo si el puesto no tiene valores propios: la mediana del plantel entero.
+  const teamMedian = median(needs.flatMap((n) => n.players.flatMap((p) => (p.value === null ? [] : [p.value]))));
   const perGroup = new Map(
     GROUPS.map((g) => {
       const peers = valued.filter((p) => p.position === g);
@@ -300,7 +302,7 @@ export function scoutReports(market: MarketPlayer[], needs: Need[], perCategory 
     // Como las estrellas de Football Manager, relativo al propio plantel: 50 = vale lo mismo que los
     // titulares del puesto, 75 = el doble, 100 = cuatro veces, 25 = la mitad.
     const need0 = needOf.get(group);
-    const ref = need0?.budget ? need0.budget / 1.5 : leagueMedian;
+    const ref = need0?.budget ? need0.budget / 1.5 : (teamMedian ?? leagueMedian);
     const market01 = ref ? clamp01(0.5 + 0.25 * Math.log2((p.value as number) / ref)) : 0.5;
     const scores = g?.rated && (p.minutes ?? 0) >= MIN_LEAGUE ? scoresOf(p, POSITION_STATS[group], g.dist) : [];
     const statLevel = mean(scores.map((s) => s.percentile));
@@ -359,7 +361,8 @@ export function scoutReports(market: MarketPlayer[], needs: Need[], perCategory 
 
   // Necesidad: los mejores por puesto, repartidos según cuánto falta en cada uno.
   const needReports = needs.flatMap((n) => {
-    const slots = Math.max(1, Math.round((n.score / 10) * 5));
+    // Con perCategory infinito (informe de un jugador puntual) entran todos.
+    const slots = Number.isFinite(perCategory) ? Math.max(1, Math.round((n.score / 10) * 5)) : Infinity;
     return top(base.filter((b) => b.group === n.group).map((b) => build(b, 'necesidad', fit(b)))).slice(0, slots);
   });
   const opportunities = top(

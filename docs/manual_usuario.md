@@ -91,8 +91,12 @@ estén las estadísticas de los otros clubes). Abajo, los informes de jugadores 
 (por necesidad, oportunidades de mercado y jóvenes promesas de hasta 21 años) con filtro por puesto y un gráfico de
 nivel contra valor. Cada informe trae nota de 0 a 10, veredicto (fichar, seguir de cerca u opción de reserva),
 barras de nivel actual y potencial (0 a 100, relativas a los titulares propios del puesto), valor contra la
-mediana de su puesto y edad, en qué es bueno, y a favor y en contra. «Ver informe completo» abre todas sus
-estadísticas contra la liga cuando estén cargadas. Todo se recalcula con lo cargado: cambia con el plantel, el mercado y el equipo elegido.
+mediana de su puesto y edad, en qué es bueno, y a favor y en contra. «Ver informe completo» (o tocar su punto
+en el gráfico) abre su página: el resumen, su precio contra el de todos los de su puesto en la liga por edad (con la
+mediana y los del plantel propio marcados), lo mejor y lo peor de su juego y una tabla con todas las estadísticas del
+catálogo del puesto (las mismas que tienen los jugadores propios): su valor, su percentil en la liga, la mediana de
+la liga y la de los titulares propios. Mientras falten sus estadísticas, la tabla muestra contra qué se lo va a medir. Colores: verde lo muy bueno (percentil 70 o más, necesidad de 3 o menos, a favor), rojo lo preocupante
+(percentil 30 o menos, necesidad de 6 o más, en contra) y violeta lo intermedio. Todo se recalcula con lo cargado: cambia con el plantel, el mercado y el equipo elegido.
 
 ## Estadística desglosada
 

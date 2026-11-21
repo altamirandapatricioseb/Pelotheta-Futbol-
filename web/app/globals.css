@@ -2335,16 +2335,28 @@ h3 {
   font-weight: 800;
   border: 1px solid var(--color-border);
 }
-.scout-score--alta {
-  color: var(--color-bg);
-  background: var(--color-link);
-  border-color: var(--color-link);
+.scout-score--buena {
+  color: #fff;
+  background: var(--series-1);
+  border-color: var(--series-1);
+}
+.scout-score--mala {
+  color: #fff;
+  background: var(--series-3);
+  border-color: var(--series-3);
 }
 .scout-score--media {
-  color: var(--color-link);
+  color: var(--series-2);
 }
 .scout-score--baja {
   color: var(--color-text-muted);
+}
+.scout-bad {
+  /* El rojo de la paleta queda oscuro sobre fondo oscuro: como texto se aclara hacia el color de texto. */
+  color: color-mix(in srgb, var(--series-3) 65%, var(--color-text));
+}
+.scout-good {
+  color: color-mix(in srgb, var(--series-1) 80%, var(--color-text));
 }
 .scout-card--open {
   border-color: var(--series-2);
@@ -2421,4 +2433,26 @@ h3 {
 .scout-axis {
   font-size: 11px;
   fill: var(--color-text-muted);
+}
+.scout-axis-title {
+  font-size: 12px;
+  font-weight: 600;
+  fill: var(--color-text-muted);
+}
+.scout-point-label {
+  font-size: 11px;
+  fill: var(--color-text);
+  paint-order: stroke;
+  stroke: var(--chart-surface);
+  stroke-width: 3px;
+}
+.scout-point-label--on {
+  font-size: 13px;
+  font-weight: 700;
+}
+.scout-table td {
+  text-align: right;
+}
+.scout-table tbody th {
+  font-weight: 500;
 }

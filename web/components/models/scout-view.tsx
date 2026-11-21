@@ -1,12 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 
 import type { Category, Group, Need, Report, StatScore } from '@/lib/models/scouting';
 import { GROUPS, POSITION_STATS } from '@/lib/models/scouting';
 
 import { eur, Section, Tiles } from './common';
+import { ScoutScatter } from './scout-chart';
 
 const CATEGORIES: { id: Category; label: string; intro: string }[] = [
   {
@@ -34,25 +35,48 @@ const BANDS = [
   { label: '34 o más', min: 34, max: 99 },
 ];
 
-const one = (v: number | null) => (v === null ? 'n/d' : v.toFixed(1).replace('.', ','));
+export const one = (v: number | null) => (v === null ? 'n/d' : v.toFixed(1).replace('.', ','));
 const REF_TEXT = { liga: 'contra los de su puesto en la liga', plantel: 'contra los del puesto en el plantel' };
 
 /** Violeta secundario con intensidad según el valor (0 a 100). */
-const violet = (pct: number) => `color-mix(in srgb, var(--series-2) ${String(Math.round(12 + 0.8 * pct))}%, transparent)`;
+const violet = (pct: number) =>
+  `color-mix(in srgb, var(--series-2) ${String(Math.round(12 + 0.8 * pct))}%, transparent)`;
 
-function Bar({ value, label }: { value: number; label: string }) {
+/** Semáforo de percentil: verde lo muy bueno (70+), rojo lo preocupante (30 o menos), violeta lo intermedio. */
+export const toneColor = (pct: number) =>
+  pct >= 70 ? 'var(--series-1)' : pct <= 30 ? 'var(--series-3)' : 'var(--series-2)';
+const heat = (pct: number) => {
+  const strength = pct >= 70 ? pct - 40 : pct <= 30 ? 70 - pct : 25;
+  return `color-mix(in srgb, ${toneColor(pct)} ${String(Math.round(strength))}%, transparent)`;
+};
+
+export function Bar({ value, label, tone = false }: { value: number; label: string; tone?: boolean }) {
   return (
     <span className="scout-bar" role="img" aria-label={`${label}: ${String(value)} de 100`}>
       <span className="scout-bar__track">
-        <span className="scout-bar__fill" style={{ width: `${String(Math.max(2, value))}%` }} />
+        <span
+          className="scout-bar__fill"
+          style={{ width: `${String(Math.max(2, value))}%`, background: tone ? toneColor(value) : undefined }}
+        />
       </span>
       <span className="tabular text-xs">{value}</span>
     </span>
   );
 }
 
-function Score({ value, label }: { value: number; label: string }) {
-  const tone = value >= 7.5 ? 'alta' : value >= 6 ? 'media' : 'baja';
+export function Score({ value, label, need = false }: { value: number; label: string; need?: boolean }) {
+  // En la necesidad, alta es mala (rojo) y baja es buena (verde); en un informe, alta es buena.
+  const tone = need
+    ? value >= 6
+      ? 'mala'
+      : value <= 3
+        ? 'buena'
+        : 'media'
+    : value >= 7.5
+      ? 'buena'
+      : value >= 6
+        ? 'media'
+        : 'baja';
   return (
     <span className={`scout-score scout-score--${tone} tabular`} aria-label={`${label}: ${one(value)} de 10`}>
       {one(value)}
@@ -67,7 +91,7 @@ function StatBars({ scores }: { scores: StatScore[] }) {
         <div key={s.id} className="contents">
           <dt className="text-xs text-muted">{s.label}</dt>
           <dd>
-            <Bar value={s.percentile} label={`${s.label}, percentil`} />
+            <Bar value={s.percentile} label={`${s.label}, percentil`} tone />
           </dd>
         </div>
       ))}
@@ -145,11 +169,16 @@ function NeedCard({ need }: { need: Need }) {
             {need.budget !== null ? ` · presupuesto de referencia ${eur(need.budget)}` : ''}
           </p>
         </div>
-        <Score value={need.score} label="Necesidad" />
+        <Score value={need.score} label="Necesidad" need />
       </div>
       <ul className="grid gap-1 text-sm">
         {need.reasons.map((r) => (
-          <li key={r}>· {r}</li>
+          <li
+            key={r}
+            className={r.startsWith('Puesto cubierto') ? 'scout-good' : need.score >= 6 ? 'scout-bad' : undefined}
+          >
+            · {r}
+          </li>
         ))}
       </ul>
       {weak.length ? (
@@ -193,7 +222,7 @@ function NeedCard({ need }: { need: Need }) {
                   {defs.map((d) => {
                     const s = byId.get(d.id);
                     return s ? (
-                      <td key={d.id} className="tabular" style={{ background: violet(s.percentile) }}>
+                      <td key={d.id} className="tabular" style={{ background: heat(s.percentile) }}>
                         {s.percentile}
                       </td>
                     ) : (
@@ -219,116 +248,10 @@ function NeedCard({ need }: { need: Need }) {
   );
 }
 
-/** Nivel contra valor de los informes mostrados: arriba a la izquierda, mucho jugador por poca plata. */
-function Scatter({ reports, selected, onSelect }: { reports: Report[]; selected: string | null; onSelect: (id: string) => void }) {
-  const W = 640;
-  const H = 300;
-  const P = 40;
-  const values = reports.map((r) => Math.log10(r.player.value ?? 1));
-  const lo = Math.min(...values);
-  const hi = Math.max(...values);
-  const x = (v: number) => P + ((Math.log10(v) - lo) / (hi - lo || 1)) * (W - 2 * P);
-  const y = (a: number) => H - P - (a / 100) * (H - 2 * P);
-  return (
-    <figure className="scout-chart">
-      <svg viewBox={`0 0 ${String(W)} ${String(H)}`} role="img" aria-label="Nivel actual contra valor de mercado de cada informe">
-        {[0, 25, 50, 75, 100].map((t) => (
-          <g key={t}>
-            <line x1={P} x2={W - P} y1={y(t)} y2={y(t)} stroke="var(--chart-grid)" />
-            <text x={P - 6} y={y(t) + 4} textAnchor="end" className="scout-axis">
-              {t}
-            </text>
-          </g>
-        ))}
-        {[lo, (lo + hi) / 2, hi].map((t) => (
-          <text key={t} x={x(10 ** t)} y={H - P + 18} textAnchor="middle" className="scout-axis">
-            {eur(10 ** t)}
-          </text>
-        ))}
-        {reports.map((r) => {
-          const on = r.id === selected;
-          return (
-            <circle
-              key={r.id}
-              cx={x(r.player.value ?? 1)}
-              cy={y(r.ability)}
-              r={on ? 9 : 4 + r.potential / 25}
-              fill="var(--series-2)"
-              fillOpacity={on ? 1 : 0.55}
-              stroke={on ? 'var(--color-text)' : 'none'}
-              className="cursor-pointer"
-              onClick={() => {
-                onSelect(r.id);
-              }}
-            >
-              <title>{`${r.player.name} (${r.player.team}): nivel ${String(r.ability)}, ${eur(r.player.value)}`}</title>
-            </circle>
-          );
-        })}
-      </svg>
-      <figcaption className="text-xs text-muted">
-        Cada punto es un informe: alto, más nivel; a la derecha, más caro (escala logarítmica); más grande, más
-        potencial. Tocá uno para abrir su informe.
-      </figcaption>
-    </figure>
-  );
-}
+export const reportHref = (r: Report) =>
+  `/ojeador/informe?jugador=${encodeURIComponent(r.player.name)}&club=${encodeURIComponent(r.player.team)}`;
 
-function ReportDetail({ report }: { report: Report }) {
-  const p = report.player;
-  return (
-    <article className="scout-card scout-card--open" aria-label={`Informe de ${p.name}`}>
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h3 className="text-lg font-bold">{p.name}</h3>
-          <p className="text-sm text-muted">
-            {p.team} · {report.group} · {p.age ?? 'n/d'} años · {eur(p.value)}
-            {p.minutes ? ` · ${String(p.minutes)} minutos` : ''}
-          </p>
-          <p className="mt-1 font-semibold">{report.verdict}</p>
-        </div>
-        <Score value={report.score} label="Nota del informe" />
-      </div>
-      <dl className="scout-stats">
-        <dt className="text-xs text-muted">Nivel actual</dt>
-        <dd>
-          <Bar value={report.ability} label="Nivel actual" />
-        </dd>
-        <dt className="text-xs text-muted">Potencial</dt>
-        <dd>
-          <Bar value={report.potential} label="Potencial" />
-        </dd>
-      </dl>
-      {report.scores.length ? (
-        <div className="grid gap-1">
-          <p className="text-xs font-semibold">Sus estadísticas, contra los de su puesto en la liga</p>
-          <StatBars scores={[...report.scores].sort((a, b) => b.percentile - a.percentile)} />
-        </div>
-      ) : (
-        <p className="text-sm text-muted">
-          Todavía no hay estadísticas de este jugador. Cuando la fuente las traiga aparecen acá, con su percentil en
-          cada estadística del puesto contra el resto de la liga, y pasan a contar en el nivel y en la nota.
-        </p>
-      )}
-      <div className="grid gap-3 sm:grid-cols-2">
-        <ul className="grid gap-0.5 text-sm">
-          {report.pros.map((t) => (
-            <li key={t} className="text-link">
-              + {t}
-            </li>
-          ))}
-        </ul>
-        <ul className="grid gap-0.5 text-sm text-muted">
-          {report.cons.map((t) => (
-            <li key={t}>− {t}</li>
-          ))}
-        </ul>
-      </div>
-    </article>
-  );
-}
-
-function ReportCard({ report, onOpen }: { report: Report; onOpen: () => void }) {
+function ReportCard({ report }: { report: Report }) {
   const p = report.player;
   return (
     <li className="scout-card">
@@ -359,16 +282,16 @@ function ReportCard({ report, onOpen }: { report: Report; onOpen: () => void }) 
       <p className="text-xs">
         {report.strengths.length ? (
           <>
-            <span className="font-semibold">Bueno en: </span>
+            <span className="scout-good font-semibold">Bueno en: </span>
             {report.strengths.map((s) => s.label).join(', ')}
           </>
         ) : (
           <span className="text-muted">En qué es bueno: aparece cuando estén sus estadísticas.</span>
         )}
       </p>
-      <button type="button" className="chip focus-ring w-fit" onClick={onOpen}>
+      <Link href={reportHref(report)} className="chip focus-ring w-fit">
         Ver informe completo
-      </button>
+      </Link>
     </li>
   );
 }
@@ -376,21 +299,18 @@ function ReportCard({ report, onOpen }: { report: Report; onOpen: () => void }) 
 export function ScoutView({ needs, reports, marketSize }: { needs: Need[]; reports: Report[]; marketSize: number }) {
   const [category, setCategory] = useState<Category>('necesidad');
   const [group, setGroup] = useState<Group | 'todos'>('todos');
-  const [selected, setSelected] = useState<string | null>(null);
-  const detailRef = useRef<HTMLDivElement>(null);
   const current = CATEGORIES.find((c) => c.id === category) ?? CATEGORIES[0];
   const shown = reports.filter((r) => r.category === category && (group === 'todos' || r.group === group));
-  const open = shown.find((r) => r.id === selected) ?? null;
   const top = needs[0];
-  const select = (id: string) => {
-    setSelected(id);
-    requestAnimationFrame(() => detailRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
-  };
   return (
     <div className="grid gap-8">
       <Tiles
         items={[
-          { label: 'Mayor necesidad', value: top ? top.group : 'n/d', hint: top ? `${one(top.score)} de 10` : undefined },
+          {
+            label: 'Mayor necesidad',
+            value: top ? top.group : 'n/d',
+            hint: top ? `${one(top.score)} de 10` : undefined,
+          },
           {
             label: 'Jugadores en el mercado',
             value: String(marketSize),
@@ -457,19 +377,25 @@ export function ScoutView({ needs, reports, marketSize }: { needs: Need[]; repor
         </div>
         {shown.length ? (
           <>
-            <Scatter reports={shown} selected={open?.id ?? null} onSelect={select} />
-            <div ref={detailRef} className="scroll-mt-24">
-              {open ? <ReportDetail report={open} /> : null}
-            </div>
+            <ScoutScatter
+              label="Nivel actual contra valor de mercado de cada informe"
+              points={shown.map((r) => ({
+                key: r.id,
+                x: r.player.value ?? 1,
+                y: r.ability,
+                label: r.player.name,
+                color: 'var(--series-2)',
+                r: 4 + r.potential / 25,
+                title: `${r.player.name} (${r.player.team}): nivel ${String(r.ability)}, potencial ${String(r.potential)}, ${eur(r.player.value)}`,
+                href: reportHref(r),
+              }))}
+              x={{ title: 'Valor de mercado (escala logarítmica)', log: true, format: eur }}
+              y={{ title: 'Nivel actual (0 a 100)', min: 0, max: 100, format: (v) => String(Math.round(v)) }}
+              caption="Cada punto es un informe: más arriba, más nivel; más a la derecha, más caro; más grande, más potencial. Arriba a la izquierda, mucho jugador por poca plata. Tocá uno para abrir su informe completo."
+            />
             <ul className="scout-grid">
               {shown.map((r) => (
-                <ReportCard
-                  key={r.id}
-                  report={r}
-                  onOpen={() => {
-                    select(r.id);
-                  }}
-                />
+                <ReportCard key={r.id} report={r} />
               ))}
             </ul>
           </>

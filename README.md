@@ -34,6 +34,7 @@ calcula el sistema (nivel A, B o C), si es estimado y de qué partidos viene.
 | [Valor](https://pelotheta-futbol.vercel.app/valor) | Valor de mercado real contra el esperado por edad, posición, contrato y club (toda la liga) y rendimiento, con análisis por jugador |
 | [Alternativas](https://pelotheta-futbol.vercel.app/alternativas) | Para cada jugador, los más parecidos (K-means sobre 17 estadísticas cada 90), con desglose Moneyball de cada opción |
 | [Predictor](https://pelotheta-futbol.vercel.app/predictor) | Poisson con goles y valor del plantel, rivales de liga y de copas, selección de variables por backtest |
+| [Ojeador](https://pelotheta-futbol.vercel.app/ojeador) | Informes de fichaje con nota: necesidad por puesto, oportunidades de mercado y jóvenes promesas de otros clubes |
 | Estadística desglosada | Doble clic en cualquier número: ventanas de tiempo, gráficos y partidos |
 | Actualizar | Dispara la carga de datos desde la web |
 

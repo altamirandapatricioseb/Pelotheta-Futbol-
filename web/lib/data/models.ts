@@ -201,6 +201,9 @@ export interface PoolPlayer {
   age: number | null;
   position: string | null;
   value: number | null;
+  minutes: number | null;
+  /** Estadísticas de temporada (totales) cuando la fuente las trae; vacío si no. */
+  stats: Record<string, number>;
 }
 
 /** Jugadores de la liga (otros clubes) con edad y valor: la nube de referencia de Valor. */
@@ -208,7 +211,7 @@ export async function getLeaguePool(): Promise<DataResult<PoolPlayer[]>> {
   try {
     const { data, error } = await createApiClient()
       .from('player_pool')
-      .select('player_name, team_name, age, position_group, value_eur')
+      .select('player_name, team_name, age, position_group, value_eur, minutes, stats')
       .not('value_eur', 'is', null)
       .limit(3000);
     if (error) return fail(error.message);
@@ -220,6 +223,8 @@ export async function getLeaguePool(): Promise<DataResult<PoolPlayer[]>> {
         age: r.age,
         position: r.position_group,
         value: r.value_eur,
+        minutes: r.minutes,
+        stats: nums(r.stats),
       })),
     };
   } catch (cause) {

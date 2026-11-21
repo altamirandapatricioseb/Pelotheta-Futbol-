@@ -1059,6 +1059,8 @@ h3 {
   padding: 14px 18px;
 }
 .tile {
+  min-width: 0;
+  overflow-wrap: anywhere;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -2306,4 +2308,117 @@ h3 {
 .downloads__menu a:hover {
   background: var(--color-row-hover);
   color: var(--color-link);
+}
+
+/* Ojeador: tarjetas de informe con nota y estrellas. */
+.scout-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+  gap: 12px;
+}
+.scout-card {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-surface);
+  padding: 14px 16px;
+}
+.scout-score {
+  flex: none;
+  min-width: 3rem;
+  border-radius: 10px;
+  padding: 4px 8px;
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 800;
+  border: 1px solid var(--color-border);
+}
+.scout-score--alta {
+  color: var(--color-bg);
+  background: var(--color-link);
+  border-color: var(--color-link);
+}
+.scout-score--media {
+  color: var(--color-link);
+}
+.scout-score--baja {
+  color: var(--color-text-muted);
+}
+.scout-card--open {
+  border-color: var(--series-2);
+}
+.scout-bar {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+.scout-bar__track {
+  flex: 1;
+  min-width: 60px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--chart-empty);
+  overflow: hidden;
+}
+.scout-bar__fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--series-2);
+}
+.scout-stats {
+  display: grid;
+  grid-template-columns: minmax(7rem, auto) 1fr;
+  align-items: center;
+  gap: 4px 12px;
+}
+.scout-matrix,
+.scout-heat {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 2px;
+  font-size: 0.8125rem;
+}
+.scout-matrix th,
+.scout-matrix td {
+  vertical-align: top;
+  text-align: left;
+  padding: 6px;
+  border-radius: 6px;
+  background: var(--color-surface-2);
+}
+.scout-matrix thead th,
+.scout-heat thead th {
+  background: none;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+.scout-chip {
+  border-radius: 6px;
+  padding: 2px 6px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+.scout-heat th,
+.scout-heat td {
+  padding: 4px 6px;
+  border-radius: 4px;
+  text-align: center;
+  white-space: nowrap;
+}
+.scout-heat tbody th {
+  text-align: left;
+  font-weight: 600;
+}
+.scout-chart svg {
+  width: 100%;
+  height: auto;
+}
+.scout-axis {
+  font-size: 11px;
+  fill: var(--color-text-muted);
 }

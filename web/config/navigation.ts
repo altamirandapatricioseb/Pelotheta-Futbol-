@@ -1,4 +1,4 @@
-// Las interfaces del header: las 6 de la sección 9.1, los 3 modelos (valor, alternativas, predictor) y «Actualizar» (9.11).
+// Las interfaces del header: las 6 de la sección 9.1, los modelos (valor, alternativas, predictor, ojeador) y «Actualizar» (9.11).
 export interface InterfaceLink {
   href: string;
   label: string;
@@ -11,6 +11,7 @@ export interface InterfaceLink {
     | 'valor'
     | 'alternativas'
     | 'predictor'
+    | 'ojeador'
     | 'actualizar';
 }
 
@@ -23,6 +24,7 @@ export const INTERFACES: readonly InterfaceLink[] = [
   { href: '/valor', label: 'Valor', icon: 'valor' },
   { href: '/alternativas', label: 'Alternativas', icon: 'alternativas' },
   { href: '/predictor', label: 'Predictor', icon: 'predictor' },
+  { href: '/ojeador', label: 'Ojeador', icon: 'ojeador' },
   { href: '/actualizar', label: 'Actualizar', icon: 'actualizar' },
 ];
 

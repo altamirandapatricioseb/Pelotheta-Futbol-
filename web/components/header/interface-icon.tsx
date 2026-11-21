@@ -1,6 +1,7 @@
 import {
   ArrowsClockwiseIcon,
   ArrowsLeftRightIcon,
+  BinocularsIcon,
   ChartLineUpIcon,
   CoinsIcon,
   CrosshairIcon,
@@ -22,6 +23,7 @@ const ICONS = {
   valor: CoinsIcon,
   alternativas: UsersThreeIcon,
   predictor: CrosshairIcon,
+  ojeador: BinocularsIcon,
   actualizar: ArrowsClockwiseIcon,
 } as const;
 

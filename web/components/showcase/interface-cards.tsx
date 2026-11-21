@@ -18,6 +18,7 @@ const COPY: Record<InterfaceLink['icon'], string> = {
   valor: 'Lo que vale cada jugador en el mercado contra lo que una regresión lineal cree que vale.',
   alternativas: 'Para cada jugador, las opciones más parecidas: de otro club, en dupla o dentro del plantel.',
   predictor: 'Probabilidad de ganar, empatar y perder con un modelo de Poisson, con backtest y pruebas.',
+  ojeador: 'Informes de ojeador con nota: lo que le falta al plantel, oportunidades de mercado y jóvenes promesas.',
   actualizar: 'La carga de datos a un botón: última actualización, estado de la fuente y corrida manual.',
 };
 

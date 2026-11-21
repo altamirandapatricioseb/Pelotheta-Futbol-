@@ -80,6 +80,20 @@ la matriz completa. Mira los goles que hace y recibe cada equipo (con más peso 
 la localía; «Qué estadísticas usa» muestra las combinaciones probadas y por qué quedó esa. Un rival sin datos se
 marca como supuesto. No son cuotas de apuestas.
 
+## Ojeador
+
+Informes como los de un ojeador. Arriba, la matriz de profundidad y edades: cada puesto contra cinco franjas de
+edad, con cada jugador más violeta cuantos más minutos jugó. Después, «Lo que le falta al plantel»: una nota de
+necesidad de 0 a 10 por puesto (profundidad, nivel de los titulares en las estadísticas del puesto, titulares
+veteranos y contratos que terminan), los motivos, lo más flojo de los titulares y un mapa de calor con todos los
+jugadores del puesto y su percentil en cada estadística relevante (contra el plantel hoy; contra la liga cuando
+estén las estadísticas de los otros clubes). Abajo, los informes de jugadores de otros clubes en tres categorías
+(por necesidad, oportunidades de mercado y jóvenes promesas de hasta 21 años) con filtro por puesto y un gráfico de
+nivel contra valor. Cada informe trae nota de 0 a 10, veredicto (fichar, seguir de cerca u opción de reserva),
+barras de nivel actual y potencial (0 a 100, relativas a los titulares propios del puesto), valor contra la
+mediana de su puesto y edad, en qué es bueno, y a favor y en contra. «Ver informe completo» abre todas sus
+estadísticas contra la liga cuando estén cargadas. Todo se recalcula con lo cargado: cambia con el plantel, el mercado y el equipo elegido.
+
 ## Estadística desglosada
 
 ![Desglosada](capturas/desglosada-oscuro.png)

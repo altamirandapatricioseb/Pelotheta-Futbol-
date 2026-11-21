@@ -1,10 +1,10 @@
 'use client';
 
-// Las nueve interfaces contadas sobre una pizarra táctica. La sección queda pegada (100 vh por paso
+// Las diez interfaces contadas sobre una pizarra táctica. La sección queda pegada (100 vh por paso
 // en escritorio, 80 en el celular): la cancha (vista desde arriba, vertical) va en el centro y la
 // cámara se mueve con el scroll. Partido entero (Equipo), los once puntos (Jugadores), dos aislados
 // (Comparar), uno y sus parecidos de otros clubes (Alternativas), la línea del valor (Valor), una
-// roja (Situaciones), la barra de probabilidades (Predictor), una jugada hasta el arco (Gráficos) y
+// roja (Situaciones), la barra de probabilidades (Predictor), una jugada hasta el arco (Gráficos), el mercado (Ojeador) y
 // vuelta al círculo central (Actualizar). El texto cambia de lado en cada paso; en el celular va
 // debajo de la cancha.
 
@@ -62,6 +62,11 @@ const STEPS: readonly StepCopy[] = [
     icon: 'graficos',
     lead: 'Cada jugada termina en un gráfico.',
     text: 'Más de cien gráficos en 17 categorías: forma, goles, xG y remates, posesión, defensa, pelota parada, métricas propias y proyección. Todos se exportan como imagen o tabla.',
+  },
+  {
+    icon: 'ojeador',
+    lead: '¿A quién vamos a buscar?',
+    text: 'Informes como los de un ojeador, con nota de 0 a 10: qué puesto le falta al plantel (profundidad, nivel, edad y contratos), oportunidades baratas para su puesto y edad, y jóvenes promesas de otros clubes con su potencial.',
   },
   {
     icon: 'actualizar',

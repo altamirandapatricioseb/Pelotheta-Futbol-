@@ -1,3 +1,6 @@
+import { StatsLab } from '@/components/stats/stats-lab';
+import { compareAnalyses } from '@/lib/models/analyses';
+import { getPlayerDetail } from '@/lib/data/player';
 import type { Metadata } from 'next';
 import { z } from 'zod';
 
@@ -86,6 +89,21 @@ export default async function CompararPage({ searchParams }: PageProps) {
     if (result.ok) breakdown = { statId: stat.id, playerIds: ids, ...result.data };
   }
 
+  // Con otro jugador elegido: sus calificaciones partido a partido para las pruebas de dos muestras.
+  const otherId = refs.find((r) => r.kind === 'jugador')?.playerId;
+  const pair =
+    main && otherId !== undefined && otherId !== main.playerId
+      ? await Promise.all([getPlayerDetail(main.playerId), getPlayerDetail(otherId)])
+      : null;
+  const ratingsOf = (d: Awaited<ReturnType<typeof getPlayerDetail>>) =>
+    d?.ok
+      ? {
+          name: d.data.player.shortName ?? d.data.player.name,
+          ratings: d.data.matches.flatMap((m) => (m.rating === null ? [] : [m.rating])),
+        }
+      : null;
+  const [ra, rb] = pair ? pair.map(ratingsOf) : [null, null];
+
   return (
     <div className="grid gap-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
@@ -126,6 +144,7 @@ export default async function CompararPage({ searchParams }: PageProps) {
           Todavía no hay partidos cargados para este período. Se completan con la próxima actualización.
         </p>
       )}
+      {ra && rb ? <StatsLab analyses={compareAnalyses(ra, rb)} /> : null}
     </div>
   );
 }

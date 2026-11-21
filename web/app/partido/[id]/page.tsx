@@ -1,3 +1,5 @@
+import { StatsLab } from '@/components/stats/stats-lab';
+import { matchAnalyses } from '@/lib/models/analyses';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { z } from 'zod';
@@ -35,5 +37,10 @@ export default async function PartidoPage({ params }: PageProps) {
         (p) => p.kind === 'backtest' && p.date !== null && Math.abs(Date.parse(p.date) - day) <= 86_400_000,
       )
     : undefined;
-  return <MatchView data={page.data} pre={pre} />;
+  return (
+    <div className="grid gap-10">
+      <MatchView data={page.data} pre={pre} />
+      <StatsLab analyses={matchAnalyses(page.data.match, page.data.season)} />
+    </div>
+  );
 }

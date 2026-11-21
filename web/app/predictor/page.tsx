@@ -1,3 +1,6 @@
+import { StatsLab } from '@/components/stats/stats-lab';
+import { predictorAnalyses } from '@/lib/models/analyses';
+import { getTeamMatches } from '@/lib/data/team';
 import type { Metadata } from 'next';
 
 import { ErrorNotice } from '@/components/error-notice';
@@ -12,10 +15,11 @@ export const metadata: Metadata = {
 };
 
 export default async function PredictorPage() {
-  const [run, data, tests] = await Promise.all([
+  const [run, data, tests, matches] = await Promise.all([
     getModelRun(CURRENT_TEAM.slug, 'predictor_partido'),
     getPredictions(CURRENT_TEAM.slug),
     getStatTests(CURRENT_TEAM.slug),
+    getTeamMatches(),
   ]);
   return (
     <div className="grid gap-6">
@@ -33,6 +37,7 @@ export default async function PredictorPage() {
           tests={tests.ok ? tests.data : []}
         />
       )}
+      {matches.ok ? <StatsLab analyses={predictorAnalyses(matches.data)} /> : null}
     </div>
   );
 }

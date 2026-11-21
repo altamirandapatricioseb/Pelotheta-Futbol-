@@ -1,3 +1,5 @@
+import { StatsLab } from '@/components/stats/stats-lab';
+import { teamAnalyses } from '@/lib/models/analyses';
 import type { Metadata } from 'next';
 import { z } from 'zod';
 
@@ -76,6 +78,7 @@ export default async function EquipoPage({ searchParams }: PageProps) {
           <ProbabilityPanel tests={tests.data} updated={null} />
         </Section>
       ) : null}
+      {matches.ok ? <StatsLab analyses={teamAnalyses(matches.data)} /> : null}
     </div>
   );
 }

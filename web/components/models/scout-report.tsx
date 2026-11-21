@@ -50,6 +50,7 @@ export function ScoutReportView({
   leaguePeers,
   market,
   own,
+  curve,
 }: {
   report: Report;
   rows: ReportStatRow[];
@@ -58,6 +59,8 @@ export function ScoutReportView({
   leaguePeers: number;
   market: { name: string; team: string; age: number; value: number }[];
   own: { name: string; age: number; value: number }[];
+  /** Precio que espera la regresión múltiple del mercado para su puesto, por edad. */
+  curve: { x: number; y: number }[];
 }) {
   const p = report.player;
   const withValue = rows.filter((r) => r.value !== null);
@@ -159,10 +162,13 @@ export function ScoutReportView({
                 ]
               : []),
           ]}
-          line={medianLine}
+          lines={[
+            { key: 'mediana', points: medianLine },
+            { key: 'regresion', points: curve, color: 'var(--series-2)' },
+          ]}
           x={{ title: 'Edad (años)', format: (v) => String(Math.round(v)) }}
           y={{ title: 'Valor de mercado (escala logarítmica)', log: true, format: eur }}
-          caption={`Violeta: ${p.name}. Azul: los ${report.group.toLowerCase()}s de ${team}. Gris: el resto de la liga.`}
+          caption={`Violeta: ${p.name}. Azul: los ${report.group.toLowerCase()}s de ${team}. Gris: el resto de la liga. Línea punteada: mediana por edad; línea violeta: precio que espera la regresión múltiple (edad, edad² y puesto) de la Estadística del mercado.`}
         />
       </Section>
 

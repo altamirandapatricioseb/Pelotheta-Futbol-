@@ -662,6 +662,42 @@ body:has(.show-root) > footer {
     opacity: 0.4;
   }
 }
+.show-pitch__scope {
+  fill: none;
+  stroke: var(--series-2);
+  stroke-width: 3;
+  stroke-dasharray: 14 10;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: show-scope 6s linear infinite;
+}
+.show-pitch__scope-tick {
+  stroke: var(--series-2);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+.show-pitch__grade {
+  stroke: none;
+}
+.show-pitch__grade--good {
+  fill: var(--series-1);
+}
+.show-pitch__grade--mid {
+  fill: var(--series-2);
+}
+.show-pitch__grade--bad {
+  fill: var(--series-3);
+}
+.show-pitch__grade-text {
+  fill: #fff;
+  font-size: 20px;
+  font-weight: 800;
+}
+@keyframes show-scope {
+  to {
+    transform: rotate(360deg);
+  }
+}
 @keyframes show-ripple {
   from {
     transform: scale(0.3);

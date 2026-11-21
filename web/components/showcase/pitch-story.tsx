@@ -83,6 +83,7 @@ const ALT = stepOf('alternativas');
 const RED = stepOf('situaciones');
 const PRED = stepOf('predictor');
 const GRAF = stepOf('graficos');
+const SCOUT = stepOf('ojeador');
 
 /** Un valor por paso: el de base, salvo en los pasos que se nombran. */
 function per<T>(base: T, overrides: Partial<Record<InterfaceLink['icon'], T>>): T[] {
@@ -127,8 +128,9 @@ const ZOOM = per(1, {
   situaciones: 1.6,
   predictor: 1.15,
   graficos: 1.05,
+  ojeador: 1.3,
 });
-const FOCUS_Y = per(525, { jugadores: 770, comparar: 690, alternativas: 560, situaciones: 700, graficos: 470 });
+const FOCUS_Y = per(525, { jugadores: 770, comparar: 690, alternativas: 560, situaciones: 700, graficos: 470, ojeador: 390 });
 
 type Pos = readonly [number, number];
 interface Player {
@@ -159,6 +161,12 @@ const SENT_OFF = 5;
 const PAIR = [6, 7];
 // Índices dentro de RIVAL: las tres opciones de otro club en Alternativas.
 const OPTIONS = [6, 7, 8];
+// Índices dentro de RIVAL que mira el Ojeador, con la nota de su informe (ilustrativa) y su color.
+const SCOUTED = [
+  { i: 9, score: '8,1', tone: 'show-pitch__grade--good' },
+  { i: 5, score: '6,4', tone: 'show-pitch__grade--mid' },
+  { i: 3, score: '4,2', tone: 'show-pitch__grade--bad' },
+];
 
 const RIVAL: Pos[][] = HOME.map(({ pos }) => {
   const [x, y] = pos[0] ?? [340, 525];
@@ -191,6 +199,7 @@ function Dot({ player, index, progress }: { player: Player; index: number; progr
       comparar: paired ? 1 : 0.25,
       alternativas: target ? 1 : 0.25,
       situaciones: index === SENT_OFF ? 0.14 : 1,
+      ojeador: 0.2,
     }),
   );
   const opacity = useTransform(progress, dim.input, dim.output);
@@ -226,8 +235,10 @@ function RivalDot({ pos, index, progress }: { pos: Pos[]; index: number; progres
   const x = useTransform(progress, xs.input, xs.output);
   const y = useTransform(progress, ys.input, ys.output);
   const option = OPTIONS.includes(index);
+  const scouted = SCOUTED.some((s) => s.i === index);
   const fade = hold(
     per(0.55, {
+      ojeador: scouted ? 1 : 0.15,
       jugadores: 0.2,
       comparar: 0.12,
       alternativas: option ? 0.95 : 0.12,
@@ -237,7 +248,7 @@ function RivalDot({ pos, index, progress }: { pos: Pos[]; index: number; progres
     }),
   );
   const opacity = useTransform(progress, fade.input, fade.output);
-  const grow = hold(per(1, { alternativas: option ? 1.35 : 1 }));
+  const grow = hold(per(1, { alternativas: option ? 1.35 : 1, ojeador: scouted ? 1.3 : 1 }));
   const scale = useTransform(progress, grow.input, grow.output);
   return <motion.circle r={16} className="show-pitch__rival" style={{ x, y, opacity, scale }} />;
 }
@@ -396,6 +407,30 @@ export function PitchStory() {
             <Layer step={GRAF} progress={progress}>
               <motion.path ref={play} d={PLAY_PATH} className="show-pitch__play" style={{ pathLength: playDraw }} />
               <circle cx="340" cy="40" r="26" className="show-pitch__xg" />
+            </Layer>
+            <Layer step={SCOUT} progress={progress}>
+              {SCOUTED.map(({ i, score, tone }, k) => {
+                const [x, y] = RIVAL[i]?.[SCOUT] ?? [340, 525];
+                return (
+                  <g key={i} transform={`translate(${String(x)} ${String(y)})`}>
+                    <circle
+                      r="34"
+                      className="show-pitch__scope"
+                      style={{ animationDelay: `${String(k * -1.5)}s` }}
+                    />
+                    <line x1="-46" x2="-30" className="show-pitch__scope-tick" />
+                    <line x1="30" x2="46" className="show-pitch__scope-tick" />
+                    <line y1="-46" y2="-30" className="show-pitch__scope-tick" />
+                    <line y1="30" y2="46" className="show-pitch__scope-tick" />
+                    <g transform="translate(0 -66)">
+                      <rect x="-34" y="-18" width="68" height="36" rx="9" className={`show-pitch__grade ${tone}`} />
+                      <text textAnchor="middle" dy="7" className="show-pitch__grade-text">
+                        {score}
+                      </text>
+                    </g>
+                  </g>
+                );
+              })}
             </Layer>
             <Layer step={N - 1} progress={progress}>
               {[0, 1, 2].map((i) => (

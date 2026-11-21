@@ -8,6 +8,7 @@ import { type ReportStatRow, ScoutReportView } from '@/components/models/scout-r
 import { CURRENT_TEAM } from '@/config/teams';
 import { getCatalog } from '@/lib/data/catalog';
 import { loadScouting } from '@/lib/data/scouting';
+import { marketStats } from '@/lib/models/market-stats';
 import { scoutReports } from '@/lib/models/scouting';
 import { type PlayerRow, playerValue, rankAndPercentile } from '@/lib/stats/catalog';
 
@@ -133,6 +134,7 @@ export default async function InformePage({ searchParams }: PageProps) {
             ? [{ name: p.name, team: p.team, age: p.age, value: p.value }]
             : [],
         )}
+        curve={marketStats(market, squad)?.curves.find((c) => c.group === group)?.points ?? []}
         own={squad.flatMap((p) =>
           p.position === group && p.value !== null && p.age !== null
             ? [{ name: p.name, age: p.age, value: p.value }]

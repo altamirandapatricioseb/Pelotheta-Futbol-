@@ -96,7 +96,16 @@ en el gráfico) abre su página: el resumen, su precio contra el de todos los de
 mediana y los del plantel propio marcados), lo mejor y lo peor de su juego y una tabla con todas las estadísticas del
 catálogo del puesto (las mismas que tienen los jugadores propios): su valor, su percentil en la liga, la mediana de
 la liga y la de los titulares propios. Mientras falten sus estadísticas, la tabla muestra contra qué se lo va a medir. Colores: verde lo muy bueno (percentil 70 o más, necesidad de 3 o menos, a favor), rojo lo preocupante
-(percentil 30 o menos, necesidad de 6 o más, en contra) y violeta lo intermedio. Todo se recalcula con lo cargado: cambia con el plantel, el mercado y el equipo elegido.
+(percentil 30 o menos, necesidad de 6 o más, en contra) y violeta lo intermedio.
+
+Al final, «Estadística del mercado» analiza los precios de la liga con estadística clásica: descriptiva por puesto
+(diagramas de caja, media con su intervalo de confianza del 95 %, cuartiles, desvío, coeficiente de variación y
+asimetría), un ANOVA de un factor (¿el puesto cambia el precio?), una tabla de contingencia con χ² (¿puesto y edad
+van juntos?), una regresión lineal múltiple del precio por edad, edad al cuadrado y puesto (con la simple para
+comparar y sus curvas sobre la nube de jugadores) y pruebas de hipótesis del plantel propio contra la liga (t de
+Welch para medias, F para varianzas y z para la proporción de jugadores de 23 años o menos). Cada prueba dice su H₀,
+el estadístico, los grados de libertad, el p y la decisión con α = 0,05. La curva de la regresión también aparece en
+el gráfico de precio de cada informe completo. Todo se recalcula con lo cargado: cambia con el plantel, el mercado y el equipo elegido.
 
 ## Estadística desglosada
 
@@ -105,6 +114,17 @@ la liga y la de los titulares propios. Mientras falten sus estadísticas, la tab
 Una estadística de un jugador o del equipo por ventanas de tiempo (último partido, últimos 3, 5 y 10, días,
 meses, local y visitante, por resultado, por rival), con gráficos, el último partido y la lista de partidos.
 Las ventanas de días se cuentan desde el último partido cargado. «Muestra pequeña» con menos de 3 partidos.
+
+## Probabilidad y estadística en cada interfaz
+
+Al final de Equipo, Situaciones, Partido, Jugadores, la ficha de cada jugador, Comparar (con otro jugador elegido),
+Valor, Alternativas, Predictor y la Estadística desglosada hay un panel «Probabilidad y estadística» con los datos de
+esa pantalla: distribuciones (binomial, Poisson, geométrica, normal y beta) contra lo observado con su prueba de bondad
+de ajuste, gráficos Q-Q, intervalos de confianza para medias y proporciones, pruebas de hipótesis (t de Welch, F de
+varianzas, z de una y dos proporciones), tablas de contingencia, ANOVA, correlación y regresión lineal simple y
+múltiple, el teorema central del límite, la aproximación normal a la Poisson, el diagnóstico de residuos de Valor y la
+inferencia bayesiana contra la clásica en Predictor. Cada análisis dice su H₀, el estadístico, el p y la decisión con
+α = 0,05, y se recalcula con cada carga de datos.
 
 ## Atajos de teclado
 

@@ -51,20 +51,22 @@ export function ScoutScatter({
   points,
   x,
   y,
-  line,
+  lines = [],
   caption,
   label,
 }: {
   points: ScatterPoint[];
   x: Axis;
   y: Axis;
-  line?: { x: number; y: number }[];
+  /** Curvas de referencia; sin color, gris punteada. */
+  lines?: { key: string; points: { x: number; y: number }[]; color?: string; label?: string }[];
   caption: string;
   label: string;
 }) {
   const router = useRouter();
-  const xs = [...points.map((p) => p.x), ...(line ?? []).map((p) => p.x)];
-  const ys = [...points.map((p) => p.y), ...(line ?? []).map((p) => p.y)];
+  const flat = lines.flatMap((l) => l.points);
+  const xs = [...points.map((p) => p.x), ...flat.map((p) => p.x)];
+  const ys = [...points.map((p) => p.y), ...flat.map((p) => p.y)];
   const pad = (lo: number, hi: number, log?: boolean): [number, number] =>
     log ? [lo / 1.3, hi * 1.3] : [lo - (hi - lo || 1) * 0.05, hi + (hi - lo || 1) * 0.05];
   const [x0, x1] =
@@ -73,8 +75,10 @@ export function ScoutScatter({
     y.min !== undefined && y.max !== undefined ? [y.min, y.max] : pad(Math.min(...ys), Math.max(...ys), y.log);
   const f = (v: number, lo: number, hi: number, log?: boolean) =>
     log ? (Math.log(v) - Math.log(lo)) / (Math.log(hi) - Math.log(lo) || 1) : (v - lo) / (hi - lo || 1);
-  const px = (v: number) => L + f(v, x0, x1, x.log) * (W - L - R);
-  const py = (v: number) => H - B - f(v, y0, y1, y.log) * (H - T - B);
+  // Redondeo a décimas: el servidor y el navegador difieren en el último dígito de log/pow y React avisa.
+  const r1 = (v: number) => Math.round(v * 10) / 10;
+  const px = (v: number) => r1(L + f(v, x0, x1, x.log) * (W - L - R));
+  const py = (v: number) => r1(H - B - f(v, y0, y1, y.log) * (H - T - B));
   const ordered = [...points].sort((a, b) => Number(a.emphasis ?? false) - Number(b.emphasis ?? false));
   const mid = (T + H - B) / 2;
   return (
@@ -110,15 +114,25 @@ export function ScoutScatter({
         >
           {y.title}
         </text>
-        {line && line.length > 1 ? (
-          <polyline
-            points={line.map((p) => `${String(px(p.x))},${String(py(p.y))}`).join(' ')}
-            fill="none"
-            stroke="var(--color-text-muted)"
-            strokeWidth={2}
-            strokeDasharray="6 4"
-          />
-        ) : null}
+        {lines.map((l) => {
+          const last = l.points[l.points.length - 1];
+          return l.points.length > 1 ? (
+            <g key={l.key}>
+              <polyline
+                points={l.points.map((p) => `${String(px(p.x))},${String(py(p.y))}`).join(' ')}
+                fill="none"
+                stroke={l.color ?? 'var(--color-text-muted)'}
+                strokeWidth={2.5}
+                strokeDasharray={l.color ? undefined : '6 4'}
+              />
+              {l.label && last ? (
+                <text x={px(last.x) - 4} y={py(last.y) - 6} textAnchor="end" className="scout-point-label">
+                  {l.label}
+                </text>
+              ) : null}
+            </g>
+          ) : null;
+        })}
         {ordered.map((p) => {
           const cx = px(p.x);
           const cy = py(p.y);

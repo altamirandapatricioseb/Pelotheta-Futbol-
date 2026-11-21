@@ -1,3 +1,5 @@
+import { StatsLab } from '@/components/stats/stats-lab';
+import { squadAnalyses } from '@/lib/models/analyses';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { z } from 'zod';
@@ -96,6 +98,7 @@ export default async function JugadoresPage({ searchParams }: PageProps) {
           Todavía no hay partidos cargados para esta competición. Se completan con la próxima actualización.
         </p>
       )}
+      {players.ok ? <StatsLab analyses={squadAnalyses(players.data)} /> : null}
     </div>
   );
 }

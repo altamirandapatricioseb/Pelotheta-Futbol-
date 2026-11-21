@@ -1,3 +1,5 @@
+import { StatsLab } from '@/components/stats/stats-lab';
+import { valueAnalyses } from '@/lib/models/analyses';
 import type { Metadata } from 'next';
 
 import { ErrorNotice } from '@/components/error-notice';
@@ -27,7 +29,13 @@ export default async function ValorPage() {
       ) : !values.ok ? (
         <ErrorNotice code={values.code} />
       ) : (
-        <ValueView run={run.data} rows={values.data.rows} coefs={values.data.coefs} />
+        <>
+          <ValueView run={run.data} rows={values.data.rows} coefs={values.data.coefs} />
+          <StatsLab
+            analyses={valueAnalyses(values.data.rows)}
+            intro="Diagnóstico de la regresión del valor de mercado: si se cumplen sus supuestos (residuos sin forma, con varianza constante y normales). Nivel de significación α = 0,05."
+          />
+        </>
       )}
     </div>
   );

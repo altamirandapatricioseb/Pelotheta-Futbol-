@@ -181,10 +181,13 @@ interface Sample {
 /** Distribución de cada estadística del puesto en una muestra. */
 function distributions(sample: Sample[], defs: StatDef[]): Map<string, number[]> {
   return new Map(
-    defs.map((d) => [d.id, sample.flatMap((p) => {
-      const v = statValue(p.stats, p.minutes, d);
-      return v === null ? [] : [v];
-    })]),
+    defs.map((d) => [
+      d.id,
+      sample.flatMap((p) => {
+        const v = statValue(p.stats, p.minutes, d);
+        return v === null ? [] : [v];
+      }),
+    ]),
   );
 }
 
@@ -229,7 +232,9 @@ export function teamNeeds(squad: SquadPlayer[], market: MarketPlayer[] = []): Ne
       .flatMap((d) => {
         const ps = starters.flatMap((p) => p.scores.filter((s) => s.id === d.id));
         const m = mean(ps.map((s) => s.percentile));
-        return m === null ? [] : [{ id: d.id, label: d.label, value: mean(ps.map((s) => s.value)) ?? 0, percentile: Math.round(m) }];
+        return m === null
+          ? []
+          : [{ id: d.id, label: d.label, value: mean(ps.map((s) => s.value)) ?? 0, percentile: Math.round(m) }];
       })
       .sort((a, b) => a.percentile - b.percentile);
     // Nivel contra la liga: cuánto le falta a la media de percentiles de los titulares para llegar a 65.
@@ -247,10 +252,14 @@ export function teamNeeds(squad: SquadPlayer[], market: MarketPlayer[] = []): Ne
     const m = median(starters.flatMap((p) => (p.value === null ? [] : [p.value])));
     const reasons: string[] = [];
     if (depthGap > 0)
-      reasons.push(`${String(regulars.length)} habituales y ${String(rows.length - regulars.length)} más para ${String(TARGET[group])} lugares`);
+      reasons.push(
+        `${String(regulars.length)} habituales y ${String(rows.length - regulars.length)} más para ${String(TARGET[group])} lugares`,
+      );
     const weak = weakStats.filter((s) => s.percentile < 40).slice(0, 3);
     if (weak.length && reference === 'liga')
-      reasons.push(`Titulares flojos contra la liga en ${weak.map((s) => `${s.label} (p${String(s.percentile)})`).join(', ')}`);
+      reasons.push(
+        `Titulares flojos contra la liga en ${weak.map((s) => `${s.label} (p${String(s.percentile)})`).join(', ')}`,
+      );
     if (old.length) reasons.push(`${old.map((p) => p.name).join(', ')}: ${String(OLD[group])} años o más`);
     if (leaving.length) reasons.push(`Contrato de un año o menos: ${leaving.map((p) => p.name).join(', ')}`);
     if (!reasons.length) reasons.push('Puesto cubierto: alcanza con oportunidades claras');
@@ -269,7 +278,8 @@ export function teamNeeds(squad: SquadPlayer[], market: MarketPlayer[] = []): Ne
   }).sort((a, b) => b.score - a.score);
 }
 
-const verdictOf = (score: number): Verdict => (score >= 7.5 ? 'Fichar' : score >= 6 ? 'Seguir de cerca' : 'Opción de reserva');
+const verdictOf = (score: number): Verdict =>
+  score >= 7.5 ? 'Fichar' : score >= 6 ? 'Seguir de cerca' : 'Opción de reserva';
 
 function ageUpside(age: number | null): number {
   if (age === null) return 0;
@@ -315,23 +325,46 @@ export function scoutReports(market: MarketPlayer[], needs: Need[], perCategory 
     const budget = need?.budget ?? (leagueMedian === null ? null : leagueMedian * 2);
     const affordable = budget === null ? 0.5 : clamp01(budget / (p.value as number));
     // Encaje: si el puesto tiene estadísticas flojas, suma ser bueno justo en esas.
-    const weakIds = new Set((need?.reference === 'liga' ? need.weakStats : []).filter((s) => s.percentile < 40).map((s) => s.id));
+    const weakIds = new Set(
+      (need?.reference === 'liga' ? need.weakStats : []).filter((s) => s.percentile < 40).map((s) => s.id),
+    );
     const covers = scores.filter((s) => weakIds.has(s.id) && s.percentile >= 60);
-    return { p, group, ability, potential, ratio, expectedValue, need: (need?.score ?? 5) / 10, budget, affordable, scores, covers };
+    return {
+      p,
+      group,
+      ability,
+      potential,
+      ratio,
+      expectedValue,
+      need: (need?.score ?? 5) / 10,
+      budget,
+      affordable,
+      scores,
+      covers,
+    };
   });
 
   const build = (b: (typeof base)[number], category: Category, raw: number): Report => {
     const pros: string[] = [];
     const cons: string[] = [];
-    const strengths = [...b.scores].sort((x, y) => y.percentile - x.percentile).filter((s) => s.percentile >= 70).slice(0, 3);
-    if (strengths.length) pros.push(`Fuerte en ${strengths.map((s) => `${s.label} (p${String(s.percentile)})`).join(', ')}`);
+    const strengths = [...b.scores]
+      .sort((x, y) => y.percentile - x.percentile)
+      .filter((s) => s.percentile >= 70)
+      .slice(0, 3);
+    if (strengths.length)
+      pros.push(`Fuerte en ${strengths.map((s) => `${s.label} (p${String(s.percentile)})`).join(', ')}`);
     if (b.covers.length) pros.push(`Cubre lo que le falta al puesto: ${b.covers.map((s) => s.label).join(', ')}`);
-    if (b.ratio <= 0.7) pros.push(`Cuesta ${String(Math.round((1 - b.ratio) * 100))} % menos que la mediana de su puesto y edad`);
+    if (b.ratio <= 0.7)
+      pros.push(`Cuesta ${String(Math.round((1 - b.ratio) * 100))} % menos que la mediana de su puesto y edad`);
     if (b.potential - b.ability >= 0.12) pros.push(`Margen de crecimiento: ${String(b.p.age)} años`);
     if (b.need >= 0.6) pros.push(`Puesto con necesidad alta en el plantel (${String(round1(b.need * 10))})`);
-    const weakest = [...b.scores].sort((x, y) => x.percentile - y.percentile).filter((s) => s.percentile <= 25).slice(0, 2);
+    const weakest = [...b.scores]
+      .sort((x, y) => x.percentile - y.percentile)
+      .filter((s) => s.percentile <= 25)
+      .slice(0, 2);
     if (weakest.length) cons.push(`Flojo en ${weakest.map((s) => `${s.label} (p${String(s.percentile)})`).join(', ')}`);
-    if (b.ratio >= 1.6) cons.push(`Cuesta ${b.ratio.toFixed(1).replace('.', ',')} veces la mediana de su puesto y edad`);
+    if (b.ratio >= 1.6)
+      cons.push(`Cuesta ${b.ratio.toFixed(1).replace('.', ',')} veces la mediana de su puesto y edad`);
     if (b.affordable < 1 && b.budget !== null) cons.push('Por encima del presupuesto estimado para el puesto');
     if ((b.p.age ?? 0) >= 30) cons.push('Poca reventa: 30 años o más');
     if (!b.scores.length) cons.push('Sin estadísticas cargadas: la nota se apoya en el mercado');

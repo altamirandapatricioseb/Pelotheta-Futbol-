@@ -1,3 +1,5 @@
+import { StatsLab } from '@/components/stats/stats-lab';
+import { playerAnalyses } from '@/lib/models/analyses';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { z } from 'zod';
@@ -33,14 +35,19 @@ export default async function JugadorPage({ params }: PageProps) {
     return <ErrorNotice code={detail.code} />;
   }
   return (
-    <PlayerDetailView
-      data={detail.data}
-      market={values.ok ? values.data.rows.find((r) => r.playerId === id) : undefined}
-      alternatives={
-        alternatives.ok
-          ? alternatives.data.alternatives.filter((a) => a.playerId === id).sort((a, b) => b.similarity - a.similarity)
-          : []
-      }
-    />
+    <div className="grid gap-10">
+      <PlayerDetailView
+        data={detail.data}
+        market={values.ok ? values.data.rows.find((r) => r.playerId === id) : undefined}
+        alternatives={
+          alternatives.ok
+            ? alternatives.data.alternatives
+                .filter((a) => a.playerId === id)
+                .sort((a, b) => b.similarity - a.similarity)
+            : []
+        }
+      />
+      <StatsLab analyses={playerAnalyses(detail.data.matches)} />
+    </div>
   );
 }

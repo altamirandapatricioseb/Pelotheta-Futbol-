@@ -1,3 +1,5 @@
+import { StatsLab } from '@/components/stats/stats-lab';
+import { styleAnalyses } from '@/lib/models/analyses';
 import type { Metadata } from 'next';
 
 import { ErrorNotice } from '@/components/error-notice';
@@ -5,6 +7,7 @@ import { AlternativesView } from '@/components/models/alternatives-view';
 import { ModelHeader } from '@/components/models/common';
 import { CURRENT_TEAM } from '@/config/teams';
 import { getAlternatives, getMarketValues, getModelRun } from '@/lib/data/models';
+import { getCatalog } from '@/lib/data/catalog';
 import { getPlayerMaster } from '@/lib/data/players';
 
 export const metadata: Metadata = {
@@ -19,11 +22,12 @@ interface PageProps {
 export default async function AlternativasPage({ searchParams }: PageProps) {
   const raw = await searchParams;
   const requested = Number(Array.isArray(raw.jugador) ? raw.jugador[0] : raw.jugador);
-  const [run, data, values, master] = await Promise.all([
+  const [run, data, values, master, catalog] = await Promise.all([
     getModelRun(CURRENT_TEAM.slug, 'alternativas'),
     getAlternatives(CURRENT_TEAM.slug),
     getMarketValues(CURRENT_TEAM.slug),
     getPlayerMaster('todas'),
+    getCatalog('player'),
   ]);
   const valueOf = new Map((values.ok ? values.data.rows : []).map((r) => [r.playerId, r.actual]));
   const facts = Object.fromEntries(
@@ -52,6 +56,14 @@ export default async function AlternativasPage({ searchParams }: PageProps) {
           facts={facts}
         />
       )}
+      {data.ok ? (
+        <StatsLab
+          analyses={styleAnalyses(
+            data.data.styles,
+            Object.fromEntries((catalog.ok ? catalog.data : []).map((s) => [s.id, s.short || s.name])),
+          )}
+        />
+      ) : null}
     </div>
   );
 }

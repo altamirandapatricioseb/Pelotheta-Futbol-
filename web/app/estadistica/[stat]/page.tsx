@@ -1,3 +1,5 @@
+import { StatsLab } from '@/components/stats/stats-lab';
+import { seriesAnalyses } from '@/lib/models/analyses';
 import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
@@ -65,5 +67,10 @@ export default async function Page({ params, searchParams }: PageProps) {
     (search.entidad === 'jugador'
       ? `/jugadores?jugador=${String(search.id)}&estadistica=${parsed.data.stat}`
       : `/equipo?estadistica=${parsed.data.stat}`);
-  return <StatDetailView detail={detail.data} backHref={backHref} query={query} />;
+  return (
+    <div className="grid gap-10">
+      <StatDetailView detail={detail.data} backHref={backHref} query={query} />
+      <StatsLab analyses={seriesAnalyses(detail.data.series, detail.data.stat.name.toLowerCase())} />
+    </div>
+  );
 }

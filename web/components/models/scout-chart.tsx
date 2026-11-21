@@ -26,8 +26,6 @@ interface Axis {
   max?: number;
 }
 
-const W = 720;
-const H = 380;
 const L = 96;
 const R = 24;
 const T = 16;
@@ -54,6 +52,7 @@ export function ScoutScatter({
   lines = [],
   caption,
   label,
+  compact = false,
 }: {
   points: ScatterPoint[];
   x: Axis;
@@ -62,8 +61,12 @@ export function ScoutScatter({
   lines?: { key: string; points: { x: number; y: number }[]; color?: string; label?: string }[];
   caption: string;
   label: string;
+  /** Tamaño de tarjeta (más angosto, para que el texto no quede chico). */
+  compact?: boolean;
 }) {
   const router = useRouter();
+  const W = compact ? 480 : 720;
+  const H = compact ? 320 : 380;
   const flat = lines.flatMap((l) => l.points);
   const xs = [...points.map((p) => p.x), ...flat.map((p) => p.x)];
   const ys = [...points.map((p) => p.y), ...flat.map((p) => p.y)];

@@ -115,11 +115,12 @@ Una estadística de un jugador o del equipo por ventanas de tiempo (último part
 meses, local y visitante, por resultado, por rival), con gráficos, el último partido y la lista de partidos.
 Las ventanas de días se cuentan desde el último partido cargado. «Muestra pequeña» con menos de 3 partidos.
 
-## Probabilidad y estadística en cada interfaz
+## Análisis estadísticos de cada interfaz
 
-Al final de Equipo, Situaciones, Partido, Jugadores, la ficha de cada jugador, Comparar (con otro jugador elegido),
-Valor, Alternativas, Predictor y la Estadística desglosada hay un panel «Probabilidad y estadística» con los datos de
-esa pantalla: distribuciones (binomial, Poisson, geométrica, normal y beta) contra lo observado con su prueba de bondad
+Equipo, Situaciones, Partido, Jugadores, la ficha de cada jugador, Comparar (con otro jugador elegido), Valor,
+Alternativas, Predictor y la Estadística desglosada suman tarjetas de análisis bajo la sección de lo que muestran
+(Goles, Resultados, Local y visitante, Calificación partido a partido, Qué tan confiable es el modelo, etc.), con los
+datos de esa pantalla: distribuciones (binomial, Poisson, geométrica, normal y beta) contra lo observado con su prueba de bondad
 de ajuste, gráficos Q-Q, intervalos de confianza para medias y proporciones, pruebas de hipótesis (t de Welch, F de
 varianzas, z de una y dos proporciones), tablas de contingencia, ANOVA, correlación y regresión lineal simple y
 múltiple, el teorema central del límite, la aproximación normal a la Poisson, el diagnóstico de residuos de Valor y la

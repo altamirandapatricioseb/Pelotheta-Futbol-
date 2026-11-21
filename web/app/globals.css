@@ -854,6 +854,9 @@ h3 {
   min-width: 0;
   box-shadow: var(--shadow-card);
 }
+.chart-card--wide {
+  grid-column: 1 / -1;
+}
 .chart-card--empty {
   border-style: dashed;
 }

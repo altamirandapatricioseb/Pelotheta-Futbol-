@@ -5,7 +5,7 @@
 // ANOVA, contingencia, regresión y curvas). Verde lo bueno, rojo lo malo, violeta lo neutro.
 
 import { ScoutScatter } from '@/components/models/scout-chart';
-import { type Analysis, ALPHA, type Format } from '@/lib/models/analyses';
+import { type Analysis, ALPHA, type Format, SECTION_OF, WIDE } from '@/lib/models/analyses';
 import type { Summary } from '@/lib/models/inference';
 
 const nf = (d: number) => new Intl.NumberFormat('es-AR', { minimumFractionDigits: d, maximumFractionDigits: d });
@@ -34,9 +34,9 @@ function Bars({
   bars: { label: string; value: number; model?: number; highlight?: boolean }[];
   legend: [string, string | null];
 }) {
-  const W = 720;
-  const H = 300;
-  const L = 64;
+  const W = 480;
+  const H = 280;
+  const L = 56;
   const B = 50;
   const T = 14;
   const R = 16;
@@ -135,8 +135,8 @@ function Intervals({
   format: Format;
   refLine?: { label: string; value: number };
 }) {
-  const W = 720;
-  const L = 260;
+  const W = 480;
+  const L = 170;
   const R = 24;
   const ROW = 30;
   const H = rows.length * ROW + 46;
@@ -186,7 +186,7 @@ function Intervals({
           return (
             <g key={r.label}>
               <text x={L - 10} y={cy + 4} textAnchor="end" className="scout-point-label">
-                {r.label.length > 38 ? `${r.label.slice(0, 37)}…` : r.label}
+                {r.label.length > 26 ? `${r.label.slice(0, 25)}…` : r.label}
               </text>
               <line x1={x(r.lo)} x2={x(r.hi)} y1={cy} y2={cy} stroke={tone} strokeWidth={3} strokeLinecap="round" />
               <circle cx={x(r.est)} cy={cy} r={5} fill={tone} stroke="var(--color-bg)" strokeWidth={1.5}>
@@ -206,8 +206,8 @@ function Intervals({
 }
 
 function Boxes({ rows, format }: { rows: { label: string; summary: Summary }[]; format: Format }) {
-  const W = 720;
-  const L = 160;
+  const W = 480;
+  const L = 130;
   const R = 24;
   const ROW = 44;
   const H = rows.length * ROW + 46;
@@ -390,6 +390,7 @@ function Body({ a }: { a: Analysis }) {
     case 'scatter':
       return (
         <ScoutScatter
+          compact
           label={a.title}
           points={a.points.map((p) => ({
             key: p.key,
@@ -410,6 +411,7 @@ function Body({ a }: { a: Analysis }) {
       return (
         <>
           <ScoutScatter
+            compact
             label={a.title}
             points={[]}
             lines={a.curves.map((c) => ({ key: c.key, points: c.points, color: c.color }))}
@@ -519,34 +521,40 @@ function Body({ a }: { a: Analysis }) {
   }
 }
 
-/** Sección «Probabilidad y estadística» de una interfaz. No se dibuja si no hay datos suficientes. */
-export function StatsLab({ analyses, intro }: { analyses: Analysis[]; intro?: string }) {
+/**
+ * Análisis de una interfaz agrupados en secciones por lo que muestran (Goles, Local y visitante…),
+ * cada uno en una tarjeta como los demás gráficos. No se dibuja si no hay datos suficientes.
+ */
+export function StatsLab({ analyses }: { analyses: Analysis[] }) {
   if (!analyses.length) return null;
+  const sections = [...new Set(analyses.map((a) => SECTION_OF[a.id] ?? 'Más análisis'))];
   return (
-    <section aria-labelledby="titulo-probabilidad" className="grid gap-6">
-      <div>
-        <h2 id="titulo-probabilidad" className="page-title text-2xl">
-          Probabilidad y estadística
-        </h2>
-        <p className="mt-1 max-w-3xl text-sm text-muted">
-          {intro ??
-            'Distribuciones, estimación, pruebas de hipótesis y regresión con los datos de esta pantalla. Nivel de significación α = 0,05. Se recalcula con cada carga de datos.'}
-        </p>
-      </div>
-      <div className="grid gap-5">
-        {analyses.map((a) => (
-          <article key={a.id} className="scout-card" aria-labelledby={`titulo-${a.id}`}>
-            <div>
-              <h3 id={`titulo-${a.id}`} className="font-bold">
-                {a.title}
-              </h3>
-              <p className="mt-1 max-w-3xl text-sm text-muted">{a.intro}</p>
-            </div>
-            <Body a={a} />
-            {a.reading ? <p className="text-sm font-medium">{a.reading}</p> : null}
-          </article>
-        ))}
-      </div>
-    </section>
+    <div className="grid gap-8">
+      {sections.map((name) => (
+        <section key={name} aria-label={name} className="grid gap-4">
+          <h2 className="text-xl font-bold">{name}</h2>
+          <div className="chart-grid-layout">
+            {analyses
+              .filter((a) => (SECTION_OF[a.id] ?? 'Más análisis') === name)
+              .map((a) => (
+                <article
+                  key={a.id}
+                  className={`chart-card${WIDE.has(a.id) ? ' chart-card--wide' : ''}`}
+                  aria-labelledby={`titulo-${a.id}`}
+                >
+                  <header>
+                    <h3 id={`titulo-${a.id}`} className="text-base font-bold leading-snug">
+                      {a.title}
+                    </h3>
+                    <p className="mt-1 text-xs text-muted">{a.intro}</p>
+                  </header>
+                  <Body a={a} />
+                  {a.reading ? <p className="text-xs font-medium">{a.reading}</p> : null}
+                </article>
+              ))}
+          </div>
+        </section>
+      ))}
+    </div>
   );
 }

@@ -31,10 +31,7 @@ export default async function ValorPage() {
       ) : (
         <>
           <ValueView run={run.data} rows={values.data.rows} coefs={values.data.coefs} />
-          <StatsLab
-            analyses={valueAnalyses(values.data.rows)}
-            intro="Diagnóstico de la regresión del valor de mercado: si se cumplen sus supuestos (residuos sin forma, con varianza constante y normales). Nivel de significación α = 0,05."
-          />
+          <StatsLab analyses={valueAnalyses(values.data.rows)} />
         </>
       )}
     </div>

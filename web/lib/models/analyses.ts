@@ -33,6 +33,66 @@ import {
 } from './probability';
 
 export const ALPHA = 0.05;
+
+/** Sección de la interfaz bajo la que va cada análisis (por lo que muestra, no por la técnica). */
+export const SECTION_OF: Record<string, string> = {
+  'goles-favor': 'Goles',
+  'goles-contra': 'Goles',
+  'proximo-goles': 'Goles',
+  intervalos: 'Goles',
+  tcl: 'Goles',
+  binomial: 'Resultados',
+  'intervalos-resultado': 'Resultados',
+  'localia-cajas': 'Local y visitante',
+  'localia-pruebas': 'Local y visitante',
+  'localia-contingencia': 'Local y visitante',
+  'anova-competicion': 'Competiciones',
+  'goles-xg': 'Goles esperados (xG)',
+  'qq-xg': 'Goles esperados (xG)',
+  'situaciones-ic': 'Cuánto cambia cada situación',
+  'situaciones-pruebas': 'Cuánto cambia cada situación',
+  'calificacion-puesto': 'Calificación del plantel',
+  'calificacion-normal': 'Calificación del plantel',
+  'calificacion-qq': 'Calificación del plantel',
+  correlaciones: 'Relación entre estadísticas',
+  'goles-npxg': 'Relación entre estadísticas',
+  'regresion-calificacion': 'Relación entre estadísticas',
+  'jugador-normal': 'Calificación partido a partido',
+  'jugador-ic': 'Calificación partido a partido',
+  'jugador-ic-prop': 'Calificación partido a partido',
+  'jugador-cajas': 'Calificación partido a partido',
+  'jugador-pruebas': 'Calificación partido a partido',
+  'jugador-minutos': 'Calificación partido a partido',
+  'jugador-qq': 'Calificación partido a partido',
+  'jugador-goles': 'Goles',
+  'jugador-marca': 'Goles',
+  'comparar-cajas': 'Partido a partido',
+  'comparar-ic': 'Partido a partido',
+  'comparar-pruebas': 'Partido a partido',
+  'estilos-correlacion': 'Estadísticas del agrupamiento',
+  'valor-residuos': 'Qué tan confiable es el modelo',
+  'valor-residuos-normal': 'Qué tan confiable es el modelo',
+  'valor-qq': 'Qué tan confiable es el modelo',
+  bayes: 'Probabilidad de ganar',
+  'normal-poisson': 'Goles de los próximos partidos',
+  'serie-ic': 'Media y cambios en la temporada',
+  'serie-pruebas': 'Media y cambios en la temporada',
+  'serie-tendencia': 'Media y cambios en la temporada',
+  'serie-normal': 'Cómo se reparten los valores',
+  'partido-goles': 'Qué tan probable era el resultado',
+  'partido-normal': 'Qué tan probable era el resultado',
+};
+
+/** Análisis que necesitan todo el ancho (tablas grandes o muchas filas). */
+export const WIDE = new Set([
+  'correlaciones',
+  'estilos-correlacion',
+  'situaciones-pruebas',
+  'localia-pruebas',
+  'jugador-pruebas',
+  'comparar-pruebas',
+  'regresion-calificacion',
+]);
 export type Format = 'num' | 'pct' | 'eur' | 'int';
 
 interface Base {

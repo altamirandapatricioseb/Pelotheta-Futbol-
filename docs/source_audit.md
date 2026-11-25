@@ -222,3 +222,10 @@ Sonda reproducible: `uv run python -m scripts.phase0.probe_conmebol` (informe en
 2. **Sin fuente para el presente**: Primera D, Brasil C, Bolivia, Venezuela y todas las segundas fuera de Argentina y Brasil. Quedan con `coverage = sin_datos` hasta encontrar una fuente; candidatas para la próxima ronda: OpenFootball y Wikipedia (resultados).
 3. **Pasado reciente (2014→)**: Bzzoiro es la única fuente con stats por jugador de esa época en las ligas que cubre; con 7500 requests por día y 2 por partido, ~110 000 partidos tardan ~30 días de backfill.
 4. **Oficiales**: no aportan datos estructurados y la CBF prohíbe reproducirlos; quedan solo como referencia manual.
+
+### Cierre de la etapa 1 (25-nov-2026)
+
+- **Promiedos y los países sin liga**: las páginas de equipo de Bolívar, Cusco y Barcelona SC devuelven solo el menú (sin `data`). Promiedos no cubre Ecuador, Perú, Bolivia ni Venezuela salvo en los partidos de copa.
+- **OpenFootball south-america** (CC0, árbol del repo leído hoy): Argentina 2018-19 a 2025, Brasil A y B 2018 a 2026 y Copa do Brasil 2025, Colombia 2023 a 2025, Ecuador y Paraguay solo 2025, Libertadores y Sudamericana 2012 a 2026. Sirve de validación cruzada, no de histórico profundo.
+- **Wikipedia en español** (CC BY-SA): la API `/w/api.php` está cerrada por robots.txt; las páginas `/wiki/` sí se pueden leer. Hay artículo de temporada con tabla para Primera de Bolivia 2026 y 1977, Primera B de Chile 2026, Serie B de Ecuador 2026, División Intermedia de Paraguay 2026 y Primera de Uruguay 1900. Dieron 404 Liga FUTVE, Liga 1 y Liga 2 de Perú, Segunda de Uruguay, Primera B de Colombia, Primera D y Série C (puede ser el título adivinado, no la falta del artículo). Es la candidata para el histórico y para las divisiones sin fuente, a costo de un parser por formato de artículo.
+- **Fuente del histórico**: Wikipedia (con atribución y licencia compartida) más RSSSF si da permiso por escrito. No hay otra fuente abierta con profundidad anterior a 2012.

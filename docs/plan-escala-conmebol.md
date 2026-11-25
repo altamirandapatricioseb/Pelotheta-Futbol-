@@ -193,10 +193,10 @@ Presupuesto de una pantalla común: JS de la app + hyparquet (< 1 MB) + partici�
 | # | Etapa | Entregable | ¿Publica datos o crea cuentas? |
 |---|---|---|---|
 | 1 | Sondas de fuentes por país (robots, términos, profundidad histórica de Promiedos, oficiales de cada federación) | este informe + `docs/source_audit.md` ampliado | no |
-| 2 | Esquema genérico, ids, alias, linaje, cobertura. Migración con Boca sin romper nada; quitar `BOCA_ID` de fuentes y `api.boca_*` → `api.team_*` con parámetro | migraciones + tests | no |
+| 2 | **Hecha (25-nov)**: ids estables, países FIFA, alias, linaje, cobertura y rangos 1880–2200, aplicada en Supabase sin romper a Boca (`20261125120000_escala_identidad.sql`). El desacople de Boca pasa a las etapas 4 y 5, que reescriben esas mismas partes | migración + tests | no |
 | 3 | Exportador a Parquet con `schema_version` y manifiesto, probado con Boca | módulo + test de ida y vuelta | **sí: cuenta de HF (la creás vos) y primer dataset** |
-| 4 | Página de equipo leyendo Parquet con hyparquet en un Worker | `web/lib/data/parquet.ts` | no |
-| 5 | Toda la Primera Argentina, temporada actual; `player_pool` real por liga para el Ojeador | partición `argentina/primera/2026` | sí |
+| 4 | Página de equipo leyendo Parquet con hyparquet en un Worker, con el equipo como parámetro (reemplaza las vistas `api.boca_*` y sus filtros `is_boca`) | `web/lib/data/parquet.ts` | no |
+| 5 | Toda la Primera Argentina, temporada actual: las fuentes recorren la liga en vez de `BOCA_ID` (Promiedos, Bzzoiro, ScoutingStats, Statshub, StrikerAPI, NoFluffPicks, ELNINE); `player_pool` real por liga para el Ojeador; `core.team.name` pasa a ser único por país | partición `argentina/primera/2026` | sí |
 | 6 | Resto de Conmebol, temporada actual | 10 datasets | sí |
 | 7 | Backfill 2014→hoy por etapas, con checkpoint en Supabase y caché de requests | workflow `backfill.yml` reanudable | sí |
 | 8 | Backfill histórico desde OpenFootball, Wikidata, Wikipedia (y RSSSF si da permiso) | particiones históricas con `nivel = parcial` | sí |

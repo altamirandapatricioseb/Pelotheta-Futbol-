@@ -697,6 +697,10 @@ def run_pipeline(dry_run: bool, url: str, key: str) -> int:
             warnings.append(f"Calidad de datos: {failing} chequeos con filas que fallan (ver /estado)")
     except load.LoadError as exc:
         warnings.append(f"Calidad de datos no evaluada: {exc}")
+    try:
+        result["cobertura_filas"] = load.refresh_coverage(url, key)
+    except load.LoadError as exc:
+        warnings.append(f"Cobertura no recalculada: {exc}")
     seconds = (datetime.now(UTC) - started).total_seconds()
     print(f"Carga {status} en {seconds:.0f} s: {result}")
     _log_run(run_id, started, status, len(batch["matches"]), result, warnings, errors, url, key)

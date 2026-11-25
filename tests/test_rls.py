@@ -115,12 +115,22 @@ def test_anon_lee_el_resumen_sin_fecha_de_nacimiento(client: httpx.Client) -> No
         "league_absences",
         "player_position",
         "match_lineup",
+        "coverage",
+        "team_identity",
     ],
 )
 def test_anon_lee_las_vistas_avanzadas(client: httpx.Client, view: str) -> None:
     response = client.get(f"/{view}", params={"select": "*", "limit": "1"})
     assert response.status_code == 200
     assert response.json(), "la vista debería tener datos después de la carga de ScoutingStats"
+
+
+def test_ids_estables_de_club_con_pais(client: httpx.Client) -> None:
+    rows = client.get("/team_identity", params={"select": "uid,country_code"}).json()
+    uids = [r["uid"] for r in rows]
+    assert "arg-boca-juniors" in uids
+    assert len(uids) == len(set(uids))
+    assert all(r["country_code"] for r in rows), "todo club debería tener país FIFA"
 
 
 def test_anon_no_lee_fecha_de_nacimiento_aunque_la_pida(client: httpx.Client) -> None:

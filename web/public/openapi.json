@@ -2,7 +2,7 @@
  "openapi": "3.1.0",
  "info": {
   "title": "Pelotheta Θ · API de solo lectura",
-  "version": "2026.11.18",
+  "version": "2026.11.25",
   "description": "API de solo lectura de Pelotheta Θ: las vistas del esquema `api` de Supabase (PostgREST).\n\n- **Autenticación:** la clave publicable de Supabase en la cabecera `apikey` (es pública por diseño; RLS\n  impide escribir). Nunca uses la clave secreta en un cliente.\n- **Esquema:** todas las consultas llevan `Accept-Profile: api`.\n- **Límites:** hasta 1000 filas por pedido (paginá con `limit` y `offset`) y 3 s de tiempo\n  máximo por consulta.\n- **Filtros:** cada columna admite los operadores de PostgREST, por ejemplo `?goals_for=gte.2` o\n  `?competition_code=eq.copa_argentina`; `select` elige columnas y `order` ordena (`order=match_date.desc`).\n- **Sin escrituras:** la clave pública no tiene permiso de escritura en ninguna vista; `POST`, `PATCH` y\n  `DELETE` responden con error (403, o 500 cuando PostgreSQL rechaza la vista antes de mirar permisos).",
   "license": {
    "name": "Datos de terceros: ver /privacidad",
@@ -1778,6 +1778,134 @@
          "type": "array",
          "items": {
           "$ref": "#/components/schemas/conclusion"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/coverage": {
+   "get": {
+    "operationId": "coverage",
+    "summary": "Cobertura por competición, temporada y tabla: completo, parcial o sin_datos (la UI dice «sin datos para esta época» en vez de 0).",
+    "tags": [
+     "Vistas"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/select"
+     },
+     {
+      "$ref": "#/components/parameters/order"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     },
+     {
+      "name": "competition_uid",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "competition",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "country_code",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "season_year",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "table_name",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "level",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "scope",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "matches_with",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "matches_total",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "checked_at",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Filas de la vista.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/coverage"
          }
         }
        }
@@ -6390,6 +6518,98 @@
     }
    }
   },
+  "/team_identity": {
+   "get": {
+    "operationId": "team_identity",
+    "summary": "Id estable, país y alias de cada club.",
+    "tags": [
+     "Vistas"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/select"
+     },
+     {
+      "$ref": "#/components/parameters/order"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     },
+     {
+      "name": "uid",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "name",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "short_name",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "country_code",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "country",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "aliases",
+      "in": "query",
+      "required": false,
+      "description": "Filtro de PostgREST (por ejemplo `eq.5`, `gte.2`, `in.(1,2)`).",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Filas de la vista.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/team_identity"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
   "/team_match_master": {
    "get": {
     "operationId": "team_match_master",
@@ -7608,6 +7828,52 @@
      "player_position": {
       "type": "string",
       "format": "text"
+     }
+    }
+   },
+   "coverage": {
+    "type": "object",
+    "description": "Cobertura por competición, temporada y tabla: completo, parcial o sin_datos (la UI dice «sin datos para esta época» en vez de 0).",
+    "properties": {
+     "competition_uid": {
+      "type": "string",
+      "format": "text"
+     },
+     "competition": {
+      "type": "string",
+      "format": "text"
+     },
+     "country_code": {
+      "type": "string",
+      "format": "text"
+     },
+     "season_year": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "table_name": {
+      "type": "string",
+      "format": "text"
+     },
+     "level": {
+      "type": "string",
+      "format": "text"
+     },
+     "scope": {
+      "type": "string",
+      "format": "text"
+     },
+     "matches_with": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "matches_total": {
+      "type": "integer",
+      "format": "int32"
+     },
+     "checked_at": {
+      "type": "string",
+      "format": "timestamp with time zone"
      }
     }
    },
@@ -9246,6 +9512,38 @@
      "country": {
       "type": "string",
       "format": "text"
+     }
+    }
+   },
+   "team_identity": {
+    "type": "object",
+    "description": "Id estable, país y alias de cada club.",
+    "properties": {
+     "uid": {
+      "type": "string",
+      "format": "text"
+     },
+     "name": {
+      "type": "string",
+      "format": "text"
+     },
+     "short_name": {
+      "type": "string",
+      "format": "text"
+     },
+     "country_code": {
+      "type": "string",
+      "format": "text"
+     },
+     "country": {
+      "type": "string",
+      "format": "text"
+     },
+     "aliases": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
      }
     }
    },

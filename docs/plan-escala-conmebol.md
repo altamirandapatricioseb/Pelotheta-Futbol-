@@ -1,0 +1,229 @@
+# Plan: escalar Pelotheta Θ a toda la Conmebol (costo USD 0)
+
+Fecha de medición y verificación: **23-nov-2026**. Estado: **propuesta, sin implementar**. Nada de esto crea cuentas ni publica datos hasta que el dueño apruebe cada etapa.
+
+## 1. Resumen en cinco líneas
+
+1. **Se puede hacer gratis**, y el número que importa es mucho menor que el estimado: medido con datos reales, el Parquet con zstd pesa **~100 veces menos** que Postgres (no 5–10). Todo el archivo, con 100 años a futuro, entra en **~25 GB**, no en 70–170 GB.
+2. **Supabase Free no puede ser la capa caliente** ni para una sola temporada de Conmebol (~8,5 GB/año en el esquema actual contra 500 MB). Queda como cola y estado operativo (< 50 MB).
+3. **Hugging Face Datasets es la capa fría y la que sirve a la web**: probado hoy, responde CORS y range requests desde el navegador. GitHub Releases **no** sirve para la web (sin CORS) pero sí como respaldo.
+4. **En la web, hyparquet y no DuckDB-WASM para las pantallas comunes**: DuckDB-WASM pesa 4,7 MB comprimido y rompe el presupuesto de 3 s en un celular; queda para el laboratorio y los análisis entre temporadas.
+5. **El riesgo mayor es legal, no técnico**: las estadísticas por jugador vienen de fuentes que no licencian la redistribución (Statshub usa datos de SofaScore). Se publican solo derivados; el crudo restringido va a un dataset privado.
+
+## 2. Inventario del repo
+
+### Tablas (`core`, 60 tablas y vistas materializadas)
+
+| Grupo | Tablas |
+|---|---|
+| Identidad | `team`, `player`, `competition`, `season`, `referee`, `source_id_map`, `squad_member`, `player_profile` |
+| Partido | `match`, `lineup`, `event`, `shot`, `team_match_formation`, `team_match_stat`, `player_match_stat`, `match_momentum`, `match_absence`, `match_context`, `match_weather` |
+| Liga | `league_result`, `league_standing`, `league_leader`, `club_season_stat`, `club_competition_metric`, `club_rating`, `team_strength` |
+| Catálogo y cálculos | `stat_catalog`, `stat_set`, `stat_set_item`, `stat_value`, `stat_match_value`, `stat_test`, `chart_catalog`, `chart_source_map`, `situational_catalog`, `situational_match`, `situational_result`, `situ_base` (mv), `conclusion_rule`, `conclusion_result`, `position_zone_map` |
+| Modelos | `model_run`, `match_prediction`, `market_value_coef`, `market_value_prediction`, `player_market_value`, `player_pool`, `player_alternative`, `player_style`, `projection_param`, `player_master_mv`, `player_match_value_mv` |
+| Operación | `ingest_log`, `audit_log`, `pipeline_run_metrics`, `data_quality_result`, `system_status` |
+
+La web lee 52 vistas del esquema `api` (14 se llaman `boca_*`).
+
+### Fuentes (`sources/`)
+
+| Fuente | Qué trae hoy | Licencia o términos (de `docs/source_audit.md` + revisión de hoy) |
+|---|---|---|
+| Promiedos | partidos, alineaciones, formaciones, eventos, tablas, bajas, árbitros | sin términos publicados; robots no bloquea. Hoy lista Liga Profesional, Primera Nacional, Federal A, Primera C, Brasileirão A, Paraguay, Chile y otras |
+| ScoutingStats | xG, xGOT, momentum, stats de equipo y jugador | términos no prohíben acceso automatizado; datos de Sportmonks: **redistribución no licenciada** |
+| Statshub | por jugador: centros, duelos, toques, xG, xA | datos de SofaScore, cuyos términos prohíben el scraping: **no redistribuible** |
+| Bzzoiro | por jugador: regates, recuperaciones, conducciones | API con clave del dueño; redistribución sin verificar |
+| StrikerAPI | tiros con coordenadas, eventos | permite guardar y mostrar; prohíbe revender. **500 créditos/mes**: no escala (10 créditos por partido) |
+| NoFluffPicks | xG por partido (de FootyStats) | prohíbe republicar partes sustanciales |
+| transfermarkt-datasets | valores de mercado | CC0. **Pausado desde el 6-jul-2026** (verificado hoy en su README) |
+| Wikipedia | perfil de jugador | CC BY-SA |
+| football-data.org | (cliente sin conectar) | ver sección 6 |
+| ELNINE, Open-Meteo | bloqueada / desactivada | — |
+
+### Cálculos
+
+- Pipeline (`pipeline/`): estadísticas y percentiles (`stats`, `metrics`, `own_metrics`), Moneyball y valor de mercado (`market_value`), Elo y predictor (`match_predictor`, `models`), estilos y similitud (`similarity`), situaciones (`situations`), conclusiones (`conclusions`), proyección (`projection`), gráficos (`charts`), libros de Excel y Power BI.
+- Web (`web/lib/models/`): `inference`, `probability`, `market-stats`, `analyses`, `predictor`, `scouting` (con tests contra valores de tabla).
+
+### Acople a Boca
+
+`boca` aparece **772 veces en 94 archivos**: 343 en 36 migraciones, 118 en 9 fuentes, 110 en 12 módulos del pipeline y 201 en la web. Los ids de Boca están fijos en las fuentes (`BOCA_ID = 705`, `BOCA_TEAM_ID = 3202`, rutas de ScoutingStats). `web/config/teams.ts` es una lista a mano con `available: false` en todos menos Boca.
+
+## 3. Peso real (medido hoy en Supabase)
+
+- Base total: **43 MB**. De eso, `core` = **29 MB** (16 MB de datos + 13 MB de índices) y `pg_catalog` = 13 MB fijos.
+- 49 partidos de Boca, 27 equipos, 830 resultados de liga, 1223 jugadores en `player_pool`.
+
+| Tabla por partido | Postgres | Filas por partido | KB por partido (Postgres) |
+|---|---|---|---|
+| `player_match_stat` | 8,9 MB | 737 (formato largo: jugador × stat) | 186 |
+| `player_match_value_mv` | 6,8 MB | 1309 | 142 |
+| `team_match_stat` | 1,2 MB | 89 | 24 |
+| `situational_match` | 1,0 MB | 96 | 21 |
+| `stat_match_value` | 0,96 MB | 61 | 20 |
+| `match_momentum` | 0,63 MB | 97 (33 partidos) | 20 |
+| `event` / `shot` / `lineup` | 0,46 / 0,43 / 0,38 MB | 17 / 24 / 23 | 9 / 14 / 8 |
+| **Total por partido (solo lado Boca)** | **~20,7 MB** | | **~423 KB** |
+
+### Prueba de Parquet con los datos reales
+
+Exporté las vistas `api` equivalentes a Parquet con zstd nivel 9 (script descartable en el scratchpad; no quedó nada en el repo):
+
+| Vista | Filas | Parquet | Postgres de la tabla base | Compresión vs Postgres |
+|---|---|---|---|---|
+| `player_match_value` | 64 152 | 61 KB | 6,8 MB | ~110× |
+| `situational_match` | 4709 | 23 KB | 1,0 MB | ~45× |
+| `stat_match_value` | 2969 | 29 KB | 0,96 MB | ~33× |
+| `boca_momentum` | 3201 | 12 KB | 0,63 MB | ~52× |
+| `boca_shot` | 750 | 20 KB | 0,43 MB | ~22× |
+| `league_result` | 830 | 13 KB | 0,37 MB | ~28× |
+| **Todas las de partido** | | **198 KB (≈ 4 KB por partido)** | ~20,7 MB | **~100×** |
+
+Equipo-temporada: Boca 2026 = ~31 MB en Postgres contra ~0,2 MB en Parquet.
+
+## 4. Estimado de peso (recalculado)
+
+Supuestos, para que se puedan discutir:
+
+- **Partidos por año en el alcance**: ~9000–11 000. Argentina ~2800 (Primera ~500, Nacional ~650, B Metro ~460, Federal A ~500, C y D ~580, Copa Argentina 63), Brasil ~1100 (A, B, C, Copa do Brasil), los otros ocho países ~5000 (primera, segunda y copa), Libertadores + Sudamericana + Recopa ~310.
+- **Equipos**: ~450–500 (más que los 310 del prompt, porque las segundas y la C y D suman).
+- **Por partido completo** (los dos equipos, todas las tablas): medido 4 KB del lado de Boca → **×2 por el rival y ×2,5 de margen = 20 KB**. Solo resultado + goles: ~16 bytes (medido en `league_result`). Resultado + formaciones: ~0,5 KB.
+
+| Tramo | Partidos | Detalle | Parquet zstd | Postgres equivalente |
+|---|---|---|---|---|
+| Un año futuro (techo: todo con detalle completo) | ~10 000 | completo | **~0,2 GB** | ~8,5 GB |
+| 100 años a futuro | ~1 000 000 | completo | **~20–22 GB** | ~850 GB |
+| Pasado reciente (2014–2025) | ~110 000 | completo solo en primeras; resto parcial | **≤ 2,4 GB** | ≤ 95 GB |
+| Pasado histórico (1891–2013) | ~500 000–700 000 | resultado, goles, formaciones | **~0,3–0,5 GB** | ~15 GB |
+| Agregados chicos (por equipo, jugador, cara a cara) | — | — | ~+10 % | — |
+| **Total a 100 años** | | | **~25 GB** | **~0,95 TB** |
+
+El estimado del prompt para Postgres (0,65–0,9 TB) se confirma. El de Parquet (70–170 GB) estaba **3 a 7 veces alto**: el formato largo (jugador × stat) se comprime mucho mejor que 5–10×.
+
+Una liga+temporada con detalle completo (Primera Argentina, ~500 partidos) pesa **~10 MB**; una página de equipo lee **~0,5–1 MB** si el archivo está ordenado por equipo.
+
+## 5. Límites gratis verificados hoy (23-nov-2026)
+
+| Servicio | Límite gratis (fuente oficial) | ¿Pide tarjeta? | ¿Sirve a la web? | Veredicto |
+|---|---|---|---|---|
+| **Hugging Face Datasets** | Público: «best-effort»; privado: 100 GB; < 100k archivos por repo; archivo < 200 GB recomendado. Pide tarjeta de dataset y formatos como Parquet ([storage limits](https://huggingface.co/docs/hub/storage-limits)). Anónimo: 3000 descargas por IP cada 5 min ([rate limits](https://huggingface.co/docs/hub/rate-limits)) | no | **sí**: probado hoy, `Access-Control-Allow-Origin` + `206 Partial Content` | **Elegido**: capa fría y de lectura |
+| **GitHub Releases** | archivos < 2 GiB, hasta 1000 por release, sin tope total ni de ancho de banda ([about releases](https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases)) | no | **no**: probado hoy, el redirect y el destino no mandan CORS | **Elegido**: respaldo anual |
+| Internet Archive | sin tope publicado; la guía de la comunidad sugiere ítems < 400 GiB ([ayuda](https://help.archive.org/help/uploading-tips/)) | no | no probado | **Elegido**: segundo respaldo |
+| Zenodo | 50 GB y 100 archivos por registro; registros ilimitados ([límites](https://support.zenodo.org/help/en-gb/1-upload-deposit/80-what-are-the-size-limitations-of-zenodo)) | no | no (lento) | Opcional: un DOI por año (entra entero) |
+| Kaggle Datasets | 200 GB por dataset, 50 archivos de primer nivel ([docs](https://www.kaggle.com/docs/datasets)) | no | no | Espejo opcional |
+| Cloudflare R2 | 10 GB-mes, egreso gratis ([pricing](https://developers.cloudflare.com/r2/pricing/)) | **sí** (hay que activar la suscripción con medio de pago, [get started](https://developers.cloudflare.com/r2/get-started)) | sí | **Descartado** |
+| Backblaze B2 | 10 GB, sin tarjeta según su página de alta ([sign up](https://www.backblaze.com/sign-up/cloud-storage-v2)) | no | sí con CORS configurado | Reserva si HF cambia |
+| Storj | sin plan gratis desde 2025; prueba de 30 días ([FAQ](https://storj.io/pricing/change-faqs)) | — | — | **Descartado** (prueba que después se cobra) |
+| Source Cooperative | «pricing plans … will be announced soon» ([source.coop](https://source.coop/)) | — | — | Descartado por incierto |
+| AWS / Google Open Data | programas por postulación | — | — | Postular más adelante; no depender |
+| Oracle Always Free | pide tarjeta para verificar identidad ([FAQ](https://www.oracle.com/cloud/free/faq/)) | **sí** | — | **Descartado** |
+| **Supabase Free** | 500 MB por proyecto, 2 proyectos activos, pausa tras 1 semana inactivo ([pricing](https://supabase.com/pricing)) | no | sí | **Se queda**, solo como cola. Ya tenés 2 activos (`pelotheta-futbol` y `pelotheta-basket`): no entra un tercero |
+| Neon Free | 1 GB por proyecto, hasta 20 GB en total, 100 proyectos ([FAQ](https://neon.com/faqs/free-plan-limits-and-quotas)) | no | vía API | Reserva para estado operativo |
+| Cloudflare D1 | 10 bases de 500 MB, 5 GB en total ([limits](https://developers.cloudflare.com/d1/platform/limits)) | no | sí (con Worker) | No hace falta |
+| MotherDuck Free | 10 GB ([billing](https://motherduck.com/docs/about-motherduck/billing/pricing/)) | no | no directo | No hace falta |
+| Turso | fuentes no coinciden (5–9 GB); anunció que se une a Supabase ([pricing](https://turso.tech/pricing)) | no | — | Descartado por incierto |
+| Xata | plan gratis administrado retirado en 2026 (fuentes de terceros; la oficial no lo aclara) | — | — | **Descartado** |
+| CockroachDB Basic | los 10 GiB gratis por mes exigen facturación con tarjeta ([plan](https://www.cockroachlabs.com/docs/cockroachcloud/learn-about-pricing)) | **sí** | — | **Descartado** |
+| MongoDB Atlas Free | 0,5 GB tope duro ([limits](https://www.mongodb.com/docs/atlas/reference/free-shared-limitations/)) | no | — | No sirve |
+| **GitHub Actions** | runners estándar gratis e ilimitados en repo público; 20 jobs simultáneos ([billing](https://docs.github.com/en/actions/concepts/billing-and-usage)). Repo verificado hoy: **público** | no | — | **Elegido**: cómputo y cron |
+| **Vercel Hobby** | 100 GB de transferencia, 1 M de invocaciones, 100 deploys por día; si se pasa, espera 30 días ([hobby](https://vercel.com/docs/plans/hobby)) | no | sí | **Se queda** (hosting actual) |
+| GitHub Pages | sitio ≤ 1 GB, 100 GB/mes (blando) ([limits](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits)) | no | sí | Reserva si Vercel cambia |
+| Cloudflare Pages | 20 000 archivos, 25 MiB por archivo, 500 builds/mes ([limits](https://developers.cloudflare.com/pages/platform/limits)) | no | sí | Reserva |
+| Netlify Free | 300 créditos/mes, tope duro (~15 GB de tráfico) ([docs](https://docs.netlify.com/manage/accounts-and-billing/billing/billing-for-credit-based-plans/credit-based-pricing-plans/)) | no | sí | Descartado: corto |
+
+**Combinar varias cuentas gratis (una por país)**: no hace falta con estos números, y Oracle lo prohíbe expresamente («One … Always Free account is permitted per person»). La alternativa permitida es **un dataset de HF por país dentro de la misma cuenta**: mantiene cada repo lejos del tope de 100k archivos.
+
+## 6. Fuentes de datos: cobertura y permisos (revisado hoy)
+
+| Fuente | Cobertura verificada hoy | Límite | ¿Redistribuir? | Uso propuesto |
+|---|---|---|---|---|
+| Promiedos | (etapa 1, 25-nov) Argentina salvo la D, Brasil A y Copa do Brasil, primeras de Uruguay, Paraguay, Colombia y Chile, Libertadores y Sudamericana. Sin Ecuador, Perú, Bolivia, Venezuela ni segundas fuera de Argentina. **Solo temporada en curso** | 3 s por request (`PoliteClient`) | **sí, citando la fuente** (`/legal`) | Principal para el presente; no sirve para el backfill |
+| Bzzoiro | (etapa 1) Argentina, Brasil A y B, Chile, Colombia, Ecuador, Perú, Libertadores, Sudamericana; stats por jugador desde ~2014 | 7500 por día | derivados sí; crudo no | Por jugador en el presente y backfill 2014→ |
+| football-data.org | Gratis incluye **Brasileirão Série A** entre sus 12 competiciones; Libertadores y Sudamericana figuran en cobertura pero no en el plan gratis ([coverage](https://www.football-data.org/coverage)) | 10 por minuto | sí, con atribución | Validación cruzada de Brasil A |
+| API-Football | 100 requests por día; «Free plans are limited in terms of available seasons» ([pricing](https://www.api-football.com/pricing)); la prueba de oct-2026 dio solo 2022–2024 | 100/día | no otorga licencia de publicación | Relleno 2022–2024, uso interno |
+| OpenFootball south-america | Argentina, Brasil, Colombia, Ecuador, Paraguay, Libertadores; actualizado el 20-oct-2026 ([repo](https://github.com/openfootball/south-america)) | — | **CC0** | Histórico abierto y validación |
+| Wikidata | equipos, estadios, fusiones, jugadores | — | **CC0** ([licensing](https://www.wikidata.org/wiki/Wikidata:Licensing)) | Ids estables, alias, fusiones y cambios de nombre |
+| Wikipedia | planteles, temporadas históricas | — | CC BY-SA (citar y compartir igual) | Histórico y perfiles |
+| RSSSF | el más completo de 1891 en adelante | — | «free to copy … provided that proper acknowledgement is given … All rights reserved» ([rsssf.org](https://www.rsssf.org/)): permiso de copia con atribución, ambiguo para bases de datos | **Pedir permiso por escrito** antes de publicar en bloque |
+| transfermarkt-datasets | valores de mercado | **pausado desde el 6-jul-2026** ([repo](https://github.com/dcaribou/transfermarkt-datasets)) | CC0 | Valores históricos; el valor actual pasa a ser el modelo propio |
+| StatsBomb Open Data | sin ligas sudamericanas de clubes en el repo; pide citar y logo ([repo](https://github.com/statsbomb/open-data)) | — | con atribución | No aplica |
+| ScoutingStats, Statshub, Bzzoiro, StrikerAPI, NoFluffPicks | hoy solo verificadas para Argentina | StrikerAPI 500 créditos/mes | **no** | Solo crudo privado; publicar derivados |
+| Sitios oficiales (AFA, CBF, AUF, ANFP, Dimayor, APF, LigaPro, FPF, FBF, FVF) | **no revisados hoy** | — | — | Sonda en la etapa 1 (robots + términos) |
+
+## 7. Arquitectura propuesta (validada con los números)
+
+```mermaid
+flowchart LR
+  subgraph Fuentes
+    P[Promiedos] & O[OpenFootball / Wikidata / RSSSF] & R[ScoutingStats / Statshub / Bzzoiro]
+  end
+  subgraph Cómputo["GitHub Actions (repo público)"]
+    I[ingesta por país y liga<br/>matriz, con checkpoint] --> C[cálculos por liga+temporada<br/>percentiles, Elo, estilos, valor…] --> X[exportador Parquet<br/>schema_version]
+  end
+  Fuentes --> I
+  I <--> Q[(Supabase Free<br/>cola, checkpoints, logs<br/>&lt; 50 MB)]
+  R -.crudo restringido.-> HP[(HF dataset privado<br/>≤ 100 GB)]
+  X --> HF[(HF Datasets públicos<br/>uno por país<br/>pais/liga/temporada/tabla.parquet)]
+  X --> AG[agregados chicos<br/>por equipo, jugador, cara a cara]
+  AG --> HF
+  HF --> W[Web en Vercel Hobby<br/>hyparquet en Web Worker<br/>DuckDB-WASM solo en laboratorio<br/>caché IndexedDB]
+  HF --> B[(Respaldo anual<br/>GitHub Releases + Internet Archive)]
+```
+
+Cambios respecto del prompt:
+
+1. **Capa caliente**: Supabase no entra. La temporada en curso se escribe directo como Parquet y se re-sube la partición de la liga después de cada fecha. Supabase guarda solo cola, checkpoints del backfill, `ingest_log`, `data_quality_result` y frescura. Boca sigue en Supabase hasta que la página de equipo lea Parquet (etapa 4), después se migra.
+2. **Tamaño de archivo**: no hay forma de llegar a 50–500 MB por liga+temporada (pesan 0,5–10 MB). Se deja **un archivo por tabla y liga+temporada**, ordenado por equipo y fecha, con row groups chicos para que la web lea solo su parte. Cuenta de archivos a 100 años: ~60 000, repartidos en 10 datasets (uno por país + uno de copas), cada uno muy debajo de 100 000.
+3. **Agregados**: van en el mismo dataset (`agregados/`), no en el build de Vercel, para no atar los datos a los deploys.
+4. **Motor en el navegador**: **hyparquet** (lector Parquet en JS puro, paquete de ~0,3 MB sin comprimir, zstd con `hyparquet-compressors`) para todas las pantallas comunes. **DuckDB-WASM** (`duckdb-eh.wasm`: 35,7 MB, **4,7 MB con brotli**, medido hoy) se carga solo al abrir el laboratorio o un análisis entre temporadas. sql.js-httpvfs y Arrow JS no suman: el primero obliga a SQLite y el segundo no lee Parquet solo.
+
+Presupuesto de una pantalla común: JS de la app + hyparquet (< 1 MB) + partición (0,5–1 MB) + agregados (< 0,5 MB) ≈ **2–3 MB**, debajo de los 10 MB.
+
+## 8. Esquema genérico (etapa 2)
+
+- **Ids propios estables**: `team_uid`, `player_uid`, `competition_uid` (texto corto, nunca reutilizado). Tablas de equivalencias `*_alias (uid, fuente, id_fuente, nombre, desde, hasta)`. Se amplía el `source_id_map` que ya existe.
+- **Linaje de clubes**: `team_lineage (uid, uid_anterior, tipo: fusión | refundación | cambio_de_nombre, fecha, fuente)`, sembrada desde Wikidata (CC0).
+- **Cobertura por época**: `coverage (competition_uid, season, tabla, nivel: completo | parcial | sin_datos, fuente)`. La UI la lee antes de dibujar: si es `sin_datos` muestra «sin datos para esta época» y nunca un 0. En Parquet, los faltantes son `null`, no `0`.
+- **Versionado**: cada archivo lleva `schema_version` en los metadatos de Parquet y un `manifest.json` por dataset con versión, filas, hash y licencia por archivo. Las migraciones de formato se documentan en `docs/formato-parquet.md` y se aplican reescribiendo particiones, nunca en el lugar.
+- **Origen y licencia por tabla**: columna `fuente` por fila y campo `licencia` en el manifiesto. El exportador se niega a publicar una tabla cuya licencia sea `restringida`.
+- **Selector**: `web/config/teams.ts` se genera desde `agregados/equipos.parquet` (país → categoría → equipo, con temporadas disponibles).
+
+## 9. Plan por etapas (refinado)
+
+| # | Etapa | Entregable | ¿Publica datos o crea cuentas? |
+|---|---|---|---|
+| 1 | Sondas de fuentes por país (robots, términos, profundidad histórica de Promiedos, oficiales de cada federación) | este informe + `docs/source_audit.md` ampliado | no |
+| 2 | Esquema genérico, ids, alias, linaje, cobertura. Migración con Boca sin romper nada; quitar `BOCA_ID` de fuentes y `api.boca_*` → `api.team_*` con parámetro | migraciones + tests | no |
+| 3 | Exportador a Parquet con `schema_version` y manifiesto, probado con Boca | módulo + test de ida y vuelta | **sí: cuenta de HF (la creás vos) y primer dataset** |
+| 4 | Página de equipo leyendo Parquet con hyparquet en un Worker | `web/lib/data/parquet.ts` | no |
+| 5 | Toda la Primera Argentina, temporada actual; `player_pool` real por liga para el Ojeador | partición `argentina/primera/2026` | sí |
+| 6 | Resto de Conmebol, temporada actual | 10 datasets | sí |
+| 7 | Backfill 2014→hoy por etapas, con checkpoint en Supabase y caché de requests | workflow `backfill.yml` reanudable | sí |
+| 8 | Backfill histórico desde OpenFootball, Wikidata, Wikipedia (y RSSSF si da permiso) | particiones históricas con `nivel = parcial` | sí |
+| 9 | Cierre de temporada automático, monitoreo de cuotas al 80 %, respaldos anuales | `season_close.yml`, `quota.yml`, `backup.yml` ampliado | sí (Internet Archive: cuenta tuya) |
+
+Cada etapa que publica o necesita cuenta espera tu aprobación. Las cuentas las creás vos; yo no toco credenciales.
+
+## 10. Riesgos y mitigación
+
+| Riesgo | Probabilidad | Impacto | Mitigación |
+|---|---|---|---|
+| **Legal**: redistribuir estadísticas de Statshub (SofaScore), ScoutingStats (Sportmonks), Bzzoiro o Promiedos | alta | alto | Publicar solo derivados (percentiles, índices, modelos) y hechos básicos; crudo restringido en dataset privado de HF; licencia por tabla en el manifiesto y bloqueo en el exportador |
+| Las estadísticas por jugador **no existen gratis y permitidas** fuera de Argentina, o solo en primeras | alta | medio | Degradación por época y liga (`coverage`); el Ojeador mide el nivel con lo que haya y lo dice |
+| Hugging Face cambia «best-effort» o el rate limit | media | alto | Respaldos en GitHub Releases e Internet Archive; Backblaze B2 (10 GB, sin tarjeta) como espejo de las particiones más usadas; `docs/migracion.md` con el paso a paso |
+| Supabase pausa por inactividad o cambia el plan | media | bajo (después de la etapa 4) | El workflow `keepalive.yml` ya existe; el estado operativo es chico y se puede mover a Neon Free |
+| Fuentes que cambian su HTML o bloquean | alta | medio | Adaptadores con tests de contrato, aviso en `health.yml`, varias fuentes por dato |
+| transfermarkt-datasets sigue pausado | alta | medio | Valor de mercado pasa a ser el modelo propio entrenado con el histórico CC0 |
+| RSSSF no da permiso | media | medio | Histórico solo con OpenFootball + Wikipedia + Wikidata; menos profundidad antes de 1930 |
+| Vercel Hobby se queda corto (100 GB) | baja | medio | Los Parquet salen de HF, no de Vercel; reserva: GitHub Pages o Cloudflare Pages |
+| DuckDB-WASM en celulares | media | medio | Solo en el laboratorio; el resto con hyparquet |
+| El volumen real de partidos de ligas menores | media | bajo | Aun ×3 el total queda en ~75 GB, entra en HF |
+| Mantener 100 años | — | — | Formato abierto (Parquet), versionado, manifiesto con hashes y copia anual en dos archivos independientes |
+
+## 11. Lo que no verifiqué hoy
+
+- ~~Cobertura de Promiedos y términos de federaciones, Promiedos y Bzzoiro~~: hechos en la etapa 1 (ver la sexta ronda de `docs/source_audit.md`). Quedan **sin fuente para el presente**: Primera D, Brasil C, Bolivia, Venezuela y las segundas fuera de Argentina y Brasil.
+- Si las páginas de equipo de Promiedos de Ecuador, Perú, Bolivia y Venezuela traen sus partidos de liga (la sonda no pudo leerlas).
+- Límites de GitHub Actions por job (duración máxima, caché de 10 GB): no releídos hoy.
+- CORS de Internet Archive y Backblaze B2 (no los necesita la web en el plan elegido).
+- El factor ×2,5 de margen por partido es una estimación; se confirma en la etapa 3 exportando una liga completa.

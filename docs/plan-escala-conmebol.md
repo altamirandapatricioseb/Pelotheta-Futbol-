@@ -194,7 +194,7 @@ Presupuesto de una pantalla común: JS de la app + hyparquet (< 1 MB) + partici�
 |---|---|---|---|
 | 1 | Sondas de fuentes por país (robots, términos, profundidad histórica de Promiedos, oficiales de cada federación) | este informe + `docs/source_audit.md` ampliado | no |
 | 2 | **Hecha (25-nov)**: ids estables, países FIFA, alias, linaje, cobertura y rangos 1880–2200, aplicada en Supabase sin romper a Boca (`20261125120000_escala_identidad.sql`). El desacople de Boca pasa a las etapas 4 y 5, que reescriben esas mismas partes | migración + tests | no |
-| 3 | Exportador a Parquet con `schema_version` y manifiesto, probado con Boca | módulo + test de ida y vuelta | **sí: cuenta de HF (la creás vos) y primer dataset** |
+| 3 | **Código hecho (25-nov)**: `pipeline/export_parquet.py`, formato en `docs/formato-parquet.md`, workflow manual `export.yml`. Boca real: 185 KB públicos + 239 KB privados (contra ~29 MB en Postgres). **Falta publicar**: cuenta de HF y secretos (los creás vos) | módulo + test de ida y vuelta | **sí: cuenta de HF (la creás vos) y primer dataset** |
 | 4 | Página de equipo leyendo Parquet con hyparquet en un Worker, con el equipo como parámetro (reemplaza las vistas `api.boca_*` y sus filtros `is_boca`) | `web/lib/data/parquet.ts` | no |
 | 5 | Toda la Primera Argentina, temporada actual: las fuentes recorren la liga en vez de `BOCA_ID` (Promiedos, Bzzoiro, ScoutingStats, Statshub, StrikerAPI, NoFluffPicks, ELNINE); `player_pool` real por liga para el Ojeador; `core.team.name` pasa a ser único por país | partición `argentina/primera/2026` | sí |
 | 6 | Resto de Conmebol, temporada actual | 10 datasets | sí |

@@ -305,23 +305,39 @@ def push(out: Path, public_repo: str, private_repo: str | None, token: str) -> N
         )
 
 
+# Tope de consultas nuevas a Bzzoiro por exportación: la cuota es de 7 500 por día y la corrida diaria
+# usa una parte. Una temporada entera de las 13 competiciones son ~6 600; se completa en pocas corridas.
+BZZOIRO_BUDGET = 3000
+
+
 def league_player_rows(season_year: int = 2026) -> dict[str, list[dict[str, Any]]]:
-    """Crudo y perfiles de jugadores de la liga desde Bzzoiro; vacío (con aviso) sin clave o sin red."""
+    """Crudo y perfiles de jugadores de todas las competiciones de Bzzoiro en la Conmebol (etapa 5j-2).
+
+    Cada fila lleva su país y su competición: el exportador la guarda en su liga. Los percentiles se
+    calculan dentro de cada competición. Vacío (con aviso) sin clave o sin red."""
     from pipeline import league_players as lp
     from sources import bzzoiro as bz
 
-    # shortcut: temporada y liga fijas (la de hoy); la etapa 6 recorre `bz.LEAGUES` y las temporadas.
-    empty: dict[str, list[dict[str, Any]]] = {v: [] for v in LEAGUE_PLAYER_VIEWS}
+    out: dict[str, list[dict[str, Any]]] = {v: [] for v in LEAGUE_PLAYER_VIEWS}
     key = os.environ.get("BZZOIRO_API_KEY", "")
     if not key:
-        print("Aviso: sin BZZOIRO_API_KEY no se exportan los jugadores de la liga.", file=sys.stderr)
-        return empty
-    try:
-        raw = lp.collect(bz.BzzoiroClient(api_key=key), bz.LEAGUES[FOCUS_LEAGUE], season_year)
-    except bz.BzzoiroError as exc:
-        print(f"Aviso: Bzzoiro no respondió ({exc}); sin jugadores de la liga.", file=sys.stderr)
-        return empty
-    return {"league_player_match": raw, "league_player_profile": lp.profiles(raw, season_year)}
+        print("Aviso: sin BZZOIRO_API_KEY no se exportan los jugadores de las ligas.", file=sys.stderr)
+        return out
+    client, budget = bz.BzzoiroClient(api_key=key), BZZOIRO_BUDGET
+    for uid, league_id in bz.LEAGUES.items():
+        report: dict[str, int] = {}
+        try:
+            raw = lp.collect(client, league_id, season_year, max_new=budget, report=report)
+        except bz.BzzoiroError as exc:
+            print(f"Aviso: Bzzoiro no respondió en {uid} ({exc}).", file=sys.stderr)
+            continue
+        budget -= report.get("consultas_nuevas", 0)
+        if report.get("pendientes"):
+            print(f"{uid}: {report['pendientes']} partidos quedan para la próxima corrida.", file=sys.stderr)
+        tag = {"country_code": bz.country_of(uid), "competition_uid": uid}
+        out["league_player_match"] += [{**r, **tag} for r in raw]
+        out["league_player_profile"] += [{**p, **tag} for p in lp.profiles(raw, season_year)]
+    return out
 
 
 def league_value_rows(club_names: list[str], today: date | None = None) -> list[dict[str, Any]]:

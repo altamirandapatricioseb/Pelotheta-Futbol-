@@ -135,7 +135,29 @@ def parse_player_stats(stats: dict[str, Any], lineups: dict[str, Any]) -> list[t
 
 
 # Ligas de Bzzoiro por id estable de competición (etapa 5: toda la liga, no solo Boca).
-LEAGUES = {"arg-liga-profesional-argentina": 85}
+LEAGUES = {
+    # Las ligas que lista el sistema (web/config/teams.ts) primero; después las copas.
+    "arg-liga-profesional-argentina": 85,
+    "bra-serie-a": 9,
+    "bra-serie-b": 34,
+    "chi-primera": 111,
+    "col-primera-a": 80,
+    "ecu-serie-a": 112,
+    "per-liga-1": 113,
+    "arg-copa-argentina": 114,
+    "bra-copa-do-brasil": 35,
+    "col-copa-colombia": 81,
+    "csa-copa-libertadores": 32,
+    "csa-copa-sudamericana": 33,
+    "csa-eliminatorias": 59,
+}
+
+
+def country_of(league_uid: str) -> str:
+    """País FIFA de una competición por su id estable («bra-serie-a» → BRA; «csa-…» es continental)."""
+    return league_uid[:3].upper()
+
+
 # Nombre en Bzzoiro → nombre de la tabla de Promiedos (el de las fichas de club). Verificado el
 # 26-nov-2026 con las 30 alineaciones; «Gimnasia y Esgrima» juega el clásico con Estudiantes: es La Plata.
 # shortcut: lista fija para la Liga Profesional; con más ligas pasa a core.alias (etapa 6).

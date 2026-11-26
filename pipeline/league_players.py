@@ -75,8 +75,18 @@ GOALKEEPER_STATS = {"saves", "goals_prevented", "accurate_pass"}
 OUTFIELD_STATS = set(KEY_STATS) - {"saves", "goals_prevented"}
 
 
-def collect(client: bz.BzzoiroClient, league_id: int, season_year: int) -> list[dict[str, Any]]:
-    """Filas crudas jugador × partido de los partidos terminados de la temporada."""
+def collect(
+    client: bz.BzzoiroClient,
+    league_id: int,
+    season_year: int,
+    max_new: int | None = None,
+    report: dict[str, int] | None = None,
+) -> list[dict[str, Any]]:
+    """Filas crudas jugador × partido de los partidos terminados de la temporada.
+
+    `max_new`: tope de consultas nuevas (las que no están en caché) en esta corrida; los partidos que
+    no entran se piden en la próxima (la caché se guarda entre corridas). `report` recibe partidos,
+    pendientes y consultas nuevas, para la cobertura."""
     events: list[bz.LeagueEvent] = []
     offset = 0
     while True:
@@ -95,12 +105,21 @@ def collect(client: bz.BzzoiroClient, league_id: int, season_year: int) -> list[
         if not page.get("next"):
             break
     rows = []
+    new = pending = 0
     for e in events:
+        cached = all((client.cache_dir / f"{k}_{e.event_id}.json").exists() for k in ("ps", "lu"))
+        if not cached:
+            if max_new is not None and new + 2 > max_new:
+                pending += 1
+                continue
+            new += 2
         stats = client.get(f"/api/v2/events/{e.event_id}/player-stats/", cache_key=f"ps_{e.event_id}")
         lineups = client.get(f"/api/v2/events/{e.event_id}/lineups/", cache_key=f"lu_{e.event_id}")
         date = e.kickoff.date().isoformat()
         for row in bz.parse_all_player_stats(stats, lineups):
             rows.append({"event_id": e.event_id, "match_date": date, "season_year": season_year, **row})
+    if report is not None:
+        report.update({"partidos": len(events), "pendientes": pending, "consultas_nuevas": new})
     return rows
 
 

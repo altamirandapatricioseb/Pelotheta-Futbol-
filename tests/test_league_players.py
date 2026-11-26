@@ -216,6 +216,31 @@ def test_league_game_keeps_goal_minutes_only_when_they_add_up() -> None:
     assert row is not None and (row.home_goal_minutes, row.away_goal_minutes) == ([], [70])
 
 
+def test_collect_respects_the_budget_and_continues_from_cache(tmp_path: Path) -> None:
+    class Fake:
+        def __init__(self) -> None:
+            self.cache_dir, self.calls = tmp_path, 0
+
+        def get(self, path: str, params: Any = None, cache_key: str | None = None) -> dict[str, Any]:
+            if path == "/api/v2/events/":
+                ev = [
+                    {"id": i, "event_date": f"2026-03-0{i}T20:00:00+00:00", "status": "finished"}
+                    for i in (1, 2, 3)
+                ]
+                return {"results": ev, "next": None}
+            self.calls += 1
+            if cache_key:
+                (tmp_path / f"{cache_key}.json").write_text("{}", encoding="utf-8")
+            return {"player_stats": [], "lineups": {}}
+
+    client = Fake()
+    report: dict[str, int] = {}
+    lp.collect(client, 85, 2026, max_new=4, report=report)  # type: ignore[arg-type]
+    assert report == {"partidos": 3, "pendientes": 1, "consultas_nuevas": 4}
+    lp.collect(client, 85, 2026, max_new=4, report=report)  # type: ignore[arg-type]
+    assert report == {"partidos": 3, "pendientes": 0, "consultas_nuevas": 2}  # los dos primeros, de caché
+
+
 def test_raw_goes_private_and_profiles_public(tmp_path: Path) -> None:
     raw = [{**game(1, "A", "F", 1, minutes_played=90, goals=1), "season_year": 2026, "event_id": 7}]
     rows = {"league_player_match": raw, "league_player_profile": [{"player_name": "J1", "season_year": 2026}]}

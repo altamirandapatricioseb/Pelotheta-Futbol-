@@ -51,6 +51,29 @@ const leagueResultSchema = z.object({
   away_goals: num,
 });
 
+// Fuerza del predictor (cálculo propio): 1 = promedio de la liga; ataque > 1 convierte más, defensa > 1 recibe más.
+const strengthSchema = z.object({
+  team_name: z.string(),
+  competition: text,
+  estimated: z.boolean().nullable(),
+  attack_home: num,
+  defense_home: num,
+  attack_away: num,
+  defense_away: num,
+  elo: num,
+  form: num,
+  squad_value_eur: num,
+});
+
+const leaderSchema = z.object({
+  source: z.string(),
+  stat: z.string(),
+  rank: num,
+  player_name: z.string(),
+  team_name: text,
+  value: num,
+});
+
 const standingSchema = z.object({
   table_name: z.string(),
   rank: num,
@@ -90,6 +113,8 @@ export interface Club {
   /** true si los partidos salen de los resultados de liga (sin copas y quizá con fechas faltantes). */
   leagueOnly: boolean;
   standings: StandingTable[];
+  strength: z.infer<typeof strengthSchema> | null;
+  leaders: z.infer<typeof leaderSchema>[];
 }
 
 async function fetchFile(path: string): Promise<Response> {
@@ -211,9 +236,16 @@ export async function getClub(uid: string): Promise<ArchiveResult<Club | null>> 
     const names = [found, known?.short_name ?? '', ...aliases].filter(Boolean);
     // Si el club tiene archivo propio (todas sus competiciones) se usa ese; si no, sus partidos de liga.
     const own = manifest.archivos.filter((f) => f.tabla === 'boca_match' && f.ruta.includes(`/equipo=${uid}/`));
-    const matches = own.length
-      ? (await Promise.all(own.map((f) => readTable(f.ruta, teamMatchSchema)))).flat().map(fromTeamMatch)
-      : leagueMatchesFor(results, names);
+    const inCountry = (tabla: string) =>
+      manifest.archivos.filter((f) => f.tabla === tabla && f.ruta.startsWith(`pais=${country}/`)).map((f) => f.ruta);
+    const [ownMatches, strengths, leaders] = await Promise.all([
+      Promise.all(own.map((f) => readTable(f.ruta, teamMatchSchema))),
+      Promise.all(inCountry('team_strength').map((p) => readTable(p, strengthSchema))),
+      Promise.all(inCountry('league_leader').map((p) => readTable(p, leaderSchema))),
+    ]);
+    const matches = own.length ? ownMatches.flat().map(fromTeamMatch) : leagueMatchesFor(results, names);
+    const wanted = new Set(names.map(norm));
+    const mine = (team: string | null) => team !== null && wanted.has(norm(team));
     return {
       ok: true,
       data: {
@@ -223,6 +255,12 @@ export async function getClub(uid: string): Promise<ArchiveResult<Club | null>> 
         matches: matches.toSorted((a, b) => a.date.localeCompare(b.date)),
         leagueOnly: own.length === 0,
         standings: standingsFor(standings, names),
+        // La fuerza de liga medida (no la estimada para rivales de copa).
+        strength: strengths.flat().find((s) => s.competition === 'liga' && !s.estimated && mine(s.team_name)) ?? null,
+        leaders: leaders
+          .flat()
+          .filter((l) => l.source === 'promiedos' && mine(l.team_name))
+          .toSorted((a, b) => a.stat.localeCompare(b.stat) || (a.rank ?? 99) - (b.rank ?? 99)),
       },
     };
   } catch (cause) {

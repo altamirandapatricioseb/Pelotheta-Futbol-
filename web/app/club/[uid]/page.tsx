@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 import { ErrorNotice } from '@/components/error-notice';
 import { DATASET_URL, getClub } from '@/lib/data/parquet';
-import { NOT_AVAILABLE } from '@/lib/format';
+import { formatNumber, NOT_AVAILABLE } from '@/lib/format';
 
 // El id viene de la URL: país FIFA en minúscula + nombre (`arg-boca-juniors`), validado antes de usarlo.
 const paramsSchema = z.object({ uid: z.string().regex(/^[a-z]{3}-[a-z0-9-]{1,80}$/) });
@@ -18,6 +18,10 @@ const day = (iso: string) => iso.slice(0, 10).split('-').reverse().join('/');
 const score = (a: number | null, b: number | null) =>
   a === null || b === null ? NOT_AVAILABLE : `${String(a)} – ${String(b)}`;
 const cell = (v: number | null) => (v === null ? NOT_AVAILABLE : String(v));
+// Fuerza contra el promedio de la liga (1 = promedio): «+12 %» convierte o recibe 12 % más que el promedio.
+const vsAverage = (v: number | null) =>
+  v === null ? NOT_AVAILABLE : `${v >= 1 ? '+' : '−'}${String(Math.round(Math.abs(v - 1) * 100))} %`;
+const STATS: Record<string, string> = { goles: 'Goles', asistencias: 'Asistencias' };
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const parsed = paramsSchema.safeParse(await params);
@@ -43,6 +47,55 @@ export default async function ClubPage({ params }: PageProps) {
         </h1>
         <p className="mt-2 text-muted">{club.country ?? 'Conmebol'} · partidos y posiciones desde el archivo abierto</p>
       </div>
+
+      {club.strength ? (
+        <section className="grid gap-2" aria-labelledby="nivel">
+          <h2 id="nivel" className="text-xl font-bold">
+            Nivel en la liga
+          </h2>
+          <ul className="grid gap-1">
+            <li>
+              <strong>Elo:</strong> {formatNumber(club.strength.elo)} (1500 es un equipo promedio)
+            </li>
+            <li>
+              <strong>Forma:</strong> {formatNumber(club.strength.form, 1)} puntos por partido en los últimos partidos
+            </li>
+            <li>
+              <strong>Goles que convierte</strong> frente al promedio: de local {vsAverage(club.strength.attack_home)},
+              de visitante {vsAverage(club.strength.attack_away)}
+            </li>
+            <li>
+              <strong>Goles que recibe</strong> frente al promedio: de local {vsAverage(club.strength.defense_home)}, de
+              visitante {vsAverage(club.strength.defense_away)}
+            </li>
+            {club.strength.squad_value_eur !== null ? (
+              <li>
+                <strong>Valor del plantel:</strong> € {formatNumber(club.strength.squad_value_eur / 1e6, 1)} M
+              </li>
+            ) : null}
+          </ul>
+          <p className="text-sm text-muted">
+            Cálculo propio con los partidos de liga, el mismo que usa el predictor. El valor del plantel sale de
+            transfermarkt-datasets (CC0).
+          </p>
+        </section>
+      ) : null}
+
+      {club.leaders.length ? (
+        <section className="grid gap-2" aria-labelledby="destacados">
+          <h2 id="destacados" className="text-xl font-bold">
+            Jugadores destacados del torneo
+          </h2>
+          <ul className="grid gap-1">
+            {club.leaders.map((l) => (
+              <li key={`${l.stat}-${l.player_name}`}>
+                <strong>{STATS[l.stat] ?? l.stat.replaceAll('_', ' ')}:</strong> {l.player_name},{' '}
+                {formatNumber(l.value)} (puesto {cell(l.rank)} de la liga)
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       {club.matches.length ? (
         // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- región desplazable con nombre (axe)

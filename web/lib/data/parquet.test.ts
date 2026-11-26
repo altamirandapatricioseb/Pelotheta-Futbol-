@@ -59,6 +59,14 @@ describe('archivo abierto en Parquet', () => {
     expect(clubs.ok && clubs.data.map((c) => c.uid)).toEqual(['arg-club-a', 'arg-club-b', 'arg-club-c', 'arg-union']);
   });
 
+  it('suma la fuerza de liga medida y los destacados del club, solo de fuentes abiertas', async () => {
+    serveFixtures();
+    const result = await getClub('arg-club-c');
+    if (!result.ok || !result.data) throw new Error('sin ficha');
+    expect(result.data.strength?.elo).toBe(1550); // la de liga, no la estimada de copa
+    expect(result.data.leaders.map((l) => l.player_name)).toEqual(['Nueve C']);
+  });
+
   it('el id coincide con core.slug de la base', () => {
     expect(slug("Newell's Old Boys")).toBe('newell-s-old-boys');
     expect(slug('Central Córdoba SdE')).toBe('central-cordoba-sde');

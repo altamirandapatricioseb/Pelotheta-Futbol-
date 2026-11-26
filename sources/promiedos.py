@@ -618,8 +618,11 @@ def parse_standings(league_data: dict[str, Any], season_year: int) -> list[Stand
     return rows
 
 
-def parse_league_leaders(league_data: dict[str, Any], season_year: int) -> list[LeagueLeaderRecord]:
-    """Goleadores y demás rankings de jugadores del torneo en curso (datos de Opta)."""
+def parse_league_leaders(
+    league_data: dict[str, Any], season_year: int, names: dict[str, str] | None = None
+) -> list[LeagueLeaderRecord]:
+    """Goleadores y demás rankings de jugadores del torneo en curso (datos de Opta). La fila trae
+    solo el id del club: `names` (id → nombre de la tabla) lo traduce."""
     rows: list[LeagueLeaderRecord] = []
     for table in (league_data.get("players_statistics") or {}).get("tables") or []:
         stat = re.sub(r"[^a-z]+", "_", player_key(str(table.get("name") or ""))).strip("_")
@@ -635,7 +638,7 @@ def parse_league_leaders(league_data: dict[str, Any], season_year: int) -> list[
                         stat=stat,
                         rank=rank,
                         player_name=obj["name"],
-                        team_name=obj.get("team_id"),
+                        team_name=(names or {}).get(obj.get("team_id") or "", obj.get("team_id")),
                         value=value,
                     )
                 )

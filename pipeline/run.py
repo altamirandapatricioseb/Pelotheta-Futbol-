@@ -625,7 +625,11 @@ def run_pipeline(dry_run: bool, url: str, key: str) -> int:
             if (player_key := enrich.match_player(name, known)) is not None
         ]
         print(f"Perfiles de Wikipedia: {len(profiles)}.")
-        promiedos_leaders = pd.parse_league_leaders(league_page, SEASON_YEAR) if league_page else []
+        promiedos_leaders = (
+            pd.parse_league_leaders(league_page, SEASON_YEAR, league_team_names(league_page))
+            if league_page
+            else []
+        )
         extras = load.build_extras(
             games,
             standings=pd.parse_standings(league_page, SEASON_YEAR) if league_page else [],

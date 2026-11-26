@@ -171,6 +171,9 @@ def test_promiedos_standings_and_leaders() -> None:
     assert promedio.won is None  # en esta tabla esas columnas son puntos por temporada
     (leader,) = pd.parse_league_leaders(league, 2026)
     assert (leader.stat, leader.player_name, leader.value) == ("goles", "Delantero Uno", 10)
+    # La fila trae solo el id del club: con el mapa de la tabla queda el nombre.
+    (named,) = pd.parse_league_leaders(league, 2026, {leader.team_name or "": "Club Uno"})
+    assert named.team_name == "Club Uno"
 
 
 def test_scoutingstats_momentum_bars() -> None:

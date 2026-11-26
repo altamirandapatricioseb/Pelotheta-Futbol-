@@ -78,21 +78,23 @@ const leaderSchema = z.object({
 
 // Perfiles de jugadores de toda la liga (cálculo propio sobre Bzzoiro): percentil 0 a 100 cada 90 minutos
 // contra los de la misma posición; null cuando la estadística no aplica (atajadas de un delantero).
-const profileSchema = z.object({
-  player_name: z.string(),
-  team_name: z.string(),
-  position: text,
-  minutes: num,
-  matches: num,
-  pct_goals: num,
-  pct_expected_goals: num,
-  pct_expected_assists: num,
-  pct_key_pass: num,
-  pct_won_tackle: num,
-  pct_ball_recovery: num,
-  pct_saves: num,
-  pct_goals_prevented: num,
-});
+// Columnas de texto que la exportación agrega a cada fila de liga (etapa 5j): sin declararlas, un
+// `catchall(num)` las rechaza.
+const leagueTags = { country_code: text.optional(), competition_uid: text.optional() };
+
+// Perfil público por jugador: `pct_<estadística>` (percentil contra su posición en la liga) y
+// `per90_<estadística>` (promedio cada 90). `player_id` y los `per90_` faltan en archivos viejos.
+const profileSchema = z
+  .object({
+    player_id: z.string().nullish(),
+    player_name: z.string(),
+    team_name: z.string(),
+    position: text,
+    minutes: num,
+    matches: num,
+    ...leagueTags,
+  })
+  .catchall(num);
 export type PlayerProfile = z.infer<typeof profileSchema>;
 
 // Valor real (transfermarkt-datasets, CC0) y esperado por el modelo propio, fuera de muestra.
@@ -110,7 +112,7 @@ export type MarketValue = z.infer<typeof marketValueSchema>;
 // Situaciones por club (cálculo propio sobre resultados y minutos de gol de Promiedos).
 export const BUCKETS = ['0_15', '16_30', '31_45', '46_60', '61_75', '76_90'] as const;
 // Las columnas sin nombrar (goles por tramo `favor_0_15`…, puntos, ppp) son todas numéricas.
-const situationSchema = z.object({ team_name: z.string(), racha: text }).catchall(num);
+const situationSchema = z.object({ team_name: z.string(), racha: text, ...leagueTags }).catchall(num);
 export type Situation = z.infer<typeof situationSchema>;
 
 const fixtureSchema = z.object({
@@ -461,6 +463,74 @@ export async function getClub(uid: string): Promise<ArchiveResult<Club | null>> 
         values: allValues.filter((v) => mine(v.team_name)).toSorted((a, b) => (b.value_eur ?? 0) - (a.value_eur ?? 0)),
         situation: situations.flat().find((s) => mine(s.team_name)) ?? null,
         valueError: median(allValues.flatMap((v) => (v.gap_pct === null ? [] : [Math.abs(v.gap_pct)]))),
+      },
+    };
+  } catch (cause) {
+    return failure(cause);
+  }
+}
+
+/** Estadísticas del perfil público, en orden de cancha. En pérdidas, percentil alto = pierde menos. */
+export const PLAYER_STATS = [
+  ['goals', 'Goles'],
+  ['expected_goals', 'Goles esperados (xG)'],
+  ['expected_assists', 'Asistencias esperadas (xA)'],
+  ['key_pass', 'Pases clave'],
+  ['accurate_pass', 'Pases completos'],
+  ['progressive_ball_carries_count', 'Conducciones progresivas'],
+  ['won_contest', 'Regates ganados'],
+  ['won_tackle', 'Entradas ganadas'],
+  ['interception', 'Intercepciones'],
+  ['ball_recovery', 'Recuperaciones'],
+  ['aerial_won', 'Duelos aéreos ganados'],
+  ['duel_won', 'Duelos ganados'],
+  ['saves', 'Atajadas'],
+  ['goals_prevented', 'Goles evitados'],
+  ['possession_lost', 'Pérdidas de balón'],
+] as const;
+
+export interface LeaguePlayer {
+  club: { uid: string; name: string };
+  league: string | null;
+  player: PlayerProfile;
+  /** Los de su misma liga y posición, para comparar. */
+  peers: PlayerProfile[];
+  versus: PlayerProfile | null;
+}
+
+/** Ficha pública de un jugador de cualquier club por el id de su fuente; null si no está. */
+export async function getLeaguePlayer(
+  uid: string,
+  playerId: string,
+  versusId?: string,
+): Promise<ArchiveResult<LeaguePlayer | null>> {
+  try {
+    const club = await getClub(uid);
+    if (!club.ok) return club;
+    const player = club.data?.squad.find((p) => p.player_id === playerId);
+    if (!club.data || !player) return { ok: true, data: null };
+    const manifest = await getManifest();
+    const files = manifest.archivos.filter(
+      (f) => f.tabla === 'league_player_profile' && f.ruta.startsWith(`pais=${uid.slice(0, 3).toUpperCase()}/`),
+    );
+    const all = (
+      await Promise.all(
+        files.map(async (f) => (await readTable(f.ruta, profileSchema)).map((p) => ({ p, league: leagueOf(f.ruta) }))),
+      )
+    ).flat();
+    const league = all.find((x) => x.p.player_id === playerId)?.league ?? null;
+    const peers = all
+      .filter((x) => x.league === league && x.p.position === player.position && x.p.player_id !== playerId)
+      .map((x) => x.p)
+      .toSorted((a, b) => a.player_name.localeCompare(b.player_name, 'es'));
+    return {
+      ok: true,
+      data: {
+        club: { uid, name: club.data.name },
+        league: league ? (LEAGUE_NAMES[league] ?? league) : null,
+        player,
+        peers,
+        versus: peers.find((p) => p.player_id === versusId) ?? null,
       },
     };
   } catch (cause) {

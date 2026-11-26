@@ -90,6 +90,8 @@ def test_profiles_percentiles_by_position_and_minimum_minutes() -> None:
     assert out["J1"]["pct_saves"] is None  # las atajadas solo cuentan para arqueros
     assert out["J4"]["position"] == "Arquero" and out["J4"]["pct_goals"] is None
     assert out["J2"]["pct_expected_goals"] is None  # sin el dato no hay percentil (no es 0)
+    assert out["J1"]["player_id"] == "1" and out["J1"]["per90_goals"] == 1.0
+    assert out["J1"]["per90_saves"] is None and out["J2"]["per90_expected_goals"] is None
 
 
 def test_season_stats_use_catalog_keys_and_keep_missing_as_absent() -> None:

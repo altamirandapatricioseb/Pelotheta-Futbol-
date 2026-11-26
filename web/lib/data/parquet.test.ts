@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('server-only', () => ({}));
 
-const { getClub, listClubs, predictNext, slug, standingsFor } = await import('./parquet');
+const { getClub, getLeaguePlayer, listClubs, predictNext, slug, standingsFor } = await import('./parquet');
 
 const FIXTURES = fileURLToPath(new URL('./__fixtures__/', import.meta.url));
 
@@ -25,6 +25,20 @@ afterEach(() => {
 });
 
 describe('archivo abierto en Parquet', () => {
+  it('arma la ficha de un jugador de liga con los de su posición para comparar', async () => {
+    serveFixtures();
+    const result = await getLeaguePlayer('arg-club-c', '101', '102');
+    if (!result.ok || !result.data) throw new Error('sin ficha');
+    const { player, peers, versus, league } = result.data;
+    expect(player.player_name).toBe('Titular C');
+    expect(player.per90_goals).toBe(0.4);
+    expect(player.per90_saves).toBeNull();
+    expect(league).toBe('arg-liga');
+    expect(peers.map((p) => p.player_name)).toEqual(['Otro B', 'Suplente C']);
+    expect(versus?.team_name).toBe('Club B');
+    expect(await getLeaguePlayer('arg-club-c', '999')).toEqual({ ok: true, data: null });
+  });
+
   it('arma la ficha del club: partidos en orden, faltantes en null y su tabla por alias', async () => {
     serveFixtures();
     const result = await getClub('arg-club-a');

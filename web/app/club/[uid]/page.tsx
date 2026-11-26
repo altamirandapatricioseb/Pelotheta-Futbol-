@@ -233,7 +233,16 @@ export default async function ClubPage({ params }: PageProps) {
               {club.squad.map((p) => (
                 <tr key={p.player_name}>
                   <th scope="row" className="text-left">
-                    {p.player_name}
+                    {p.player_id ? (
+                      <Link
+                        href={`/club/${club.uid}/jugador/${encodeURIComponent(p.player_id)}`}
+                        className="focus-ring underline"
+                      >
+                        {p.player_name}
+                      </Link>
+                    ) : (
+                      p.player_name
+                    )}
                   </th>
                   <td className="text-left">{p.position ?? NOT_AVAILABLE}</td>
                   <td>{formatNumber(p.minutes)}</td>

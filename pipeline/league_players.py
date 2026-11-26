@@ -4,8 +4,8 @@ Qué hace:
 1. `collect`: lista los partidos terminados de la temporada de la liga y baja, por cada uno, las
    estadísticas por jugador y las alineaciones (dos consultas por partido, en caché una vez
    terminado). La Liga Profesional 2026 son ~500 partidos: ~1000 consultas de 7500 por día.
-2. `profiles`: por jugador, minutos, partidos y el percentil (0 a 100) de cada estadística clave
-   cada 90 minutos contra los de su misma posición en la liga.
+2. `profiles`: por jugador, minutos, partidos, el promedio cada 90 minutos de cada estadística clave
+   y su percentil (0 a 100) contra los de su misma posición en la liga.
 
 Licencia: el crudo (`league_player_match`) va solo al dataset privado; los perfiles son un
 resultado propio y se publican (la licencia de Bzzoiro permite publicar derivados).
@@ -183,7 +183,7 @@ def profiles(rows: list[dict[str, Any]], season_year: int) -> list[dict[str, Any
     for r in rows:
         by_player[r["player_id"]].append(r)
     players = []
-    for games in by_player.values():
+    for player_id, games in by_player.items():
         minutes = sum(g.get("minutes_played") or 0 for g in games)
         if minutes < MIN_MINUTES:
             continue
@@ -197,6 +197,7 @@ def profiles(rows: list[dict[str, Any]], season_year: int) -> list[dict[str, Any
             per90[stat] = sum(g[stat] for g in with_stat) / mins * 90 if mins else None
         players.append(
             {
+                "player_id": str(player_id),
                 "player_name": last["player_name"],
                 "team_name": last["team_name"],
                 "position": POSITIONS.get(position[0][0]) if position else None,
@@ -215,5 +216,7 @@ def profiles(rows: list[dict[str, Any]], season_year: int) -> list[dict[str, Any
             value = p["per90"][stat] if stat in relevant else None
             reference = [q["per90"][stat] for q in peers if q["per90"][stat] is not None]
             row[f"pct_{stat}"] = None if value is None else round(percentile(value, reference, higher))
+            # El promedio cada 90 también es un resultado propio: el crudo por partido no sale.
+            row[f"per90_{stat}"] = None if value is None else round(value, 2)
         out.append(row)
     return sorted(out, key=lambda r: (r["team_name"], r["player_name"]))

@@ -26,7 +26,7 @@ import sys
 from collections import defaultdict
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any
 
@@ -101,6 +101,13 @@ TABLES = [
     Table("league_player_match", "liga", "restringida", "Crudo por jugador y partido", ("bzzoiro",)),
     Table("league_player_profile", "liga", "abierta", "Percentiles por posición: cálculo propio"),
     Table("league_fixture", "liga", "abierta", "Próximos partidos de la liga (Promiedos)"),
+    Table(
+        "league_market_value",
+        "liga",
+        "abierta",
+        "Valor esperado por un modelo propio sobre valores CC0",
+        ("transfermarkt_datasets", "pelotheta"),
+    ),
     Table("model_run", "liga", "abierta", "Parámetros y métricas de modelos propios", row_source=False),
 ]
 # Tablas que no son vistas de Supabase: las arma `pipeline.league_players` desde Bzzoiro.
@@ -305,6 +312,28 @@ def league_player_rows(season_year: int = 2026) -> dict[str, list[dict[str, Any]
     return {"league_player_match": raw, "league_player_profile": lp.profiles(raw, season_year)}
 
 
+def league_value_rows(club_names: list[str], today: date | None = None) -> list[dict[str, Any]]:
+    """Valor real (transfermarkt-datasets, CC0) y esperado por el modelo propio de cada jugador de la
+    liga, con el club en el nombre de la tabla de Promiedos (el de las fichas). Vacío si falla la fuente."""
+    from pipeline import analytics, market_value
+    from sources import transfermarkt_datasets as tmd
+    from sources.http_client import FetchError, PoliteClient, RetryableFetchError
+
+    today = today or date.today()
+    try:
+        with PoliteClient(source=tmd.SOURCE) as client:
+            dataset = tmd.fetch(client, today)
+    except (FetchError, RetryableFetchError, OSError, ValueError) as exc:
+        print(f"Aviso: sin valores de mercado ({exc}).", file=sys.stderr)
+        return []
+    rows = analytics.league_rows(dataset, lambda _: None, "", {})
+    out = market_value.league_values(rows, today)
+    for r in out:
+        r["team_name"] = analytics.club_match(str(r["team_name"]), club_names) or r["team_name"]
+        r["season_year"] = today.year
+    return out
+
+
 def league_fixture_rows() -> list[dict[str, Any]]:
     """Próximos partidos entre clubes de la liga: la tabla de la liga (ids y nombres) y la lista
     «próximos» de cada página de equipo de Promiedos (~31 páginas a 3 s). Vacío si Promiedos falla."""
@@ -346,6 +375,8 @@ def main(argv: list[str] | None = None) -> int:
         return league_rows[view] if view in league_rows else fetch_view(url, key, client, view)
 
     with httpx.Client(timeout=TIMEOUT) as client:
+        clubs = sorted({r["team_name"] for r in fetch("league_standing") if r.get("team_name")})
+        league_rows["league_market_value"] = league_value_rows(clubs)
         manifests = export(fetch, out)
     for visibility, manifest in manifests.items():
         total = sum(f["bytes"] for f in manifest["archivos"])

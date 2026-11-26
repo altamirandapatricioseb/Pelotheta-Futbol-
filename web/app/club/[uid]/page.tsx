@@ -22,6 +22,7 @@ const cell = (v: number | null) => (v === null ? NOT_AVAILABLE : String(v));
 const vsAverage = (v: number | null) =>
   v === null ? NOT_AVAILABLE : `${v >= 1 ? '+' : '−'}${String(Math.round(Math.abs(v - 1) * 100))} %`;
 const percent = (p: number) => `${String(Math.round(p * 100))} %`;
+const millions = (eur: number | null) => (eur === null ? NOT_AVAILABLE : `€ ${formatNumber(eur / 1e6, 1)} M`);
 const STATS: Record<string, string> = { goles: 'Goles', asistencias: 'Asistencias' };
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -166,6 +167,54 @@ export default async function ClubPage({ params }: PageProps) {
             </tbody>
           </table>
         </div>
+      ) : null}
+
+      {club.values.length ? (
+        <section className="grid gap-2" aria-labelledby="valor">
+          {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- región desplazable con nombre (axe) */}
+          <div className="data-table-wrap" tabIndex={0} role="region" aria-labelledby="valor">
+            <table className="data-table tabular">
+              <caption id="valor" className="text-left font-bold">
+                Valor de mercado · real y esperado por el modelo
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col">Jugador</th>
+                  <th scope="col">Posición</th>
+                  <th scope="col">Edad</th>
+                  <th scope="col">Valor</th>
+                  <th scope="col">Esperado</th>
+                  <th scope="col">Diferencia</th>
+                </tr>
+              </thead>
+              <tbody>
+                {club.values.map((v) => (
+                  <tr key={v.player_name}>
+                    <th scope="row" className="text-left">
+                      {v.player_name}
+                    </th>
+                    <td className="text-left">{v.position_group ?? NOT_AVAILABLE}</td>
+                    <td>{cell(v.age)}</td>
+                    <td>{millions(v.value_eur)}</td>
+                    <td>{millions(v.predicted_eur)}</td>
+                    <td>
+                      {v.gap_pct === null
+                        ? NOT_AVAILABLE
+                        : `${v.gap_pct >= 0 ? '+' : '−'}${formatNumber(Math.abs(v.gap_pct))} %`}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="text-sm text-muted">
+            Valor: transfermarkt-datasets (CC0). Esperado: regresión propia con edad, posición, contrato, si es
+            extranjero y el valor del resto del plantel, ajustada sin el jugador (validación cruzada).
+            {club.valueError !== null
+              ? ` En toda la liga erra ${formatNumber(club.valueError)} % en la mediana: una diferencia grande dice que el mercado lo paga por algo que el modelo no ve (juventud, rendimiento, proyección), no que esté mal tasado.`
+              : ''}
+          </p>
+        </section>
       ) : null}
 
       {club.matches.length ? (

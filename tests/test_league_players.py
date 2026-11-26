@@ -142,6 +142,34 @@ def test_pool_gets_league_stats_by_club_and_name() -> None:
     ]
 
 
+def test_league_values_predict_out_of_sample_for_every_player() -> None:
+    from datetime import date
+
+    from pipeline import market_value as mv
+
+    positions = ["Arquero", "Defensor", "Mediocampista", "Delantero"]
+    league = [
+        {
+            "name": f"J{i}",
+            "team": f"Club {i % 6}",
+            "club_id": str(i % 6),
+            "age": 18 + i % 15,
+            "position_group": positions[i % 4],
+            "contract_until": date(2027 + i % 3, 6, 30),
+            "foreign": i % 7 == 0,
+            # Valor que crece con el club y baja con la edad, con ruido determinista.
+            "value_eur": int(1e6 * (1 + i % 6) * (1.5 - (i % 15) / 30) * (1 + (i * 7 % 11) / 50)),
+        }
+        for i in range(120)
+    ]
+    out = mv.league_values(league, date(2026, 11, 26))
+    assert len(out) == 120 and {r["player_name"] for r in out} == {f"J{i}" for i in range(120)}
+    assert all(r["predicted_eur"] > 0 for r in out)
+    errors = sorted(abs(r["gap_pct"]) for r in out)
+    assert errors[len(errors) // 2] < 40  # con datos que siguen el modelo, la mediana de error es chica
+    assert mv.league_values(league[:20], date(2026, 11, 26)) == []  # pocos datos: no se inventa
+
+
 def test_raw_goes_private_and_profiles_public(tmp_path: Path) -> None:
     raw = [{**game(1, "A", "F", 1, minutes_played=90, goals=1), "season_year": 2026, "event_id": 7}]
     rows = {"league_player_match": raw, "league_player_profile": [{"player_name": "J1", "season_year": 2026}]}

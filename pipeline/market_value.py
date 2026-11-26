@@ -108,6 +108,47 @@ def _sin_datos(team_slug: str, n: int, params: dict[str, Any], message: str) -> 
     }
 
 
+def league_values(league: Sequence[Row], today: date) -> list[dict[str, Any]]:
+    """Valor esperado para cada jugador de toda la liga, fuera de muestra (etapa 5g).
+
+    Mismo modelo que `fit`, pero cada jugador se predice con la regresión ajustada sin su pliegue
+    (validación cruzada de `FOLDS`): así «más caro o más barato de lo esperado» no está inflado por
+    haber usado su propio valor en el ajuste. Sin datos suficientes devuelve una lista vacía.
+    """
+    club_total: dict[str, float] = defaultdict(float)
+    for p in league:
+        if p.get("value_eur"):
+            club_total[p.get("club_id") or ""] += float(p["value_eur"])
+    data = [(p, f) for p in league if (f := features_of(p, club_total, today)) is not None]
+    if len(data) < (len(NAMES) + 1 + EXTRA_ROWS) * FOLDS:
+        return []
+    x = [[f[n] for n in NAMES] for _, f in data]
+    y = [math.log(float(p["value_eur"])) for p, _ in data]
+    out = []
+    for k in range(FOLDS):
+        train = [i for i in range(len(data)) if i % FOLDS != k]
+        try:
+            model = stats.ols(NAMES, [x[i] for i in train], [y[i] for i in train])
+        except ValueError:  # un pliegue sin variación en alguna variable: sin estimación, no a medias
+            return []
+        for i in range(k, len(data), FOLDS):
+            p = data[i][0]
+            predicted = math.exp(model.predict(x[i])[0])
+            actual = float(p["value_eur"])
+            out.append(
+                {
+                    "player_name": p.get("name"),
+                    "team_name": p.get("team"),
+                    "position_group": p.get("position_group"),
+                    "age": p.get("age"),
+                    "value_eur": round(actual),
+                    "predicted_eur": round(predicted),
+                    "gap_pct": round((actual - predicted) / predicted * 100, 1),
+                }
+            )
+    return sorted(out, key=lambda r: (str(r["team_name"]), -r["value_eur"]))
+
+
 def fit(
     league: Sequence[Row], own: Sequence[Row], team_slug: str, club_id: str, today: date
 ) -> dict[str, Any]:

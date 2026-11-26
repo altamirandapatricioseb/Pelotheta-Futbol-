@@ -30,7 +30,7 @@ privado/                      → solo a un dataset privado (nunca público)
 | `schema_version` | Fecha | Cambio |
 |---|---|---|
 | 1 | 25-nov-2026 | Primera versión: 26 vistas `api`, partición por equipo o liga y temporada |
-| 1 | 26-nov-2026 | Tablas nuevas (compatible): `league_fixture` (próximos partidos, Promiedos), `model_run` (β y métricas de modelos propios), `league_player_match` (crudo de Bzzoiro, solo privado) y `league_player_profile` (percentiles por posición cada 90, público) |
+| 1 | 26-nov-2026 | Tablas nuevas (compatible): `league_fixture` (próximos partidos, Promiedos), `model_run` (β y métricas de modelos propios), `league_market_value` (valor real CC0 y esperado por el modelo propio), `league_player_match` (crudo de Bzzoiro, solo privado) y `league_player_profile` (percentiles por posición cada 90, público) |
 
 Regla para cambiar el formato:
 

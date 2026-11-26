@@ -68,6 +68,9 @@ describe('archivo abierto en Parquet', () => {
     // Plantel: solo el club, más minutos primero; el percentil faltante sigue null.
     expect(result.data.squad.map((p) => p.player_name)).toEqual(['Titular C', 'Suplente C']);
     expect(result.data.squad[0]?.pct_expected_goals).toBeNull();
+    // Valor de mercado: solo el club, el más caro primero; el error es la mediana de toda la liga.
+    expect(result.data.values.map((v) => v.player_name)).toEqual(['Caro C', 'Barato C']);
+    expect(result.data.valueError).toBe(50);
   });
 
   it('pronostica el próximo partido del club con el GLM del predictor', () => {

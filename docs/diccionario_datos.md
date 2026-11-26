@@ -2,7 +2,7 @@
 
 Generado por `scripts/diccionario.py` desde la especificación de la API y el catálogo
 de estadísticas.
-54 vistas del esquema `api` y 344 estadísticas. Las vistas no declaran nulabilidad: toda columna puede venir vacía (n/d). Las tablas
+56 vistas del esquema `api` y 344 estadísticas. Las vistas no declaran nulabilidad: toda columna puede venir vacía (n/d). Las tablas
 privadas de `core` están en `docs/diagramas/der.md` y sus reglas en `data/contracts.yml`.
 
 ## Vistas del esquema `api`
@@ -240,6 +240,23 @@ Sin descripción.
 | `tone` | text |  |
 | `text_es` | text |  |
 | `player_position` | text |  |
+
+### `coverage`
+
+Cobertura por competición, temporada y tabla: completo, parcial o sin_datos (la UI dice «sin datos para esta época» en vez de 0).
+
+| Columna | Tipo | Nota |
+|---|---|---|
+| `competition_uid` | text |  |
+| `competition` | text |  |
+| `country_code` | text |  |
+| `season_year` | int32 |  |
+| `table_name` | text |  |
+| `level` | text |  |
+| `scope` | text |  |
+| `matches_with` | int32 |  |
+| `matches_total` | int32 |  |
+| `checked_at` | timestamp with time zone |  |
 
 ### `data_quality`
 
@@ -842,6 +859,19 @@ País de cada club (código de Promiedos: ba Argentina, cb Brasil, ci Chile...).
 |---|---|---|
 | `team_name` | text |  |
 | `country` | text |  |
+
+### `team_identity`
+
+Id estable, país y alias de cada club.
+
+| Columna | Tipo | Nota |
+|---|---|---|
+| `uid` | text |  |
+| `name` | text |  |
+| `short_name` | text |  |
+| `country_code` | text |  |
+| `country` | text |  |
+| `aliases` | array |  |
 
 ### `team_match_master`
 

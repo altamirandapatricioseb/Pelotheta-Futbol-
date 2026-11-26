@@ -138,6 +138,11 @@ def run_quality_checks(url: str, key: str, client: httpx.Client | None = None) -
     return int(_rpc("run_quality_checks", {}, url, key, client) or 0)
 
 
+def refresh_coverage(url: str, key: str, client: httpx.Client | None = None) -> int:
+    """Recalcula core.coverage (completo, parcial o sin_datos por tabla y temporada); devuelve filas."""
+    return int(_rpc("refresh_coverage", {}, url, key, client) or 0)
+
+
 def log_run(metrics: dict[str, Any], url: str, key: str, client: httpx.Client | None = None) -> None:
     """Una fila en core.pipeline_run_metrics (16.5); el tamaño de la base lo mide el servidor."""
     _rpc("log_run", {"p_run": metrics}, url, key, client)

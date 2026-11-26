@@ -180,3 +180,52 @@ Detalle y motivos en `docs/adr/0004-fuentes-y-boton-actualizar.md`.
 - Desde alineaciones y eventos de Promiedos (nivel B): minutos, goles, asistencias y tarjetas por 90, NR, EWA, ELA, carga, rotación, situaciones por minuto, edad al partido.
 - Sin fuente gratuita permitida (nivel C): box score individual (remates, pases, entradas, duelos y calificación por jugador). El índice de rendimiento, Mejoría y Potencial se calculan con las estadísticas disponibles y se marcan como estimados.
 - Nivel C probable: xG, xA, npxG, pases progresivos, presiones, PPDA, Field Tilt, distancia y sprints, mapas de tiros.
+
+## Sexta ronda (25-nov-2026): cobertura Conmebol (etapa 1 de `docs/plan-escala-conmebol.md`)
+
+Sonda reproducible: `uv run python -m scripts.phase0.probe_conmebol` (informe en `data/raw/phase0/conmebol.json`). Mismas reglas: `PoliteClient`, 3 s por host, robots.txt, sin evadir desafíos. Bzzoiro se consultó con la clave del dueño (6 requests de un cupo de 7500 por día).
+
+### Promiedos: ligas que publica hoy
+
+| País | Ligas en el menú (equipos en la tabla) | Falta |
+|---|---|---|
+| Argentina | Liga Profesional (30), Primera Nacional (36), Primera B Metro (22), Federal A (37), Primera C (28), Promocional Amateur (17), Copa Argentina, Copa de la Liga, Reserva, Femenina | Primera D |
+| Brasil | Brasileirão Série A (20), Copa do Brasil | Série B y C |
+| Uruguay, Paraguay, Colombia, Chile | solo primera (16, 12, 20, 16) | segundas |
+| Ecuador, Perú, Bolivia, Venezuela | ninguna (sus equipos aparecen solo en las copas) | todo |
+| Copas | Libertadores (32), Sudamericana (32), Intercontinental | Recopa |
+
+- **Historia**: las páginas de liga traen solo la temporada en curso (sin selector de temporadas en `__NEXT_DATA__`). Promiedos sirve para el presente, no para el backfill.
+- **Términos** (`/legal`, leída hoy): «La información contenida en Promiedos puede ser compartida libremente, incluyendo "capturas de pantalla", siempre y cuando sea citada su fuente». Permite publicar con atribución. Ojo: la atribución visible a Opta indica que parte de los datos son de terceros.
+
+### Bzzoiro: estadísticas por jugador
+
+- Ligas de la Conmebol en el plan gratis: Liga Profesional y Copa Argentina; Brasileirão A, B y Copa do Brasil; Chile; Colombia A y Copa Colombia; LigaPro Ecuador; Liga 1 Perú; Libertadores y Sudamericana. **No cubre** Uruguay, Paraguay, Bolivia, Venezuela ni segundas (salvo Série B).
+- Profundidad (Argentina, un partido de muestra por temporada): con stats por jugador en 2014, 2019 y 2024; sin stats en 2008/09. Lista temporadas desde 2008.
+- Licencia (`/docs/api-license`, leída hoy): permite guardar y mostrar; los «Derived Outputs» se pueden publicar «without restriction, provided they cannot reasonably be used to reconstruct a substantial part of the raw Data»; prohíbe redistribuir el crudo «as a standalone dataset, feed, database or API».
+
+### Federaciones y ligas oficiales
+
+| Sitio | robots.txt | Desafío | Términos |
+|---|---|---|---|
+| CONMEBOL, AFA, Liga Profesional, AUF, ANFP, APF, Liga 1 | 200, no bloquea | no | sin enlace en la portada |
+| CBF | 404 | no | `/termos-de-uso`: «É vedada a cópia, … reprodução, difusão, … publicação, distribuição ou utilização, comercial ou não comercial, não especificamente autorizada» |
+| LigaPro (Ecuador) | 200, no bloquea | no | `/legal` sin texto sobre datos |
+| FBF (Bolivia) | 200, no bloquea | no | enlace de privacidad «en construcción» |
+| Dimayor, Liga FUTVE | 200 | **sí** (Cloudflare): no se usan | — |
+| FPF (Perú) | el dominio no resuelve | — | — |
+| FVF (Venezuela) | redirige a otro dominio: bloqueado | — | — |
+
+### Conclusiones para el plan
+
+1. **Presente**: Promiedos (con atribución) para Argentina completa salvo la D, Brasil A, primeras de Uruguay, Paraguay, Colombia y Chile y las copas. Bzzoiro completa Brasil B, Ecuador y Perú (partidos y por jugador), y suma stats por jugador donde coincide.
+2. **Sin fuente para el presente**: Primera D, Brasil C, Bolivia, Venezuela y todas las segundas fuera de Argentina y Brasil. Quedan con `coverage = sin_datos` hasta encontrar una fuente; candidatas para la próxima ronda: OpenFootball y Wikipedia (resultados).
+3. **Pasado reciente (2014→)**: Bzzoiro es la única fuente con stats por jugador de esa época en las ligas que cubre; con 7500 requests por día y 2 por partido, ~110 000 partidos tardan ~30 días de backfill.
+4. **Oficiales**: no aportan datos estructurados y la CBF prohíbe reproducirlos; quedan solo como referencia manual.
+
+### Cierre de la etapa 1 (25-nov-2026)
+
+- **Promiedos y los países sin liga**: las páginas de equipo de Bolívar, Cusco y Barcelona SC devuelven solo el menú (sin `data`). Promiedos no cubre Ecuador, Perú, Bolivia ni Venezuela salvo en los partidos de copa.
+- **OpenFootball south-america** (CC0, árbol del repo leído hoy): Argentina 2018-19 a 2025, Brasil A y B 2018 a 2026 y Copa do Brasil 2025, Colombia 2023 a 2025, Ecuador y Paraguay solo 2025, Libertadores y Sudamericana 2012 a 2026. Sirve de validación cruzada, no de histórico profundo.
+- **Wikipedia en español** (CC BY-SA): la API `/w/api.php` está cerrada por robots.txt; las páginas `/wiki/` sí se pueden leer. Hay artículo de temporada con tabla para Primera de Bolivia 2026 y 1977, Primera B de Chile 2026, Serie B de Ecuador 2026, División Intermedia de Paraguay 2026 y Primera de Uruguay 1900. Dieron 404 Liga FUTVE, Liga 1 y Liga 2 de Perú, Segunda de Uruguay, Primera B de Colombia, Primera D y Série C (puede ser el título adivinado, no la falta del artículo). Es la candidata para el histórico y para las divisiones sin fuente, a costo de un parser por formato de artículo.
+- **Fuente del histórico**: Wikipedia (con atribución y licencia compartida) más RSSSF si da permiso por escrito. No hay otra fuente abierta con profundidad anterior a 2012.

@@ -12,6 +12,8 @@ dependencies = [
     "beautifulsoup4>=4.12",
     "defusedxml>=0.7",
     "xlsxwriter>=3.3.1",
+    "pyarrow>=18",
+    "huggingface-hub>=0.26",
 ]
 
 [dependency-groups]

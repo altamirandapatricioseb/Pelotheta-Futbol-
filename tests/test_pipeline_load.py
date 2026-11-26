@@ -169,3 +169,15 @@ def test_run_metrics_go_to_their_function() -> None:
     req = seen["req"]
     assert req.url.path == "/rest/v1/rpc/log_run"
     assert json.loads(req.content) == {"p_run": {"run_id": "r1", "status": "ok"}}
+
+
+def test_refresh_coverage_calls_the_rpc() -> None:
+    seen: dict[str, str] = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen["path"] = request.url.path
+        return httpx.Response(200, json=42)
+
+    with httpx.Client(transport=httpx.MockTransport(handler)) as client:
+        assert load.refresh_coverage("https://x.supabase.co", "sb_secret_abc", client) == 42
+    assert seen["path"] == "/rest/v1/rpc/refresh_coverage"

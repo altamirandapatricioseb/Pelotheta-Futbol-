@@ -1,0 +1,563 @@
+{
+  "source": "conmebol",
+  "generated_at": "2026-11-25T19:36:11+00:00",
+  "promiedos": {
+    "ligas_del_menu": {
+      "/league/liga-profesional/hc": {
+        "pais": "Argentina",
+        "nombre": "Liga Profesional",
+        "equipos": 30,
+        "grupos_de_tabla": 4,
+        "goleadores": true,
+        "claves": [
+          "TTL",
+          "games",
+          "league",
+          "players_statistics",
+          "tables_groups"
+        ],
+        "temporadas_anteriores": false
+      },
+      "/league/primera-nacional/ebj": {
+        "pais": "Argentina",
+        "nombre": "Primera Nacional",
+        "equipos": 36,
+        "grupos_de_tabla": 1,
+        "goleadores": true,
+        "claves": [
+          "TTL",
+          "brackets",
+          "games",
+          "league",
+          "players_statistics",
+          "tables_groups"
+        ],
+        "temporadas_anteriores": false
+      },
+      "/league/copa-argentina/gea": {
+        "pais": "Argentina",
+        "nombre": "Copa Argentina",
+        "equipos": 0,
+        "grupos_de_tabla": 0,
+        "goleadores": true,
+        "claves": [
+          "TTL",
+          "brackets",
+          "games",
+          "league",
+          "players_statistics"
+        ],
+        "temporadas_anteriores": false
+      },
+      "/league/copa-de-la-liga-profesional/hcbe": {
+        "pais": "Argentina",
+        "nombre": "Copa de la Liga",
+        "equipos": 28,
+        "grupos_de_tabla": 1,
+        "goleadores": false,
+        "claves": [
+          "TTL",
+          "brackets",
+          "league",
+          "tables_groups"
+        ],
+        "temporadas_anteriores": false
+      },
+      "/league/primera-b-metropolitana/fahh": {
+        "pais": "Argentina",
+        "nombre": "Primera B Metro",
+        "equipos": 22,
+        "grupos_de_tabla": 1,
+        "goleadores": true,
+        "claves": [
+          "TTL",
+          "brackets",
+          "games",
+          "league",
+          "players_statistics",
+          "tables_groups"
+        ],
+        "temporadas_anteriores": false
+      },
+      "/league/federal-a/fahi": {
+        "pais": "Argentina",
+        "nombre": "Federal A",
+        "equipos": 37,
+        "grupos_de_tabla": 2,
+        "goleadores": false,
+        "claves": [
+          "TTL",
+          "brackets",
+          "games",
+          "league",
+          "tables_groups"
+        ],
+        "temporadas_anteriores": false
+      },
+      "/league/primera-c/ffjb": {
+        "pais": "Argentina",
+        "nombre": "Primera C",
+        "equipos": 28,
+        "grupos_de_tabla": 1,
+        "goleadores": false,
+        "claves": [
+          "TTL",
+          "brackets",
+          "games",
+          "league",
+          "tables_groups"
+        ],
+        "temporadas_anteriores": false
+      },
+      "/league/promocional-amateur/iage": {
+        "pais": "Argentina",
+        "nombre": "Promocional Amateur",
+        "equipos": 17,
+        "grupos_de_tabla": 1,
+        "goleadores": false,
+        "claves": [
+          "TTL",
+          "brackets",
+          "games",
+          "league",
+          "tables_groups"
+        ],
+        "temporadas_anteriores": false
+      },
+      "/league/liga-profesional---reserva/hhbc": {
+        "pais": "Argentina",
+        "nombre": "Liga Profesional - Reserva",
+        "equipos": 36,
+        "grupos_de_tabla": 3,
+        "goleadores": false,
+        "claves": [
+          "TTL",
+          "brackets",
+          "games",
+          "league",
+          "tables_groups"
+        ],
+        "temporadas_anteriores": false
+      },
+      "/league/campeonato-femenino/gcce": {
+        "pais": "Argentina",
+        "nombre": "Liga Femenina",
+        "equipos": 16,
+        "grupos_de_tabla": 3,
+        "goleadores": false,
+        "claves": [
+          "TTL",
+          "games",
+          "league",
+          "tables_groups"
+        ],
+        "temporadas_anteriores": false
+      },
+      "/league/copa-de-la-liga---reserva/hgee": {
+        "pais": "Argentina",
+        "nombre": "Copa de la Liga - Reserva",
+        "equipos": 28,
+        "grupos_de_tabla": 1,
+        "goleadores": false,
+        "claves": [
+          "TTL",
+          "brackets",
+          "games",
+          "league",
+          "tables_groups"
+        ],
+        "temporadas_anteriores": false
+      },
+      "/league/libertadores/bac": {
+        "pais": "Internacional",
+        "nombre": "Copa Libertadores",
+        "equipos": 32,
+        "grupos_de_tabla": 1,
+        "goleadores": true,
+        "claves": [
+          "TTL",
+          "brackets",
+          "games",
+          "league",
+          "players_statistics",
+          "tables_groups"
+        ],
+        "temporadas_anteriores": false
+      },
+      "/league/conmebol-sudamericana/dij": {
+        "pais": "Internacional",
+        "nombre": "Copa Sudamericana",
+        "equipos": 32,
+        "grupos_de_tabla": 1,
+        "goleadores": true,
+        "claves": [
+          "TTL",
+          "brackets",
+          "games",
+          "league",
+          "players_statistics",
+          "tables_groups"
+        ],
+        "temporadas_anteriores": false
+      },
+      "/league/uefa-champions-league/fhc": {
+        "pais": "Internacional",
+        "nombre": "Champions League",
+        "equipos": 36,
+        "grupos_de_tabla": 1,
+        "goleadores": true,
+        "claves": [
+          "TTL",
+          "games",
+          "league",
+          "players_statistics",
+          "tables_groups"
+        ],
+        "temporadas_anteriores": false
+      },
+      "/league/fifa-intercontinental-cup/icgi": {
+        "pais": "Internacional",
+        "nombre": "Copa Intercontinental",
+        "equipos": 0,
+        "grupos_de_tabla": 0,
+        "goleadores": true,
+        "claves": [
+          "TTL",
+          "brackets",
+          "games",
+          "league",
+          "players_statistics"
+        ],
+        "temporadas_anteriores": false
+      },
+      "/league/uefa-europa-league/fhd": {
+        "pais": "Internacional",
+        "nombre": "Europa League",
+        "equipos": 36,
+        "grupos_de_tabla": 1,
+        "goleadores": true,
+        "claves": [
+          "TTL",
+          "games",
+          "league",
+          "players_statistics",
+          "tables_groups"
+        ],
+        "temporadas_anteriores": false
+      },
+      "/league/uefa-conference-league/hgif": {
+        "pais": "Internacional",
+        "nombre": "Conference League",
+        "equipos": 36,
+        "grupos_de_tabla": 1,
+        "goleadores": true,
+        "claves": [
+          "TTL",
+          "games",
+          "league",
+          "players_statistics",
+          "tables_groups"
+        ],
+        "temporadas_anteriores": false
+      },
+      "/league/fifa-club-world-cup/fajg": {
+        "pais": "Internacional",
+        "nombre": "Mundial de Clubes",
+        "equipos": 32,
+        "grupos_de_tabla": 1,
+        "goleadores": true,
+        "claves": [
+          "TTL",
+          "brackets",
+          "games",
+          "league",
+          "players_statistics",
+          "tables_groups"
+        ],
+        "temporadas_anteriores": false
+      },
+      "/league/concacaf-champions-cup/bhb": {
+        "pais": "Internacional",
+        "nombre": "Concacaf Champions",
+        "equipos": 0,
+        "grupos_de_tabla": 0,
+        "goleadores": true,
+        "claves": [
+          "TTL",
+          "brackets",
+          "games",
+          "league",
+          "players_statistics"
+        ],
+        "temporadas_anteriores": false
+      },
+      "/league/brasileirao-serie-a/bbd": {
+        "pais": "Brasil",
+        "nombre": "Brasileirao",
+        "equipos": 20,
+        "grupos_de_tabla": 1,
+        "goleadores": true,
+        "claves": [
+          "TTL",
+          "games",
+          "league",
+          "players_statistics",
+          "tables_groups"
+        ],
+        "temporadas_anteriores": false
+      },
+      "/league/copa-do-brasil/bbf": {
+        "pais": "Brasil",
+        "nombre": "Copa do Brasil",
+        "equipos": 0,
+        "grupos_de_tabla": 0,
+        "goleadores": true,
+        "claves": [
+          "TTL",
+          "brackets",
+          "games",
+          "league",
+          "players_statistics"
+        ],
+        "temporadas_anteriores": false
+      },
+      "/league/uruguayan-championship/gbh": {
+        "pais": "Uruguay",
+        "nombre": "Primera división",
+        "equipos": 16,
+        "grupos_de_tabla": 5,
+        "goleadores": true,
+        "claves": [
+          "TTL",
+          "brackets",
+          "games",
+          "league",
+          "players_statistics",
+          "tables_groups"
+        ],
+        "temporadas_anteriores": false
+      },
+      "/league/copa-de-primera/gcb": {
+        "pais": "Paraguay",
+        "nombre": "Copa de primera",
+        "equipos": 12,
+        "grupos_de_tabla": 4,
+        "goleadores": true,
+        "claves": [
+          "TTL",
+          "games",
+          "league",
+          "players_statistics",
+          "tables_groups"
+        ],
+        "temporadas_anteriores": false
+      },
+      "/league/liga-betplay/gca": {
+        "pais": "Colombia",
+        "nombre": "Liga BetPlay",
+        "equipos": 20,
+        "grupos_de_tabla": 5,
+        "goleadores": true,
+        "claves": [
+          "TTL",
+          "games",
+          "league",
+          "players_statistics",
+          "tables_groups"
+        ],
+        "temporadas_anteriores": false
+      },
+      "/league/campeonato-nacional/bdf": {
+        "pais": "Chile",
+        "nombre": "Primera división",
+        "equipos": 16,
+        "grupos_de_tabla": 1,
+        "goleadores": true,
+        "claves": [
+          "TTL",
+          "games",
+          "league",
+          "players_statistics",
+          "tables_groups"
+        ],
+        "temporadas_anteriores": false
+      }
+    },
+    "equipos_de_copas_por_pais": {
+      "bh": {
+        "equipo": "CONMEBOL Copa Libertadores",
+        "ligas_enlazadas": []
+      },
+      "cb": {
+        "equipo": "Flamengo",
+        "ligas_enlazadas": []
+      },
+      "ba": {
+        "equipo": "Estudiantes de La Plata",
+        "ligas_enlazadas": []
+      },
+      "baj": {
+        "equipo": "Independiente Medellín",
+        "ligas_enlazadas": []
+      },
+      "bbc": {
+        "equipo": "Cusco FC",
+        "ligas_enlazadas": []
+      },
+      "ci": {
+        "equipo": "Coquimbo Unido",
+        "ligas_enlazadas": []
+      },
+      "bbb": {
+        "equipo": "Nacional",
+        "ligas_enlazadas": []
+      },
+      "bbd": {
+        "equipo": "Bolívar",
+        "ligas_enlazadas": []
+      },
+      "bba": {
+        "equipo": "Deportivo La Guaira",
+        "ligas_enlazadas": []
+      },
+      "fb": {
+        "equipo": "Barcelona SC",
+        "ligas_enlazadas": []
+      },
+      "bai": {
+        "equipo": "Cerro Porteño",
+        "ligas_enlazadas": []
+      }
+    }
+  },
+  "oficiales": [
+    {
+      "sitio": "CONMEBOL",
+      "url": "https://www.conmebol.com/",
+      "robots_status": 200,
+      "robots_disallow_todo": false,
+      "robots_desafio": false,
+      "portada_desafio": false,
+      "enlaces_terminos": []
+    },
+    {
+      "sitio": "Argentina AFA",
+      "url": "https://www.afa.com.ar/",
+      "robots_status": 200,
+      "robots_disallow_todo": false,
+      "robots_desafio": false,
+      "portada_desafio": false,
+      "enlaces_terminos": []
+    },
+    {
+      "sitio": "Argentina LPF",
+      "url": "https://www.ligaprofesional.ar/",
+      "robots_status": 200,
+      "robots_disallow_todo": false,
+      "robots_desafio": false,
+      "portada_desafio": false,
+      "enlaces_terminos": []
+    },
+    {
+      "sitio": "Brasil CBF",
+      "url": "https://www.cbf.com.br/",
+      "robots_status": 404,
+      "robots_disallow_todo": false,
+      "robots_desafio": false,
+      "portada_desafio": false,
+      "enlaces_terminos": [
+        "Política de Privacidade -> /politica-de-privacidade",
+        "Termos de uso -> /termos-de-uso"
+      ]
+    },
+    {
+      "sitio": "Uruguay AUF",
+      "url": "https://www.auf.org.uy/",
+      "robots_status": 200,
+      "robots_disallow_todo": false,
+      "robots_desafio": false,
+      "portada_desafio": false,
+      "enlaces_terminos": []
+    },
+    {
+      "sitio": "Chile ANFP",
+      "url": "https://www.anfp.cl/",
+      "robots_status": 200,
+      "robots_disallow_todo": false,
+      "robots_desafio": false,
+      "portada_desafio": false,
+      "enlaces_terminos": []
+    },
+    {
+      "sitio": "Colombia Dimayor",
+      "url": "https://dimayor.com.co/",
+      "robots_status": 200,
+      "robots_disallow_todo": false,
+      "robots_desafio": false,
+      "portada_desafio": true,
+      "enlaces_terminos": []
+    },
+    {
+      "sitio": "Paraguay APF",
+      "url": "https://www.apf.org.py/",
+      "robots_status": 200,
+      "robots_disallow_todo": false,
+      "robots_desafio": false,
+      "portada_desafio": false,
+      "enlaces_terminos": []
+    },
+    {
+      "sitio": "Ecuador LigaPro",
+      "url": "https://ligapro.ec/",
+      "robots_status": 200,
+      "robots_disallow_todo": false,
+      "robots_desafio": false,
+      "portada_desafio": false,
+      "enlaces_terminos": [
+        "Aviso de Privacidad -> https://ligapro.ec/aviso-de-privacidad/",
+        "Legal -> https://ligapro.ec/legal/"
+      ]
+    },
+    {
+      "sitio": "Perú FPF",
+      "url": "https://www.fpf.org.pe/",
+      "robots_error": "Error de red en https://www.fpf.org.pe/robots.txt: [Errno 11001] getaddrinfo failed",
+      "portada_error": "robots.txt no permite https://www.fpf.org.pe/ para nuestro User-Agent"
+    },
+    {
+      "sitio": "Perú Liga 1",
+      "url": "https://liga1.pe/",
+      "robots_status": 200,
+      "robots_disallow_todo": false,
+      "robots_desafio": false,
+      "portada_desafio": false,
+      "enlaces_terminos": []
+    },
+    {
+      "sitio": "Bolivia FBF",
+      "url": "https://www.fbf.com.bo/",
+      "robots_status": 200,
+      "robots_disallow_todo": false,
+      "robots_desafio": false,
+      "portada_desafio": false,
+      "enlaces_terminos": [
+        "Política de Privacidad -> /pagina-en-construccion"
+      ]
+    },
+    {
+      "sitio": "Venezuela FVF",
+      "url": "https://www.federacionvenezolanadefutbol.org/",
+      "robots_error": "Redirección a otro dominio bloqueada: https://omnilogos.com/robots.txt",
+      "portada_error": "robots.txt no permite https://www.federacionvenezolanadefutbol.org/ para nuestro User-Agent"
+    },
+    {
+      "sitio": "Venezuela Liga FUTVE",
+      "url": "https://www.ligafutve.org/",
+      "robots_status": 200,
+      "robots_disallow_todo": false,
+      "robots_desafio": false,
+      "portada_desafio": true,
+      "enlaces_terminos": []
+    }
+  ]
+}

@@ -151,6 +151,36 @@ def test_projection_rows_on_a_synthetic_squad() -> None:
     assert all(r["value"] <= 100 for r in rows if r["stat_id"].startswith("potencial"))
 
 
+def test_league_reference_changes_the_level_but_only_own_players_get_rows() -> None:
+    # Contra su plantel, el 5 queda en el medio; contra una liga mucho mejor, queda abajo.
+    own = [_season(pid, "Delantero", 24, [pid / 10] * 10) for pid in range(1, 10)]  # de 0,1 a 0,9
+    alone = {
+        r["entity_id"]: r for r in pdata.projection_rows(own, 10) if r["stat_id"] == "rendimiento_indice"
+    }
+    league = [_season(-pid, "Delantero", None, [1.0] * 10) for pid in range(1, 30)]
+    with_league = pdata.projection_rows(own, 10, league)
+    index = {r["entity_id"]: r for r in with_league if r["stat_id"] == "rendimiento_indice"}
+    assert index[5]["value"] < alone[5]["value"]  # el del medio del plantel, abajo en la liga
+    assert all(r["entity_id"] > 0 for r in with_league)  # los de otros clubes no generan filas
+
+
+def test_league_seasons_map_bzzoiro_fields_and_cut_by_date() -> None:
+    def raw(pid: int, team: str, day: str, **stats: float) -> dict[str, object]:
+        return {"player_id": pid, "team_name": team, "position": "F", "match_date": day, **stats}
+
+    rows = [
+        raw(7, "Club A", "2026-03-01", minutes_played=90, goals=1, key_pass=2, aerial_won=1, aerial_lost=3),
+        raw(7, "Club A", "2026-04-01", minutes_played=90, goals=0),
+        raw(8, "Boca Juniors", "2026-03-01", minutes_played=90, goals=2),  # el propio: no es referencia
+    ]
+    (p,) = pdata.league_seasons(rows, "Boca Juniors")
+    assert (p.player_id, p.position, len(p.games)) == (-7, "Delantero", 2)
+    assert p.games[0] == {"minutes": 90, "goals": 1, "key_passes": 2, "aerials_won": 1, "aerials_total": 4}
+    assert "npg" not in p.games[0]  # sin penales en la fuente: sin dato, no 0
+    (cut,) = pdata.league_seasons(rows, "Boca Juniors", until="2026-03-15")
+    assert len(cut.games) == 1
+
+
 def test_parameters_come_from_the_database_table() -> None:
     # Los parámetros viven en `projection_param`: con otro pico de edad cambia el Potencial α.
     from pipeline import metrics, own_metrics

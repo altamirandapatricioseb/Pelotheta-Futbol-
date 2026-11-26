@@ -104,6 +104,24 @@ def collect(client: bz.BzzoiroClient, league_id: int, season_year: int) -> list[
     return rows
 
 
+def collect_from_env(season_year: int, warnings: list[str]) -> list[dict[str, Any]]:
+    """`collect` de la Liga Profesional con la clave de `BZZOIRO_API_KEY`; vacío (con aviso) sin clave
+    o si Bzzoiro no responde. Lo usan los modelos (`analytics`) y Mejoría y Potencial (`own_metrics`)."""
+    import os
+
+    key = os.environ.get("BZZOIRO_API_KEY", "")
+    if not key:
+        warnings.append("Sin BZZOIRO_API_KEY: sin estadísticas de jugadores de otros clubes")
+        return []
+    try:
+        return collect(
+            bz.BzzoiroClient(api_key=key), bz.LEAGUES["arg-liga-profesional-argentina"], season_year
+        )
+    except bz.BzzoiroError as exc:
+        warnings.append(f"Bzzoiro no respondió: {exc}")
+        return []
+
+
 def season_stats(rows: list[dict[str, Any]]) -> dict[tuple[str, str], dict[str, Any]]:
     """(jugador, club) → minutos y totales de la temporada con las claves del catálogo, para
     `player_pool`: así el Ojeador y Alternativas comparan con jugadores de toda la liga."""

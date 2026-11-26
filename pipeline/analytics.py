@@ -214,19 +214,8 @@ def with_league_stats(
 def league_stats(today: date, warnings: list[str]) -> dict[tuple[str, str], dict[str, Any]]:
     """Totales de la temporada de toda la Liga Profesional desde Bzzoiro (en caché tras la primera vez)."""
     from pipeline import league_players
-    from sources import bzzoiro as bz
 
-    key = os.environ.get("BZZOIRO_API_KEY", "")
-    if not key:
-        warnings.append("Sin BZZOIRO_API_KEY: el pool de otros clubes queda sin estadísticas")
-        return {}
-    try:
-        client = bz.BzzoiroClient(api_key=key)
-        rows = league_players.collect(client, bz.LEAGUES["arg-liga-profesional-argentina"], today.year)
-    except bz.BzzoiroError as exc:
-        warnings.append(f"Bzzoiro no respondió: {exc}")
-        return {}
-    return league_players.season_stats(rows)
+    return league_players.season_stats(league_players.collect_from_env(today.year, warnings))
 
 
 def club_value(name: str, values: dict[str, int]) -> int | None:

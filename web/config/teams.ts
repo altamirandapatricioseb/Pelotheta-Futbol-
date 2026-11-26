@@ -1,6 +1,6 @@
 // Selector de equipo de la landing (país → categoría → equipo). Países de la Conmebol, los que
-// juegan la Libertadores. Hoy solo hay datos de Boca: todo lo demás se muestra pero no se puede
-// elegir (`available: false`). Cuando entre otro equipo, alcanza con marcarlo acá.
+// juegan la Libertadores. Esta es la lista de respaldo: /elegir arma las ligas y los clubes con el
+// archivo abierto (lib/data/chooser.ts) y usa esta solo si el archivo no responde.
 
 export interface Team {
   slug: string;
@@ -173,8 +173,13 @@ export const categoryAvailable = (c: Category) => c.teams.some((t) => t.availabl
 export const countryAvailable = (c: Country) => c.categories.some(categoryAvailable);
 
 /** Resuelve lo elegido desde la URL contra las listas cerradas: lo que no existe o no tiene datos se ignora. */
-export function resolveChoice(pais: string | null, categoria: string | null, equipo: string | null) {
-  const country = COUNTRIES.find((c) => c.slug === pais && countryAvailable(c));
+export function resolveChoice(
+  pais: string | null,
+  categoria: string | null,
+  equipo: string | null,
+  countries: readonly Country[] = COUNTRIES,
+) {
+  const country = countries.find((c) => c.slug === pais && countryAvailable(c));
   const category = country?.categories.find((c) => c.slug === categoria && categoryAvailable(c));
   const team = category?.teams.find((t) => t.slug === equipo && t.available);
   return { country, category, team };

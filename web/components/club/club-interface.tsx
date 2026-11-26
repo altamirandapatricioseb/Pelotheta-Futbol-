@@ -1,7 +1,10 @@
 import Link from 'next/link';
 
 import { ErrorNotice } from '@/components/error-notice';
-import { getClub, getLeagueProfiles, type Club } from '@/lib/data/parquet';
+import { TeamTableView } from '@/components/team/team-table';
+import { getCatalog, getStatSets } from '@/lib/data/catalog';
+import { getClub, getClubTeamMatches, getLeagueProfiles, type Club } from '@/lib/data/parquet';
+import { getLeagueClubs } from '@/lib/data/team';
 
 import { ClubAlternatives, ClubScout } from './club-scout';
 import { type ClubSection, ClubSections } from './club-sections';
@@ -16,7 +19,7 @@ const VIEWS: Record<ClubView, { title: string; sections: readonly ClubSection[];
   equipo: {
     title: 'Equipo',
     sections: ['nivel', 'partidos', 'posiciones', 'destacados'],
-    only: 'Las tablas por partido con remates, xG, posesión y defensa',
+    only: 'El xG, la defensa y las métricas propias por partido',
   },
   jugadores: {
     title: 'Jugadores',
@@ -47,6 +50,30 @@ const HAS_DATA: Record<ClubSection, (c: Club) => boolean> = {
   partidos: () => true, // dice «todavía no hay partidos» por su cuenta
   posiciones: (c) => c.standings.length > 0,
 };
+
+/** La tabla de Equipo de Boca con los partidos de liga del club (estadísticas de Promiedos). */
+async function TeamTable({ club }: { club: Club }) {
+  const [matches, catalog, sets, clubs] = await Promise.all([
+    getClubTeamMatches(club.uid, club.name),
+    getCatalog('team'),
+    getStatSets('team'),
+    getLeagueClubs(),
+  ]);
+  if (!matches.ok) return <ErrorNotice code={matches.code} />;
+  if (!catalog.ok || !sets.ok || matches.data.length === 0) return null;
+  return (
+    <TeamTableView
+      matches={matches.data}
+      catalog={catalog.data}
+      sets={sets.data}
+      windowValues={{}}
+      clubs={clubs.ok ? clubs.data : []}
+      initialSet={null}
+      initialView="partido"
+      matchBase={`/club/${club.uid}/partido/`}
+    />
+  );
+}
 
 async function CompareForm({ club }: { club: Club }) {
   const league = await getLeagueProfiles(club.uid);
@@ -134,6 +161,7 @@ export async function ClubInterface({ view, uid }: { view: ClubView; uid: string
           </Link>
         </p>
       </div>
+      {view === 'equipo' ? <TeamTable club={club} /> : null}
       {view === 'comparar' ? <CompareForm club={club} /> : null}
       {view === 'alternativas' || view === 'ojeador' ? <LeagueView view={view} club={club} /> : null}
       {v.sections.length > 0 && shown.length === 0 ? (

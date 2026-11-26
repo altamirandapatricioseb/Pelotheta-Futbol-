@@ -240,6 +240,21 @@ def _stat_value(text: str) -> float | None:
 # --- partido ----------------------------------------------------------------------------
 
 
+def parse_team_stats(game: dict[str, Any]) -> dict[str, dict[str, float]]:
+    """Estadísticas de equipo (Opta) de cualquier partido, por id de club de Promiedos."""
+    ids = [t["id"] for t in (game.get("teams") or [])[:2]]
+    out: dict[str, dict[str, float]] = {team_id: {} for team_id in ids}
+    for stat in game.get("statistics") or []:
+        key = STAT_KEYS.get(stat.get("name", ""))
+        if key is None:
+            continue
+        for team_id, raw in zip(ids, stat.get("values") or [], strict=False):
+            value = _stat_value(str(raw))
+            if value is not None:
+                out[team_id][key] = value
+    return out
+
+
 def parse_game(game: dict[str, Any]) -> ParsedGame | None:
     """Convierte un partido de Promiedos en registros. Devuelve None si no corresponde cargarlo.
 
@@ -447,19 +462,11 @@ def parse_game(game: dict[str, Any]) -> ParsedGame | None:
                 )
             )
 
-    team_stats: list[TeamStatRecord] = []
-    for stat in game.get("statistics") or []:
-        key = STAT_KEYS.get(stat.get("name", ""))
-        if key is None:
-            continue
-        for side, raw in enumerate(stat.get("values") or [], start=1):
-            value = _stat_value(str(raw))
-            if value is not None and side in side_id:
-                team_stats.append(
-                    TeamStatRecord(
-                        match_source_id=match_id, team_source_id=side_id[side], stat_key=key, value=value
-                    )
-                )
+    team_stats = [
+        TeamStatRecord(match_source_id=match_id, team_source_id=team_id, stat_key=key, value=value)
+        for team_id, values in parse_team_stats(game).items()
+        for key, value in values.items()
+    ]
 
     return ParsedGame(
         competition=competition,

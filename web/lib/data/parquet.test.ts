@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('server-only', () => ({}));
 
-const { getClub, getLeagueMatch, getLeaguePlayer, listClubs, predictNext, slug, standingsFor } =
+const { getClub, getClubTeamMatches, getLeagueMatch, getLeaguePlayer, listClubs, predictNext, slug, standingsFor } =
   await import('./parquet');
 
 const FIXTURES = fileURLToPath(new URL('./__fixtures__/', import.meta.url));
@@ -26,6 +26,15 @@ afterEach(() => {
 });
 
 describe('archivo abierto en Parquet', () => {
+  it('da los partidos de liga de un club con sus estadísticas, con la forma de la tabla de Equipo', async () => {
+    serveFixtures();
+    const result = await getClubTeamMatches('arg-club-a', 'Club A');
+    if (!result.ok) throw new Error(result.detail);
+    expect(result.data).toHaveLength(1);
+    expect(result.data[0]).toMatchObject({ matchId: 'm1', home: true, goalsFor: 2, opponent: 'Club B' });
+    expect(result.data[0]?.stats).toEqual({ matches: 1, points: 3, shots_total: 12, shots_total_against: 5 });
+  });
+
   it('arma la ficha de un partido de liga: goles en orden, planilla, tabla y otros cruces', async () => {
     serveFixtures();
     const result = await getLeagueMatch('arg-club-a', 'm1');

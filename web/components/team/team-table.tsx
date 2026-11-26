@@ -30,13 +30,15 @@ const ROW_LAYOUT = { type: 'spring', stiffness: 520, damping: 44 } as const;
 const LEVEL_TEXT = { A: 'dato directo de una fuente', B: 'calculado', C: 'no disponible en fuentes gratuitas' };
 
 interface TeamTableProps {
-  matches: TeamMatchRow[];
+  matches: TeamMatchRow<number | string>[];
   catalog: StatDef[];
   sets: StatSet[];
   windowValues: Record<string, Record<string, number>>;
   clubs: ClubRow[];
   initialSet: string | null;
   initialView: TeamView;
+  /** Ruta de la página de cada partido (otro club: `/club/<uid>/partido/`). */
+  matchBase?: string;
 }
 
 const numeric = (v: StatValue): v is number => typeof v === 'number' && Number.isFinite(v);
@@ -54,6 +56,7 @@ export function TeamTableView({
   clubs,
   initialSet,
   initialView,
+  matchBase = '/partido/',
 }: TeamTableProps) {
   const byId = useMemo(() => new Map(catalog.map((s) => [s.id, s])), [catalog]);
   const [setId, setSetId] = useState(sets.some((s) => s.id === initialSet) ? (initialSet ?? '') : (sets[0]?.id ?? ''));
@@ -230,7 +233,7 @@ export function TeamTableView({
                     </div>
                   </dl>
                   <Link
-                    href={`/partido/${String(single.matchId)}`}
+                    href={`${matchBase}${String(single.matchId)}`}
                     className="focus-ring text-sm font-semibold text-link hover:underline"
                   >
                     Ver la página del partido
@@ -597,7 +600,7 @@ export function TeamTableView({
   );
 }
 
-function GroupRecord({ rows }: { rows: TeamMatchRow[] }) {
+function GroupRecord({ rows }: { rows: TeamMatchRow<number | string>[] }) {
   const won = rows.filter((r) => r.goalsFor > r.goalsAgainst).length;
   const drawn = rows.filter((r) => r.goalsFor === r.goalsAgainst).length;
   const gf = rows.reduce((a, r) => a + r.goalsFor, 0);

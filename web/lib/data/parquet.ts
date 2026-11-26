@@ -5,6 +5,7 @@ import { compressors } from 'hyparquet-compressors';
 import { z } from 'zod';
 
 import { lambdas, outcomes, type Profile, scoreMatrix } from '@/lib/models/predictor';
+import type { TeamMatchRow } from '@/lib/stats/catalog';
 
 // Capa fría pública (docs/formato-parquet.md). Se lee en el servidor y se cachea una hora: Hugging
 // Face recibe un pedido por archivo y hora, no uno por visita (límite anónimo: 3000 cada 5 min por IP).
@@ -170,6 +171,22 @@ const standingSchema = z.object({
   goals_against: num,
   points: num,
 });
+
+// Estadísticas de equipo por partido de cualquier club (Promiedos, etapa 5k-1): mismas claves que Boca.
+const teamMatchLeagueSchema = z.object({
+  ext_id: z.string(),
+  match_date: z.string(),
+  stage: text,
+  team_name: z.string(),
+  opponent: z.string(),
+  home: z.boolean(),
+  goals_for: num,
+  goals_against: num,
+  referee: text,
+  stats: text,
+  competition_uid: text.optional(),
+});
+const statsSchema = z.record(z.string(), z.number());
 
 export interface ClubMatch {
   /** Id del partido de liga en su fuente (para su ficha); null en los del archivo propio del club. */
@@ -642,6 +659,42 @@ export async function getLeagueMatch(uid: string, matchId: string): Promise<Arch
           )
           .toSorted((a, b) => b.match_date.localeCompare(a.match_date)),
       },
+    };
+  } catch (cause) {
+    return failure(cause);
+  }
+}
+
+/** Partidos de liga de un club con sus estadísticas de equipo, con la forma de la tabla de Equipo. */
+export async function getClubTeamMatches(uid: string, name: string): Promise<ArchiveResult<TeamMatchRow<string>[]>> {
+  try {
+    const manifest = await getManifest();
+    const files = manifest.archivos.filter(
+      (f) => f.tabla === 'league_team_match' && f.ruta.startsWith(`pais=${uid.slice(0, 3).toUpperCase()}/`),
+    );
+    const rows = (await Promise.all(files.map((f) => readTable(f.ruta, teamMatchLeagueSchema)))).flat();
+    const league = (r: (typeof rows)[number]) => (r.competition_uid ? (LEAGUE_NAMES[r.competition_uid] ?? null) : null);
+    return {
+      ok: true,
+      data: rows
+        .filter((r) => norm(r.team_name) === norm(name))
+        .map((r) => {
+          const stats = statsSchema.safeParse(JSON.parse(r.stats ?? '{}'));
+          return {
+            matchId: r.ext_id,
+            date: r.match_date,
+            competitionCode: r.competition_uid ?? 'liga',
+            competitionName: [league(r), r.stage].filter(Boolean).join(' · ') || 'Liga',
+            opponent: r.opponent,
+            home: r.home,
+            goalsFor: r.goals_for ?? 0,
+            goalsAgainst: r.goals_against ?? 0,
+            referee: r.referee,
+            venue: null,
+            stats: stats.success ? stats.data : {},
+          };
+        })
+        .toSorted((a, b) => a.date.localeCompare(b.date)),
     };
   } catch (cause) {
     return failure(cause);

@@ -321,3 +321,47 @@ def test_wikipedia_sports_tables_points_names_and_orders() -> None:
         ("Tabla general", 1, "BBB", 3),  # sin nombre: queda el código; la de grupos sin datos no entra
         ("Tabla general", 2, "AAA", 0),
     ]
+
+
+def test_promiedos_team_stats_of_any_game_and_team_match_rows() -> None:
+    from pipeline.league_team_match import team_match_rows
+    from pipeline.models import LeagueResultRecord
+
+    raw = {
+        "teams": [{"id": "aa"}, {"id": "bb"}],
+        "statistics": [
+            {"name": "Total Remates", "values": ["12", "5"]},
+            {"name": "Posesión", "values": ["60%", "40%"]},
+            {"name": "Otra", "values": ["1", "2"]},
+        ],
+    }
+    stats = pd.parse_team_stats(raw)
+    assert stats == {
+        "aa": {"shots_total": 12, "possession_pct": 60},
+        "bb": {"shots_total": 5, "possession_pct": 40},
+    }
+    game = LeagueResultRecord(
+        source="promiedos",
+        ext_id="g1",
+        season=2026,
+        stage="Fecha 1",
+        match_date=date(2026, 3, 1),
+        home_team="Local",
+        away_team="Visita",
+        home_goals=2,
+        away_goals=1,
+        home_goal_minutes=[10, 80],
+        away_goal_minutes=[46],
+    )
+    home, away = team_match_rows([game], {"g1": {"Local": stats["aa"], "Visita": stats["bb"]}})
+    assert (home["team_name"], home["home"], away["opponent"]) == ("Local", True, "Local")
+    assert home["stats"]["points"] == 3 and away["stats"]["losses"] == 1
+    assert home["stats"]["shots_total"] == 12 and home["stats"]["shots_total_against"] == 5
+    assert (
+        home["stats"]["goals_for_00_15"],
+        home["stats"]["goals_for_76_90"],
+        away["stats"]["goals_for_46_60"],
+    ) == (1, 1, 1)
+    # Si los minutos no cierran con el marcador, no hay tramos (no se adivinan).
+    partial = game.model_copy(update={"home_goal_minutes": [10]})
+    assert "goals_for_00_15" not in team_match_rows([partial], {})[0]["stats"]

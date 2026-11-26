@@ -103,6 +103,7 @@ TABLES = [
     Table("league_player_match", "liga", "restringida", "Crudo por jugador y partido", ("bzzoiro",)),
     Table("league_player_profile", "liga", "abierta", "Percentiles por posición: cálculo propio"),
     Table("league_fixture", "liga", "abierta", "Próximos partidos de la liga (Promiedos)"),
+    Table("league_team_match", "liga", "abierta", "Estadísticas de equipo por partido (Promiedos)"),
     Table(
         "league_situation",
         "liga",
@@ -405,6 +406,8 @@ def league_promiedos_rows(season_year: int = 2026) -> dict[str, list[dict[str, A
                 )
             tag = {"country_code": uid[:3].upper(), "competition_uid": uid}
             for view, rows in tables.items():
+                if uid == FOCUS_LEAGUE and view != "league_team_match":
+                    continue  # el resto de la Liga Profesional ya sale de Supabase
                 out.setdefault(view, []).extend({**r, **tag} for r in rows)
     return out
 

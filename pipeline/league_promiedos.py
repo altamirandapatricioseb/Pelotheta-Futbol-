@@ -1,5 +1,5 @@
 """Promiedos para cualquier liga que publique (etapa 5j-4): resultados con minutos de gol, tablas,
-líderes, próximos partidos y situaciones por club.
+líderes, próximos partidos, situaciones y estadísticas de equipo por partido (5k-1) de cada club.
 
 Mismo recorrido que la Liga Profesional en `pipeline.run.crawl`: página de la liga (tabla, ids y
 nombres) → página de cada equipo (sus últimos partidos y los próximos) → página de cada partido, y el
@@ -13,11 +13,15 @@ from collections import deque
 from typing import Any
 
 from pipeline import league_situations
+from pipeline.league_team_match import team_match_rows
 from sources import promiedos as pd
 from sources.http_client import FetchError, PoliteClient, RetryableFetchError
 
 # Ligas del sistema que publica Promiedos (la Liga Profesional sale de la corrida diaria por Supabase).
 LEAGUES = {
+    # La Liga Profesional ya trae resultados y tablas desde Supabase: de acá solo sale
+    # `league_team_match` (las estadísticas de los 30 clubes, que la base guarda solo de Boca).
+    "arg-liga-profesional-argentina": ("/league/liga-profesional/hc", "hc"),
     "arg-primera-nacional": ("/league/primera-nacional/ebj", "ebj"),
     "arg-primera-b": ("/league/primera-b-metropolitana/fahh", "fahh"),
     "arg-federal-a": ("/league/federal-a/fahi", "fahi"),
@@ -65,6 +69,7 @@ def collect(
         refs.update({r.game_id: r for r in pd.league_game_refs(data, season_year, ids)})
         fixtures.update({g["ext_id"]: g for g in pd.upcoming_league_games(data, names)})
     queue, seen, games = deque(refs.values()), set(), []
+    team_stats: dict[str, dict[str, dict[str, float]]] = {}
     new = pending = 0
     while queue:
         ref = queue.popleft()
@@ -84,6 +89,7 @@ def collect(
         game = pd.parse_league_game(raw, season_year, names, league_id)
         if game is not None:
             games.append(game)
+            team_stats[game.ext_id] = {names[t]: v for t, v in pd.parse_team_stats(raw).items() if t in names}
     if report is not None:
         report.update({"partidos": len(games), "pendientes": pending, "consultas_nuevas": new})
     return {
@@ -94,4 +100,5 @@ def collect(
         ],
         "league_fixture": sorted(fixtures.values(), key=lambda g: g["kickoff_at"]),
         "league_situation": league_situations.situations(games, season_year),
+        "league_team_match": team_match_rows(games, team_stats),
     }

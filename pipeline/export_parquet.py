@@ -373,6 +373,40 @@ def league_scouting_rows(season_year: int = 2026) -> dict[str, list[dict[str, An
     return out
 
 
+# Tope de páginas de partido nuevas de Promiedos por exportación (3 s cada una: ~75 minutos).
+PROMIEDOS_BUDGET = 1500
+
+
+def league_promiedos_rows(season_year: int = 2026) -> dict[str, list[dict[str, Any]]]:
+    """Resultados, tablas, líderes, próximos partidos y situaciones de las demás ligas que publica
+    Promiedos (etapa 5j-4), con país y liga en cada fila. Una liga que falla no frena a las otras."""
+    from pipeline import league_promiedos as lpr
+    from sources import promiedos as pd
+    from sources.http_client import PoliteClient
+
+    out: dict[str, list[dict[str, Any]]] = {}
+    budget = PROMIEDOS_BUDGET
+    with PoliteClient(pd.SOURCE) as client:
+        for uid, (path, league_id) in lpr.LEAGUES.items():
+            report: dict[str, int] = {}
+            try:
+                tables = lpr.collect(
+                    client, path, league_id, season_year, max_new=max(budget, 0), report=report
+                )
+            except lpr.ERRORS as exc:
+                print(f"Aviso: Promiedos no respondió en {uid} ({exc}).", file=sys.stderr)
+                continue
+            budget -= report.get("consultas_nuevas", 0)
+            if report.get("pendientes"):
+                print(
+                    f"{uid}: {report['pendientes']} partidos quedan para la próxima corrida.", file=sys.stderr
+                )
+            tag = {"country_code": uid[:3].upper(), "competition_uid": uid}
+            for view, rows in tables.items():
+                out.setdefault(view, []).extend({**r, **tag} for r in rows)
+    return out
+
+
 def league_value_rows(club_names: list[str], today: date | None = None) -> list[dict[str, Any]]:
     """Valor real (transfermarkt-datasets, CC0) y esperado por el modelo propio de cada jugador de la
     liga, con el club en el nombre de la tabla de Promiedos (el de las fichas). Vacío si falla la fuente."""
@@ -455,8 +489,12 @@ def main(argv: list[str] | None = None) -> int:
         "league_situation": league_situation_rows(),
     }
 
+    # Las demás ligas de Promiedos (etapa 5j-4) se suman a las tablas de liga de la Liga Profesional.
+    other_leagues = league_promiedos_rows()
+
     def fetch(view: str) -> list[dict[str, Any]]:
-        return league_rows[view] if view in league_rows else fetch_view(url, key, client, view)
+        base = league_rows[view] if view in league_rows else fetch_view(url, key, client, view)
+        return base + other_leagues.get(view, [])
 
     with httpx.Client(timeout=TIMEOUT) as client:
         clubs = sorted({r["team_name"] for r in fetch("league_standing") if r.get("team_name")})

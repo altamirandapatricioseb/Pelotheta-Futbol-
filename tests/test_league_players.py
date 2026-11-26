@@ -303,6 +303,22 @@ def test_scoutingstats_profiles_are_public_and_raw_private(tmp_path: Path) -> No
     assert [f["tabla"] for f in manifests["privado"]["archivos"]] == ["league_player_match"]
 
 
+def test_promiedos_reads_other_leagues_by_id() -> None:
+    from sources import promiedos as pd
+
+    game = {
+        "id": "u1", "status": {"enum": 3}, "league": {"id": "gbh"}, "start_time": "01-06-2026 18:00",
+        "teams": [{"name": "Boston River", "id": "br"}, {"name": "Liverpool", "id": "lv"}], "scores": [0, 1],
+        "events": [{"rows": [{"events": [{"time": "22'", "team": 2, "type": 1}]}]}],
+        "head_to_head": {"games": [{"id": "u0", "url_name": "x", "league": {"id": "gbh"},
+                                    "status": {"enum": 3}, "start_time": "01-03-2026 18:00"}]},
+    }  # fmt: skip
+    assert pd.parse_league_game(game, 2026) is None  # por defecto, solo la Liga Profesional
+    row = pd.parse_league_game(game, 2026, {"lv": "Liverpool FC"}, league_id="gbh")
+    assert row is not None and (row.away_team, row.away_goal_minutes) == ("Liverpool FC", [22])
+    assert [r.game_id for r in pd.league_head_to_head_refs(game, 2026, "gbh")] == ["u0"]
+
+
 def test_raw_goes_private_and_profiles_public(tmp_path: Path) -> None:
     raw = [{**game(1, "A", "F", 1, minutes_played=90, goals=1), "season_year": 2026, "event_id": 7}]
     rows = {"league_player_match": raw, "league_player_profile": [{"player_name": "J1", "season_year": 2026}]}

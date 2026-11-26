@@ -135,6 +135,11 @@ class PoliteClient:
             self._client.close()
 
     # --- API pública ---------------------------------------------------------------------
+    def is_cached(self, url: str) -> bool:
+        """True si la URL ya está en caché (para topes de páginas nuevas por corrida)."""
+        body, meta = self._cache_paths(hashlib.sha256(mask_url(url).encode()).hexdigest())
+        return body.exists() and meta.exists()
+
     def get(
         self,
         url: str,

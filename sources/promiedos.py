@@ -700,14 +700,16 @@ def upcoming_league_games(team_data: dict[str, Any], names: dict[str, str]) -> l
     return games
 
 
-def league_head_to_head_refs(game: dict[str, Any], season_year: int) -> list[GameRef]:
+def league_head_to_head_refs(
+    game: dict[str, Any], season_year: int, league_id: str = LEAGUE_ID
+) -> list[GameRef]:
     """Partidos terminados de liga de la temporada en el «historial» de un partido. Las páginas de
     equipo listan solo los últimos partidos; el cruce del Clausura trae el del Apertura entre los
     mismos dos equipos, y así se llega a la temporada completa sin pedir otras páginas."""
     refs = []
     for g in (game.get("head_to_head") or {}).get("games") or []:
         if (
-            (g.get("league") or {}).get("id") == LEAGUE_ID
+            (g.get("league") or {}).get("id") == league_id
             and (g.get("status") or {}).get("enum") == 3
             and str(g.get("start_time", ""))[6:10] == str(season_year)
             and g.get("id")
@@ -718,12 +720,15 @@ def league_head_to_head_refs(game: dict[str, Any], season_year: int) -> list[Gam
 
 
 def parse_league_game(
-    game: dict[str, Any], season_year: int, names: dict[str, str] | None = None
+    game: dict[str, Any],
+    season_year: int,
+    names: dict[str, str] | None = None,
+    league_id: str = LEAGUE_ID,
 ) -> LeagueResultRecord | None:
     """Cualquier partido terminado de la Liga Profesional: resultado, árbitro, tarjetas, faltas y
     bajas contadas por motivo. Sirve para estadísticas de árbitros y de toda la liga.
     `names` (id de Promiedos → nombre de la tabla) unifica los nombres cortos de algunas páginas."""
-    if (game.get("status") or {}).get("enum") != 3 or (game.get("league") or {}).get("id") != LEAGUE_ID:
+    if (game.get("status") or {}).get("enum") != 3 or (game.get("league") or {}).get("id") != league_id:
         return None
     home, away = game["teams"][0], game["teams"][1]
     cards = {(side, kind): 0 for side in (1, 2) for kind in ("yellow", "red")}

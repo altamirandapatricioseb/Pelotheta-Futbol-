@@ -152,11 +152,16 @@ def year_of(row: dict[str, Any], match_years: dict[Any, int]) -> int | None:
     return None
 
 
-def partition(table: Table, year: int | None) -> str:
+def partition(table: Table, year: int | None, row: dict[str, Any] | None = None) -> str:
+    """Carpeta de la fila. Las tablas de toda una liga (etapa 5j) traen su país (`country_code`, FIFA)
+    y su competición (`competition_uid`) en cada fila; las que no, son de Boca y la Liga Profesional."""
     if table.scope == "referencia":
         return "referencia"
-    owner = f"equipo={FOCUS_TEAM}" if table.scope == "equipo" else f"liga={FOCUS_LEAGUE}"
-    return f"pais={COUNTRY}/{owner}/temporada={year if year is not None else 'sin-fecha'}"
+    row = row or {}
+    country = row.get("country_code") or COUNTRY
+    league = row.get("competition_uid") or FOCUS_LEAGUE
+    owner = f"equipo={FOCUS_TEAM}" if table.scope == "equipo" else f"liga={league}"
+    return f"pais={country}/{owner}/temporada={year if year is not None else 'sin-fecha'}"
 
 
 def is_open(table: Table, row: dict[str, Any]) -> bool:
@@ -226,7 +231,7 @@ def export(fetch: Fetch, out: Path, views: Iterable[str] | None = None) -> dict[
         for row in rows_of(table.view):
             visibility = "publico" if is_open(table, row) else "privado"
             year = year_of(row, match_years)
-            groups[(visibility, partition(table, current if year is None else year))].append(row)
+            groups[(visibility, partition(table, current if year is None else year, row))].append(row)
         for (visibility, part), rows in sorted(groups.items()):
             rel = f"{part}/{table.view}.parquet"
             entry = write_file(out / visibility / rel, rows, table, visibility)

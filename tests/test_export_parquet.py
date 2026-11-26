@@ -78,6 +78,26 @@ def test_json_columns_and_reference_partition(tmp_path: Path) -> None:
     assert "Promiedos" in (tmp_path / "publico/README.md").read_text("utf-8")
 
 
+def test_league_rows_go_to_their_own_country_and_league(tmp_path: Path) -> None:
+    rows = {
+        "league_player_profile": [
+            {"player_name": "A", "season_year": 2026},  # sin país ni liga: la Liga Profesional
+            {
+                "player_name": "B",
+                "season_year": 2026,
+                "country_code": "URU",
+                "competition_uid": "uru-primera",
+            },
+        ]
+    }
+    manifests = ex.export(lambda view: rows.get(view, []), tmp_path, ["league_player_profile"])
+    paths = sorted(f["ruta"] for f in manifests["publico"]["archivos"])
+    assert paths == [
+        f"{LEAGUE}/temporada=2026/league_player_profile.parquet",
+        "pais=URU/liga=uru-primera/temporada=2026/league_player_profile.parquet",
+    ]
+
+
 def test_descriptive_source_column_does_not_split_rows(tmp_path: Path) -> None:
     rows = {**ROWS, "stat_catalog": [{"stat_id": "xg", "source": "statshub|bzzoiro"}]}
     manifests = ex.export(lambda view: rows[view], tmp_path, ["boca_match", "stat_catalog"])

@@ -410,17 +410,19 @@ def league_promiedos_rows(season_year: int = 2026) -> dict[str, list[dict[str, A
 
 
 def league_wikipedia_rows(season_year: int = 2026) -> dict[str, list[dict[str, Any]]]:
-    """Resultados, tabla calculada y situaciones de las ligas que solo publica Wikipedia (etapa 5j-7,
-    hoy Bolivia), con país y liga en cada fila. Una liga que falla no frena a las otras."""
+    """Lo que publica Wikipedia de las ligas sin otra fuente abierta, con país y liga en cada fila:
+    resultados, tabla calculada y situaciones (Bolivia y Ecuador, 5j-7 y 5j-9) y la tabla oficial
+    (Perú, Venezuela y Brasil B, 5j-12). Una liga que falla no frena a las otras."""
     from pipeline import league_wikipedia as lw
     from sources import wikipedia_league as wl
     from sources.http_client import PoliteClient
 
     out: dict[str, list[dict[str, Any]]] = {}
     with PoliteClient(wl.SOURCE) as client:
-        for uid in lw.LEAGUES:
+        jobs = [(uid, lw.collect) for uid in lw.LEAGUES] + [(uid, lw.collect_tables) for uid in lw.EN_TABLES]
+        for uid, collect in jobs:
             try:
-                tables = lw.collect(client, uid, season_year)
+                tables = collect(client, uid, season_year)
             except lw.ERRORS as exc:
                 print(f"Aviso: Wikipedia no respondió en {uid} ({exc}).", file=sys.stderr)
                 continue
@@ -438,10 +440,11 @@ GENERIC_NAME_WORDS = {
 }  # fmt: skip
 
 
-def _name_words(name: str) -> set[str]:
+def _name_words(name: str) -> tuple[set[str], set[str]]:
+    """(palabras que distinguen, todas las palabras) de un nombre de club."""
     plain = unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode().lower()
-    words = re.findall(r"[a-z0-9]+", plain)
-    return set(w for w in words if w not in GENERIC_NAME_WORDS) or set(words)
+    words = set(re.findall(r"[a-z0-9]+", plain))
+    return words - GENERIC_NAME_WORDS, words
 
 
 def match_club_names(names: Iterable[str], targets: Iterable[str]) -> dict[str, str]:
@@ -450,7 +453,9 @@ def match_club_names(names: Iterable[str], targets: Iterable[str]) -> dict[str, 
     pairs = []
     for name in set(names):
         for target in set(targets):
-            a, b = _name_words(name), _name_words(target)
+            (a, a_all), (b, b_all) = _name_words(name), _name_words(target)
+            if not (a and b):  # un nombre hecho solo de palabras genéricas («Sport»): se comparan todas
+                a, b = a_all, b_all
             if a & b:
                 pairs.append((len(a & b) / len(a | b), name, target))
     out: dict[str, str] = {}

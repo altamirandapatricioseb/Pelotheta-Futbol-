@@ -289,3 +289,35 @@ def test_wikipedia_tables_merge_spellings_and_skip_minutes() -> None:
     assert set(table) == {"Bolivar", "Real Oruro", "Aurora"}  # empate de grafías: queda la primera
     assert (table["Bolivar"]["points"], table["Bolivar"]["played"], table["Bolivar"]["rank"]) == (4, 2, 1)
     assert all(s["con_minutos"] == 0 for s in out["league_situation"])  # ni el 0 a 0 cuenta
+
+
+SPORTS_TABLES = """==Torneo Apertura==
+===Regular stage===
+====Standings====
+{{#invoke:Sports table|main|style=WDL
+|source=[https://liga.example Liga]<ref>{{cite web|title=x}}</ref>
+<!--Update team positions here-->
+|team_order=AAA, BBB
+|win_AAA=2 |draw_AAA=1 |loss_AAA=0 |gf_AAA=5 |ga_AAA=1 |adjust_points_AAA=−3
+|win_BBB=0 |draw_BBB=1 |loss_BBB=2 |gf_BBB=1 |ga_BBB=5
+|name_AAA=[[Club Alfa|Alfa]] |name_BBB={{nowrap|[[Club Beta|Beta FC]]}}
+}}
+===Final stages===
+{{#invoke:Sports table|main|section=Apertura Group A|show_matches=true|team_order=AAA, BBB}}
+==League table==
+{{#invoke:Sports table|main
+|team1=BBB |team2=AAA
+|win_BBB=1 |draw_BBB=0 |loss_BBB=0 |gf_BBB=1 |ga_BBB=0
+}}"""
+
+
+def test_wikipedia_sports_tables_points_names_and_orders() -> None:
+    from sources import wikipedia_league as wl
+
+    rows = wl.parse_sports_tables(SPORTS_TABLES)
+    assert [(r.table_name, r.rank, r.team_name, r.points) for r in rows] == [
+        ("Torneo Apertura · Fase regular", 1, "Alfa", 4),  # 7 menos 3 de descuento
+        ("Torneo Apertura · Fase regular", 2, "Beta FC", 1),
+        ("Tabla general", 1, "BBB", 3),  # sin nombre: queda el código; la de grupos sin datos no entra
+        ("Tabla general", 2, "AAA", 0),
+    ]

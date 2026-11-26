@@ -23,6 +23,13 @@ LEAGUES = {
     "bol-primera": "Primera División de Bolivia {year}",
     "ecu-serie-a": "Serie A de Ecuador {year}",  # Bzzoiro tiene sus jugadores, pero no hay tabla abierta
 }
+# Ligas sin tabla abierta en otra fuente: la tabla oficial del artículo en inglés (5j-12). Sus
+# resultados por partido son de Bzzoiro o ScoutingStats y siguen privados.
+EN_TABLES = {
+    "per-liga-1": "{year} Liga 1 (Peru)",
+    "ven-primera": "{year} Liga FUTVE",
+    "bra-serie-b": "{year} Campeonato Brasileiro Série B",
+}
 ERRORS = (FetchError, RetryableFetchError, ValueError)
 
 
@@ -100,3 +107,28 @@ def collect(client: PoliteClient, league_uid: str, season_year: int) -> dict[str
     title = LEAGUES[league_uid].format(year=season_year).replace(" ", "_")
     text = client.get(f"{wl.BASE_URL}/wiki/{quote(title)}?action=raw", use_cache=False).text()
     return tables(wl.parse_games(text, season_year), league_uid, season_year)
+
+
+def collect_tables(
+    client: PoliteClient, league_uid: str, season_year: int
+) -> dict[str, list[dict[str, Any]]]:
+    title = EN_TABLES[league_uid].format(year=season_year).replace(" ", "_")
+    text = client.get(f"{wl.EN_BASE_URL}/wiki/{quote(title)}?action=raw", use_cache=False).text()
+    rows = [
+        StandingRecord(
+            source=wl.SOURCE,
+            season=season_year,
+            table_name=r.table_name,
+            rank=r.rank,
+            team_name=r.team_name,
+            played=r.won + r.drawn + r.lost,
+            won=r.won,
+            drawn=r.drawn,
+            lost=r.lost,
+            goals_for=r.goals_for,
+            goals_against=r.goals_against,
+            points=r.points,
+        )
+        for r in wl.parse_sports_tables(text)
+    ]
+    return {"league_standing": [r.model_dump(mode="json") for r in rows]}

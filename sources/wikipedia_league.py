@@ -169,3 +169,111 @@ def parse_games(wikitext: str, season_year: int) -> list[WikiGame]:
                 )
             )
     return games
+
+
+# --- Tablas oficiales de la Wikipedia en inglés (módulo «Sports table», etapa 5j-12) ---------------
+# Perú, Venezuela y Brasil B no tienen tabla en Promiedos ni resultados por fecha en la Wikipedia en
+# español; el artículo en inglés de cada temporada trae la tabla con victorias, empates, derrotas,
+# goles y descuentos de puntos (`adjust_points_X`), copiada de la web oficial de cada liga.
+EN_BASE_URL = "https://en.wikipedia.org"
+SPORTS_TABLE_RE = re.compile(r"\{\{\s*#invoke:\s*Sports table\s*\|", re.I)
+HEADING_RE = re.compile(r"^(=+)\s*(.*?)\s*\1\s*$", re.M)
+# Títulos de sección que no dicen de qué tabla se trata.
+GENERIC_HEADINGS = {"standings", "league table", "table", "results"}
+# Nombres de tabla en castellano para la web (el resto del título queda como está: «Apertura»).
+TABLE_WORDS = {
+    "Aggregate table": "Tabla acumulada",
+    "Regular stage": "Fase regular",
+    "Final stages": "Fase final",
+    "First stage": "Primera fase",
+    "Second stage": "Segunda fase",
+    "Group": "Grupo",
+}
+
+
+@dataclass(frozen=True)
+class WikiStanding:
+    table_name: str
+    rank: int
+    team_name: str
+    won: int
+    drawn: int
+    lost: int
+    goals_for: int
+    goals_against: int
+    points: int
+
+
+def _template_body(text: str, start: int) -> str:
+    """Contenido de la plantilla que abre en `start` («{{»), con las llaves internas balanceadas."""
+    depth, i = 0, start
+    while i < len(text) - 1:
+        if text.startswith("{{", i):
+            depth, i = depth + 1, i + 2
+        elif text.startswith("}}", i):
+            depth, i = depth - 1, i + 2
+            if depth == 0:
+                return text[start + 2 : i - 2]
+        else:
+            i += 1
+    return text[start + 2 :]
+
+
+def _int(value: str | None) -> int | None:
+    m = re.match(r"\s*([+−-]?\d+)", (value or "").replace("−", "-"))
+    return int(m.group(1)) if m else None
+
+
+def _heading_path(text: str, end: int) -> list[str]:
+    """Títulos de las secciones que contienen la posición `end`, del más general al más chico."""
+    path: dict[int, str] = {}
+    for m in HEADING_RE.finditer(text, 0, end):
+        level = len(m.group(1))
+        path = {k: v for k, v in path.items() if k < level} | {level: clean(m.group(2))}
+    return [path[k] for k in sorted(path)]
+
+
+def parse_sports_tables(wikitext: str) -> list[WikiStanding]:
+    """Todas las tablas «Sports table» con resultados cargados; las de grupos sin `win_` se saltean."""
+    text = re.sub(r"<!--.*?-->", "", wikitext, flags=re.S)
+    rows: list[WikiStanding] = []
+    for m in SPORTS_TABLE_RE.finditer(text):
+        params: dict[str, str] = {}
+        for part in _split_top(_template_body(text, m.start()), "|")[1:]:
+            key, sep, value = part.partition("=")
+            if sep:
+                params[key.strip()] = value.strip()
+        # El orden viene en `team_order=A, B, …` o en `team1=A |team2=B …` (Brasil B).
+        numbered = sorted((int(k[4:]), v) for k, v in params.items() if re.fullmatch(r"team\d+", k))
+        order = (
+            params.get("team_order", "").split(",") if "team_order" in params else [v for _, v in numbered]
+        )
+        codes = [c.strip() for c in order if c.strip()]
+        if not codes or not any(f"win_{c}" in params for c in codes):
+            continue
+        path = [h for h in _heading_path(text, m.start()) if h.lower() not in GENERIC_HEADINGS]
+        name = clean(params.get("section", "")) or " · ".join(path[-2:]) or "Tabla general"
+        for en, es in TABLE_WORDS.items():
+            name = name.replace(en, es)
+        win_points = _int(params.get("win_points")) or 3
+        for rank, code in enumerate(codes, start=1):
+            w, d, lo, gf, ga = (
+                _int(params.get(f"{k}_{code}")) or 0 for k in ("win", "draw", "loss", "gf", "ga")
+            )
+            extra = (_int(params.get(f"adjust_points_{code}")) or 0) + (
+                _int(params.get(f"startpoints_{code}")) or 0
+            )
+            rows.append(
+                WikiStanding(
+                    table_name=name,
+                    rank=rank,
+                    team_name=clean(params.get(f"name_{code}", "")) or code,
+                    won=w,
+                    drawn=d,
+                    lost=lo,
+                    goals_for=gf,
+                    goals_against=ga,
+                    points=win_points * w + d + extra,
+                )
+            )
+    return rows

@@ -26,17 +26,17 @@ Descartados: Cloudflare R2 (pide tarjeta), Neon (1 GB por proyecto: una temporad
 | Argentina Primera B | Promiedos | — (falta fuente) | medio: alineaciones, minutos, goles, tarjetas, cambios |
 | Argentina Federal A | Promiedos | — (falta fuente) | medio |
 | Brasil Série A | Promiedos | Bzzoiro, ScoutingStats | profundo |
-| Brasil Série B | Bzzoiro | Bzzoiro, ScoutingStats | profundo |
+| Brasil Série B | Bzzoiro (privado); tabla oficial de Wikipedia en inglés (público, 5j-12) | Bzzoiro, ScoutingStats | profundo |
 | Uruguay | Promiedos | ScoutingStats (770) | profundo |
 | Chile | Promiedos | Bzzoiro, ScoutingStats (663) | profundo |
 | Colombia | Promiedos | Bzzoiro, ScoutingStats | profundo |
 | Paraguay | Promiedos | — (falta fuente) | medio |
 | Ecuador | Bzzoiro (privado); Wikipedia (público: resultados por fecha y tabla calculada, 5j-9) | Bzzoiro, ScoutingStats | profundo |
-| Perú | Bzzoiro | Bzzoiro, ScoutingStats (764) | profundo |
+| Perú | Bzzoiro (privado); tablas oficiales de Wikipedia en inglés: Apertura, Clausura y acumulada (público, 5j-12) | Bzzoiro, ScoutingStats (764) | profundo |
 | Bolivia | Wikipedia en español (tablas por fecha del artículo de la temporada; CC BY-SA, `?action=raw` permitido por robots) | — (la API de la FBF publica 5 partidos de primera y sin goles; ninguna otra fuente permitida) | medio-bajo: resultados con fecha y estadio, tabla calculada, situaciones sin minutos (5j-7) |
-| Venezuela | ScoutingStats | ScoutingStats (800) | profundo |
+| Venezuela | ScoutingStats (privado); tablas oficiales de Wikipedia en inglés: fases regulares, grupos y acumulada (público, 5j-12) | ScoutingStats (800) | profundo |
 
-Revisado y descartado: Hugging Face no tiene datasets abiertos de estas ligas (los que hay copian Sofascore, sin licencia); Sofascore, FotMob, OneFootball, ESPN, Transfermarkt, Soccerway y FBref prohíben el uso por términos; API-Football gratis solo da 2022 a 2024.
+Revisado y descartado: Hugging Face no tiene datasets abiertos de estas ligas (los que hay copian Sofascore, sin licencia); Sofascore, FotMob, OneFootball, ESPN, Transfermarkt, Soccerway y FBref prohíben el uso por términos; API-Football gratis solo da 2022 a 2024. Revisadas el 26-nov a pedido del dueño: Football Open Data es un actor de Apify (cuenta y créditos); AnySport solo tiene prueba gratis; «BSD Sports API» es Bzzoiro, que ya se usa; API Dados Futebol está en RapidAPI con planes pagos; FootyStats y Transfermarkt prohíben la extracción; la APF publica tablas y goleadores sin API ni datos por jugador. OpenFUTVE (Apache-2.0) todavía no publica datos, pero su auditoría de fuentes encontró la API SportsPress de `ligafutve.org` (sin clave, robots permite, partidos 2021–2025 con alineaciones; sin 2026): queda para la etapa 9.
 
 **Subetapas nuevas de la etapa 5** (cada una con su commit; lo que pide una cuenta o un clic del dueño queda como pendiente y no frena lo demás):
 
@@ -51,8 +51,9 @@ Revisado y descartado: Hugging Face no tiene datasets abiertos de estas ligas (l
 - **5j-9**: Ecuador también desde Wikipedia (294 partidos de 2026, tabla acumulada de todas las fases): sus resultados de Bzzoiro son privados, así que la ficha no tenía tabla ni situaciones. El lector acepta marcadores dentro de enlaces externos e ignora imágenes. Revisados sin éxito: Perú (el artículo de 2026 no trae las fechas, están en anexos), Venezuela y Brasil B (sin artículo de temporada con resultados).
 - **5j-10**: ficha de jugador de cualquier club (`/club/<club>/jugador/<id>`): las 15 estadísticas clave cada 90 minutos con su percentil contra los de su posición en la liga, y comparación con cualquier otro de su posición en la misma liga (formulario sin JavaScript). El perfil público suma `player_id` y `per90_<estadística>` (promedios propios; el crudo sigue privado). Arreglo de paso: los esquemas con columnas libres rechazaban `country_code` y `competition_uid`, y las situaciones de las ligas de Promiedos no habrían cargado.
 - **5j-11**: ficha de partido de liga de cualquier club (`/club/<club>/partido/<id>`): goles en orden de minuto con el marcador parcial, planilla (amarillas, rojas, faltas, lesionados y suspendidos), árbitro, posición de los dos en la tabla y los otros cruces entre ellos. La lista de partidos de la ficha del club enlaza a cada uno. Para la Liga Profesional (que sale de Supabase) hace falta la migración `20261126120000_league_result_ext_id.sql`, que suma `ext_id` a `api.league_result`: **pendiente de aplicar, con tu aprobación**.
+- **5j-12**: tablas oficiales de Perú, Venezuela y Brasil B desde la Wikipedia en inglés (módulo «Sports table», con descuentos de puntos): 54, 58 y 20 filas de 2026. Sus resultados por partido siguen siendo de fuentes privadas, así que no hay situaciones ni ficha de partido públicas para esas ligas. Las tablas también dan el nombre con que se unifica el plantel de cada club. El emparejador de nombres compara palabras completas cuando un nombre es solo genérico («Sport» → «Sport Recife»).
 
-**Estado del 26-nov (commits en `feat/escala-conmebol`)**: 5j-1 a 5j-11 hechas. Pendientes del dueño: subir la rama, unirla a `main` y lanzar «Exportar Parquet» varias veces (cada corrida completa más partidos por los topes de Bzzoiro, ScoutingStats y Promiedos). Pendientes técnicos: modelos (predictor, valor, Ojeador, Alternativas) por club con los datos de su liga.
+**Estado del 26-nov (commits en `feat/escala-conmebol`)**: 5j-1 a 5j-12 hechas. Pendientes del dueño: subir la rama, unirla a `main` y lanzar «Exportar Parquet» varias veces (cada corrida completa más partidos por los topes de Bzzoiro, ScoutingStats y Promiedos). Pendientes técnicos: modelos (predictor, valor, Ojeador, Alternativas) por club con los datos de su liga.
 
 ## 1. Resumen en cinco líneas
 

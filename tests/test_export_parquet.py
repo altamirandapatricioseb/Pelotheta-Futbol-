@@ -111,16 +111,18 @@ def test_unify_club_names_per_league() -> None:
 
     standings = [
         {"competition_uid": "uru-primera", "team_name": n} for n in ("Cerro", "Cerro Largo", "Nacional")
-    ] + [{"competition_uid": "bra-serie-a", "team_name": "Bragantino"}]
+    ] + [{"competition_uid": "bra-serie-a", "team_name": n} for n in ("Bragantino", "Sport")]
     rows = [
         {"competition_uid": "uru-primera", "team_name": "Cerro Largo"},
         {"competition_uid": "uru-primera", "team_name": "Cerro"},
         {"competition_uid": "bra-serie-a", "team_name": "Red Bull Bragantino"},
+        {"competition_uid": "bra-serie-a", "team_name": "Sport Recife"},
         {"competition_uid": "col-primera-a", "team_name": "Atlético Nacional"},  # su liga no tiene tabla
     ]
     assert [r["team_name"] for r in unify_club_names(rows, standings)] == [
         "Cerro Largo",
         "Cerro",
         "Bragantino",
+        "Sport",
         "Atlético Nacional",
     ]

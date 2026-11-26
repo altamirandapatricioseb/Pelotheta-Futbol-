@@ -17,6 +17,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 from datetime import UTC, date, datetime, timedelta, timezone
+from typing import Any
 
 from bs4 import BeautifulSoup, Tag
 
@@ -297,3 +298,76 @@ def parse_competition_metrics(html: str, season: int, competition: str) -> list[
             )
         )
     return rows
+
+
+# --- toda una liga (etapa 5j-3) --------------------------------------------------------------
+
+# Ligas que ScoutingStats cubre con estadísticas por jugador y Bzzoiro no (id estable → página de la
+# liga y slug de la competición en la URL de cada partido, para descartar copas y amistosos).
+LEAGUES = {
+    "arg-primera-nacional": ("/league/645/primera-b-nacional", "primera-b-nacional"),
+    "uru-primera": ("/league/770/primera-division", "primera-division"),
+    "ven-primera": ("/league/800/primera-division", "primera-division"),
+}
+CLUB_LINK_RE = re.compile(r'href="/clubs/(\d+)/([a-z0-9-]+)/?"')
+POSITION_LETTER = {"GK": "G", "DEF": "D", "MID": "M", "FWD": "F", "ATT": "F"}
+
+
+def club_match_paths(league_clubs_html: str) -> list[str]:
+    """Páginas de partidos de cada club listado en la página de clubes de la liga, sin repetir."""
+    return list(
+        dict.fromkeys(f"/clubs/{i}/{slug}/matches" for i, slug in CLUB_LINK_RE.findall(league_clubs_html))
+    )
+
+
+def _attr(row: Tag, name: str) -> float | None:
+    return _number(str(row.get(name, ""))) if row.get(name) not in (None, "") else None
+
+
+def parse_league_match(html: str) -> dict[str, Any] | None:
+    """Un partido terminado cualquiera: equipos, fecha y una fila por jugador de los dos lados, con
+    los nombres de campo de Bzzoiro (así sirven los mismos perfiles). None si no terminó."""
+    soup = BeautifulSoup(html, "html.parser")
+    state, when = soup.select_one("div.mr8-state"), soup.select_one("time[datetime]")
+    head = soup.select_one("div.mr8-lu-head")
+    if state is None or not FINISHED_RE.match(state.get_text(strip=True)) or when is None or head is None:
+        return None
+    names = {s: (head.select_one(f"span.{s} b") or Tag(name="b")).get_text(strip=True) for s in ("h", "a")}
+    if not all(names.values()):
+        return None
+    kickoff = datetime.fromisoformat(str(when["datetime"]).replace("Z", "+00:00")).astimezone(UTC)
+    rows = []
+    for row in soup.select("table.mr8-rt tr[data-side]"):
+        side, name = row.get("data-side"), str(row.get("data-name", "")).strip()
+        minutes = _attr(row, "data-min")
+        if side not in ("h", "a") or not name or not minutes:
+            continue
+        line = _player_line(row)
+        rating = line.stats.get("rating")
+        passes, pct = line.stats.get("passes"), line.stats.get("pass_accuracy_pct")
+        values = {
+            "minutes_played": minutes,
+            "goals": _attr(row, "data-g"),
+            "goal_assist": _attr(row, "data-a"),
+            "rating": rating,
+            "expected_goals": line.stats.get("xg"),
+            "total_shots": line.stats.get("shots_total"),
+            "shots_on_target": line.stats.get("shots_on_target"),
+            "key_pass": line.stats.get("key_passes"),
+            "total_pass": passes,
+            "accurate_pass": round(passes * pct / 100) if passes is not None and pct is not None else None,
+            "won_tackle": line.stats.get("tackles"),
+            "interception": line.stats.get("interceptions"),
+            "duel_won": line.stats.get("duels_won"),
+            "won_contest": line.stats.get("dribbles_successful"),
+        }
+        rows.append(
+            {
+                "player_id": f"{names[side]}|{name}",  # la fuente no da ids estables en la fila
+                "player_name": name,
+                "team_name": names[side],
+                "position": POSITION_LETTER.get((line.position or "").upper()),
+                **{k: v for k, v in values.items() if v is not None},
+            }
+        )
+    return {"kickoff": kickoff, "home": names["h"], "away": names["a"], "players": rows}

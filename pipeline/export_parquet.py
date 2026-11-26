@@ -97,7 +97,12 @@ TABLES = [
     Table("player_style", "equipo", "restringida", "Estilos: incluye features crudas por 90"),
     Table("market_value_prediction", "equipo", "restringida", "Valor: incluye features crudas"),
     Table("club_season_stat", "liga", "restringida", "Promedios de clubes (StrikerAPI)"),
+    # Toda la liga desde Bzzoiro (no pasan por Supabase: no entran en 500 MB).
+    Table("league_player_match", "liga", "restringida", "Crudo por jugador y partido", ("bzzoiro",)),
+    Table("league_player_profile", "liga", "abierta", "Percentiles por posición: cálculo propio"),
 ]
+# Tablas que no son vistas de Supabase: las arma `pipeline.league_players` desde Bzzoiro.
+LEAGUE_PLAYER_VIEWS = {"league_player_match", "league_player_profile"}
 BY_VIEW = {t.view: t for t in TABLES}
 
 Fetch = Callable[[str], list[dict[str, Any]]]
@@ -279,6 +284,25 @@ def push(out: Path, public_repo: str, private_repo: str | None, token: str) -> N
         )
 
 
+def league_player_rows(season_year: int = 2026) -> dict[str, list[dict[str, Any]]]:
+    """Crudo y perfiles de jugadores de la liga desde Bzzoiro; vacío (con aviso) sin clave o sin red."""
+    from pipeline import league_players as lp
+    from sources import bzzoiro as bz
+
+    # shortcut: temporada y liga fijas (la de hoy); la etapa 6 recorre `bz.LEAGUES` y las temporadas.
+    empty: dict[str, list[dict[str, Any]]] = {v: [] for v in LEAGUE_PLAYER_VIEWS}
+    key = os.environ.get("BZZOIRO_API_KEY", "")
+    if not key:
+        print("Aviso: sin BZZOIRO_API_KEY no se exportan los jugadores de la liga.", file=sys.stderr)
+        return empty
+    try:
+        raw = lp.collect(bz.BzzoiroClient(api_key=key), bz.LEAGUES[FOCUS_LEAGUE], season_year)
+    except bz.BzzoiroError as exc:
+        print(f"Aviso: Bzzoiro no respondió ({exc}); sin jugadores de la liga.", file=sys.stderr)
+        return empty
+    return {"league_player_match": raw, "league_player_profile": lp.profiles(raw, season_year)}
+
+
 def main(argv: list[str] | None = None) -> int:
     from pipeline.run import load_dotenv, secret_key
 
@@ -294,8 +318,13 @@ def main(argv: list[str] | None = None) -> int:
         print("Faltan SUPABASE_URL o la clave secreta.", file=sys.stderr)
         return 2
     out = Path(args.out)
+    league_rows = league_player_rows()
+
+    def fetch(view: str) -> list[dict[str, Any]]:
+        return league_rows[view] if view in LEAGUE_PLAYER_VIEWS else fetch_view(url, key, client, view)
+
     with httpx.Client(timeout=TIMEOUT) as client:
-        manifests = export(lambda view: fetch_view(url, key, client, view), out)
+        manifests = export(fetch, out)
     for visibility, manifest in manifests.items():
         total = sum(f["bytes"] for f in manifest["archivos"])
         print(f"{visibility}: {len(manifest['archivos'])} archivos, {total / 1024:.0f} KB")

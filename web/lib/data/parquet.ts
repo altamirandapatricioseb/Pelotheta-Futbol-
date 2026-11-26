@@ -74,6 +74,25 @@ const leaderSchema = z.object({
   value: num,
 });
 
+// Perfiles de jugadores de toda la liga (cálculo propio sobre Bzzoiro): percentil 0 a 100 cada 90 minutos
+// contra los de la misma posición; null cuando la estadística no aplica (atajadas de un delantero).
+const profileSchema = z.object({
+  player_name: z.string(),
+  team_name: z.string(),
+  position: text,
+  minutes: num,
+  matches: num,
+  pct_goals: num,
+  pct_expected_goals: num,
+  pct_expected_assists: num,
+  pct_key_pass: num,
+  pct_won_tackle: num,
+  pct_ball_recovery: num,
+  pct_saves: num,
+  pct_goals_prevented: num,
+});
+export type PlayerProfile = z.infer<typeof profileSchema>;
+
 const standingSchema = z.object({
   table_name: z.string(),
   rank: num,
@@ -115,6 +134,7 @@ export interface Club {
   standings: StandingTable[];
   strength: z.infer<typeof strengthSchema> | null;
   leaders: z.infer<typeof leaderSchema>[];
+  squad: PlayerProfile[];
 }
 
 async function fetchFile(path: string): Promise<Response> {
@@ -238,10 +258,11 @@ export async function getClub(uid: string): Promise<ArchiveResult<Club | null>> 
     const own = manifest.archivos.filter((f) => f.tabla === 'boca_match' && f.ruta.includes(`/equipo=${uid}/`));
     const inCountry = (tabla: string) =>
       manifest.archivos.filter((f) => f.tabla === tabla && f.ruta.startsWith(`pais=${country}/`)).map((f) => f.ruta);
-    const [ownMatches, strengths, leaders] = await Promise.all([
+    const [ownMatches, strengths, leaders, profiles] = await Promise.all([
       Promise.all(own.map((f) => readTable(f.ruta, teamMatchSchema))),
       Promise.all(inCountry('team_strength').map((p) => readTable(p, strengthSchema))),
       Promise.all(inCountry('league_leader').map((p) => readTable(p, leaderSchema))),
+      Promise.all(inCountry('league_player_profile').map((p) => readTable(p, profileSchema))),
     ]);
     const matches = own.length ? ownMatches.flat().map(fromTeamMatch) : leagueMatchesFor(results, names);
     const wanted = new Set(names.map(norm));
@@ -261,6 +282,10 @@ export async function getClub(uid: string): Promise<ArchiveResult<Club | null>> 
           .flat()
           .filter((l) => l.source === 'promiedos' && mine(l.team_name))
           .toSorted((a, b) => a.stat.localeCompare(b.stat) || (a.rank ?? 99) - (b.rank ?? 99)),
+        squad: profiles
+          .flat()
+          .filter((p) => mine(p.team_name))
+          .toSorted((a, b) => (b.minutes ?? 0) - (a.minutes ?? 0)),
       },
     };
   } catch (cause) {

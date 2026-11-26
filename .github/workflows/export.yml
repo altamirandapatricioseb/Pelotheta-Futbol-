@@ -16,7 +16,7 @@ concurrency:
 jobs:
   export:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45  # la primera vez baja ~500 partidos de Bzzoiro a 1 por segundo
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
@@ -26,6 +26,8 @@ jobs:
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY || secrets.API_SUPABASE_SECRET_KEY }}
+          # Jugadores de toda la liga (pipeline.league_players): ~1000 consultas la primera vez.
+          BZZOIRO_API_KEY: ${{ secrets.BZZOIRO_API_KEY }}
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           HF_DATASET_REPO: ${{ secrets.HF_DATASET_REPO }}
           HF_PRIVATE_DATASET_REPO: ${{ secrets.HF_PRIVATE_DATASET_REPO }}

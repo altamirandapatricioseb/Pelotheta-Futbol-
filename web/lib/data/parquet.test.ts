@@ -65,6 +65,9 @@ describe('archivo abierto en Parquet', () => {
     if (!result.ok || !result.data) throw new Error('sin ficha');
     expect(result.data.strength?.elo).toBe(1550); // la de liga, no la estimada de copa
     expect(result.data.leaders.map((l) => l.player_name)).toEqual(['Nueve C']);
+    // Plantel: solo el club, más minutos primero; el percentil faltante sigue null.
+    expect(result.data.squad.map((p) => p.player_name)).toEqual(['Titular C', 'Suplente C']);
+    expect(result.data.squad[0]?.pct_expected_goals).toBeNull();
   });
 
   it('el id coincide con core.slug de la base', () => {

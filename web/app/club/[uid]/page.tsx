@@ -97,6 +97,49 @@ export default async function ClubPage({ params }: PageProps) {
         </section>
       ) : null}
 
+      {club.squad.length ? (
+        // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- región desplazable con nombre (axe)
+        <div className="data-table-wrap" tabIndex={0} role="region" aria-label="Plantel">
+          <table className="data-table tabular">
+            <caption className="text-left font-bold">
+              Plantel · percentil cada 90 minutos contra los de su posición en la liga (100 = el mejor)
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Jugador</th>
+                <th scope="col">Posición</th>
+                <th scope="col">Min</th>
+                <th scope="col">Goles</th>
+                <th scope="col">xG</th>
+                <th scope="col">xA</th>
+                <th scope="col">Pases clave</th>
+                <th scope="col">Entradas</th>
+                <th scope="col">Recuperaciones</th>
+                <th scope="col">Atajadas</th>
+              </tr>
+            </thead>
+            <tbody>
+              {club.squad.map((p) => (
+                <tr key={p.player_name}>
+                  <th scope="row" className="text-left">
+                    {p.player_name}
+                  </th>
+                  <td className="text-left">{p.position ?? NOT_AVAILABLE}</td>
+                  <td>{formatNumber(p.minutes)}</td>
+                  <td>{cell(p.pct_goals)}</td>
+                  <td>{cell(p.pct_expected_goals)}</td>
+                  <td>{cell(p.pct_expected_assists)}</td>
+                  <td>{cell(p.pct_key_pass)}</td>
+                  <td>{cell(p.pct_won_tackle)}</td>
+                  <td>{cell(p.pct_ball_recovery)}</td>
+                  <td>{cell(p.pct_saves)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : null}
+
       {club.matches.length ? (
         // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- región desplazable con nombre (axe)
         <div className="data-table-wrap" tabIndex={0} role="region" aria-label="Partidos">

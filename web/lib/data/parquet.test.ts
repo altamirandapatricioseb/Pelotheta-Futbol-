@@ -5,8 +5,17 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('server-only', () => ({}));
 
-const { getClub, getClubTeamMatches, getLeagueMatch, getLeaguePlayer, listClubs, predictNext, slug, standingsFor } =
-  await import('./parquet');
+const {
+  getClub,
+  getClubPlayerMatches,
+  getClubTeamMatches,
+  getLeagueMatch,
+  getLeaguePlayer,
+  listClubs,
+  predictNext,
+  slug,
+  standingsFor,
+} = await import('./parquet');
 
 const FIXTURES = fileURLToPath(new URL('./__fixtures__/', import.meta.url));
 
@@ -26,6 +35,22 @@ afterEach(() => {
 });
 
 describe('archivo abierto en Parquet', () => {
+  it('lee el crudo por jugador del dataset privado solo con token, con el rival del mismo partido', async () => {
+    serveFixtures();
+    vi.stubEnv('HF_TOKEN', '');
+    expect(await getClubPlayerMatches('arg-club-a', 'Club A')).toEqual({ ok: true, data: null });
+    vi.stubEnv('HF_TOKEN', 'hf_prueba');
+    const result = await getClubPlayerMatches('arg-club-a', 'Club A');
+    vi.unstubAllEnvs();
+    if (!result.ok || !result.data) throw new Error('sin datos');
+    expect(result.data.map((r) => [r.date, r.opponent, r.minutes])).toEqual([
+      ['2026-02-01', 'Club B', 90],
+      ['2026-03-01', null, 45],
+    ]);
+    expect(result.data[0]?.stats).toMatchObject({ goals: 1, rating: 7.5, expected_goals: 0.8 });
+    expect(result.data[1]?.playerId).toBe('101');
+  });
+
   it('da los partidos de liga de un club con sus estadísticas, con la forma de la tabla de Equipo', async () => {
     serveFixtures();
     const result = await getClubTeamMatches('arg-club-a', 'Club A');

@@ -282,14 +282,23 @@ export function predictNext(
   };
 }
 
-async function fetchFile(path: string): Promise<Response> {
-  const res = await fetch(BASE + path, { next: { revalidate: REVALIDATE_S } });
+// Dataset privado (crudo por jugador y partido de Bzzoiro y ScoutingStats, etapa 5k-3): solo del lado del
+// servidor, con un token de lectura (HF_TOKEN en Vercel). Las interfaces lo muestran como las de Boca; el
+// archivo no se publica para descargar.
+const PRIVATE_BASE = 'https://huggingface.co/datasets/pelotheta/pelotheta-futbol-privado/resolve/main/';
+
+async function fetchFile(path: string, priv = false): Promise<Response> {
+  const token = process.env.HF_TOKEN;
+  const res = await fetch((priv ? PRIVATE_BASE : BASE) + path, {
+    headers: priv && token ? { Authorization: `Bearer ${token}` } : undefined,
+    next: { revalidate: REVALIDATE_S },
+  });
   if (!res.ok) throw new Error(`${path}: HTTP ${String(res.status)}`);
   return res;
 }
 
-async function readTable<T>(path: string, schema: z.ZodType<T>): Promise<T[]> {
-  const rows = await parquetReadObjects({ file: await (await fetchFile(path)).arrayBuffer(), compressors });
+async function readTable<T>(path: string, schema: z.ZodType<T>, priv = false): Promise<T[]> {
+  const rows = await parquetReadObjects({ file: await (await fetchFile(path, priv)).arrayBuffer(), compressors });
   return rows.map((r) => schema.parse(r));
 }
 
@@ -692,6 +701,74 @@ export async function getClubTeamMatches(uid: string, name: string): Promise<Arc
             referee: r.referee,
             venue: null,
             stats: stats.success ? stats.data : {},
+          };
+        })
+        .toSorted((a, b) => a.date.localeCompare(b.date)),
+    };
+  } catch (cause) {
+    return failure(cause);
+  }
+}
+
+const playerMatchSchema = z
+  .object({
+    event_id: z.union([z.string(), num]),
+    match_date: z.string(),
+    player_id: z.union([z.string(), num]),
+    player_name: z.string(),
+    team_name: z.string(),
+    position: text,
+  })
+  .catchall(z.unknown());
+
+export interface PlayerMatchStat {
+  playerId: string;
+  playerName: string;
+  position: string | null;
+  date: string;
+  opponent: string | null;
+  minutes: number;
+  /** Todas las estadísticas numéricas de la fuente (`goals`, `expected_goals`, `rating`…). */
+  stats: Record<string, number>;
+}
+
+/** Estadísticas por jugador y partido de un club (dataset privado). null si la web no tiene el token. */
+export async function getClubPlayerMatches(
+  uid: string,
+  name: string,
+): Promise<ArchiveResult<PlayerMatchStat[] | null>> {
+  if (!process.env.HF_TOKEN) return { ok: true, data: null };
+  try {
+    const manifest = manifestSchema.parse(await (await fetchFile('manifest.json', true)).json());
+    const files = manifest.archivos.filter(
+      (f) => f.tabla === 'league_player_match' && f.ruta.startsWith(`pais=${uid.slice(0, 3).toUpperCase()}/`),
+    );
+    // shortcut: baja el archivo de toda la liga para un club; si pasa de 2 MB Next no lo cachea.
+    const rows = (await Promise.all(files.map((f) => readTable(f.ruta, playerMatchSchema, true)))).flat();
+    const teams = new Map<string, Set<string>>();
+    for (const r of rows) {
+      const key = String(r.event_id);
+      teams.set(key, (teams.get(key) ?? new Set()).add(r.team_name));
+    }
+    const own = norm(name);
+    return {
+      ok: true,
+      data: rows
+        .filter((r) => norm(r.team_name) === own)
+        .map((r) => {
+          const stats: Record<string, number> = {};
+          for (const [k, v] of Object.entries(r)) {
+            const n = typeof v === 'bigint' ? Number(v) : v;
+            if (typeof n === 'number' && Number.isFinite(n) && k !== 'event_id' && k !== 'player_id') stats[k] = n;
+          }
+          return {
+            playerId: String(r.player_id),
+            playerName: r.player_name,
+            position: r.position,
+            date: r.match_date,
+            opponent: [...(teams.get(String(r.event_id)) ?? [])].find((t) => norm(t) !== own) ?? null,
+            minutes: stats.minutes_played ?? 0,
+            stats,
           };
         })
         .toSorted((a, b) => a.date.localeCompare(b.date)),

@@ -4,7 +4,14 @@ import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
 import { ErrorNotice } from '@/components/error-notice';
-import { DATASET_URL, getLeaguePlayer, PLAYER_STATS, type PlayerProfile } from '@/lib/data/parquet';
+import { PlayerMatchTable } from '@/components/club/club-player-stats';
+import {
+  DATASET_URL,
+  getClubPlayerMatches,
+  getLeaguePlayer,
+  PLAYER_STATS,
+  type PlayerProfile,
+} from '@/lib/data/parquet';
 import { formatNumber, NOT_AVAILABLE } from '@/lib/format';
 
 // Los ids vienen de la URL: club como en /club/[uid] y jugador con el id de su fuente (Bzzoiro o `ss…`).
@@ -63,6 +70,8 @@ export default async function LeaguePlayerPage(props: PageProps) {
   if (!result.ok) return <ErrorNotice code={result.code} />;
   if (result.data === null) notFound();
   const { club, league, player, peers, versus } = result.data;
+  const games = await getClubPlayerMatches(club.uid, club.name);
+  const mine = games.ok ? (games.data ?? []).filter((g) => g.playerId === player.player_id) : [];
   const stats = PLAYER_STATS.filter(
     ([stat]) => player[`pct_${stat}`] != null || (versus !== null && versus[`pct_${stat}`] != null),
   );
@@ -146,6 +155,8 @@ export default async function LeaguePlayerPage(props: PageProps) {
           </tbody>
         </table>
       </div>
+
+      {mine.length ? <PlayerMatchTable rows={mine} /> : null}
 
       <p className="text-sm text-muted">
         Cálculo propio sobre las estadísticas por partido de Bzzoiro y ScoutingStats (el crudo no se publica). Solo

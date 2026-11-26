@@ -3,9 +3,10 @@ import Link from 'next/link';
 import { ErrorNotice } from '@/components/error-notice';
 import { TeamTableView } from '@/components/team/team-table';
 import { getCatalog, getStatSets } from '@/lib/data/catalog';
-import { getClub, getClubTeamMatches, getLeagueProfiles, type Club } from '@/lib/data/parquet';
+import { getClub, getClubPlayerMatches, getClubTeamMatches, getLeagueProfiles, type Club } from '@/lib/data/parquet';
 import { getLeagueClubs } from '@/lib/data/team';
 
+import { ClubSeasonTable } from './club-player-stats';
 import { ClubAlternatives, ClubScout } from './club-scout';
 import { type ClubSection, ClubSections } from './club-sections';
 
@@ -24,7 +25,7 @@ const VIEWS: Record<ClubView, { title: string; sections: readonly ClubSection[];
   jugadores: {
     title: 'Jugadores',
     sections: ['plantel'],
-    only: 'Las estadísticas partido a partido de cada jugador',
+    only: 'Las métricas propias por jugador (Mejoría, Potencial, impacto en cancha)',
   },
   situaciones: { title: 'Situaciones', sections: ['situaciones'], only: 'Las situaciones por evento del partido' },
   predictor: { title: 'Predictor', sections: ['proximo', 'nivel'], only: 'El backtest y las pruebas de hipótesis' },
@@ -73,6 +74,13 @@ async function TeamTable({ club }: { club: Club }) {
       matchBase={`/club/${club.uid}/partido/`}
     />
   );
+}
+
+/** Plantel con los totales de la temporada (crudo por partido del dataset privado). */
+async function SquadTotals({ club }: { club: Club }) {
+  const rows = await getClubPlayerMatches(club.uid, club.name);
+  if (!rows.ok) return <ErrorNotice code={rows.code} />;
+  return rows.data?.length ? <ClubSeasonTable uid={club.uid} rows={rows.data} /> : null;
 }
 
 async function CompareForm({ club }: { club: Club }) {
@@ -162,6 +170,7 @@ export async function ClubInterface({ view, uid }: { view: ClubView; uid: string
         </p>
       </div>
       {view === 'equipo' ? <TeamTable club={club} /> : null}
+      {view === 'jugadores' ? <SquadTotals club={club} /> : null}
       {view === 'comparar' ? <CompareForm club={club} /> : null}
       {view === 'alternativas' || view === 'ojeador' ? <LeagueView view={view} club={club} /> : null}
       {v.sections.length > 0 && shown.length === 0 ? (

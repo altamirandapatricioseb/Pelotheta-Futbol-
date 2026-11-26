@@ -367,6 +367,17 @@ def test_league_game_keeps_referee_cards_fouls_and_absence_counts() -> None:
     assert (row.injured_home, row.suspended_away) == (1, 1)
 
 
+def test_league_game_uses_the_table_name_for_each_team_id() -> None:
+    g = rich_game()
+    g["teams"] = [{"name": "Talleres", "id": "tal"}, RIVAL]
+    row = pd.parse_league_game(g, 2026, {"tal": "Talleres de Córdoba"})
+    assert row is not None
+    assert (row.home_team, row.away_team) == (
+        "Talleres de Córdoba",
+        "Rival FC",
+    )  # sin id en el mapa: queda igual
+
+
 def test_league_game_ignores_other_competitions() -> None:
     cup = game(league={"name": "Copa Argentina", "id": "gea", "country_id": "ba"})
     assert pd.parse_league_game(cup, 2026) is None
@@ -398,3 +409,29 @@ def test_league_game_refs_need_a_final_score_and_two_league_teams() -> None:
         }
     }
     assert [r.game_id for r in pd.league_game_refs(data, 2026, {"x", "y"})] == ["a"]
+
+
+def test_league_head_to_head_refs_reach_older_league_games() -> None:
+    def h2h(
+        game_id: str, league: str = "hc", status: int = 3, start: str = "01-02-2026 18:00"
+    ) -> dict[str, Any]:
+        return {
+            "id": game_id,
+            "url_name": f"p-{game_id}",
+            "league": {"id": league},
+            "status": {"enum": status},
+            "start_time": start,
+        }
+
+    raw = {
+        "head_to_head": {
+            "games": [
+                h2h("apertura"),
+                h2h("copa", league="copa-argentina"),
+                h2h("sin-jugar", status=1),
+                h2h("2025", start="01-02-2025 18:00"),
+            ]
+        }
+    }
+    assert [r.game_id for r in pd.league_head_to_head_refs(raw, 2026)] == ["apertura"]
+    assert pd.league_head_to_head_refs({}, 2026) == []

@@ -669,9 +669,29 @@ def league_game_refs(team_data: dict[str, Any], season_year: int, league_team_id
     return refs
 
 
-def parse_league_game(game: dict[str, Any], season_year: int) -> LeagueResultRecord | None:
+def league_head_to_head_refs(game: dict[str, Any], season_year: int) -> list[GameRef]:
+    """Partidos terminados de liga de la temporada en el «historial» de un partido. Las páginas de
+    equipo listan solo los últimos partidos; el cruce del Clausura trae el del Apertura entre los
+    mismos dos equipos, y así se llega a la temporada completa sin pedir otras páginas."""
+    refs = []
+    for g in (game.get("head_to_head") or {}).get("games") or []:
+        if (
+            (g.get("league") or {}).get("id") == LEAGUE_ID
+            and (g.get("status") or {}).get("enum") == 3
+            and str(g.get("start_time", ""))[6:10] == str(season_year)
+            and g.get("id")
+            and g.get("url_name")
+        ):
+            refs.append(GameRef(game_id=g["id"], url_name=g["url_name"]))
+    return refs
+
+
+def parse_league_game(
+    game: dict[str, Any], season_year: int, names: dict[str, str] | None = None
+) -> LeagueResultRecord | None:
     """Cualquier partido terminado de la Liga Profesional: resultado, árbitro, tarjetas, faltas y
-    bajas contadas por motivo. Sirve para estadísticas de árbitros y de toda la liga."""
+    bajas contadas por motivo. Sirve para estadísticas de árbitros y de toda la liga.
+    `names` (id de Promiedos → nombre de la tabla) unifica los nombres cortos de algunas páginas."""
     if (game.get("status") or {}).get("enum") != 3 or (game.get("league") or {}).get("id") != LEAGUE_ID:
         return None
     home, away = game["teams"][0], game["teams"][1]
@@ -708,8 +728,8 @@ def parse_league_game(game: dict[str, Any], season_year: int) -> LeagueResultRec
         season=season_year,
         stage=game.get("stage_round_name"),
         match_date=kickoff.date(),
-        home_team=home["name"],
-        away_team=away["name"],
+        home_team=(names or {}).get(home.get("id", ""), home["name"]),
+        away_team=(names or {}).get(away.get("id", ""), away["name"]),
         home_goals=game["scores"][0],
         away_goals=game["scores"][1],
         referee=_info(game, "Árbitro"),

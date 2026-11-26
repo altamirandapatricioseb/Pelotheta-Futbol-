@@ -102,6 +102,13 @@ TABLES = [
     Table("league_player_profile", "liga", "abierta", "Percentiles por posición: cálculo propio"),
     Table("league_fixture", "liga", "abierta", "Próximos partidos de la liga (Promiedos)"),
     Table(
+        "league_situation",
+        "liga",
+        "abierta",
+        "Situaciones por club: cálculo propio sobre resultados y minutos de gol",
+        ("promiedos", "pelotheta"),
+    ),
+    Table(
         "league_market_value",
         "liga",
         "abierta",
@@ -334,6 +341,24 @@ def league_value_rows(club_names: list[str], today: date | None = None) -> list[
     return out
 
 
+def league_situation_rows(season_year: int | None = None) -> list[dict[str, Any]]:
+    """Situaciones de los clubes de la liga con los partidos de Promiedos (los mismos que recorre la
+    corrida diaria; en caché salvo las páginas de equipo). Vacío si Promiedos falla."""
+    from pipeline import league_situations
+    from pipeline.run import SEASON_YEAR, crawl
+    from sources import promiedos as pd
+    from sources.http_client import FetchError, PoliteClient, RetryableFetchError
+
+    season = season_year or SEASON_YEAR
+    try:
+        with PoliteClient(pd.SOURCE) as client:
+            league_games = crawl(client, season)[5]
+    except (FetchError, RetryableFetchError, ValueError, KeyError) as exc:
+        print(f"Aviso: sin situaciones de la liga ({exc}).", file=sys.stderr)
+        return []
+    return league_situations.situations(league_games, season)
+
+
 def league_fixture_rows() -> list[dict[str, Any]]:
     """Próximos partidos entre clubes de la liga: la tabla de la liga (ids y nombres) y la lista
     «próximos» de cada página de equipo de Promiedos (~31 páginas a 3 s). Vacío si Promiedos falla."""
@@ -369,7 +394,11 @@ def main(argv: list[str] | None = None) -> int:
         print("Faltan SUPABASE_URL o la clave secreta.", file=sys.stderr)
         return 2
     out = Path(args.out)
-    league_rows = {**league_player_rows(), "league_fixture": league_fixture_rows()}
+    league_rows = {
+        **league_player_rows(),
+        "league_fixture": league_fixture_rows(),
+        "league_situation": league_situation_rows(),
+    }
 
     def fetch(view: str) -> list[dict[str, Any]]:
         return league_rows[view] if view in league_rows else fetch_view(url, key, client, view)

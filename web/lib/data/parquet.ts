@@ -107,6 +107,12 @@ const marketValueSchema = z.object({
 });
 export type MarketValue = z.infer<typeof marketValueSchema>;
 
+// Situaciones por club (cálculo propio sobre resultados y minutos de gol de Promiedos).
+export const BUCKETS = ['0_15', '16_30', '31_45', '46_60', '61_75', '76_90'] as const;
+// Las columnas sin nombrar (goles por tramo `favor_0_15`…, puntos, ppp) son todas numéricas.
+const situationSchema = z.object({ team_name: z.string(), racha: text }).catchall(num);
+export type Situation = z.infer<typeof situationSchema>;
+
 const fixtureSchema = z.object({
   match_date: z.string(),
   stage: text,
@@ -178,6 +184,7 @@ export interface Club {
   squad: PlayerProfile[];
   next: NextMatch | null;
   values: MarketValue[];
+  situation: Situation | null;
   /** Mediana de |real − esperado| / esperado en toda la liga: cuánto suele errar el modelo. */
   valueError: number | null;
 }
@@ -356,7 +363,7 @@ export async function getClub(uid: string): Promise<ArchiveResult<Club | null>> 
     const own = manifest.archivos.filter((f) => f.tabla === 'boca_match' && f.ruta.includes(`/equipo=${uid}/`));
     const inCountry = (tabla: string) =>
       manifest.archivos.filter((f) => f.tabla === tabla && f.ruta.startsWith(`pais=${country}/`)).map((f) => f.ruta);
-    const [ownMatches, strengths, leaders, profiles, fixtures, runs, marketValues] = await Promise.all([
+    const [ownMatches, strengths, leaders, profiles, fixtures, runs, marketValues, situations] = await Promise.all([
       Promise.all(own.map((f) => readTable(f.ruta, teamMatchSchema))),
       Promise.all(inCountry('team_strength').map((p) => readTable(p, strengthSchema))),
       Promise.all(inCountry('league_leader').map((p) => readTable(p, leaderSchema))),
@@ -364,6 +371,7 @@ export async function getClub(uid: string): Promise<ArchiveResult<Club | null>> 
       Promise.all(inCountry('league_fixture').map((p) => readTable(p, fixtureSchema))),
       Promise.all(inCountry('model_run').map((p) => readTable(p, modelRunSchema))),
       Promise.all(inCountry('league_market_value').map((p) => readTable(p, marketValueSchema))),
+      Promise.all(inCountry('league_situation').map((p) => readTable(p, situationSchema))),
     ]);
     const allValues = marketValues.flat();
     const predictor = runs.flat().find((r) => r.model === 'predictor_partido')?.metrics;
@@ -392,6 +400,7 @@ export async function getClub(uid: string): Promise<ArchiveResult<Club | null>> 
           .toSorted((a, b) => (b.minutes ?? 0) - (a.minutes ?? 0)),
         next: predictNext(fixtures.flat(), strengths.flat(), parsed?.success ? parsed.data : null, mine),
         values: allValues.filter((v) => mine(v.team_name)).toSorted((a, b) => (b.value_eur ?? 0) - (a.value_eur ?? 0)),
+        situation: situations.flat().find((s) => mine(s.team_name)) ?? null,
         valueError: median(allValues.flatMap((v) => (v.gap_pct === null ? [] : [Math.abs(v.gap_pct)]))),
       },
     };

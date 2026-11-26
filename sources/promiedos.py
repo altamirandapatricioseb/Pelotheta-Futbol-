@@ -15,6 +15,7 @@ solo restan. Los minutos de descuento no se suman (convención habitual: 90 por 
 
 from __future__ import annotations
 
+import contextlib
 import json
 import re
 import unicodedata
@@ -726,6 +727,7 @@ def parse_league_game(
         return None
     home, away = game["teams"][0], game["teams"][1]
     cards = {(side, kind): 0 for side in (1, 2) for kind in ("yellow", "red")}
+    goal_minutes: dict[int, list[int]] = {1: [], 2: []}
     for stage in game.get("events") or []:
         if stage.get("is_penalties_stage"):
             continue
@@ -733,6 +735,9 @@ def parse_league_game(
             for ev in row.get("events") or []:
                 kind = EVENT_TYPES.get(ev.get("type"))
                 side = ev.get("team")
+                if side in (1, 2) and kind in ("gol", "penal_convertido"):
+                    with contextlib.suppress(KeyError, ValueError):
+                        goal_minutes[side].append(parse_minute(str(ev["time"]))[0])
                 if side in (1, 2) and kind == "amarilla":
                     cards[(side, "yellow")] += 1
                 elif side in (1, 2) and kind in SENDING_OFF:
@@ -773,4 +778,7 @@ def parse_league_game(
         injured_away=count(2, {"Lesionado"}),
         suspended_home=count(1, SUSPENSIONS),
         suspended_away=count(2, SUSPENSIONS),
+        # Solo si cierran con el marcador: un evento perdido daría un descanso o un primer gol falso.
+        home_goal_minutes=sorted(goal_minutes[1]) if len(goal_minutes[1]) == game["scores"][0] else [],
+        away_goal_minutes=sorted(goal_minutes[2]) if len(goal_minutes[2]) == game["scores"][1] else [],
     )

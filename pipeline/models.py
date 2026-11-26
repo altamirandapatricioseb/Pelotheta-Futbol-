@@ -226,6 +226,10 @@ class LeagueResultRecord(Record):
     injured_away: int | None = Field(default=None, ge=0)
     suspended_home: int | None = Field(default=None, ge=0)
     suspended_away: int | None = Field(default=None, ge=0)
+    # Minuto de cada gol (45+2 → 45: el descuento queda en su tiempo). Solo Promiedos; no van a la
+    # base (la carga lee columnas por nombre), sí a las situaciones de la liga en Parquet (etapa 5h).
+    home_goal_minutes: list[int] = Field(default_factory=list)
+    away_goal_minutes: list[int] = Field(default_factory=list)
 
 
 class ClubRatingRecord(Record):

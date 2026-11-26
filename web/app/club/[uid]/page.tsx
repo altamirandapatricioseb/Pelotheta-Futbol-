@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
 import { ErrorNotice } from '@/components/error-notice';
-import { DATASET_URL, getClub } from '@/lib/data/parquet';
+import { BUCKETS, DATASET_URL, getClub } from '@/lib/data/parquet';
 import { formatNumber, NOT_AVAILABLE } from '@/lib/format';
 
 // El id viene de la URL: país FIFA en minúscula + nombre (`arg-boca-juniors`), validado antes de usarlo.
@@ -17,7 +17,7 @@ interface PageProps {
 const day = (iso: string) => iso.slice(0, 10).split('-').reverse().join('/');
 const score = (a: number | null, b: number | null) =>
   a === null || b === null ? NOT_AVAILABLE : `${String(a)} – ${String(b)}`;
-const cell = (v: number | null) => (v === null ? NOT_AVAILABLE : String(v));
+const cell = (v: number | null | undefined) => (v === null || v === undefined ? NOT_AVAILABLE : String(v));
 // Fuerza contra el promedio de la liga (1 = promedio): «+12 %» convierte o recibe 12 % más que el promedio.
 const vsAverage = (v: number | null) =>
   v === null ? NOT_AVAILABLE : `${v >= 1 ? '+' : '−'}${String(Math.round(Math.abs(v - 1) * 100))} %`;
@@ -106,6 +106,74 @@ export default async function ClubPage({ params }: PageProps) {
           <p className="text-sm text-muted">
             Cálculo propio con los partidos de liga, el mismo que usa el predictor. El valor del plantel sale de
             transfermarkt-datasets (CC0).
+          </p>
+        </section>
+      ) : null}
+
+      {club.situation ? (
+        <section className="grid gap-2" aria-labelledby="situaciones">
+          <h2 id="situaciones" className="text-xl font-bold">
+            Situaciones
+          </h2>
+          <ul className="grid gap-1">
+            <li>
+              <strong>Últimos partidos:</strong> {club.situation.racha ?? NOT_AVAILABLE} (G gana, E empata, P pierde; el
+              último a la derecha)
+            </li>
+            <li>
+              <strong>Puntos por partido:</strong> de local {formatNumber(club.situation.ppp_local, 1)}, de visitante{' '}
+              {formatNumber(club.situation.ppp_visitante, 1)}
+            </li>
+            <li>
+              <strong>Cuando marca primero</strong> ({cell(club.situation.marco_primero)} partidos):{' '}
+              {formatNumber(club.situation.ppp_marco_primero, 1)} puntos por partido.{' '}
+              <strong>Cuando le marcan primero</strong> ({cell(club.situation.recibio_primero)}):{' '}
+              {formatNumber(club.situation.ppp_recibio_primero, 1)}
+            </li>
+            <li>
+              <strong>Al descanso:</strong> ganando {cell(club.situation.descanso_ganando)} veces (
+              {formatNumber(club.situation.ppp_descanso_ganando, 1)} pts/partido), empatando{' '}
+              {cell(club.situation.descanso_empatando)} ({formatNumber(club.situation.ppp_descanso_empatando, 1)}),
+              perdiendo {cell(club.situation.descanso_perdiendo)} (
+              {formatNumber(club.situation.ppp_descanso_perdiendo, 1)}) · remontadas: {cell(club.situation.remontadas)}
+            </li>
+            <li>
+              <strong>Vallas invictas:</strong> {cell(club.situation.vallas_invictas)} ·{' '}
+              <strong>Partidos sin marcar:</strong> {cell(club.situation.sin_marcar)}
+            </li>
+          </ul>
+          {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- región desplazable con nombre (axe) */}
+          <div className="data-table-wrap" tabIndex={0} role="region" aria-label="Goles por tramo">
+            <table className="data-table tabular">
+              <caption className="text-left font-bold">Goles por tramo de 15 minutos</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Goles</th>
+                  {BUCKETS.map((b) => (
+                    <th key={b} scope="col">
+                      {b === '76_90' ? '76-90+' : b.replace('_', '-')}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {(['favor', 'contra'] as const).map((side) => (
+                  <tr key={side}>
+                    <th scope="row" className="text-left">
+                      {side === 'favor' ? 'A favor' : 'En contra'}
+                    </th>
+                    {BUCKETS.map((b) => (
+                      <td key={b}>{cell(club.situation?.[`${side}_${b}`])}</td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="text-sm text-muted">
+            Cálculo propio con los resultados y los minutos de gol de Promiedos. Lo que depende del minuto usa{' '}
+            {cell(club.situation.con_minutos)} de {cell(club.situation.partidos)} partidos: los que tienen todos los
+            goles con su minuto.
           </p>
         </section>
       ) : null}

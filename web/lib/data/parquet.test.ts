@@ -71,6 +71,10 @@ describe('archivo abierto en Parquet', () => {
     // Valor de mercado: solo el club, el más caro primero; el error es la mediana de toda la liga.
     expect(result.data.values.map((v) => v.player_name)).toEqual(['Caro C', 'Barato C']);
     expect(result.data.valueError).toBe(50);
+    // Situaciones del club, con los tramos como columnas numéricas y el faltante en null.
+    expect(result.data.situation?.racha).toBe('GEG');
+    expect(result.data.situation?.favor_76_90).toBe(1);
+    expect(result.data.situation?.ppp_recibio_primero).toBeNull();
   });
 
   it('pronostica el próximo partido del club con el GLM del predictor', () => {

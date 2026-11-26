@@ -170,6 +170,52 @@ def test_league_values_predict_out_of_sample_for_every_player() -> None:
     assert mv.league_values(league[:20], date(2026, 11, 26)) == []  # pocos datos: no se inventa
 
 
+def test_league_situations_from_results_and_goal_minutes() -> None:
+    from datetime import date
+
+    from pipeline import league_situations as ls
+    from pipeline.models import LeagueResultRecord
+
+    def g(day: int, home: str, away: str, hm: list[int], am: list[int], **kw: Any) -> LeagueResultRecord:
+        return LeagueResultRecord(
+            source="promiedos", ext_id=str(day), season=2026, match_date=date(2026, 3, day), home_team=home,
+            away_team=away, home_goals=kw.get("hg", len(hm)), away_goals=kw.get("ag", len(am)),
+            home_goal_minutes=hm, away_goal_minutes=am,
+        )  # fmt: skip
+
+    games = [
+        g(1, "A", "B", [10, 50], [30]),  # A marca primero y gana; al descanso 1-1
+        g(2, "B", "A", [20], [60, 88]),  # A pierde al descanso y lo da vuelta (remontada)
+        g(3, "A", "C", [], []),  # 0-0: valla invicta y sin marcar
+        g(4, "C", "A", [5], [], hg=2, ag=0),  # minutos incompletos (2 goles, 1 minuto): no se usan
+    ]
+    a = next(r for r in ls.situations(games, 2026) if r["team_name"] == "A")
+    assert (a["partidos"], a["puntos"], a["racha"]) == (4, 7, "GGEP")
+    assert (a["ppp_local"], a["ppp_visitante"]) == (2.0, 1.5)
+    assert (a["con_minutos"], a["marco_primero"], a["recibio_primero"]) == (3, 1, 1)
+    assert (a["descanso_perdiendo"], a["remontadas"], a["descanso_empatando"]) == (1, 1, 2)
+    assert (a["vallas_invictas"], a["sin_marcar"]) == (1, 2)
+    assert (a["favor_0_15"], a["favor_46_60"], a["favor_76_90"], a["contra_16_30"]) == (1, 2, 1, 2)
+
+
+def test_league_game_keeps_goal_minutes_only_when_they_add_up() -> None:
+    from sources import promiedos as pd
+
+    def ev(time: str, team: int, kind: int = 1) -> dict[str, Any]:
+        return {"time": time, "team": team, "type": kind}
+
+    game = {
+        "id": "x", "status": {"enum": 3}, "league": {"id": pd.LEAGUE_ID}, "start_time": "01-03-2026 18:00",
+        "teams": [{"name": "A", "id": "a"}, {"name": "B", "id": "b"}], "scores": [2, 1],
+        "events": [{"rows": [{"events": [ev("45'+2", 1), ev("70'", 2, 3), ev("80'", 1), ev("81'", 2, 4)]}]}],
+    }  # fmt: skip
+    row = pd.parse_league_game(game, 2026)
+    assert row is not None and (row.home_goal_minutes, row.away_goal_minutes) == ([45, 80], [70])
+    game["scores"] = [3, 1]  # falta un gol en los eventos: esos minutos no se usan
+    row = pd.parse_league_game(game, 2026)
+    assert row is not None and (row.home_goal_minutes, row.away_goal_minutes) == ([], [70])
+
+
 def test_raw_goes_private_and_profiles_public(tmp_path: Path) -> None:
     raw = [{**game(1, "A", "F", 1, minutes_played=90, goals=1), "season_year": 2026, "event_id": 7}]
     rows = {"league_player_match": raw, "league_player_profile": [{"player_name": "J1", "season_year": 2026}]}

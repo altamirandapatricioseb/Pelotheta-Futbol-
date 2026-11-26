@@ -9,6 +9,8 @@ import { CURRENT_TEAM } from '@/config/teams';
 import { getAlternatives, getMarketValues, getModelRun } from '@/lib/data/models';
 import { getCatalog } from '@/lib/data/catalog';
 import { getPlayerMaster } from '@/lib/data/players';
+import { ClubInterface } from '@/components/club/club-interface';
+import { getSelectedTeam } from '@/lib/selected-team';
 
 export const metadata: Metadata = {
   description:
@@ -20,6 +22,8 @@ interface PageProps {
 }
 
 export default async function AlternativasPage({ searchParams }: PageProps) {
+  const team = await getSelectedTeam();
+  if (!team.isBoca) return <ClubInterface view="alternativas" uid={team.uid} />;
   const raw = await searchParams;
   const requested = Number(Array.isArray(raw.jugador) ? raw.jugador[0] : raw.jugador);
   const [run, data, values, master, catalog] = await Promise.all([

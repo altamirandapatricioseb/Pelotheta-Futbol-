@@ -8,7 +8,7 @@ import { aggregateTeam, formatStat, type StatDef, type TeamMatchRow } from '@/li
 import { leagueComparison, type ClubRow } from '@/lib/stats/league';
 
 interface SeasonBoardProps {
-  rows: TeamMatchRow[];
+  rows: TeamMatchRow<number | string>[];
   columns: StatDef[];
   byId: ReadonlyMap<string, StatDef>;
   windowValues: Record<string, number>;

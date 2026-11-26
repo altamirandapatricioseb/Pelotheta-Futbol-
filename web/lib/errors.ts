@@ -67,6 +67,13 @@ export const ERRORS = {
     causes: ['Una fuente caída (PEL-SRC-003).', 'Un error del pipeline.', 'La base no aceptó la carga (PEL-DB-001).'],
     fix: ['Volver a intentar: la carga no duplica datos.'],
   },
+  'PEL-ARC-001': {
+    title: 'El archivo abierto no responde',
+    message: 'el archivo abierto de datos no responde.',
+    hint: 'Los datos públicos se leen de Hugging Face. Probá de nuevo en unos minutos.',
+    causes: ['Hugging Face está caído o limitó los pedidos.', 'Un archivo del dataset cambió de nombre o de formato.'],
+    fix: ['Esperar unos minutos y recargar.', 'Ver el dataset en huggingface.co/datasets/pelotheta/pelotheta-futbol.'],
+  },
 } as const satisfies Record<string, ErrorInfo>;
 
 export type ErrorCode = keyof typeof ERRORS;

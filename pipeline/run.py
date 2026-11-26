@@ -70,16 +70,30 @@ def secret_key() -> str:
     return (os.environ.get("SUPABASE_SECRET_KEY") or os.environ.get("API_SUPABASE_SECRET_KEY", "")).strip()
 
 
-def league_team_paths(league_data: dict[str, object]) -> list[str]:
-    """Rutas de los equipos de la Liga Profesional a partir de las tablas de posiciones."""
-    paths: set[str] = set()
+def _league_teams(league_data: dict[str, object]) -> list[dict[str, Any]]:
+    """Equipos (objetos de Promiedos) de las tablas de posiciones de la Liga Profesional."""
+    teams = []
     for group in league_data.get("tables_groups") or []:  # type: ignore[union-attr]
         for table in group.get("tables") or []:
             for row in table.get("table", {}).get("rows", []) or table.get("rows", []) or []:
                 obj = (row.get("entity") or {}).get("object") or {}
-                if obj.get("id") and obj.get("url_name") and obj["id"] != pd.BOCA_ID:
-                    paths.add(f"/team/{obj['url_name']}/{obj['id']}")
-    return sorted(paths)
+                if obj.get("id"):
+                    teams.append(obj)
+    return teams
+
+
+def league_team_paths(league_data: dict[str, object]) -> list[str]:
+    """Rutas de los equipos de la Liga Profesional a partir de las tablas de posiciones."""
+    teams = _league_teams(league_data)
+    return sorted(
+        {f"/team/{t['url_name']}/{t['id']}" for t in teams if t.get("url_name") and t["id"] != pd.BOCA_ID}
+    )
+
+
+def league_team_names(league_data: dict[str, object]) -> dict[str, str]:
+    """Id de Promiedos → nombre de la tabla. Algunas páginas de partido usan el nombre corto
+    («Talleres», «Unión»): con esto cada club queda con un solo nombre en `league_result`."""
+    return {t["id"]: t["name"] for t in _league_teams(league_data) if t.get("name")}
 
 
 def crawl(
@@ -93,6 +107,7 @@ def crawl(
     warnings: list[str] = []
     league: dict[str, Any] = {}
     league_ids: set[str] = set()
+    team_names: dict[str, str] = {}
     league_refs: dict[str, pd.GameRef] = {}
     league_games: list[LeagueResultRecord] = []
     boca = pd.next_data(client.get(pd.BASE_URL + pd.BOCA_TEAM_PATH, use_cache=False).text())["data"]
@@ -104,6 +119,7 @@ def crawl(
         league = pd.next_data(client.get(pd.BASE_URL + LEAGUE_PATH, use_cache=False).text())["data"]
         team_queue.extend(league_team_paths(league))
         league_ids = {path.rsplit("/", 1)[1] for path in league_team_paths(league)} | {pd.BOCA_ID}
+        team_names = league_team_names(league)
     except (FetchError, RetryableFetchError, ValueError, KeyError) as exc:
         warnings.append(f"Tabla de la liga no disponible: {exc}")
 
@@ -130,7 +146,8 @@ def crawl(
                 warnings.append(f"Partido {ref.game_id}: {exc}")
                 continue
             pending.extend(pd.head_to_head_refs(raw, season_year))
-            league_game = pd.parse_league_game(raw, season_year)
+            league_refs.update({r.game_id: r for r in pd.league_head_to_head_refs(raw, season_year)})
+            league_game = pd.parse_league_game(raw, season_year, team_names)
             if league_game is not None:
                 league_games.append(league_game)
             team_queue.extend(p for p in pd.opponent_paths(raw) if p not in seen_teams)
@@ -149,16 +166,21 @@ def crawl(
             except (FetchError, RetryableFetchError, ValueError, KeyError) as exc:
                 warnings.append(f"Equipo {path}: {exc}")
     league_pages = 0
-    for ref in league_refs.values():
+    # Cola y no lista: el historial de cada partido de liga suma los anteriores entre los mismos equipos.
+    league_queue: deque[pd.GameRef] = deque(league_refs.values())
+    while league_queue:
+        ref = league_queue.popleft()
         if ref.game_id in seen_games or league_pages >= MAX_LEAGUE_GAME_PAGES:
             continue
+        seen_games.add(ref.game_id)
         league_pages += 1
         try:
             raw = pd.next_data(client.get(pd.BASE_URL + ref.path).text())["initialData"]["game"]
         except (FetchError, RetryableFetchError, ValueError, KeyError) as exc:
             warnings.append(f"Partido de liga {ref.game_id}: {exc}")
             continue
-        league_game = pd.parse_league_game(raw, season_year)
+        league_queue.extend(pd.league_head_to_head_refs(raw, season_year))
+        league_game = pd.parse_league_game(raw, season_year, team_names)
         if league_game is not None:
             league_games.append(league_game)
     print(
@@ -603,7 +625,11 @@ def run_pipeline(dry_run: bool, url: str, key: str) -> int:
             if (player_key := enrich.match_player(name, known)) is not None
         ]
         print(f"Perfiles de Wikipedia: {len(profiles)}.")
-        promiedos_leaders = pd.parse_league_leaders(league_page, SEASON_YEAR) if league_page else []
+        promiedos_leaders = (
+            pd.parse_league_leaders(league_page, SEASON_YEAR, league_team_names(league_page))
+            if league_page
+            else []
+        )
         extras = load.build_extras(
             games,
             standings=pd.parse_standings(league_page, SEASON_YEAR) if league_page else [],

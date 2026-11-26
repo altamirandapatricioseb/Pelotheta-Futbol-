@@ -229,8 +229,73 @@ def _sigma(rate: Rate, player: PlayerSeason, group: Sequence[PlayerSeason]) -> f
     return sigma if sigma > 0 else None
 
 
-def projection_rows(players: Sequence[PlayerSeason], team_matches: int) -> list[dict[str, Any]]:
-    """Filas de `core.stat_value` (ventana 'todas') con las métricas de 6.1 de cada jugador."""
+# Campo de Bzzoiro → clave de las tasas de arriba (etapa 5i: la referencia pasa a ser toda la liga).
+# Bzzoiro no informa penales: «npg» y «npxg» quedan sin dato para los de otros clubes (no en 0).
+LEAGUE_KEYS = {
+    "minutes_played": "minutes",
+    "goals": "goals",
+    "total_shots": "shots_total",
+    "shots_on_target": "shots_on_target",
+    "goal_assist": "assists",
+    "key_pass": "key_passes",
+    "big_chance_created": "big_chances_created",
+    "expected_assists": "xa",
+    "expected_goals": "xg",
+    "won_tackle": "tackles_won",
+    "total_tackle": "tackles_attempted",
+    "interception": "interceptions",
+    "total_clearance": "clearances",
+    "aerial_won": "aerials_won",
+    "ball_recovery": "recoveries",
+    "outfielder_block": "blocks",
+    "fouls": "fouls_committed",
+    "rating": "rating",
+    "accurate_pass": "passes_accurate",
+    "total_pass": "passes",
+    "won_contest": "dribbles_successful",
+    "total_contest": "dribbles_attempted",
+    "saves": "saves",
+    "goals_conceded": "goals_conceded",
+}
+LEAGUE_POSITIONS = {"G": "Arquero", "D": "Defensor", "M": "Mediocampista", "F": "Delantero"}
+
+
+def league_seasons(
+    rows: Sequence[dict[str, Any]], exclude_team: str, until: str | None = None
+) -> list[PlayerSeason]:
+    """Temporadas de los jugadores de otros clubes (filas crudas de `pipeline.league_players`), solo
+    como referencia. `until`: solo partidos hasta esa fecha (la serie «a la fecha» no ve el futuro).
+    Los ids son negativos para no chocar con los de la base."""
+    games: dict[int, list[tuple[str, dict[str, float]]]] = defaultdict(list)
+    positions: dict[int, list[str]] = defaultdict(list)
+    for r in rows:
+        if r.get("team_name") == exclude_team or (until is not None and r["match_date"] > until):
+            continue
+        g = {key: float(r[field]) for field, key in LEAGUE_KEYS.items() if r.get(field) is not None}
+        if r.get("aerial_won") is not None and r.get("aerial_lost") is not None:
+            g["aerials_total"] = float(r["aerial_won"] + r["aerial_lost"])
+        if r.get("saves") is not None and r.get("goals_conceded") is not None:
+            g["shots_on_target_faced"] = float(r["saves"] + r["goals_conceded"])
+        if r.get("goals_prevented") is not None and r.get("goals_conceded") is not None:
+            g["xgot_faced"] = float(r["goals_prevented"] + r["goals_conceded"])
+        if g.get("minutes", 0) > 0:
+            games[-int(r["player_id"])].append((r["match_date"], g))
+            if r.get("position"):
+                positions[-int(r["player_id"])].append(r["position"])
+    out = []
+    for pid, played in games.items():
+        common = max(set(positions[pid]), key=positions[pid].count) if positions[pid] else None
+        out.append(
+            PlayerSeason(pid, LEAGUE_POSITIONS.get(common or ""), None, [v for _, v in sorted(played)])
+        )
+    return out
+
+
+def projection_rows(
+    players: Sequence[PlayerSeason], team_matches: int, league: Sequence[PlayerSeason] = ()
+) -> list[dict[str, Any]]:
+    """Filas de `core.stat_value` (ventana 'todas') con las métricas de 6.1 de cada jugador.
+    `league`: jugadores de otros clubes que solo entran en la distribución de referencia."""
     rows: list[dict[str, Any]] = []
     shares = {p.player_id: p.minutes / (90 * team_matches) * 100 for p in players if team_matches}
 
@@ -247,8 +312,9 @@ def projection_rows(players: Sequence[PlayerSeason], team_matches: int) -> list[
                 }
             )
 
+    pool = [*players, *league]
     for player in players:
-        reference = _reference(players, player.position)
+        reference = _reference(pool, player.position)
         ref_shares = [shares[p.player_id] for p in reference if p.player_id in shares]
         components: dict[str, float | None] = {}
         r_season, coverage = index_for(

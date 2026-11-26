@@ -25,7 +25,8 @@ export default function Page() {
         <h2 className="text-xl font-bold">Visitantes</h2>
         <p>
           El sitio no tiene cuentas ni formularios, no usa cookies de terceros ni analítica, y no guarda datos de quien
-          lo visita. La única cookie es la del tema claro u oscuro que elegís, y queda en tu navegador.
+          lo visita. Usa dos cookies propias, que quedan en tu navegador: la del tema claro u oscuro y la del equipo que
+          elegís en el selector.
         </p>
       </section>
       <section className="grid gap-2">

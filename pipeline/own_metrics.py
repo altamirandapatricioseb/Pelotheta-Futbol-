@@ -119,6 +119,8 @@ class Inputs:
     referee_yellows: dict[str, float]
     boca_name: str = "Boca Juniors"
     params: dict[str, float] = field(default_factory=dict)
+    # Filas crudas de Bzzoiro de toda la liga: referencia de Mejoría y Potencial (etapa 5i).
+    league_players: list[dict[str, Any]] = field(default_factory=list)
 
 
 def _norm(name: str) -> str:
@@ -458,7 +460,8 @@ def compute(inp: Inputs) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
         {mt.match_id: mt.date for mt in inp.matches},
         {pid: (p.position, p.age) for pid, p in inp.players.items()},
     )
-    window += pdata.projection_rows(seasons, len(inp.matches))
+    league = pdata.league_seasons(inp.league_players, inp.boca_name)
+    window += pdata.projection_rows(seasons, len(inp.matches), league)
     per_match += projection_series(inp)
     return [r for r in window if r["value"] is not None], [r for r in per_match if r["value"] is not None]
 
@@ -489,7 +492,8 @@ def projection_series(inp: Inputs) -> list[dict[str, Any]]:
         if not played:
             continue
         seasons = pdata.seasons_from(inp.player_values, dates, positions)
-        for r in pdata.projection_rows(seasons, i + 1):
+        league = pdata.league_seasons(inp.league_players, inp.boca_name, until=mt.date)
+        for r in pdata.projection_rows(seasons, i + 1, league):
             if r["entity_id"] in played and r["stat_id"] in SERIES_IDS:
                 rows.append(
                     {
@@ -690,6 +694,12 @@ def run(url: str, key: str) -> dict[str, Any]:
     applied = apply_params(fetch_params(url, key))
     inp = fetch_inputs(url, key)
     inp.params.update({f"param_{k}": v for k, v in applied.items()})
+    from pipeline import league_players  # local: evita cargar Bzzoiro al importar el módulo
+
+    warnings: list[str] = []
+    inp.league_players = league_players.collect_from_env(date.today().year, warnings)
+    if warnings:
+        print("; ".join(warnings), file=sys.stderr)
     window, per_match = compute(inp)
     # Todas las métricas propias del catálogo, aunque esta vez no den valores: así se borran las
     # filas viejas de una métrica que dejó de poder calcularse (no queda un valor desactualizado).

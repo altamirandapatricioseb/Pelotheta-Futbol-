@@ -52,6 +52,9 @@ class PoolPlayerRecord(Record):
     # Para el modelo de valor: hasta cuándo tiene contrato y si es extranjero en esa liga.
     contract_until: date | None = None
     foreign: bool | None = None
+    # Temporada de otra fuente (Bzzoiro, `pipeline.league_players`): minutos y totales del catálogo.
+    minutes: int | None = Field(default=None, ge=0)
+    stats: dict[str, float] = Field(default_factory=dict)
 
 
 def read_csv(client: PoliteClient, name: str) -> list[dict[str, str]]:

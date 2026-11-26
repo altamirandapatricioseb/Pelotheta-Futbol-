@@ -2,6 +2,75 @@
 
 Fecha de medición y verificación: **23-nov-2026**. Estado: **propuesta, sin implementar**. Nada de esto crea cuentas ni publica datos hasta que el dueño apruebe cada etapa.
 
+## 0. Requisito del dueño (26-nov-2026) y plan reestructurado
+
+**Requisito innegociable**: análisis profundo de **todos los equipos de todas las ligas y países que lista el sistema** (`web/config/teams.ts`): Argentina (Primera, Primera Nacional, Primera B, Federal A), Brasil (Série A y B) y la primera de Uruguay, Chile, Colombia, Paraguay, Ecuador, Perú, Bolivia y Venezuela: 14 competiciones, ~380 equipos. Costo USD 0 sin tarjeta; nada en disco local.
+
+**Consecuencia de arquitectura (medida, no estimada)**: el detalle por partido ocupa ~900 KB en Postgres y ~10 KB en Parquet zstd (las 76 estadísticas por jugador de los 502 partidos de la Liga Profesional ocupan 583 KB). Las 14 competiciones son ~5 500 partidos por temporada: ~5 GB en Postgres (no entra en ningún plan gratis) contra **~55 MB en Parquet**; 20 temporadas, ~1,1 GB. Por eso el análisis profundo de todos los equipos sale de **Parquet**, no de Supabase:
+
+| Capa | Servicio (gratis, sin tarjeta) | Rol |
+|---|---|---|
+| Cálculo | GitHub Actions | baja las fuentes y calcula por liga (Python; DuckDB donde el SQL de las vistas se reusa) |
+| Datos | Hugging Face Datasets | todo el detalle y los resultados calculados: público (derivados y fuentes abiertas) y privado (crudo restringido, 100 GB) |
+| Web | Vercel Hobby | lee Parquet en el servidor con caché de 1 h (`web/lib/data/parquet.ts`) |
+| Cola | Supabase Free | estado del pipeline y Boca en vivo hasta migrarlo; deja de ser almacenamiento |
+
+Descartados: Cloudflare R2 (pide tarjeta), Neon (1 GB por proyecto: una temporada de la Conmebol en Postgres no entra), Postgres para el detalle (100 veces más pesado).
+
+**Cobertura de fuentes por competición (verificada el 26-nov)**:
+
+| Competición | Partidos y eventos | Estadísticas por jugador | Nivel alcanzable hoy |
+|---|---|---|---|
+| Argentina Primera | Promiedos | Bzzoiro | profundo |
+| Argentina Primera Nacional | Promiedos | ScoutingStats (liga 645) | profundo |
+| Argentina Primera B | Promiedos | — (falta fuente) | medio: alineaciones, minutos, goles, tarjetas, cambios |
+| Argentina Federal A | Promiedos | — (falta fuente) | medio |
+| Brasil Série A | Promiedos | Bzzoiro, ScoutingStats | profundo |
+| Brasil Série B | Bzzoiro (privado); tabla oficial de Wikipedia en inglés (público, 5j-12) | Bzzoiro, ScoutingStats | profundo |
+| Uruguay | Promiedos | ScoutingStats (770) | profundo |
+| Chile | Promiedos | Bzzoiro, ScoutingStats (663) | profundo |
+| Colombia | Promiedos | Bzzoiro, ScoutingStats | profundo |
+| Paraguay | Promiedos | — (falta fuente) | medio |
+| Ecuador | Bzzoiro (privado); Wikipedia (público: resultados por fecha y tabla calculada, 5j-9) | Bzzoiro, ScoutingStats | profundo |
+| Perú | Bzzoiro (privado); tablas oficiales de Wikipedia en inglés: Apertura, Clausura y acumulada (público, 5j-12) | Bzzoiro, ScoutingStats (764) | profundo |
+| Bolivia | Wikipedia en español (tablas por fecha del artículo de la temporada; CC BY-SA, `?action=raw` permitido por robots) | — (la API de la FBF publica 5 partidos de primera y sin goles; ninguna otra fuente permitida) | medio-bajo: resultados con fecha y estadio, tabla calculada, situaciones sin minutos (5j-7) |
+| Venezuela | ScoutingStats (privado); tablas oficiales de Wikipedia en inglés: fases regulares, grupos y acumulada (público, 5j-12) | ScoutingStats (800) | profundo |
+
+Revisado y descartado: Hugging Face no tiene datasets abiertos de estas ligas (los que hay copian Sofascore, sin licencia); Sofascore, FotMob, OneFootball, ESPN, Transfermarkt, Soccerway y FBref prohíben el uso por términos; API-Football gratis solo da 2022 a 2024. Revisadas el 26-nov a pedido del dueño: Football Open Data es un actor de Apify (cuenta y créditos); AnySport solo tiene prueba gratis; «BSD Sports API» es Bzzoiro, que ya se usa; API Dados Futebol está en RapidAPI con planes pagos; FootyStats y Transfermarkt prohíben la extracción; la APF publica tablas y goleadores sin API ni datos por jugador. OpenFUTVE (Apache-2.0) todavía no publica datos, pero su auditoría de fuentes encontró la API SportsPress de `ligafutve.org` (sin clave, robots permite, partidos 2021–2025 con alineaciones; sin 2026): queda para la etapa 9.
+
+Fuentes nuevas sugeridas el 26-nov, para revisar antes de usar (ninguna integrada todavía):
+
+| Fuente | Qué tiene | Estado |
+|---|---|---|
+| `rhinoah/futbol-argentino-data` (GitHub) | 50 000 partidos argentinos desde 1985, Federal A 2014–2026 (6366) | Datos CC BY-SA 4.0 los que vienen de Wikipedia; los de RSSSF con condiciones propias. Para la etapa 9 (historial) |
+| `BrazilianFootball/Data` (GitHub, MIT) | ~11 000 partidos de Série A a D 2013–2025, de las súmulas de la CBF | Historial de Brasil B (etapa 9); no trae 2026 |
+| API-Football (api-sports.io) | 100 consultas por día gratis | Pide cuenta (la creás vos). La prueba de la etapa 1 vio que el plan gratis solo da 2022 a 2024 |
+| OpenFootAPI | 5000 consultas por mes gratis, dice cubrir PER1 y BRA2 | Pide cuenta; falta leer términos y cobertura real |
+| TheSportsDB | Clave pública «123» | Revisado en la etapa 1: la clave gratis no sirve para estas ligas (lo confirma la auditoría de OpenFUTVE) |
+| Campo Analítico, open-matchday | CSV con estadísticas | Sin licencia de reutilización: descartados |
+| `sofascore_scraper` y similares | Copia de Sofascore | Descartado: los términos de Sofascore prohíben la extracción |
+
+**Subetapas nuevas de la etapa 5** (cada una con su commit; lo que pide una cuenta o un clic del dueño queda como pendiente y no frena lo demás):
+
+- **5j-1**: el exportador particiona por liga según la fila (`pais=`, `liga=`), no por una liga fija.
+- **5j-2**: Bzzoiro para sus 13 competiciones de la Conmebol, con tope de consultas por corrida y continuación desde la caché (cuota de 7 500 por día).
+- **5j-3**: ScoutingStats por liga (Primera Nacional, Uruguay, Venezuela y las que coinciden): crudo privado, perfiles públicos.
+- **5j-4**: Promiedos por liga (resultados con minutos, tablas, próximos partidos) para todas las que publica.
+- **5j-5**: la web: índice de clubes por país y liga, y la ficha de cualquier club con todo lo que su liga tenga.
+- **5j-6**: buscar fuentes para Primera B, Federal A, Paraguay y Bolivia. Hecho el 26-nov: Bolivia no está en Promiedos, Bzzoiro ni ScoutingStats, y la API de la FBF resultó casi vacía (5 partidos de primera, sin goles); para Paraguay, Primera B y Federal A no apareció ninguna fuente gratis y permitida con estadísticas por jugador (Hugging Face, ScoutingStats, Bzzoiro y las federaciones revisadas). Quedan en nivel medio con Promiedos.
+- **5j-7**: Bolivia desde Wikipedia en español: resultados fecha por fecha (208 partidos de 2026 al 26-nov), tabla calculada (coincide con la oficial) y situaciones sin lo que depende del minuto. El mismo lector sirve para temporadas pasadas de cualquier liga con artículo (etapa 9). La ficha oculta «marcó primero», el descanso y los tramos de 15 minutos cuando la fuente no da minutos.
+- **5j-8**: el club de cada fila de jugador (Bzzoiro, ScoutingStats) toma el nombre de la tabla de su misma liga, emparejando por palabras en común sin las genéricas («Red Bull Bragantino» → «Bragantino», «Wanderers» → «Montevideo Wanderers»). Probado con Brasil, Chile, Colombia y Uruguay reales: todos emparejados bien. Ecuador, Perú, Brasil B y Venezuela no tienen tabla de Promiedos y quedan con el nombre de su fuente.
+- **5j-9**: Ecuador también desde Wikipedia (294 partidos de 2026, tabla acumulada de todas las fases): sus resultados de Bzzoiro son privados, así que la ficha no tenía tabla ni situaciones. El lector acepta marcadores dentro de enlaces externos e ignora imágenes. Revisados sin éxito: Perú (el artículo de 2026 no trae las fechas, están en anexos), Venezuela y Brasil B (sin artículo de temporada con resultados).
+- **5j-10**: ficha de jugador de cualquier club (`/club/<club>/jugador/<id>`): las 15 estadísticas clave cada 90 minutos con su percentil contra los de su posición en la liga, y comparación con cualquier otro de su posición en la misma liga (formulario sin JavaScript). El perfil público suma `player_id` y `per90_<estadística>` (promedios propios; el crudo sigue privado). Arreglo de paso: los esquemas con columnas libres rechazaban `country_code` y `competition_uid`, y las situaciones de las ligas de Promiedos no habrían cargado.
+- **5j-11**: ficha de partido de liga de cualquier club (`/club/<club>/partido/<id>`): goles en orden de minuto con el marcador parcial, planilla (amarillas, rojas, faltas, lesionados y suspendidos), árbitro, posición de los dos en la tabla y los otros cruces entre ellos. La lista de partidos de la ficha del club enlaza a cada uno. Para la Liga Profesional (que sale de Supabase) hace falta la migración `20261126120000_league_result_ext_id.sql`, que suma `ext_id` a `api.league_result`: **pendiente de aplicar, con tu aprobación**.
+- **5j-12**: tablas oficiales de Perú, Venezuela y Brasil B desde la Wikipedia en inglés (módulo «Sports table», con descuentos de puntos): 54, 58 y 20 filas de 2026. Sus resultados por partido siguen siendo de fuentes privadas, así que no hay situaciones ni ficha de partido públicas para esas ligas. Las tablas también dan el nombre con que se unifica el plantel de cada club. El emparejador de nombres compara palabras completas cuando un nombre es solo genérico («Sport» → «Sport Recife»).
+- **5k (decisión del 26-nov)**: el detalle partido a partido de Boca, para todos los clubes. Las interfaces ya muestran para Boca datos por partido de Bzzoiro, Statshub y ScoutingStats: no hay razón de licencia para negárselo al resto. Subetapas: 5k-1 estadísticas de equipo de Promiedos para todos los clubes; 5k-2 Statshub para toda la liga; 5k-3 detalle por jugador de Bzzoiro y ScoutingStats en las interfaces; 5k-4 StrikerAPI para toda la liga (código listo, espera cuota).
+- **5k-1**: `league_team_match` con las estadísticas de equipo de Promiedos (Opta) de cada club y partido, con las mismas claves que la vista de Boca; la Liga Profesional entra al colector de Promiedos solo para esta tabla. La interfaz Equipo de cualquier club usa la misma tabla que Boca (`TeamTableView`). Con datos reales de Uruguay: 48 de 54 filas con estadísticas.
+- **5k-2 (bloqueada)**: Statshub responde con el desafío anti-bots de Cloudflare a cualquier consulta, incluida la de Boca: su último dato en la base es del 28-oct. Saltar esa protección no se hace. Queda en espera de un acceso permitido (pedirlo a Statshub o una API oficial); mientras tanto Boca conserva lo cargado hasta esa fecha.
+- **5k-3**: la web lee del lado del servidor el crudo por jugador y partido del dataset privado (`league_player_match`, Bzzoiro y ScoutingStats) con un token de solo lectura (`HF_TOKEN` en Vercel, cargado por el dueño el 26-nov). Jugadores de cualquier club muestra el plantel con los totales de la temporada (nota pesada por minutos, goles, asistencias, xG, xA, remates, pases, entradas, intercepciones, recuperaciones, atajadas) y la ficha de cada jugador, su partido a partido. El archivo sigue sin publicarse para descargar. Sin token, las páginas siguen como antes.
+
+**Estado del 26-nov (commits en `feat/escala-conmebol`)**: 5j-1 a 5j-12, 5k-1 y 5k-3 hechas; 5k-2 bloqueada. Pendientes del dueño: subir la rama, unirla a `main` y lanzar «Exportar Parquet» varias veces (cada corrida completa más partidos por los topes de Bzzoiro, ScoutingStats y Promiedos). Pendientes técnicos: modelos (predictor, valor, Ojeador, Alternativas) por club con los datos de su liga.
+
 ## 1. Resumen en cinco líneas
 
 1. **Se puede hacer gratis**, y el número que importa es mucho menor que el estimado: medido con datos reales, el Parquet con zstd pesa **~100 veces menos** que Postgres (no 5–10). Todo el archivo, con 100 años a futuro, entra en **~25 GB**, no en 70–170 GB.
@@ -194,13 +263,29 @@ Presupuesto de una pantalla común: JS de la app + hyparquet (< 1 MB) + partici�
 |---|---|---|---|
 | 1 | Sondas de fuentes por país (robots, términos, profundidad histórica de Promiedos, oficiales de cada federación) | este informe + `docs/source_audit.md` ampliado | no |
 | 2 | **Hecha (25-nov)**: ids estables, países FIFA, alias, linaje, cobertura y rangos 1880–2200, aplicada en Supabase sin romper a Boca (`20261125120000_escala_identidad.sql`). El desacople de Boca pasa a las etapas 4 y 5, que reescriben esas mismas partes | migración + tests | no |
-| 3 | **Código hecho (25-nov)**: `pipeline/export_parquet.py`, formato en `docs/formato-parquet.md`, workflow manual `export.yml`. Boca real: 185 KB públicos + 239 KB privados (contra ~29 MB en Postgres). **Falta publicar**: cuenta de HF y secretos (los creás vos) | módulo + test de ida y vuelta | **sí: cuenta de HF (la creás vos) y primer dataset** |
-| 4 | Página de equipo leyendo Parquet con hyparquet en un Worker, con el equipo como parámetro (reemplaza las vistas `api.boca_*` y sus filtros `is_boca`) | `web/lib/data/parquet.ts` | no |
-| 5 | Toda la Primera Argentina, temporada actual: las fuentes recorren la liga en vez de `BOCA_ID` (Promiedos, Bzzoiro, ScoutingStats, Statshub, StrikerAPI, NoFluffPicks, ELNINE); `player_pool` real por liga para el Ojeador; `core.team.name` pasa a ser único por país | partición `argentina/primera/2026` | sí |
+| 3 | **Hecha y publicada (25-nov)**: `pipeline/export_parquet.py`, formato en `docs/formato-parquet.md`, workflow manual `export.yml`. Publicado en [pelotheta/pelotheta-futbol](https://huggingface.co/datasets/pelotheta/pelotheta-futbol) (16 archivos, solo Promiedos y cálculo propio) y lo restringido en `pelotheta/pelotheta-futbol-privado` | módulo + test de ida y vuelta | **sí: cuenta de HF (la creás vos) y primer dataset** |
+| 4 | **Hecha (25-nov)**: `/club/<uid>` lee el Parquet público con hyparquet en el servidor (caché de 1 h), con el club como parámetro: partidos y posiciones. La página `/equipo` sigue en Supabase porque usa estadísticas restringidas que no están en el dataset público. La reescritura de las vistas atadas a Boca pasa a la etapa 5 (decisión del 25-nov: con un solo equipo no se puede probar el caso de varios) | `web/lib/data/parquet.ts` | no |
+| 5 | **5a hecha (25-nov)**: `/club` y `/club/<uid>` para los 30 equipos con los resultados de liga ya publicados. **5b (25-nov)**: la carga de liga traía 329 de ~480 partidos porque cada página de equipo lista solo los últimos; ahora sigue el «historial» de cada partido de liga (el cruce del Clausura trae el del Apertura), solo con páginas públicas. El servicio interno con que la web de Promiedos carga cada fecha no se usa (sin permiso explícito). **5c (25-nov)**: la ficha suma el nivel en la liga (Elo, forma, ataque y defensa de local y de visitante, valor del plantel) y los jugadores destacados; `league_leader` guardaba el id de Promiedos en vez del nombre del club y ya se corrigió. **5d (26-nov)**: estadísticas por jugador de toda la liga desde Bzzoiro (502 partidos, 969 jugadores, 30 clubes): el crudo va solo al dataset privado (583 KB) y los percentiles por posición cada 90 minutos al público (`league_player_profile`, 625 jugadores con 450 minutos o más), y la ficha de cada club muestra su plantel. Sofascore y OneFootball descartados por términos; StrikerAPI sin cuota este mes, queda en la automatización. **5e (26-nov)**: `player_pool` suma minutos y totales de la temporada de Bzzoiro (743 de 1223 jugadores de otros clubes cruzan por club y nombre); Alternativas pasa de comparar solo compañeros a 521 jugadores de toda la liga y el Ojeador toma la liga como referencia, con las claves que usa por puesto (calificación, vallas invictas, % de duelos, etc.). npxG y goles sin penal quedan sin dato: Bzzoiro no informa penales. **5f (26-nov)**: cada ficha de club muestra su próximo partido con el pronóstico del predictor (gana, empata, pierde y goles esperados), calculado con los β publicados en `model_run` y los próximos partidos de toda la liga (`league_fixture`, de las páginas de equipo de Promiedos). **5g (26-nov)**: valor de mercado de los 30 planteles (918 jugadores de transfermarkt-datasets CC0): la ficha muestra valor real y esperado por la regresión propia, estimado sin el jugador (validación cruzada); erra 66 % en la mediana, y la ficha lo dice. **5h (26-nov)**: situaciones de los 30 clubes (`league_situation`): puntos por partido de local y visitante, racha, cuando marca o le marcan primero, resultado al descanso y remontadas, vallas invictas y goles por tramo de 15 minutos, con los minutos de gol de Promiedos (94 % de los partidos los tienen completos; el resto no se usa en lo que depende del minuto). **5i (26-nov)**: Mejoría y Potencial (y el índice de rendimiento) comparan a cada jugador de Boca con los de su posición en toda la liga (Bzzoiro), no solo con el plantel; la serie partido a partido usa la liga hasta esa fecha. Con datos reales: mismos 43 jugadores, cambio mediano +1,9 y los arqueros dejan de compararse entre 2 o 3. Falta sumar copas por equipo. **Resto**: toda la Primera Argentina, temporada actual: las fuentes recorren la liga en vez de `BOCA_ID` (Promiedos, Bzzoiro, ScoutingStats, Statshub, StrikerAPI, NoFluffPicks, ELNINE); `player_pool` real por liga para el Ojeador; `core.team.name` pasa a ser único por país. Además, las 27 vistas que filtran con `is_boca` (8 `api.boca_*`, 2 materializadas y las de situaciones, comparación y calidad) pasan a tener `team_uid` y la web y el exportador reciben el equipo como parámetro (Parquet `schema_version` 2) | partición `argentina/primera/2026` | sí |
 | 6 | Resto de Conmebol, temporada actual | 10 datasets | sí |
 | 7 | Backfill 2014→hoy por etapas, con checkpoint en Supabase y caché de requests | workflow `backfill.yml` reanudable | sí |
-| 8 | Backfill histórico desde OpenFootball, Wikidata, Wikipedia (y RSSSF si da permiso) | particiones históricas con `nivel = parcial` | sí |
-| 9 | Cierre de temporada automático, monitoreo de cuotas al 80 %, respaldos anuales | `season_close.yml`, `quota.yml`, `backup.yml` ampliado | sí (Internet Archive: cuenta tuya) |
+| 8 | Cierre de temporada automático, monitoreo de cuotas al 80 %, respaldos anuales (antes era la 9: se adelanta para que el volumen de las etapas 5 a 7 ya corra vigilado) | `season_close.yml`, `quota.yml`, `backup.yml` ampliado | sí (Internet Archive: cuenta tuya) |
+| 9 | Backfill histórico desde OpenFootball, Wikidata, Wikipedia (y RSSSF si da permiso) | particiones históricas con `nivel = parcial` | sí |
+
+### Qué cambia en cada función entre las etapas 5 y 7
+
+Hoy todo se calcula para Boca contra la liga. Con muchos equipos, cada función pasa a recibir el equipo (y la liga) como parámetro y a calcularse por liga y temporada:
+
+| Función | Hoy | Etapa 5 (Primera Argentina) | Etapas 6 y 7 (Conmebol y pasado) |
+|---|---|---|---|
+| Ficha de club (`/club`) | Boca con todas sus competiciones | **5a, hecha**: los 30 equipos con sus partidos de liga desde `league_result` público | Una partición por liga y temporada; el índice lista por país |
+| Predictor (`match_predictor`) | Fuerzas de toda la liga ya calculadas, solo se muestran partidos de Boca | Mostrar cualquier partido de la liga; guardar la previa de todos para el backtest | Un modelo por liga (μ propio); copas con fuerza relativa entre ligas (Elo por país) |
+| Valor de mercado (`market_value`) | Regresión con ~900 jugadores de la liga, predice el plantel de Boca | Predecir los 30 planteles con el mismo ajuste | transfermarkt-datasets pausado: con el histórico CC0 por liga; donde no hay valores, no se muestra |
+| Ojeador y Alternativas (`similarity`, `player_pool`) | K-means con Boca + `player_pool` sin estadísticas | `player_pool` con estadísticas de toda la liga; perfiles por liga | Perfiles comparables entre ligas solo con las estadísticas que tengan todas (`coverage`) |
+| Métricas propias (`own_metrics`: Elo, xPts, rachas) | Solo los partidos de Boca | Elo y forma de los 30 con `league_result` | Elo continuo por país desde 2014 y entre países por las copas |
+| Mejoría y Potencial (`projection_data`) | Percentiles contra Boca | Percentiles por posición contra toda la liga | Por liga y temporada |
+| Situaciones (`situ_*`) | Partidos de Boca con eventos | Los 30 equipos donde haya eventos | Degradan a «sin datos» por época según `coverage` |
+| Comparar, Partido, Jugador, Equipo | Vistas `api.boca_*` y filtros `is_boca` | Las 27 vistas con `team_uid` y la web con el equipo en la dirección | Igual, con país y liga |
+| Excel y Power BI | Boca | Un libro por equipo a pedido | Igual |
 
 Cada etapa que publica o necesita cuenta espera tu aprobación. Las cuentas las creás vos; yo no toco credenciales.
 

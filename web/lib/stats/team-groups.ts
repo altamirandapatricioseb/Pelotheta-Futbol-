@@ -17,7 +17,7 @@ export const TEAM_VIEWS: readonly { id: TeamView; label: string }[] = [
 export interface MatchGroup {
   key: string;
   label: string;
-  rows: TeamMatchRow[];
+  rows: TeamMatchRow<number | string>[];
 }
 
 const MONTHS = [
@@ -36,7 +36,7 @@ const MONTHS = [
 ];
 
 /** «2-1 G»: marcador desde Boca y resultado (G, E o P). La tanda de penales no cuenta. */
-export function resultLabel(row: TeamMatchRow): string {
+export function resultLabel(row: TeamMatchRow<number | string>): string {
   const letter = row.goalsFor > row.goalsAgainst ? 'G' : row.goalsFor === row.goalsAgainst ? 'E' : 'P';
   return `${String(row.goalsFor)}-${String(row.goalsAgainst)} ${letter}`;
 }
@@ -46,7 +46,10 @@ function shortDate(iso: string): string {
   return `${day ?? ''}/${month ?? ''}/${year ?? ''}`;
 }
 
-function groupBy(rows: readonly TeamMatchRow[], keyOf: (r: TeamMatchRow) => [string, string]): MatchGroup[] {
+function groupBy(
+  rows: readonly TeamMatchRow<number | string>[],
+  keyOf: (r: TeamMatchRow<number | string>) => [string, string],
+): MatchGroup[] {
   const map = new Map<string, MatchGroup>();
   for (const row of rows) {
     const [key, label] = keyOf(row);
@@ -58,7 +61,7 @@ function groupBy(rows: readonly TeamMatchRow[], keyOf: (r: TeamMatchRow) => [str
 }
 
 /** Grupos de partidos para la vista elegida; los partidos llegan ordenados por fecha. */
-export function groupMatches(rows: readonly TeamMatchRow[], view: TeamView): MatchGroup[] {
+export function groupMatches(rows: readonly TeamMatchRow<number | string>[], view: TeamView): MatchGroup[] {
   switch (view) {
     case 'partido':
       return rows.map((r) => ({

@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { SystemMark, TeamMark } from '@/components/header/brand-marks';
 import { SiteHeader } from '@/components/header/site-header';
 import { MotionProvider } from '@/components/motion-provider';
+import { getSelectedTeam } from '@/lib/selected-team';
 import { THEME_COOKIE } from '@/lib/theme';
 import { SITE_DESCRIPTION, SYSTEM_NAME } from '@/config/brand';
 
@@ -49,6 +50,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   // Tema elegido con el botón del header; sin cookie, manda la preferencia del sistema.
   const saved = (await cookies()).get(THEME_COOKIE)?.value;
   const theme = saved === 'dark' || saved === 'light' ? saved : undefined;
+  const team = await getSelectedTeam();
   return (
     <html lang="es-AR" className={`${montserrat.variable} ${greek.variable}`} data-theme={theme}>
       <body className="antialiased">
@@ -56,7 +58,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           Saltar al contenido
         </a>
         <MotionProvider>
-          <SiteHeader teamMark={<TeamMark />} systemMark={<SystemMark />} />
+          <SiteHeader teamMark={<TeamMark name={team.name} />} systemMark={<SystemMark />} />
           <main id="contenido" className="page" tabIndex={-1}>
             {children}
           </main>

@@ -78,9 +78,51 @@ def test_json_columns_and_reference_partition(tmp_path: Path) -> None:
     assert "Promiedos" in (tmp_path / "publico/README.md").read_text("utf-8")
 
 
+def test_league_rows_go_to_their_own_country_and_league(tmp_path: Path) -> None:
+    rows = {
+        "league_player_profile": [
+            {"player_name": "A", "season_year": 2026},  # sin país ni liga: la Liga Profesional
+            {
+                "player_name": "B",
+                "season_year": 2026,
+                "country_code": "URU",
+                "competition_uid": "uru-primera",
+            },
+        ]
+    }
+    manifests = ex.export(lambda view: rows.get(view, []), tmp_path, ["league_player_profile"])
+    paths = sorted(f["ruta"] for f in manifests["publico"]["archivos"])
+    assert paths == [
+        f"{LEAGUE}/temporada=2026/league_player_profile.parquet",
+        "pais=URU/liga=uru-primera/temporada=2026/league_player_profile.parquet",
+    ]
+
+
 def test_descriptive_source_column_does_not_split_rows(tmp_path: Path) -> None:
     rows = {**ROWS, "stat_catalog": [{"stat_id": "xg", "source": "statshub|bzzoiro"}]}
     manifests = ex.export(lambda view: rows[view], tmp_path, ["boca_match", "stat_catalog"])
     assert [f["tabla"] for f in manifests["privado"]["archivos"]] == []
     entry = next(f for f in manifests["publico"]["archivos"] if f["tabla"] == "boca_match")
     assert entry["atribucion"] == [ex.OPEN_SOURCES["promiedos"]]
+
+
+def test_unify_club_names_per_league() -> None:
+    from pipeline.export_parquet import unify_club_names
+
+    standings = [
+        {"competition_uid": "uru-primera", "team_name": n} for n in ("Cerro", "Cerro Largo", "Nacional")
+    ] + [{"competition_uid": "bra-serie-a", "team_name": n} for n in ("Bragantino", "Sport")]
+    rows = [
+        {"competition_uid": "uru-primera", "team_name": "Cerro Largo"},
+        {"competition_uid": "uru-primera", "team_name": "Cerro"},
+        {"competition_uid": "bra-serie-a", "team_name": "Red Bull Bragantino"},
+        {"competition_uid": "bra-serie-a", "team_name": "Sport Recife"},
+        {"competition_uid": "col-primera-a", "team_name": "Atlético Nacional"},  # su liga no tiene tabla
+    ]
+    assert [r["team_name"] for r in unify_club_names(rows, standings)] == [
+        "Cerro Largo",
+        "Cerro",
+        "Bragantino",
+        "Sport",
+        "Atlético Nacional",
+    ]

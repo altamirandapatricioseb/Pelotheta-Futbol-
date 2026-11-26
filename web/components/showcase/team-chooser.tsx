@@ -6,17 +6,13 @@
 
 import { AnimatePresence, motion, MotionConfig, stagger, type Variants } from 'motion/react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect } from 'react';
 
-import { TEAM_PHOTO_SRC } from '@/config/brand';
-import {
-  COUNTRIES,
-  categoryAvailable,
-  countryAvailable,
-  resolveChoice,
-  type Category,
-  type Country,
-} from '@/config/teams';
+import { TEAM_NAME, TEAM_PHOTO_SRC } from '@/config/brand';
+import { categoryAvailable, countryAvailable, resolveChoice, type Category, type Country } from '@/config/teams';
+
+import { TEAM_COOKIE } from '@/lib/team-cookie';
 
 import { InterfaceGrid } from './interface-cards';
 
@@ -70,9 +66,21 @@ function Tile({ name, meta, href, available, code }: TileProps) {
 
 const plural = (n: number, one: string, many: string) => `${String(n)} ${n === 1 ? one : many}`;
 
-export function TeamChooser() {
+export function TeamChooser({ countries }: { countries: readonly Country[] }) {
   const params = useSearchParams();
-  const { country, category, team } = resolveChoice(params.get('pais'), params.get('categoria'), params.get('equipo'));
+  const router = useRouter();
+  const { country, category, team } = resolveChoice(
+    params.get('pais'),
+    params.get('categoria'),
+    params.get('equipo'),
+    countries,
+  );
+  // El equipo elegido queda en una cookie para todas las interfaces; refresh repinta el header.
+  useEffect(() => {
+    if (!team) return;
+    document.cookie = `${TEAM_COOKIE}=${team.slug}; path=/; max-age=31536000; samesite=lax`;
+    router.refresh();
+  }, [team, router]);
   const step = team ? 3 : category ? 2 : country ? 1 : 0;
   const title = ['Elegí el país', 'Elegí la categoría', 'Elegí el equipo', team?.name ?? ''][step] ?? '';
 
@@ -107,7 +115,7 @@ export function TeamChooser() {
         />
       ));
     }
-    return COUNTRIES.map((x) => (
+    return countries.map((x) => (
       <Tile
         key={x.slug}
         name={x.name}
@@ -164,7 +172,7 @@ export function TeamChooser() {
             ) : (
               <>
                 <div className="show-chosen">
-                  {TEAM_PHOTO_SRC ? (
+                  {TEAM_PHOTO_SRC && team?.name === TEAM_NAME ? (
                     // eslint-disable-next-line @next/next/no-img-element -- escudo local chico
                     <img src={TEAM_PHOTO_SRC} alt="" width={72} height={72} />
                   ) : null}

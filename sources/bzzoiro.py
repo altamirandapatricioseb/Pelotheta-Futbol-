@@ -134,6 +134,110 @@ def parse_player_stats(stats: dict[str, Any], lineups: dict[str, Any]) -> list[t
     return lines
 
 
+# Ligas de Bzzoiro por id estable de competición (etapa 5: toda la liga, no solo Boca).
+LEAGUES = {
+    # Las ligas que lista el sistema (web/config/teams.ts) primero; después las copas.
+    "arg-liga-profesional-argentina": 85,
+    "bra-serie-a": 9,
+    "bra-serie-b": 34,
+    "chi-primera": 111,
+    "col-primera-a": 80,
+    "ecu-serie-a": 112,
+    "per-liga-1": 113,
+    "arg-copa-argentina": 114,
+    "bra-copa-do-brasil": 35,
+    "col-copa-colombia": 81,
+    "csa-copa-libertadores": 32,
+    "csa-copa-sudamericana": 33,
+    "csa-eliminatorias": 59,
+}
+
+
+def country_of(league_uid: str) -> str:
+    """País FIFA de una competición por su id estable («bra-serie-a» → BRA; «csa-…» es continental)."""
+    return league_uid[:3].upper()
+
+
+# Nombre en Bzzoiro → nombre de la tabla de Promiedos (el de las fichas de club). Verificado el
+# 26-nov-2026 con las 30 alineaciones; «Gimnasia y Esgrima» juega el clásico con Estudiantes: es La Plata.
+# shortcut: lista fija para la Liga Profesional; con más ligas pasa a core.alias (etapa 6).
+TEAM_NAMES = {
+    "CA Independiente": "Independiente",
+    "CA Lanús": "Lanús",
+    "CA Talleres": "Talleres de Córdoba",
+    "Central Córdoba": "Central Córdoba SdE",
+    "Club Atlético Belgrano": "Belgrano",
+    "Club Atlético Platense": "Platense",
+    "Club Atlético Unión de Santa Fe": "Unión de Santa Fe",
+    "Estudiantes de Río Cuarto": "Estudiantes RC",
+    "Gimnasia y Esgrima": "Gimnasia La Plata",
+    "Gimnasia y Esgrima Mendoza": "Gimnasia de Mendoza",
+    "Instituto De Córdoba": "Instituto",
+    "Sarmiento": "Sarmiento Junín",
+}
+# Campos de la fila que no son estadísticas.
+NOT_STATS = {"id", "event_id", "player_id", "team_id"}
+
+
+@dataclass(frozen=True)
+class LeagueEvent:
+    event_id: int
+    kickoff: datetime
+    home: str
+    away: str
+
+
+def parse_league_events(payload: dict[str, Any], season_year: int) -> list[LeagueEvent]:
+    """Partidos terminados de la temporada de una liga (página de `/api/v2/events/`)."""
+    events = []
+    for e in payload.get("results") or []:
+        try:
+            kickoff = datetime.fromisoformat(str(e["event_date"])).astimezone(UTC)
+        except (KeyError, ValueError):
+            continue
+        if e.get("status") == "finished" and kickoff.year == season_year and e.get("id"):
+            events.append(
+                LeagueEvent(int(e["id"]), kickoff, str(e.get("home_team")), str(e.get("away_team")))
+            )
+    return events
+
+
+def lineup_people(lineups: dict[str, Any]) -> dict[int, tuple[str, str, str | None]]:
+    """id → (nombre, club, posición G/D/M/F) de todos los jugadores de las dos alineaciones."""
+    people: dict[int, tuple[str, str, str | None]] = {}
+    for side in (lineups.get("lineups") or {}).values():
+        team = str(side.get("team_name") or "")
+        team = TEAM_NAMES.get(team, team)
+        for p in [*(side.get("players") or []), *(side.get("substitutes") or [])]:
+            if p.get("id") and p.get("name") and team:
+                people[p["id"]] = (p["name"], team, p.get("position"))
+    return people
+
+
+def parse_all_player_stats(stats: dict[str, Any], lineups: dict[str, Any]) -> list[dict[str, Any]]:
+    """Una fila por jugador que jugó, de los dos equipos, con todas sus estadísticas numéricas.
+    Es el dato crudo: va solo al dataset privado (la licencia prohíbe redistribuirlo)."""
+    people = lineup_people(lineups)
+    rows = []
+    for row in stats.get("player_stats") or []:
+        who = people.get(row.get("player_id"))
+        minutes = _number(row.get("minutes_played"))
+        if who is None or not minutes:
+            continue
+        name, team, position = who
+        values = {k: n for k, v in row.items() if k not in NOT_STATS and (n := _number(v)) is not None}
+        rows.append(
+            {
+                "player_id": row["player_id"],
+                "player_name": name,
+                "team_name": team,
+                "position": position,
+                **values,
+            }
+        )
+    return rows
+
+
 class BzzoiroClient:
     def __init__(self, api_key: str, cache_dir: Path = CACHE_DIR / SOURCE) -> None:
         self.api_key, self.cache_dir, self._last = api_key, cache_dir, 0.0

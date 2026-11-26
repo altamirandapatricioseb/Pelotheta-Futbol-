@@ -30,6 +30,9 @@ privado/                      → solo a un dataset privado (nunca público)
 | `schema_version` | Fecha | Cambio |
 |---|---|---|
 | 1 | 25-nov-2026 | Primera versión: 26 vistas `api`, partición por equipo o liga y temporada |
+| 1 | 26-nov-2026 | Tablas nuevas (compatible): `league_fixture` (próximos partidos, Promiedos), `model_run` (β y métricas de modelos propios), `league_market_value` (valor real CC0 y esperado por el modelo propio), `league_situation` (situaciones por club, cálculo propio), `league_player_match` (crudo de Bzzoiro, solo privado) y `league_player_profile` (percentiles por posición cada 90, público) |
+| 1 | 26-nov-2026 | Columnas nuevas (compatible): `league_player_profile` suma `player_id` (id de la fuente: número de Bzzoiro o `ss…` de ScoutingStats) y `per90_<estadística>` (promedio propio cada 90 minutos, junto a cada `pct_<estadística>`); los archivos viejos no las traen |
+| 1 | 26-nov-2026 | Tabla nueva (compatible): `league_team_match` (Promiedos, abierta): una fila por club y partido de liga con `stats` en texto JSON, mismas claves que `api.team_match_value` de Boca (resultado, goles por tramo, estadísticas de Opta propias y `_against` del rival) |
 
 Regla para cambiar el formato:
 

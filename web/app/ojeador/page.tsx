@@ -8,6 +8,8 @@ import { CURRENT_TEAM } from '@/config/teams';
 import { loadScouting } from '@/lib/data/scouting';
 import { marketStats } from '@/lib/models/market-stats';
 import { GROUPS, type Group, scoutReports } from '@/lib/models/scouting';
+import { ClubInterface } from '@/components/club/club-interface';
+import { getSelectedTeam } from '@/lib/selected-team';
 
 export const metadata: Metadata = {
   description:
@@ -15,6 +17,8 @@ export const metadata: Metadata = {
 };
 
 export default async function OjeadorPage() {
+  const team = await getSelectedTeam();
+  if (!team.isBoca) return <ClubInterface view="ojeador" uid={team.uid} />;
   const loaded = await loadScouting(CURRENT_TEAM);
   if (!loaded.ok) {
     return (

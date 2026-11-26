@@ -8,6 +8,8 @@ import { ModelHeader } from '@/components/models/common';
 import { PredictorView } from '@/components/models/predictor-view';
 import { CURRENT_TEAM } from '@/config/teams';
 import { getModelRun, getPredictions, getStatTests } from '@/lib/data/models';
+import { ClubInterface } from '@/components/club/club-interface';
+import { getSelectedTeam } from '@/lib/selected-team';
 
 export const metadata: Metadata = {
   description:
@@ -15,6 +17,8 @@ export const metadata: Metadata = {
 };
 
 export default async function PredictorPage() {
+  const team = await getSelectedTeam();
+  if (!team.isBoca) return <ClubInterface view="predictor" uid={team.uid} />;
   const [run, data, tests, matches] = await Promise.all([
     getModelRun(CURRENT_TEAM.slug, 'predictor_partido'),
     getPredictions(CURRENT_TEAM.slug),

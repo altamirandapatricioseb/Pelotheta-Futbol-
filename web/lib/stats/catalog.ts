@@ -65,8 +65,9 @@ export interface PlayerRow {
   stats: Record<string, number>;
 }
 
-export interface TeamMatchRow {
-  matchId: number;
+export interface TeamMatchRow<Id extends number | string = number> {
+  /** Id de Boca en Supabase (número) o el de la fuente en los partidos de liga de otro club (texto). */
+  matchId: Id;
   date: string;
   competitionCode: string;
   competitionName: string;
@@ -112,7 +113,7 @@ export function playerValue(row: PlayerRow, stat: StatDef, per90: boolean): Stat
   return row.minutes > 0 ? (raw * 90) / row.minutes : null;
 }
 
-function present(rows: readonly TeamMatchRow[], key: string): number[] {
+function present(rows: readonly TeamMatchRow<number | string>[], key: string): number[] {
   return rows.flatMap((r) => {
     const v = r.stats[key];
     return v === undefined ? [] : [v];
@@ -130,7 +131,7 @@ interface AggregateOptions {
 
 /** Valor de una estadística del equipo para un grupo de partidos. null = n/d. */
 export function aggregateTeam(
-  rows: readonly TeamMatchRow[],
+  rows: readonly TeamMatchRow<number | string>[],
   stat: StatDef,
   byId: ReadonlyMap<string, StatDef>,
   options: AggregateOptions = {},

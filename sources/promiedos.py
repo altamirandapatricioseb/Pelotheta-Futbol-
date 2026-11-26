@@ -15,6 +15,7 @@ solo restan. Los minutos de descuento no se suman (convención habitual: 90 por 
 
 from __future__ import annotations
 
+import contextlib
 import json
 import re
 import unicodedata
@@ -239,6 +240,21 @@ def _stat_value(text: str) -> float | None:
 # --- partido ----------------------------------------------------------------------------
 
 
+def parse_team_stats(game: dict[str, Any]) -> dict[str, dict[str, float]]:
+    """Estadísticas de equipo (Opta) de cualquier partido, por id de club de Promiedos."""
+    ids = [t["id"] for t in (game.get("teams") or [])[:2]]
+    out: dict[str, dict[str, float]] = {team_id: {} for team_id in ids}
+    for stat in game.get("statistics") or []:
+        key = STAT_KEYS.get(stat.get("name", ""))
+        if key is None:
+            continue
+        for team_id, raw in zip(ids, stat.get("values") or [], strict=False):
+            value = _stat_value(str(raw))
+            if value is not None:
+                out[team_id][key] = value
+    return out
+
+
 def parse_game(game: dict[str, Any]) -> ParsedGame | None:
     """Convierte un partido de Promiedos en registros. Devuelve None si no corresponde cargarlo.
 
@@ -446,19 +462,11 @@ def parse_game(game: dict[str, Any]) -> ParsedGame | None:
                 )
             )
 
-    team_stats: list[TeamStatRecord] = []
-    for stat in game.get("statistics") or []:
-        key = STAT_KEYS.get(stat.get("name", ""))
-        if key is None:
-            continue
-        for side, raw in enumerate(stat.get("values") or [], start=1):
-            value = _stat_value(str(raw))
-            if value is not None and side in side_id:
-                team_stats.append(
-                    TeamStatRecord(
-                        match_source_id=match_id, team_source_id=side_id[side], stat_key=key, value=value
-                    )
-                )
+    team_stats = [
+        TeamStatRecord(match_source_id=match_id, team_source_id=team_id, stat_key=key, value=value)
+        for team_id, values in parse_team_stats(game).items()
+        for key, value in values.items()
+    ]
 
     return ParsedGame(
         competition=competition,
@@ -618,8 +626,11 @@ def parse_standings(league_data: dict[str, Any], season_year: int) -> list[Stand
     return rows
 
 
-def parse_league_leaders(league_data: dict[str, Any], season_year: int) -> list[LeagueLeaderRecord]:
-    """Goleadores y demás rankings de jugadores del torneo en curso (datos de Opta)."""
+def parse_league_leaders(
+    league_data: dict[str, Any], season_year: int, names: dict[str, str] | None = None
+) -> list[LeagueLeaderRecord]:
+    """Goleadores y demás rankings de jugadores del torneo en curso (datos de Opta). La fila trae
+    solo el id del club: `names` (id → nombre de la tabla) lo traduce."""
     rows: list[LeagueLeaderRecord] = []
     for table in (league_data.get("players_statistics") or {}).get("tables") or []:
         stat = re.sub(r"[^a-z]+", "_", player_key(str(table.get("name") or ""))).strip("_")
@@ -635,7 +646,7 @@ def parse_league_leaders(league_data: dict[str, Any], season_year: int) -> list[
                         stat=stat,
                         rank=rank,
                         player_name=obj["name"],
-                        team_name=obj.get("team_id"),
+                        team_name=(names or {}).get(obj.get("team_id") or "", obj.get("team_id")),
                         value=value,
                     )
                 )
@@ -669,13 +680,66 @@ def league_game_refs(team_data: dict[str, Any], season_year: int, league_team_id
     return refs
 
 
-def parse_league_game(game: dict[str, Any], season_year: int) -> LeagueResultRecord | None:
+def upcoming_league_games(team_data: dict[str, Any], names: dict[str, str]) -> list[dict[str, Any]]:
+    """Partidos programados entre dos clubes de la liga (`names`: id → nombre de la tabla), de la
+    lista «próximos» de una página de equipo. Para el predictor de toda la liga."""
+    games = []
+    for row in ((team_data.get("games") or {}).get("next") or {}).get("rows") or []:
+        g = row.get("game") or {}
+        ids = [t.get("id") for t in g.get("teams") or []]
+        if len(ids) != 2 or not all(i in names for i in ids) or (g.get("status") or {}).get("enum") != 1:
+            continue
+        try:
+            kickoff = datetime.strptime(str(g["start_time"]), "%d-%m-%Y %H:%M").replace(tzinfo=AR_TZ)
+        except (KeyError, ValueError):
+            continue
+        games.append(
+            {
+                "source": SOURCE,
+                "ext_id": str(g.get("id")),
+                "kickoff_at": kickoff.isoformat(),
+                "match_date": kickoff.date().isoformat(),
+                "stage": g.get("stage_round_name"),
+                "home_team": names[ids[0]],
+                "away_team": names[ids[1]],
+            }
+        )
+    return games
+
+
+def league_head_to_head_refs(
+    game: dict[str, Any], season_year: int, league_id: str = LEAGUE_ID
+) -> list[GameRef]:
+    """Partidos terminados de liga de la temporada en el «historial» de un partido. Las páginas de
+    equipo listan solo los últimos partidos; el cruce del Clausura trae el del Apertura entre los
+    mismos dos equipos, y así se llega a la temporada completa sin pedir otras páginas."""
+    refs = []
+    for g in (game.get("head_to_head") or {}).get("games") or []:
+        if (
+            (g.get("league") or {}).get("id") == league_id
+            and (g.get("status") or {}).get("enum") == 3
+            and str(g.get("start_time", ""))[6:10] == str(season_year)
+            and g.get("id")
+            and g.get("url_name")
+        ):
+            refs.append(GameRef(game_id=g["id"], url_name=g["url_name"]))
+    return refs
+
+
+def parse_league_game(
+    game: dict[str, Any],
+    season_year: int,
+    names: dict[str, str] | None = None,
+    league_id: str = LEAGUE_ID,
+) -> LeagueResultRecord | None:
     """Cualquier partido terminado de la Liga Profesional: resultado, árbitro, tarjetas, faltas y
-    bajas contadas por motivo. Sirve para estadísticas de árbitros y de toda la liga."""
-    if (game.get("status") or {}).get("enum") != 3 or (game.get("league") or {}).get("id") != LEAGUE_ID:
+    bajas contadas por motivo. Sirve para estadísticas de árbitros y de toda la liga.
+    `names` (id de Promiedos → nombre de la tabla) unifica los nombres cortos de algunas páginas."""
+    if (game.get("status") or {}).get("enum") != 3 or (game.get("league") or {}).get("id") != league_id:
         return None
     home, away = game["teams"][0], game["teams"][1]
     cards = {(side, kind): 0 for side in (1, 2) for kind in ("yellow", "red")}
+    goal_minutes: dict[int, list[int]] = {1: [], 2: []}
     for stage in game.get("events") or []:
         if stage.get("is_penalties_stage"):
             continue
@@ -683,6 +747,9 @@ def parse_league_game(game: dict[str, Any], season_year: int) -> LeagueResultRec
             for ev in row.get("events") or []:
                 kind = EVENT_TYPES.get(ev.get("type"))
                 side = ev.get("team")
+                if side in (1, 2) and kind in ("gol", "penal_convertido"):
+                    with contextlib.suppress(KeyError, ValueError):
+                        goal_minutes[side].append(parse_minute(str(ev["time"]))[0])
                 if side in (1, 2) and kind == "amarilla":
                     cards[(side, "yellow")] += 1
                 elif side in (1, 2) and kind in SENDING_OFF:
@@ -708,8 +775,8 @@ def parse_league_game(game: dict[str, Any], season_year: int) -> LeagueResultRec
         season=season_year,
         stage=game.get("stage_round_name"),
         match_date=kickoff.date(),
-        home_team=home["name"],
-        away_team=away["name"],
+        home_team=(names or {}).get(home.get("id", ""), home["name"]),
+        away_team=(names or {}).get(away.get("id", ""), away["name"]),
         home_goals=game["scores"][0],
         away_goals=game["scores"][1],
         referee=_info(game, "Árbitro"),
@@ -723,4 +790,7 @@ def parse_league_game(game: dict[str, Any], season_year: int) -> LeagueResultRec
         injured_away=count(2, {"Lesionado"}),
         suspended_home=count(1, SUSPENSIONS),
         suspended_away=count(2, SUSPENSIONS),
+        # Solo si cierran con el marcador: un evento perdido daría un descanso o un primer gol falso.
+        home_goal_minutes=sorted(goal_minutes[1]) if len(goal_minutes[1]) == game["scores"][0] else [],
+        away_goal_minutes=sorted(goal_minutes[2]) if len(goal_minutes[2]) == game["scores"][1] else [],
     )

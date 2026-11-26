@@ -7,6 +7,8 @@ import { ModelHeader } from '@/components/models/common';
 import { ValueView } from '@/components/models/value-view';
 import { CURRENT_TEAM } from '@/config/teams';
 import { getMarketValues, getModelRun } from '@/lib/data/models';
+import { ClubInterface } from '@/components/club/club-interface';
+import { getSelectedTeam } from '@/lib/selected-team';
 
 export const metadata: Metadata = {
   description:
@@ -14,6 +16,8 @@ export const metadata: Metadata = {
 };
 
 export default async function ValorPage() {
+  const team = await getSelectedTeam();
+  if (!team.isBoca) return <ClubInterface view="valor" uid={team.uid} />;
   const [run, values] = await Promise.all([
     getModelRun(CURRENT_TEAM.slug, 'valor_mercado'),
     getMarketValues(CURRENT_TEAM.slug),

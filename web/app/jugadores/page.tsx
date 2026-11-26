@@ -9,6 +9,8 @@ import { PlayerMasterView } from '@/components/players/player-master';
 import { getCatalog, getStatSets } from '@/lib/data/catalog';
 import { getCompetitions, getPlayerMaster } from '@/lib/data/players';
 import { ErrorNotice } from '@/components/error-notice';
+import { ClubInterface } from '@/components/club/club-interface';
+import { getSelectedTeam } from '@/lib/selected-team';
 
 export const metadata: Metadata = {
   description:
@@ -39,6 +41,8 @@ interface PageProps {
 }
 
 export default async function JugadoresPage({ searchParams }: PageProps) {
+  const team = await getSelectedTeam();
+  if (!team.isBoca) return <ClubInterface view="jugadores" uid={team.uid} />;
   const raw = await searchParams;
   const params = searchSchema.parse({
     comp: typeof raw.comp === 'string' ? raw.comp : 'todas',

@@ -518,6 +518,40 @@ export interface LeaguePlayer {
   versus: PlayerProfile | null;
 }
 
+async function countryProfiles(uid: string) {
+  const manifest = await getManifest();
+  const files = manifest.archivos.filter(
+    (f) => f.tabla === 'league_player_profile' && f.ruta.startsWith(`pais=${uid.slice(0, 3).toUpperCase()}/`),
+  );
+  return (
+    await Promise.all(
+      files.map(async (f) => (await readTable(f.ruta, profileSchema)).map((p) => ({ p, league: leagueOf(f.ruta) }))),
+    )
+  ).flat();
+}
+
+/** Los jugadores con perfil de la liga de un club (para comparar con cualquiera de la liga). */
+export async function getLeagueProfiles(uid: string): Promise<ArchiveResult<PlayerProfile[]>> {
+  try {
+    const club = await getClub(uid);
+    if (!club.ok) return club;
+    const ids = new Set(club.data?.squad.map((p) => p.player_id));
+    const all = await countryProfiles(uid);
+    const league = all.find((x) => ids.has(x.p.player_id))?.league;
+    return {
+      ok: true,
+      data: all
+        .filter((x) => league !== undefined && x.league === league)
+        .map((x) => x.p)
+        .toSorted(
+          (a, b) => a.team_name.localeCompare(b.team_name, 'es') || a.player_name.localeCompare(b.player_name, 'es'),
+        ),
+    };
+  } catch (cause) {
+    return failure(cause);
+  }
+}
+
 /** Ficha pública de un jugador de cualquier club por el id de su fuente; null si no está. */
 export async function getLeaguePlayer(
   uid: string,
@@ -529,15 +563,7 @@ export async function getLeaguePlayer(
     if (!club.ok) return club;
     const player = club.data?.squad.find((p) => p.player_id === playerId);
     if (!club.data || !player) return { ok: true, data: null };
-    const manifest = await getManifest();
-    const files = manifest.archivos.filter(
-      (f) => f.tabla === 'league_player_profile' && f.ruta.startsWith(`pais=${uid.slice(0, 3).toUpperCase()}/`),
-    );
-    const all = (
-      await Promise.all(
-        files.map(async (f) => (await readTable(f.ruta, profileSchema)).map((p) => ({ p, league: leagueOf(f.ruta) }))),
-      )
-    ).flat();
+    const all = await countryProfiles(uid);
     const league = all.find((x) => x.p.player_id === playerId)?.league ?? null;
     const peers = all
       .filter((x) => x.league === league && x.p.position === player.position && x.p.player_id !== playerId)
@@ -550,7 +576,8 @@ export async function getLeaguePlayer(
         league: league ? (LEAGUE_NAMES[league] ?? league) : null,
         player,
         peers,
-        versus: peers.find((p) => p.player_id === versusId) ?? null,
+        // Se puede comparar con cualquiera de la liga; la lista del formulario son los de su posición.
+        versus: all.find((x) => x.league === league && x.p.player_id === versusId && versusId !== playerId)?.p ?? null,
       },
     };
   } catch (cause) {

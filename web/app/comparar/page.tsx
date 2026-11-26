@@ -11,6 +11,9 @@ import { getCatalog } from '@/lib/data/catalog';
 import { getBreakdown, getPlayerPositions } from '@/lib/data/compare';
 import { getCompetitions, getPlayerMaster } from '@/lib/data/players';
 import { ErrorNotice } from '@/components/error-notice';
+import { ClubInterface } from '@/components/club/club-interface';
+import { getSelectedTeam } from '@/lib/selected-team';
+import { redirect } from 'next/navigation';
 
 export const metadata: Metadata = {
   description:
@@ -54,6 +57,18 @@ interface PageProps {
 const one = (v: string | string[] | undefined) => (typeof v === 'string' ? v : undefined);
 
 export default async function CompararPage({ searchParams }: PageProps) {
+  const team = await getSelectedTeam();
+  if (!team.isBoca) {
+    // Otro club: elige dos jugadores de la liga y los compara en la ficha del primero.
+    const raw = await searchParams;
+    const id = z.string().min(1).max(120);
+    const a = id.safeParse(raw.a);
+    const b = id.safeParse(raw.b);
+    if (a.success && b.success) {
+      redirect(`/club/${team.uid}/jugador/${encodeURIComponent(a.data)}?vs=${encodeURIComponent(b.data)}`);
+    }
+    return <ClubInterface view="comparar" uid={team.uid} />;
+  }
   const raw = await searchParams;
   const params = searchSchema.parse({
     jugador: one(raw.jugador),

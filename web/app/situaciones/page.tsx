@@ -5,6 +5,8 @@ import type { Metadata } from 'next';
 import { SituationsBoard } from '@/components/situations/board';
 import { getSituations } from '@/lib/data/situations';
 import { ErrorNotice } from '@/components/error-notice';
+import { ClubInterface } from '@/components/club/club-interface';
+import { getSelectedTeam } from '@/lib/selected-team';
 
 export const metadata: Metadata = {
   description:
@@ -12,6 +14,8 @@ export const metadata: Metadata = {
 };
 
 export default async function Page() {
+  const team = await getSelectedTeam();
+  if (!team.isBoca) return <ClubInterface view="situaciones" uid={team.uid} />;
   const result = await getSituations();
   if (!result.ok) {
     return <ErrorNotice code={result.code} />;

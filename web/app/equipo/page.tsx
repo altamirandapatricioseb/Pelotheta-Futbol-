@@ -13,6 +13,8 @@ import { Section } from '@/components/models/common';
 import { ProbabilityPanel } from '@/components/models/probability-panel';
 import { CURRENT_TEAM } from '@/config/teams';
 import { getStatTests } from '@/lib/data/models';
+import { ClubInterface } from '@/components/club/club-interface';
+import { getSelectedTeam } from '@/lib/selected-team';
 
 export const metadata: Metadata = {
   description:
@@ -34,6 +36,8 @@ interface PageProps {
 }
 
 export default async function EquipoPage({ searchParams }: PageProps) {
+  const team = await getSelectedTeam();
+  if (!team.isBoca) return <ClubInterface view="equipo" uid={team.uid} />;
   const raw = await searchParams;
   const params = searchSchema.parse({ conjunto: raw.conjunto, vista: raw.vista });
   const [matches, catalog, sets, windowValues, clubs, tests] = await Promise.all([

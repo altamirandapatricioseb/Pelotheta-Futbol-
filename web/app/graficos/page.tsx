@@ -4,6 +4,8 @@ import { Landing } from '@/components/charts/landing';
 import { getChartCatalog } from '@/lib/data/charts';
 import { getLandingData } from '@/lib/data/landing';
 import { ErrorNotice } from '@/components/error-notice';
+import { ClubInterface } from '@/components/club/club-interface';
+import { getSelectedTeam } from '@/lib/selected-team';
 
 export const metadata: Metadata = {
   description:
@@ -11,6 +13,8 @@ export const metadata: Metadata = {
 };
 
 export default async function Page() {
+  const team = await getSelectedTeam();
+  if (!team.isBoca) return <ClubInterface view="graficos" uid={team.uid} />;
   const [data, charts] = await Promise.all([getLandingData(), getChartCatalog()]);
   if (!data || !charts.ok) {
     return <ErrorNotice code={'PEL-DB-001'} />;

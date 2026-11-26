@@ -40,6 +40,7 @@ export default async function ClubPage({ params }: PageProps) {
   if (!result.ok) return <ErrorNotice code={result.code} />;
   const club = result.data;
   if (club === null) notFound();
+  const minutes = (club.situation?.con_minutos ?? 0) > 0;
 
   return (
     <div className="grid gap-6">
@@ -124,56 +125,69 @@ export default async function ClubPage({ params }: PageProps) {
               <strong>Puntos por partido:</strong> de local {formatNumber(club.situation.ppp_local, 1)}, de visitante{' '}
               {formatNumber(club.situation.ppp_visitante, 1)}
             </li>
-            <li>
-              <strong>Cuando marca primero</strong> ({cell(club.situation.marco_primero)} partidos):{' '}
-              {formatNumber(club.situation.ppp_marco_primero, 1)} puntos por partido.{' '}
-              <strong>Cuando le marcan primero</strong> ({cell(club.situation.recibio_primero)}):{' '}
-              {formatNumber(club.situation.ppp_recibio_primero, 1)}
-            </li>
-            <li>
-              <strong>Al descanso:</strong> ganando {cell(club.situation.descanso_ganando)} veces (
-              {formatNumber(club.situation.ppp_descanso_ganando, 1)} pts/partido), empatando{' '}
-              {cell(club.situation.descanso_empatando)} ({formatNumber(club.situation.ppp_descanso_empatando, 1)}),
-              perdiendo {cell(club.situation.descanso_perdiendo)} (
-              {formatNumber(club.situation.ppp_descanso_perdiendo, 1)}) · remontadas: {cell(club.situation.remontadas)}
-            </li>
+            {minutes ? (
+              <>
+                <li>
+                  <strong>Cuando marca primero</strong> ({cell(club.situation.marco_primero)} partidos):{' '}
+                  {formatNumber(club.situation.ppp_marco_primero, 1)} puntos por partido.{' '}
+                  <strong>Cuando le marcan primero</strong> ({cell(club.situation.recibio_primero)}):{' '}
+                  {formatNumber(club.situation.ppp_recibio_primero, 1)}
+                </li>
+                <li>
+                  <strong>Al descanso:</strong> ganando {cell(club.situation.descanso_ganando)} veces (
+                  {formatNumber(club.situation.ppp_descanso_ganando, 1)} pts/partido), empatando{' '}
+                  {cell(club.situation.descanso_empatando)} ({formatNumber(club.situation.ppp_descanso_empatando, 1)}),
+                  perdiendo {cell(club.situation.descanso_perdiendo)} (
+                  {formatNumber(club.situation.ppp_descanso_perdiendo, 1)}) · remontadas:{' '}
+                  {cell(club.situation.remontadas)}
+                </li>
+              </>
+            ) : null}
             <li>
               <strong>Vallas invictas:</strong> {cell(club.situation.vallas_invictas)} ·{' '}
               <strong>Partidos sin marcar:</strong> {cell(club.situation.sin_marcar)}
             </li>
           </ul>
-          {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- región desplazable con nombre (axe) */}
-          <div className="data-table-wrap" tabIndex={0} role="region" aria-label="Goles por tramo">
-            <table className="data-table tabular">
-              <caption className="text-left font-bold">Goles por tramo de 15 minutos</caption>
-              <thead>
-                <tr>
-                  <th scope="col">Goles</th>
-                  {BUCKETS.map((b) => (
-                    <th key={b} scope="col">
-                      {b === '76_90' ? '76-90+' : b.replace('_', '-')}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {(['favor', 'contra'] as const).map((side) => (
-                  <tr key={side}>
-                    <th scope="row" className="text-left">
-                      {side === 'favor' ? 'A favor' : 'En contra'}
-                    </th>
+          {minutes ? (
+            // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- región desplazable con nombre (axe)
+            <div className="data-table-wrap" tabIndex={0} role="region" aria-label="Goles por tramo">
+              <table className="data-table tabular">
+                <caption className="text-left font-bold">Goles por tramo de 15 minutos</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Goles</th>
                     {BUCKETS.map((b) => (
-                      <td key={b}>{cell(club.situation?.[`${side}_${b}`])}</td>
+                      <th key={b} scope="col">
+                        {b === '76_90' ? '76-90+' : b.replace('_', '-')}
+                      </th>
                     ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {(['favor', 'contra'] as const).map((side) => (
+                    <tr key={side}>
+                      <th scope="row" className="text-left">
+                        {side === 'favor' ? 'A favor' : 'En contra'}
+                      </th>
+                      {BUCKETS.map((b) => (
+                        <td key={b}>{cell(club.situation?.[`${side}_${b}`])}</td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : null}
           <p className="text-sm text-muted">
-            Cálculo propio con los resultados y los minutos de gol de Promiedos. Lo que depende del minuto usa{' '}
-            {cell(club.situation.con_minutos)} de {cell(club.situation.partidos)} partidos: los que tienen todos los
-            goles con su minuto.
+            {minutes ? (
+              <>
+                Cálculo propio con los resultados y los minutos de gol. Lo que depende del minuto usa{' '}
+                {cell(club.situation.con_minutos)} de {cell(club.situation.partidos)} partidos: los que tienen todos los
+                goles con su minuto.
+              </>
+            ) : (
+              'Cálculo propio con los resultados. La fuente de esta liga no publica los minutos de gol.'
+            )}
           </p>
         </section>
       ) : null}
@@ -365,7 +379,7 @@ export default async function ClubPage({ params }: PageProps) {
         <Link href="/club" className="focus-ring underline">
           Todos los clubes
         </Link>
-        . Fuente: Promiedos (promiedos.com.ar) y cálculo propio. Los archivos están en{' '}
+        . Fuentes: Promiedos (promiedos.com.ar), Wikipedia (CC BY-SA) y cálculo propio. Los archivos están en{' '}
         <a href={DATASET_URL} className="focus-ring underline">
           Hugging Face
         </a>{' '}

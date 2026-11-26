@@ -32,12 +32,15 @@ def _bucket(minute: int) -> int:
     return next(i for i, (lo, hi) in enumerate(BUCKETS) if lo <= minute <= hi)
 
 
-def situations(games: Iterable[Any], season_year: int) -> list[dict[str, Any]]:
+def situations(games: Iterable[Any], season_year: int, minutes_known: bool = True) -> list[dict[str, Any]]:
     """Una fila por club. `games`: registros con match_date, home/away_team, home/away_goals y
-    home/away_goal_minutes (vacías si los minutos no cierran con el marcador)."""
+    home/away_goal_minutes (vacías si los minutos no cierran con el marcador). `minutes_known=False`
+    para fuentes que no publican minutos: ni un 0 a 0 cuenta como partido con minutos."""
     per_team: dict[str, list[Played]] = defaultdict(list)
     for g in games:
-        complete = len(g.home_goal_minutes) == g.home_goals and len(g.away_goal_minutes) == g.away_goals
+        complete = minutes_known and (
+            len(g.home_goal_minutes) == g.home_goals and len(g.away_goal_minutes) == g.away_goals
+        )
         mins_h, mins_a = list(g.home_goal_minutes), list(g.away_goal_minutes)
         date = str(g.match_date)
         per_team[g.home_team].append(

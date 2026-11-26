@@ -33,7 +33,7 @@ Descartados: Cloudflare R2 (pide tarjeta), Neon (1 GB por proyecto: una temporad
 | Paraguay | Promiedos | — (falta fuente) | medio |
 | Ecuador | Bzzoiro | Bzzoiro, ScoutingStats | profundo |
 | Perú | Bzzoiro | Bzzoiro, ScoutingStats (764) | profundo |
-| Bolivia | API SportsPress de la FBF (`fbf.com.bo/wp-json/sportspress/v2/events`; robots `Allow: /`, solo prohíbe entrenar IA; sin términos publicados) | goleadores por partido (FBF) | medio-bajo: **pendiente de implementar** (5j-6) |
+| Bolivia | Wikipedia en español (tablas por fecha del artículo de la temporada; CC BY-SA, `?action=raw` permitido por robots) | — (la API de la FBF publica 5 partidos de primera y sin goles; ninguna otra fuente permitida) | medio-bajo: resultados con fecha y estadio, tabla calculada, situaciones sin minutos (5j-7) |
 | Venezuela | ScoutingStats | ScoutingStats (800) | profundo |
 
 Revisado y descartado: Hugging Face no tiene datasets abiertos de estas ligas (los que hay copian Sofascore, sin licencia); Sofascore, FotMob, OneFootball, ESPN, Transfermarkt, Soccerway y FBref prohíben el uso por términos; API-Football gratis solo da 2022 a 2024.
@@ -45,9 +45,10 @@ Revisado y descartado: Hugging Face no tiene datasets abiertos de estas ligas (l
 - **5j-3**: ScoutingStats por liga (Primera Nacional, Uruguay, Venezuela y las que coinciden): crudo privado, perfiles públicos.
 - **5j-4**: Promiedos por liga (resultados con minutos, tablas, próximos partidos) para todas las que publica.
 - **5j-5**: la web: índice de clubes por país y liga, y la ficha de cualquier club con todo lo que su liga tenga.
-- **5j-6**: buscar fuentes para Primera B, Federal A, Paraguay y Bolivia. Hecho el 26-nov: Bolivia tiene la API de la FBF (resultados y goleadores por partido); para Paraguay, Primera B y Federal A no apareció ninguna fuente gratis y permitida con estadísticas por jugador (Hugging Face, ScoutingStats, Bzzoiro y las federaciones revisadas). Quedan en nivel medio con Promiedos.
+- **5j-6**: buscar fuentes para Primera B, Federal A, Paraguay y Bolivia. Hecho el 26-nov: Bolivia no está en Promiedos, Bzzoiro ni ScoutingStats, y la API de la FBF resultó casi vacía (5 partidos de primera, sin goles); para Paraguay, Primera B y Federal A no apareció ninguna fuente gratis y permitida con estadísticas por jugador (Hugging Face, ScoutingStats, Bzzoiro y las federaciones revisadas). Quedan en nivel medio con Promiedos.
+- **5j-7**: Bolivia desde Wikipedia en español: resultados fecha por fecha (208 partidos de 2026 al 26-nov), tabla calculada (coincide con la oficial) y situaciones sin lo que depende del minuto. El mismo lector sirve para temporadas pasadas de cualquier liga con artículo (etapa 9). La ficha oculta «marcó primero», el descanso y los tramos de 15 minutos cuando la fuente no da minutos.
 
-**Estado del 26-nov (commits en `feat/escala-conmebol`)**: 5j-1 a 5j-5 hechas. Pendientes del dueño: subir la rama, unirla a `main` y lanzar «Exportar Parquet» varias veces (cada corrida completa más partidos por los topes de Bzzoiro, ScoutingStats y Promiedos). Pendientes técnicos: lector de la FBF para Bolivia; unificar nombres de clubes entre Bzzoiro/ScoutingStats y Promiedos fuera de Argentina (hoy solo Argentina tiene la lista); las páginas de análisis profundo (Partido, Jugador, Comparar, Equipo) leyendo Parquet para cualquier club.
+**Estado del 26-nov (commits en `feat/escala-conmebol`)**: 5j-1 a 5j-7 hechas. Pendientes del dueño: subir la rama, unirla a `main` y lanzar «Exportar Parquet» varias veces (cada corrida completa más partidos por los topes de Bzzoiro, ScoutingStats y Promiedos). Pendientes técnicos: unificar nombres de clubes entre Bzzoiro/ScoutingStats y Promiedos fuera de Argentina (hoy solo Argentina tiene la lista); las páginas de análisis profundo (Partido, Jugador, Comparar, Equipo) leyendo Parquet para cualquier club.
 
 ## 1. Resumen en cinco líneas
 

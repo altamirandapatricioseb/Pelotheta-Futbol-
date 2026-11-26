@@ -234,3 +234,58 @@ def test_scoutingstats_competition_metrics() -> None:
     assert by_key["ppda"].value == 10.0 and by_key["ppda"].comp_average == 10.6 and by_key["ppda"].rank == 19
     assert by_key["save_pct"].value == 60 and by_key["goals_prevented"].value == 0.02
     assert all(r.n_teams == 47 for r in rows)
+
+
+WIKI_ROUND = """{|class="wikitable collapsible collapsed"
+!colspan="12" style="width: 100%;" | Fecha 1
+|-
+!width="160"|Local
+!width="75"|Resultado
+!width="160"|Visitante
+!width="150"|Estadio
+!width="95"|Fecha
+!width="65"|Hora
+|-
+|bgcolor=#D0E7FF|'''Bolivar'''
+|5 – 2
+|[[CDT Real Oruro|Real Oruro]]
+|Hernando Siles
+|rowspan=2|3 de abril
+|15:00
+|-
+|Aurora
+|bgcolor=#D0E7FF|'''0 – 0'''
+|Bolívar<ref>nota</ref>
+|Félix Capriles
+|17:15
+|-
+|Real Oruro
+|–
+|Aurora
+|Jesús Bermúdez
+|4 de abril
+|20:00
+|}"""
+
+
+def test_wikipedia_round_tables_with_rowspan_and_unplayed() -> None:
+    from sources import wikipedia_league as wl
+
+    games = wl.parse_games(WIKI_ROUND, 2026)
+    assert [(g.home_team, g.away_team, g.home_goals, g.away_goals) for g in games] == [
+        ("Bolivar", "Real Oruro", 5, 2),
+        ("Aurora", "Bolívar", 0, 0),
+    ]
+    assert {g.match_date for g in games} == {date(2026, 4, 3)}  # el rowspan baja la fecha
+    assert games[0].round == 1 and games[0].venue == "Hernando Siles"
+
+
+def test_wikipedia_tables_merge_spellings_and_skip_minutes() -> None:
+    from pipeline import league_wikipedia as lw
+    from sources import wikipedia_league as wl
+
+    out = lw.tables(wl.parse_games(WIKI_ROUND, 2026), "bol-primera", 2026)
+    table = {r["team_name"]: r for r in out["league_standing"]}
+    assert set(table) == {"Bolivar", "Real Oruro", "Aurora"}  # empate de grafías: queda la primera
+    assert (table["Bolivar"]["points"], table["Bolivar"]["played"], table["Bolivar"]["rank"]) == (4, 2, 1)
+    assert all(s["con_minutos"] == 0 for s in out["league_situation"])  # ni el 0 a 0 cuenta

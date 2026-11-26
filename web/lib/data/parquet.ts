@@ -338,6 +338,8 @@ export const LEAGUE_NAMES: Record<string, string> = {
   'bol-primera': 'Primera División',
   'ven-primera': 'Liga FUTVE',
 };
+// Fuentes que permiten publicar sus datos (las demás solo dejan salir lo derivado).
+const OPEN_SOURCES = new Set(['promiedos', 'wikipedia']);
 const leagueOf = (path: string) => /liga=([^/]+)/.exec(path)?.[1] ?? null;
 const clubSchema = z.object({ team_name: z.string() });
 
@@ -363,7 +365,7 @@ async function countryTables(country: string) {
   };
   for (const { row, league } of standings.flat()) add(row.team_name, league);
   for (const { row, league } of results.flat()) {
-    if (row.source !== 'promiedos') continue; // solo fuentes abiertas
+    if (!OPEN_SOURCES.has(row.source)) continue;
     add(row.home_team, league);
     add(row.away_team, league);
   }
@@ -374,7 +376,7 @@ async function countryTables(country: string) {
     results: results
       .flat()
       .map((x) => x.row)
-      .filter((r) => r.source === 'promiedos'),
+      .filter((r) => OPEN_SOURCES.has(r.source)),
     standings: standings.flat().map((x) => x.row),
     clubs: [...clubs.values()],
   };
@@ -449,7 +451,7 @@ export async function getClub(uid: string): Promise<ArchiveResult<Club | null>> 
         strength: strengths.flat().find((s) => s.competition === 'liga' && !s.estimated && mine(s.team_name)) ?? null,
         leaders: leaders
           .flat()
-          .filter((l) => l.source === 'promiedos' && mine(l.team_name))
+          .filter((l) => OPEN_SOURCES.has(l.source) && mine(l.team_name))
           .toSorted((a, b) => a.stat.localeCompare(b.stat) || (a.rank ?? 99) - (b.rank ?? 99)),
         squad: profiles
           .flat()

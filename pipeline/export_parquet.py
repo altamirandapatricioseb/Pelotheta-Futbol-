@@ -407,6 +407,27 @@ def league_promiedos_rows(season_year: int = 2026) -> dict[str, list[dict[str, A
     return out
 
 
+def league_wikipedia_rows(season_year: int = 2026) -> dict[str, list[dict[str, Any]]]:
+    """Resultados, tabla calculada y situaciones de las ligas que solo publica Wikipedia (etapa 5j-7,
+    hoy Bolivia), con país y liga en cada fila. Una liga que falla no frena a las otras."""
+    from pipeline import league_wikipedia as lw
+    from sources import wikipedia_league as wl
+    from sources.http_client import PoliteClient
+
+    out: dict[str, list[dict[str, Any]]] = {}
+    with PoliteClient(wl.SOURCE) as client:
+        for uid in lw.LEAGUES:
+            try:
+                tables = lw.collect(client, uid, season_year)
+            except lw.ERRORS as exc:
+                print(f"Aviso: Wikipedia no respondió en {uid} ({exc}).", file=sys.stderr)
+                continue
+            tag = {"country_code": uid[:3].upper(), "competition_uid": uid}
+            for view, rows in tables.items():
+                out.setdefault(view, []).extend({**r, **tag} for r in rows)
+    return out
+
+
 def league_value_rows(club_names: list[str], today: date | None = None) -> list[dict[str, Any]]:
     """Valor real (transfermarkt-datasets, CC0) y esperado por el modelo propio de cada jugador de la
     liga, con el club en el nombre de la tabla de Promiedos (el de las fichas). Vacío si falla la fuente."""
@@ -491,6 +512,8 @@ def main(argv: list[str] | None = None) -> int:
 
     # Las demás ligas de Promiedos (etapa 5j-4) se suman a las tablas de liga de la Liga Profesional.
     other_leagues = league_promiedos_rows()
+    for view, rows in league_wikipedia_rows().items():
+        other_leagues.setdefault(view, []).extend(rows)
 
     def fetch(view: str) -> list[dict[str, Any]]:
         base = league_rows[view] if view in league_rows else fetch_view(url, key, client, view)

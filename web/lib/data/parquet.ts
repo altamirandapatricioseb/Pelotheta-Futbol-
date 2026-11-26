@@ -4,6 +4,8 @@ import { parquetReadObjects } from 'hyparquet';
 import { compressors } from 'hyparquet-compressors';
 import { z } from 'zod';
 
+import { lambdas, outcomes, type Profile, scoreMatrix } from '@/lib/models/predictor';
+
 // Capa fría pública (docs/formato-parquet.md). Se lee en el servidor y se cachea una hora: Hugging
 // Face recibe un pedido por archivo y hora, no uno por visita (límite anónimo: 3000 cada 5 min por IP).
 export const DATASET_URL = 'https://huggingface.co/datasets/pelotheta/pelotheta-futbol';
@@ -93,6 +95,33 @@ const profileSchema = z.object({
 });
 export type PlayerProfile = z.infer<typeof profileSchema>;
 
+const fixtureSchema = z.object({
+  match_date: z.string(),
+  stage: text,
+  home_team: z.string(),
+  away_team: z.string(),
+});
+
+// model_run guarda `metrics` como texto JSON; del predictor se usan los β del GLM y los valores por defecto.
+const modelRunSchema = z.object({ model: z.string(), metrics: text });
+const predictorMetricsSchema = z.object({
+  glm: z.object({ names: z.array(z.string()), beta: z.array(z.number()) }),
+  league_elo: z.number().optional(),
+  default_form: z.number().optional(),
+});
+
+export interface NextMatch {
+  date: string;
+  stage: string | null;
+  home: boolean;
+  opponent: string;
+  win: number;
+  draw: number;
+  loss: number;
+  goalsOwn: number;
+  goalsRival: number;
+}
+
 const standingSchema = z.object({
   table_name: z.string(),
   rank: num,
@@ -135,6 +164,53 @@ export interface Club {
   strength: z.infer<typeof strengthSchema> | null;
   leaders: z.infer<typeof leaderSchema>[];
   squad: PlayerProfile[];
+  next: NextMatch | null;
+}
+
+type Strength = z.infer<typeof strengthSchema>;
+
+/** Pronóstico del próximo partido con el GLM del predictor (la misma cuenta que la página Predictor). */
+export function predictNext(
+  fixtures: readonly z.infer<typeof fixtureSchema>[],
+  strengths: readonly Strength[],
+  metrics: z.infer<typeof predictorMetricsSchema> | null,
+  isMine: (team: string) => boolean,
+): NextMatch | null {
+  const fixture = fixtures
+    .toSorted((a, b) => a.match_date.localeCompare(b.match_date))
+    .find((f) => isMine(f.home_team) || isMine(f.away_team));
+  if (!fixture || !metrics) return null;
+  const home = isMine(fixture.home_team);
+  const opponent = home ? fixture.away_team : fixture.home_team;
+  const league = strengths.filter((s) => s.competition === 'liga' && !s.estimated);
+  const own = league.find((s) => isMine(s.team_name));
+  const rival = league.find((s) => norm(s.team_name) === norm(opponent));
+  if (!own || !rival) return null;
+  const profile = (s: Strength): Profile => ({
+    name: s.team_name,
+    attackHome: s.attack_home ?? 1,
+    attackAway: s.attack_away ?? 1,
+    defenseHome: s.defense_home ?? 1,
+    defenseAway: s.defense_away ?? 1,
+    value: s.squad_value_eur ?? 1,
+    elo: s.elo ?? metrics.league_elo ?? 1500,
+    form: s.form ?? metrics.default_form ?? 1.35,
+    estimated: false,
+    count: 1,
+  });
+  const lam = lambdas(metrics.glm, profile(own), profile(rival), home ? 'local' : 'visitante');
+  const { win, draw, loss } = outcomes(scoreMatrix(lam.own, lam.rival));
+  return {
+    date: fixture.match_date,
+    stage: fixture.stage,
+    home,
+    opponent,
+    win,
+    draw,
+    loss,
+    goalsOwn: lam.own,
+    goalsRival: lam.rival,
+  };
 }
 
 async function fetchFile(path: string): Promise<Response> {
@@ -258,12 +334,16 @@ export async function getClub(uid: string): Promise<ArchiveResult<Club | null>> 
     const own = manifest.archivos.filter((f) => f.tabla === 'boca_match' && f.ruta.includes(`/equipo=${uid}/`));
     const inCountry = (tabla: string) =>
       manifest.archivos.filter((f) => f.tabla === tabla && f.ruta.startsWith(`pais=${country}/`)).map((f) => f.ruta);
-    const [ownMatches, strengths, leaders, profiles] = await Promise.all([
+    const [ownMatches, strengths, leaders, profiles, fixtures, runs] = await Promise.all([
       Promise.all(own.map((f) => readTable(f.ruta, teamMatchSchema))),
       Promise.all(inCountry('team_strength').map((p) => readTable(p, strengthSchema))),
       Promise.all(inCountry('league_leader').map((p) => readTable(p, leaderSchema))),
       Promise.all(inCountry('league_player_profile').map((p) => readTable(p, profileSchema))),
+      Promise.all(inCountry('league_fixture').map((p) => readTable(p, fixtureSchema))),
+      Promise.all(inCountry('model_run').map((p) => readTable(p, modelRunSchema))),
     ]);
+    const predictor = runs.flat().find((r) => r.model === 'predictor_partido')?.metrics;
+    const parsed = predictor ? predictorMetricsSchema.safeParse(JSON.parse(predictor)) : null;
     const matches = own.length ? ownMatches.flat().map(fromTeamMatch) : leagueMatchesFor(results, names);
     const wanted = new Set(names.map(norm));
     const mine = (team: string | null) => team !== null && wanted.has(norm(team));
@@ -286,6 +366,7 @@ export async function getClub(uid: string): Promise<ArchiveResult<Club | null>> 
           .flat()
           .filter((p) => mine(p.team_name))
           .toSorted((a, b) => (b.minutes ?? 0) - (a.minutes ?? 0)),
+        next: predictNext(fixtures.flat(), strengths.flat(), parsed?.success ? parsed.data : null, mine),
       },
     };
   } catch (cause) {

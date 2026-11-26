@@ -21,6 +21,7 @@ const cell = (v: number | null) => (v === null ? NOT_AVAILABLE : String(v));
 // Fuerza contra el promedio de la liga (1 = promedio): «+12 %» convierte o recibe 12 % más que el promedio.
 const vsAverage = (v: number | null) =>
   v === null ? NOT_AVAILABLE : `${v >= 1 ? '+' : '−'}${String(Math.round(Math.abs(v - 1) * 100))} %`;
+const percent = (p: number) => `${String(Math.round(p * 100))} %`;
 const STATS: Record<string, string> = { goles: 'Goles', asistencias: 'Asistencias' };
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -47,6 +48,33 @@ export default async function ClubPage({ params }: PageProps) {
         </h1>
         <p className="mt-2 text-muted">{club.country ?? 'Conmebol'} · partidos y posiciones desde el archivo abierto</p>
       </div>
+
+      {club.next ? (
+        <section className="grid gap-2" aria-labelledby="proximo">
+          <h2 id="proximo" className="text-xl font-bold">
+            Próximo partido
+          </h2>
+          <p>
+            {day(club.next.date)} · {club.next.home ? 'de local' : 'de visitante'} contra{' '}
+            <strong>{club.next.opponent}</strong>
+            {club.next.stage ? ` · ${club.next.stage}` : ''}
+          </p>
+          <ul className="grid gap-1">
+            <li>
+              <strong>Gana:</strong> {percent(club.next.win)} · <strong>Empata:</strong> {percent(club.next.draw)} ·{' '}
+              <strong>Pierde:</strong> {percent(club.next.loss)}
+            </li>
+            <li>
+              <strong>Goles esperados:</strong> {formatNumber(club.next.goalsOwn, 1)} a{' '}
+              {formatNumber(club.next.goalsRival, 1)}
+            </li>
+          </ul>
+          <p className="text-sm text-muted">
+            Modelo de Poisson propio (el del Predictor) con ataque, defensa, valor del plantel, Elo y forma de los dos
+            equipos. Es una probabilidad, no un resultado.
+          </p>
+        </section>
+      ) : null}
 
       {club.strength ? (
         <section className="grid gap-2" aria-labelledby="nivel">

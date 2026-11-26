@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('server-only', () => ({}));
 
-const { getClub, listClubs, slug, standingsFor } = await import('./parquet');
+const { getClub, listClubs, predictNext, slug, standingsFor } = await import('./parquet');
 
 const FIXTURES = fileURLToPath(new URL('./__fixtures__/', import.meta.url));
 
@@ -68,6 +68,40 @@ describe('archivo abierto en Parquet', () => {
     // Plantel: solo el club, más minutos primero; el percentil faltante sigue null.
     expect(result.data.squad.map((p) => p.player_name)).toEqual(['Titular C', 'Suplente C']);
     expect(result.data.squad[0]?.pct_expected_goals).toBeNull();
+  });
+
+  it('pronostica el próximo partido del club con el GLM del predictor', () => {
+    const strength = (team_name: string, attack: number) => ({
+      team_name,
+      competition: 'liga',
+      estimated: false,
+      attack_home: attack,
+      defense_home: 1,
+      attack_away: attack,
+      defense_away: 1,
+      elo: 1500,
+      form: 1.35,
+      squad_value_eur: 1e7,
+    });
+    const strengths = [
+      { ...strength('Club B', 9), competition: 'copa', estimated: true }, // la estimada de copa no cuenta
+      strength('Club A', 1.5),
+      strength('Club B', 0.7),
+      strength('Club C', 1),
+    ];
+    const fixtures = [
+      { match_date: '2026-12-02', stage: null, home_team: 'Club C', away_team: 'Club A' },
+      { match_date: '2026-11-29', stage: 'Cuartos', home_team: 'Club B', away_team: 'Club A' },
+    ];
+    const metrics = { glm: { names: ['ataque', 'defensa', 'local'], beta: [0.2, 1, 1, 0.25] } };
+    const isA = (t: string) => t === 'Club A';
+    const next = predictNext(fixtures, strengths, metrics, isA);
+    expect(next).toMatchObject({ date: '2026-11-29', home: false, opponent: 'Club B', stage: 'Cuartos' });
+    if (next === null) throw new Error('sin pronóstico');
+    expect(next.win + next.draw + next.loss).toBeCloseTo(1, 9);
+    expect(next.win).toBeGreaterThan(next.loss); // ataca el doble que el rival
+    expect(predictNext(fixtures, strengths, null, isA)).toBeNull(); // sin modelo no se inventa
+    expect(predictNext(fixtures, strengths, metrics, (t) => t === 'Otro')).toBeNull();
   });
 
   it('el id coincide con core.slug de la base', () => {

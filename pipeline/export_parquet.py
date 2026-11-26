@@ -100,6 +100,8 @@ TABLES = [
     # Toda la liga desde Bzzoiro (no pasan por Supabase: no entran en 500 MB).
     Table("league_player_match", "liga", "restringida", "Crudo por jugador y partido", ("bzzoiro",)),
     Table("league_player_profile", "liga", "abierta", "Percentiles por posición: cálculo propio"),
+    Table("league_fixture", "liga", "abierta", "Próximos partidos de la liga (Promiedos)"),
+    Table("model_run", "liga", "abierta", "Parámetros y métricas de modelos propios", row_source=False),
 ]
 # Tablas que no son vistas de Supabase: las arma `pipeline.league_players` desde Bzzoiro.
 LEAGUE_PLAYER_VIEWS = {"league_player_match", "league_player_profile"}
@@ -303,6 +305,26 @@ def league_player_rows(season_year: int = 2026) -> dict[str, list[dict[str, Any]
     return {"league_player_match": raw, "league_player_profile": lp.profiles(raw, season_year)}
 
 
+def league_fixture_rows() -> list[dict[str, Any]]:
+    """Próximos partidos entre clubes de la liga: la tabla de la liga (ids y nombres) y la lista
+    «próximos» de cada página de equipo de Promiedos (~31 páginas a 3 s). Vacío si Promiedos falla."""
+    from pipeline.run import LEAGUE_PATH, league_team_names, league_team_paths
+    from sources import promiedos as pd
+    from sources.http_client import FetchError, PoliteClient, RetryableFetchError
+
+    seen: dict[str, dict[str, Any]] = {}
+    try:
+        with PoliteClient(pd.SOURCE) as client:
+            league = pd.next_data(client.get(pd.BASE_URL + LEAGUE_PATH, use_cache=False).text())["data"]
+            names = league_team_names(league)
+            for path in [*league_team_paths(league), pd.BOCA_TEAM_PATH]:
+                team = pd.next_data(client.get(pd.BASE_URL + path, use_cache=False).text())["data"]
+                seen.update({g["ext_id"]: g for g in pd.upcoming_league_games(team, names)})
+    except (FetchError, RetryableFetchError, ValueError, KeyError) as exc:
+        print(f"Aviso: sin próximos partidos de Promiedos ({exc}).", file=sys.stderr)
+    return sorted(seen.values(), key=lambda g: g["kickoff_at"])
+
+
 def main(argv: list[str] | None = None) -> int:
     from pipeline.run import load_dotenv, secret_key
 
@@ -318,10 +340,10 @@ def main(argv: list[str] | None = None) -> int:
         print("Faltan SUPABASE_URL o la clave secreta.", file=sys.stderr)
         return 2
     out = Path(args.out)
-    league_rows = league_player_rows()
+    league_rows = {**league_player_rows(), "league_fixture": league_fixture_rows()}
 
     def fetch(view: str) -> list[dict[str, Any]]:
-        return league_rows[view] if view in LEAGUE_PLAYER_VIEWS else fetch_view(url, key, client, view)
+        return league_rows[view] if view in league_rows else fetch_view(url, key, client, view)
 
     with httpx.Client(timeout=TIMEOUT) as client:
         manifests = export(fetch, out)

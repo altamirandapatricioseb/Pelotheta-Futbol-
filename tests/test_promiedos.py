@@ -411,6 +411,34 @@ def test_league_game_refs_need_a_final_score_and_two_league_teams() -> None:
     assert [r.game_id for r in pd.league_game_refs(data, 2026, {"x", "y"})] == ["a"]
 
 
+def test_upcoming_league_games_between_two_league_clubs() -> None:
+    def row(
+        game_id: str, teams: list[str], status: int = 1, start: str = "29-11-2026 14:00"
+    ) -> dict[str, Any]:
+        game = {"id": game_id, "start_time": start, "status": {"enum": status}, "stage_round_name": None}
+        return {"game": {**game, "teams": [{"id": t, "name": t.upper()} for t in teams]}}
+
+    data = {
+        "games": {
+            "next": {
+                "rows": [
+                    row("a", ["ins", "riv"]),
+                    row("b", ["riv", "mia"]),  # amistoso con un club de afuera
+                    row("c", ["riv", "ins"], status=3),  # ya jugado
+                ]
+            }
+        }
+    }
+    (g,) = pd.upcoming_league_games(data, {"ins": "Instituto", "riv": "River Plate"})
+    assert (g["ext_id"], g["home_team"], g["away_team"], g["match_date"]) == (
+        "a",
+        "Instituto",
+        "River Plate",
+        "2026-11-29",
+    )
+    assert g["kickoff_at"].endswith("-03:00")
+
+
 def test_league_head_to_head_refs_reach_older_league_games() -> None:
     def h2h(
         game_id: str, league: str = "hc", status: int = 3, start: str = "01-02-2026 18:00"

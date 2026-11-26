@@ -672,6 +672,33 @@ def league_game_refs(team_data: dict[str, Any], season_year: int, league_team_id
     return refs
 
 
+def upcoming_league_games(team_data: dict[str, Any], names: dict[str, str]) -> list[dict[str, Any]]:
+    """Partidos programados entre dos clubes de la liga (`names`: id → nombre de la tabla), de la
+    lista «próximos» de una página de equipo. Para el predictor de toda la liga."""
+    games = []
+    for row in ((team_data.get("games") or {}).get("next") or {}).get("rows") or []:
+        g = row.get("game") or {}
+        ids = [t.get("id") for t in g.get("teams") or []]
+        if len(ids) != 2 or not all(i in names for i in ids) or (g.get("status") or {}).get("enum") != 1:
+            continue
+        try:
+            kickoff = datetime.strptime(str(g["start_time"]), "%d-%m-%Y %H:%M").replace(tzinfo=AR_TZ)
+        except (KeyError, ValueError):
+            continue
+        games.append(
+            {
+                "source": SOURCE,
+                "ext_id": str(g.get("id")),
+                "kickoff_at": kickoff.isoformat(),
+                "match_date": kickoff.date().isoformat(),
+                "stage": g.get("stage_round_name"),
+                "home_team": names[ids[0]],
+                "away_team": names[ids[1]],
+            }
+        )
+    return games
+
+
 def league_head_to_head_refs(game: dict[str, Any], season_year: int) -> list[GameRef]:
     """Partidos terminados de liga de la temporada en el «historial» de un partido. Las páginas de
     equipo listan solo los últimos partidos; el cruce del Clausura trae el del Apertura entre los

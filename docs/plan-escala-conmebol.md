@@ -31,7 +31,7 @@ Descartados: Cloudflare R2 (pide tarjeta), Neon (1 GB por proyecto: una temporad
 | Chile | Promiedos | Bzzoiro, ScoutingStats (663) | profundo |
 | Colombia | Promiedos | Bzzoiro, ScoutingStats | profundo |
 | Paraguay | Promiedos | — (falta fuente) | medio |
-| Ecuador | Bzzoiro | Bzzoiro, ScoutingStats | profundo |
+| Ecuador | Bzzoiro (privado); Wikipedia (público: resultados por fecha y tabla calculada, 5j-9) | Bzzoiro, ScoutingStats | profundo |
 | Perú | Bzzoiro | Bzzoiro, ScoutingStats (764) | profundo |
 | Bolivia | Wikipedia en español (tablas por fecha del artículo de la temporada; CC BY-SA, `?action=raw` permitido por robots) | — (la API de la FBF publica 5 partidos de primera y sin goles; ninguna otra fuente permitida) | medio-bajo: resultados con fecha y estadio, tabla calculada, situaciones sin minutos (5j-7) |
 | Venezuela | ScoutingStats | ScoutingStats (800) | profundo |
@@ -48,8 +48,9 @@ Revisado y descartado: Hugging Face no tiene datasets abiertos de estas ligas (l
 - **5j-6**: buscar fuentes para Primera B, Federal A, Paraguay y Bolivia. Hecho el 26-nov: Bolivia no está en Promiedos, Bzzoiro ni ScoutingStats, y la API de la FBF resultó casi vacía (5 partidos de primera, sin goles); para Paraguay, Primera B y Federal A no apareció ninguna fuente gratis y permitida con estadísticas por jugador (Hugging Face, ScoutingStats, Bzzoiro y las federaciones revisadas). Quedan en nivel medio con Promiedos.
 - **5j-7**: Bolivia desde Wikipedia en español: resultados fecha por fecha (208 partidos de 2026 al 26-nov), tabla calculada (coincide con la oficial) y situaciones sin lo que depende del minuto. El mismo lector sirve para temporadas pasadas de cualquier liga con artículo (etapa 9). La ficha oculta «marcó primero», el descanso y los tramos de 15 minutos cuando la fuente no da minutos.
 - **5j-8**: el club de cada fila de jugador (Bzzoiro, ScoutingStats) toma el nombre de la tabla de su misma liga, emparejando por palabras en común sin las genéricas («Red Bull Bragantino» → «Bragantino», «Wanderers» → «Montevideo Wanderers»). Probado con Brasil, Chile, Colombia y Uruguay reales: todos emparejados bien. Ecuador, Perú, Brasil B y Venezuela no tienen tabla de Promiedos y quedan con el nombre de su fuente.
+- **5j-9**: Ecuador también desde Wikipedia (294 partidos de 2026, tabla acumulada de todas las fases): sus resultados de Bzzoiro son privados, así que la ficha no tenía tabla ni situaciones. El lector acepta marcadores dentro de enlaces externos e ignora imágenes. Revisados sin éxito: Perú (el artículo de 2026 no trae las fechas, están en anexos), Venezuela y Brasil B (sin artículo de temporada con resultados).
 
-**Estado del 26-nov (commits en `feat/escala-conmebol`)**: 5j-1 a 5j-8 hechas. Pendientes del dueño: subir la rama, unirla a `main` y lanzar «Exportar Parquet» varias veces (cada corrida completa más partidos por los topes de Bzzoiro, ScoutingStats y Promiedos). Pendientes técnicos: las páginas de análisis profundo (Partido, Jugador, Comparar, Equipo) leyendo Parquet para cualquier club.
+**Estado del 26-nov (commits en `feat/escala-conmebol`)**: 5j-1 a 5j-9 hechas. Pendientes del dueño: subir la rama, unirla a `main` y lanzar «Exportar Parquet» varias veces (cada corrida completa más partidos por los topes de Bzzoiro, ScoutingStats y Promiedos). Pendientes técnicos: las páginas de análisis profundo (Partido, Jugador, Comparar, Equipo) leyendo Parquet para cualquier club.
 
 ## 1. Resumen en cinco líneas
 

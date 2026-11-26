@@ -253,8 +253,8 @@ WIKI_ROUND = """{|class="wikitable collapsible collapsed"
 |rowspan=2|3 de abril
 |15:00
 |-
-|Aurora
-|bgcolor=#D0E7FF|'''0 – 0'''
+|Aurora [[Archivo:Copa.png|40px|Clasificado a la Libertadores]]
+|bgcolor=#D0E7FF|'''[https://liga.example/partido?id=1 0 – 0]'''
 |Bolívar<ref>nota</ref>
 |Félix Capriles
 |17:15

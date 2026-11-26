@@ -71,7 +71,9 @@ def clean(text: str) -> str:
     text = re.sub(r"\{\{(?:nowrap|small|nobr)\|([^{}]*)\}\}", r"\1", text, flags=re.I)
     while "{{" in text and (stripped := re.sub(r"\{\{[^{}]*\}\}", "", text)) != text:
         text = stripped
+    text = re.sub(r"\[\[(?:Archivo|File|Imagen|Image):[^\]]*\]\]", "", text, flags=re.I)
     text = re.sub(r"\[\[(?:[^\]|]*\|)?([^\]]*)\]\]", r"\1", text)
+    text = re.sub(r"\[https?://\S+\s+([^\]]*)\]", r"\1", text)  # [url 1 – 2] → 1 – 2
     text = re.sub(r"<[^>]+>|'{2,}", "", text)
     return re.sub(r"\s+", " ", text).strip()
 

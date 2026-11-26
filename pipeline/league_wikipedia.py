@@ -1,7 +1,8 @@
 """Ligas que solo publica Wikipedia (etapa 5j-7): resultados, tabla calculada y situaciones.
 
-Hoy Bolivia. La tabla es cálculo propio sobre los resultados (3 puntos por victoria; desempate por
-puntos, victorias, diferencia y goles): si la liga descuenta puntos por sanción, no se refleja.
+Hoy Bolivia y Ecuador. La tabla es cálculo propio sobre los resultados y suma todas las fases del
+torneo (3 puntos por victoria; desempate por puntos, victorias, diferencia y goles): si la liga
+descuenta puntos por sanción, no se refleja.
 Wikipedia es CC BY-SA: todo esto es público con la cita.
 """
 
@@ -18,7 +19,10 @@ from sources import wikipedia_league as wl
 from sources.http_client import FetchError, PoliteClient, RetryableFetchError
 
 # Liga del sistema → título del artículo de cada temporada en Wikipedia en español.
-LEAGUES = {"bol-primera": "Primera División de Bolivia {year}"}
+LEAGUES = {
+    "bol-primera": "Primera División de Bolivia {year}",
+    "ecu-serie-a": "Serie A de Ecuador {year}",  # Bzzoiro tiene sus jugadores, pero no hay tabla abierta
+}
 ERRORS = (FetchError, RetryableFetchError, ValueError)
 
 
@@ -86,7 +90,7 @@ def tables(games: list[wl.WikiGame], league_uid: str, season_year: int) -> dict[
     return {
         "league_result": [r.model_dump(mode="json") for r in records],
         "league_standing": [
-            r.model_dump(mode="json") for r in standings(records, season_year, "Tabla general")
+            r.model_dump(mode="json") for r in standings(records, season_year, "Tabla acumulada")
         ],
         "league_situation": league_situations.situations(records, season_year, minutes_known=False),
     }

@@ -40,6 +40,37 @@ KEY_STATS = {
     "goals_prevented": True,
     "possession_lost": False,
 }
+# Clave del catálogo (las de `similarity.FEATURES`) → campo de Bzzoiro, sumado en la temporada. Las
+# definiciones coinciden con `data/stat_catalog.csv` (pases, largos y centros: intentados). Bzzoiro no
+# informa penales: «goles_sin_penal» y «npxg» quedan sin dato, no en 0.
+CATALOG_SUMS = {
+    "remates": "total_shots",
+    "xa": "expected_assists",
+    "pases_clave": "key_pass",
+    "regates_exitosos": "won_contest",
+    "conducciones_progresivas": "progressive_ball_carries_count",
+    "pases": "total_pass",
+    "pases_completos": "accurate_pass",
+    "pases_largos": "total_long_balls",
+    "centros": "total_cross",
+    "entradas_ganadas": "won_tackle",
+    "intercepciones": "interception",
+    "recuperaciones": "ball_recovery",
+    "despejes": "total_clearance",
+    "aereos_ganados": "aerial_won",
+    "duelos_ganados": "duel_won",
+    "duelos_perdidos": "duel_lost",
+    "remates_arco": "shots_on_target",
+    "ocasiones_claras_falladas": "big_chance_missed",
+    "pases_campo_rival_completos": "accurate_opposition_half_passes",
+    "veces_regateado": "challenge_lost",
+    "errores_gol": "error_lead_to_a_goal",
+    # Arqueros (las claves que usa el Ojeador en ese puesto).
+    "goles_recibidos": "goals_conceded",
+    "atajadas_dentro_area": "saved_shots_from_inside_the_box",
+    "salidas_exitosas": "accurate_keeper_sweeper",
+    "centros_atrapados": "good_high_claim",
+}
 GOALKEEPER_STATS = {"saves", "goals_prevented", "accurate_pass"}
 OUTFIELD_STATS = set(KEY_STATS) - {"saves", "goals_prevented"}
 
@@ -71,6 +102,42 @@ def collect(client: bz.BzzoiroClient, league_id: int, season_year: int) -> list[
         for row in bz.parse_all_player_stats(stats, lineups):
             rows.append({"event_id": e.event_id, "match_date": date, "season_year": season_year, **row})
     return rows
+
+
+def season_stats(rows: list[dict[str, Any]]) -> dict[tuple[str, str], dict[str, Any]]:
+    """(jugador, club) → minutos y totales de la temporada con las claves del catálogo, para
+    `player_pool`: así el Ojeador y Alternativas comparan con jugadores de toda la liga."""
+    acc: dict[tuple[str, str], dict[str, Any]] = {}
+    for r in rows:
+        a = acc.setdefault((r["player_name"], r["team_name"]), {"minutes": 0.0, "stats": {}, "rated": 0.0})
+        minutes = r.get("minutes_played") or 0
+        a["minutes"] += minutes
+        st = a["stats"]
+        for key, field in CATALOG_SUMS.items():
+            if r.get(field) is not None:
+                st[key] = st.get(key, 0.0) + r[field]
+        if r.get("rating") is not None and minutes:
+            st["_nota_x_min"] = st.get("_nota_x_min", 0.0) + r["rating"] * minutes
+            a["rated"] += minutes
+        if r.get("goals_conceded") is not None:  # partido completo sin goles en contra
+            st["vallas_invictas"] = st.get("vallas_invictas", 0.0) + (
+                minutes >= 90 and r["goals_conceded"] == 0
+            )
+    for a in acc.values():
+        st = a["stats"]
+        if st.get("pases"):
+            st["pct_pases"] = (
+                round(st["pases_completos"] / st["pases"] * 100, 1) if "pases_completos" in st else None
+            )
+        disputed = st.get("duelos_ganados", 0) + st.get("duelos_perdidos", 0)
+        if disputed:
+            st["pct_duelos"] = round(st.get("duelos_ganados", 0) / disputed * 100, 1)
+        # Calificación: promedio de la nota de la fuente pesado por minutos (no se suma).
+        rated, nota = a.pop("rated"), st.pop("_nota_x_min", None)
+        st["calificacion"] = round(nota / rated, 2) if nota is not None and rated else None
+        a["minutes"] = int(a["minutes"])
+        a["stats"] = {k: round(v, 3) for k, v in st.items() if v is not None}
+    return acc
 
 
 def profiles(rows: list[dict[str, Any]], season_year: int) -> list[dict[str, Any]]:

@@ -181,6 +181,54 @@ def club_match(name: str, names: Sequence[str]) -> str | None:
     return found[0] if len(found) == 1 else None
 
 
+def with_league_stats(
+    pool: Sequence[tmd.PoolPlayerRecord], stats: dict[tuple[str, str], dict[str, Any]]
+) -> list[tmd.PoolPlayerRecord]:
+    """Suma a cada jugador del pool sus minutos y totales de la temporada (Bzzoiro, toda la liga).
+
+    Se cruza por club (`club_match`, el pool usa los nombres de transfermarkt) y, dentro del club, por
+    nombre normalizado. El que no cruza queda como estaba: sin estadísticas, no con ceros.
+    """
+    by_club: dict[str, dict[str, dict[str, Any]]] = {}
+    for (name, team), value in stats.items():
+        by_club.setdefault(team, {})[player_key(name)] = value
+    clubs = list(by_club)
+
+    def short(key: str) -> str:  # «juan cruz komar» → «j komar»: inicial y apellido
+        parts = key.split()
+        return f"{parts[0][0]} {parts[-1]}" if parts else ""
+
+    out = []
+    for r in pool:
+        players = by_club.get(club_match(r.team_name, clubs) or "", {})
+        key = player_key(r.player_name)
+        hit = players.get(key)
+        if hit is None:
+            # Segunda pasada dentro del club: misma inicial y apellido, solo si hay uno solo.
+            same = [v for k, v in players.items() if short(k) == short(key)]
+            hit = same[0] if len(same) == 1 else None
+        out.append(r.model_copy(update={"minutes": hit["minutes"], "stats": hit["stats"]}) if hit else r)
+    return out
+
+
+def league_stats(today: date, warnings: list[str]) -> dict[tuple[str, str], dict[str, Any]]:
+    """Totales de la temporada de toda la Liga Profesional desde Bzzoiro (en caché tras la primera vez)."""
+    from pipeline import league_players
+    from sources import bzzoiro as bz
+
+    key = os.environ.get("BZZOIRO_API_KEY", "")
+    if not key:
+        warnings.append("Sin BZZOIRO_API_KEY: el pool de otros clubes queda sin estadísticas")
+        return {}
+    try:
+        client = bz.BzzoiroClient(api_key=key)
+        rows = league_players.collect(client, bz.LEAGUES["arg-liga-profesional-argentina"], today.year)
+    except bz.BzzoiroError as exc:
+        warnings.append(f"Bzzoiro no respondió: {exc}")
+        return {}
+    return league_players.season_stats(rows)
+
+
 def club_value(name: str, values: dict[str, int]) -> int | None:
     """Valor del plantel de un club por su nombre corto (ver `club_match`)."""
     hit = club_match(name, list(values))
@@ -350,6 +398,8 @@ def run(url: str, key: str, dry_run: bool = False) -> dict[str, Any]:
             dataset, past_games, club_vals, leagues, history = [], [], {}, {}, {}
         zone = zone_clubs(club_vals, leagues)
         own_values, pool = split_pool(dataset, match, today)
+        pool = with_league_stats(pool, league_stats(today, warnings))
+        summary["otros_clubes_con_estadisticas"] = sum(1 for r in pool if r.stats)
         records += own_values
         summary["valores_propios"] = len(own_values)
         summary["jugadores_otros_clubes"] = len(pool)

@@ -92,6 +92,56 @@ def test_profiles_percentiles_by_position_and_minimum_minutes() -> None:
     assert out["J2"]["pct_expected_goals"] is None  # sin el dato no hay percentil (no es 0)
 
 
+def test_season_stats_use_catalog_keys_and_keep_missing_as_absent() -> None:
+    rows = [
+        game(1, "A", "M", 1, minutes_played=90, key_pass=2, total_pass=40, accurate_pass=30),
+        game(1, "A", "M", 2, minutes_played=45, key_pass=1, total_pass=10, accurate_pass=10),
+    ]
+    out = lp.season_stats(rows)[("J1", "A")]
+    assert out["minutes"] == 135
+    assert (
+        out["stats"]["pases_clave"] == 3 and out["stats"]["pases"] == 50 and out["stats"]["pct_pases"] == 80.0
+    )
+    assert "npxg" not in out["stats"] and "remates" not in out["stats"]  # sin dato: ausente, no 0
+    assert "calificacion" not in out["stats"]  # sin notas no hay promedio
+
+
+def test_season_stats_rating_is_weighted_and_clean_sheets_need_full_games() -> None:
+    rows = [
+        game(4, "C", "G", 1, minutes_played=90, rating=8.0, goals_conceded=0, duel_won=1, duel_lost=3),
+        game(4, "C", "G", 2, minutes_played=30, rating=6.0, goals_conceded=0),  # entró: no es valla invicta
+    ]
+    st = lp.season_stats(rows)[("J4", "C")]["stats"]
+    assert st["calificacion"] == 7.5  # (8 × 90 + 6 × 30) / 120
+    assert st["vallas_invictas"] == 1 and st["goles_recibidos"] == 0
+    assert st["pct_duelos"] == 25.0
+
+
+def test_pool_gets_league_stats_by_club_and_name() -> None:
+    from pipeline import analytics as an
+    from sources import transfermarkt_datasets as tmd
+
+    def pool(name: str, team: str) -> tmd.PoolPlayerRecord:
+        return tmd.PoolPlayerRecord(
+            source="transfermarkt_datasets", ext_id=name, player_name=name, team_name=team,
+            club_ext_id="1", competition="AR1N",
+        )  # fmt: skip
+
+    stats = {
+        ("Juan Pérez", "Tigre"): {"minutes": 900, "stats": {"pases": 300.0}},
+        ("Lucas Gómez", "Tigre"): {"minutes": 500, "stats": {"pases": 100.0}},
+    }
+    out = an.with_league_stats(
+        [pool("Juan Perez", "Club Atlético Tigre"), pool("L. Gómez", "Tigre"), pool("Otro", "Tigre")],
+        stats,
+    )
+    assert [(r.minutes, r.stats) for r in out] == [
+        (900, {"pases": 300.0}),
+        (500, {"pases": 100.0}),
+        (None, {}),
+    ]
+
+
 def test_raw_goes_private_and_profiles_public(tmp_path: Path) -> None:
     raw = [{**game(1, "A", "F", 1, minutes_played=90, goals=1), "season_year": 2026, "event_id": 7}]
     rows = {"league_player_match": raw, "league_player_profile": [{"player_name": "J1", "season_year": 2026}]}

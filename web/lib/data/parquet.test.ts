@@ -5,7 +5,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('server-only', () => ({}));
 
-const { getClub, getLeaguePlayer, listClubs, predictNext, slug, standingsFor } = await import('./parquet');
+const { getClub, getLeagueMatch, getLeaguePlayer, listClubs, predictNext, slug, standingsFor } =
+  await import('./parquet');
 
 const FIXTURES = fileURLToPath(new URL('./__fixtures__/', import.meta.url));
 
@@ -25,6 +26,23 @@ afterEach(() => {
 });
 
 describe('archivo abierto en Parquet', () => {
+  it('arma la ficha de un partido de liga: goles en orden, planilla, tabla y otros cruces', async () => {
+    serveFixtures();
+    const result = await getLeagueMatch('arg-club-a', 'm1');
+    if (!result.ok || !result.data) throw new Error('sin partido');
+    const { result: r, goals, home, away, headToHead } = result.data;
+    expect(goals).toEqual([
+      { minute: 10, home: true },
+      { minute: 70, home: true },
+    ]);
+    expect([r.referee, r.yellow_away, r.red_home]).toEqual(['Árbitro Uno', 3, null]);
+    expect(home.uid).toBe('arg-club-a');
+    expect(home.standing?.rank).toBe(1); // «Club Á» de la tabla es «Club A»
+    expect(away.standing?.points).toBe(0);
+    expect(headToHead.map((m) => m.ext_id)).toEqual(['m9']);
+    expect(await getLeagueMatch('arg-club-a', 'm4')).toEqual({ ok: true, data: null }); // StrikerAPI: no es abierta
+  });
+
   it('arma la ficha de un jugador de liga con los de su posición para comparar', async () => {
     serveFixtures();
     const result = await getLeaguePlayer('arg-club-c', '101', '102');
@@ -65,8 +83,24 @@ describe('archivo abierto en Parquet', () => {
     if (!result.ok || !result.data) throw new Error('sin ficha');
     expect(result.data.country).toBe('Argentina');
     expect(result.data.matches).toEqual([
-      { date: '2026-02-02', competition: 'Fecha 1', home: false, opponent: 'Club B', goalsFor: 3, goalsAgainst: 1 },
-      { date: '2026-02-09', competition: 'Fecha 1', home: true, opponent: 'Unión', goalsFor: null, goalsAgainst: null },
+      {
+        id: 'm2',
+        date: '2026-02-02',
+        competition: 'Fecha 1',
+        home: false,
+        opponent: 'Club B',
+        goalsFor: 3,
+        goalsAgainst: 1,
+      },
+      {
+        id: 'm3',
+        date: '2026-02-09',
+        competition: 'Fecha 1',
+        home: true,
+        opponent: 'Unión',
+        goalsFor: null,
+        goalsAgainst: null,
+      },
     ]);
     const clubs = await listClubs('ARG');
     // «Club A» y «Club Á» dan el mismo id (como core.slug): una sola entrada. Club X es de StrikerAPI: no entra.

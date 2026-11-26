@@ -329,7 +329,15 @@ export default async function ClubPage({ params }: PageProps) {
                   <td className="text-left">{m.competition ?? NOT_AVAILABLE}</td>
                   <td className="text-left">{m.opponent ?? NOT_AVAILABLE}</td>
                   <td className="text-left">{m.home === null ? NOT_AVAILABLE : m.home ? 'Local' : 'Visitante'}</td>
-                  <td>{score(m.goalsFor, m.goalsAgainst)}</td>
+                  <td>
+                    {m.id ? (
+                      <Link href={`/club/${club.uid}/partido/${m.id}`} className="focus-ring underline">
+                        {score(m.goalsFor, m.goalsAgainst)}
+                      </Link>
+                    ) : (
+                      score(m.goalsFor, m.goalsAgainst)
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>

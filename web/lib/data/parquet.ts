@@ -43,14 +43,30 @@ const teamMatchSchema = z.object({
 });
 
 // Todos los partidos de liga (Promiedos): la base para cualquier equipo sin archivo propio.
+// Árbitro, tarjetas, faltas, bajas y minutos de gol solo vienen de Promiedos; la Liga Profesional (desde
+// Supabase) puede no traer `ext_id`. Los minutos van como texto JSON («[12, 45]»).
 const leagueResultSchema = z.object({
   source: z.string(),
+  ext_id: text.optional(),
   stage: text,
   match_date: z.string(),
   home_team: z.string(),
   away_team: z.string(),
   home_goals: num,
   away_goals: num,
+  referee: text.optional(),
+  yellow_home: num.optional(),
+  yellow_away: num.optional(),
+  red_home: num.optional(),
+  red_away: num.optional(),
+  fouls_home: num.optional(),
+  fouls_away: num.optional(),
+  injured_home: num.optional(),
+  injured_away: num.optional(),
+  suspended_home: num.optional(),
+  suspended_away: num.optional(),
+  home_goal_minutes: text.optional(),
+  away_goal_minutes: text.optional(),
 });
 
 // Fuerza del predictor (cálculo propio): 1 = promedio de la liga; ataque > 1 convierte más, defensa > 1 recibe más.
@@ -156,6 +172,8 @@ const standingSchema = z.object({
 });
 
 export interface ClubMatch {
+  /** Id del partido de liga en su fuente (para su ficha); null en los del archivo propio del club. */
+  id: string | null;
   date: string;
   competition: string | null;
   home: boolean | null;
@@ -282,6 +300,7 @@ export function leagueMatchesFor(rows: readonly LeagueResult[], names: readonly 
     if (!home && !wanted.has(norm(r.away_team))) return [];
     return [
       {
+        id: r.ext_id ?? null,
         date: r.match_date,
         competition: r.stage,
         home,
@@ -294,6 +313,7 @@ export function leagueMatchesFor(rows: readonly LeagueResult[], names: readonly 
 }
 
 const fromTeamMatch = (m: z.infer<typeof teamMatchSchema>): ClubMatch => ({
+  id: null,
   date: m.match_date,
   competition: [m.competition_name, m.round_label].filter(Boolean).join(' · ') || null,
   home: m.boca_home,
@@ -377,7 +397,7 @@ async function countryTables(country: string) {
     // Solo filas de fuentes abiertas: el archivo público ya no trae otras, pero la ficha cita a Promiedos.
     results: results
       .flat()
-      .map((x) => x.row)
+      .map((x) => ({ ...x.row, league: x.league }))
       .filter((r) => OPEN_SOURCES.has(r.source)),
     standings: standings.flat().map((x) => x.row),
     clubs: [...clubs.values()],
@@ -531,6 +551,66 @@ export async function getLeaguePlayer(
         player,
         peers,
         versus: peers.find((p) => p.player_id === versusId) ?? null,
+      },
+    };
+  } catch (cause) {
+    return failure(cause);
+  }
+}
+
+const minutesSchema = z.array(z.number());
+const goalMinutes = (json: string | null | undefined) => {
+  const parsed = minutesSchema.safeParse(JSON.parse(json ?? '[]'));
+  return parsed.success ? parsed.data : [];
+};
+
+export interface LeagueMatch {
+  result: LeagueResult;
+  league: string | null;
+  home: { uid: string; name: string; standing: StandingRow | null };
+  away: { uid: string; name: string; standing: StandingRow | null };
+  /** Goles en orden de minuto; vacío si la fuente no da minutos o no cierran con el marcador. */
+  goals: { minute: number; home: boolean }[];
+  /** Los otros partidos entre los dos en el archivo, del más reciente al más viejo. */
+  headToHead: LeagueResult[];
+}
+
+/** Ficha pública de un partido de liga por el id de su fuente; el país sale del club (`arg-…`). */
+export async function getLeagueMatch(uid: string, matchId: string): Promise<ArchiveResult<LeagueMatch | null>> {
+  try {
+    const country = uid.slice(0, 3).toUpperCase();
+    const { results, standings } = await countryTables(country);
+    const result = results.find((r) => r.ext_id === matchId);
+    if (!result) return { ok: true, data: null };
+    const prefix = country.toLowerCase();
+    const side = (name: string) => ({
+      uid: `${prefix}-${slug(name)}`,
+      name,
+      // shortcut: la primera tabla con puntos donde figura (con zonas, la de su zona); la página muestra su nombre.
+      standing: standings.find((s) => norm(s.team_name) === norm(name) && s.points !== null) ?? null,
+    });
+    const pair = new Set([norm(result.home_team), norm(result.away_team)]);
+    const goals = [
+      ...goalMinutes(result.home_goal_minutes).map((minute) => ({ minute, home: true })),
+      ...goalMinutes(result.away_goal_minutes).map((minute) => ({ minute, home: false })),
+    ].toSorted((a, b) => a.minute - b.minute);
+    return {
+      ok: true,
+      data: {
+        result,
+        league: result.league ? (LEAGUE_NAMES[result.league] ?? result.league) : null,
+        home: side(result.home_team),
+        away: side(result.away_team),
+        goals,
+        headToHead: results
+          .filter(
+            (r) =>
+              r !== result &&
+              pair.has(norm(r.home_team)) &&
+              pair.has(norm(r.away_team)) &&
+              norm(r.home_team) !== norm(r.away_team),
+          )
+          .toSorted((a, b) => b.match_date.localeCompare(a.match_date)),
       },
     };
   } catch (cause) {

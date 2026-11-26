@@ -1,0 +1,1 @@
+{"archivos": [{"ruta": "pais=ARG/equipo=arg-club-a/temporada=2026/boca_match.parquet", "tabla": "boca_match"}, {"ruta": "pais=ARG/liga=arg-liga/temporada=2026/league_standing.parquet", "tabla": "league_standing"}, {"ruta": "referencia/team_identity.parquet", "tabla": "team_identity"}]}

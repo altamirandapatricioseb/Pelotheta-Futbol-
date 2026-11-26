@@ -1,6 +1,7 @@
 import { StatsLab } from '@/components/stats/stats-lab';
 import { teamAnalyses } from '@/lib/models/analyses';
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { z } from 'zod';
 
 import { ExcelDownloads } from '@/components/excel-downloads';
@@ -52,7 +53,12 @@ export default async function EquipoPage({ searchParams }: PageProps) {
           <h1 className="page-title">
             <span className="title-trace">Equipo</span>
           </h1>
-          <p className="mt-2 text-muted">Boca Juniors 2026 · partidos oficiales · una categoría por vez</p>
+          <p className="mt-2 text-muted">
+            Boca Juniors 2026 · partidos oficiales · una categoría por vez ·{' '}
+            <Link href="/club/arg-boca-juniors" className="focus-ring underline">
+              ficha con datos abiertos
+            </Link>
+          </p>
         </div>
         <ExcelDownloads />
       </div>

@@ -3,12 +3,14 @@ import Link from 'next/link';
 import { ErrorNotice } from '@/components/error-notice';
 import { getClub, getLeagueProfiles, type Club } from '@/lib/data/parquet';
 
+import { ClubAlternatives, ClubScout } from './club-scout';
 import { type ClubSection, ClubSections } from './club-sections';
 
 // Cada interfaz de Boca, para cualquier otro club: las secciones de su ficha que corresponden y una
 // nota de lo que solo Boca tiene (el detalle por partido de jugadores y equipo, que para el resto de
 // los clubes las fuentes permitidas no dejan publicar).
-export type ClubView = 'equipo' | 'jugadores' | 'situaciones' | 'predictor' | 'valor' | 'comparar' | 'graficos';
+export type ClubView =
+  'equipo' | 'jugadores' | 'situaciones' | 'predictor' | 'valor' | 'comparar' | 'graficos' | 'alternativas' | 'ojeador';
 
 const VIEWS: Record<ClubView, { title: string; sections: readonly ClubSection[]; only?: string }> = {
   equipo: {
@@ -25,6 +27,8 @@ const VIEWS: Record<ClubView, { title: string; sections: readonly ClubSection[];
   predictor: { title: 'Predictor', sections: ['proximo', 'nivel'], only: 'El backtest y las pruebas de hipótesis' },
   valor: { title: 'Valor', sections: ['valor'] },
   comparar: { title: 'Comparar', sections: [] },
+  alternativas: { title: 'Alternativas', sections: [], only: 'Las duplas y los reemplazos dentro del plantel' },
+  ojeador: { title: 'Ojeador', sections: [], only: 'Los informes con nota por puesto' },
   graficos: {
     title: 'Gráficos',
     sections: ['nivel', 'situaciones', 'posiciones'],
@@ -80,6 +84,16 @@ async function CompareForm({ club }: { club: Club }) {
   );
 }
 
+async function LeagueView({ view, club }: { view: 'alternativas' | 'ojeador'; club: Club }) {
+  const league = await getLeagueProfiles(club.uid);
+  if (!league.ok) return <ErrorNotice code={league.code} />;
+  return view === 'alternativas' ? (
+    <ClubAlternatives club={club} league={league.data} />
+  ) : (
+    <ClubScout club={club} league={league.data} />
+  );
+}
+
 /** La interfaz `view` de un club que no es Boca, con los datos de temporada del archivo abierto. */
 export async function ClubInterface({ view, uid }: { view: ClubView; uid: string }) {
   const result = await getClub(uid);
@@ -121,7 +135,8 @@ export async function ClubInterface({ view, uid }: { view: ClubView; uid: string
         </p>
       </div>
       {view === 'comparar' ? <CompareForm club={club} /> : null}
-      {view !== 'comparar' && shown.length === 0 ? (
+      {view === 'alternativas' || view === 'ojeador' ? <LeagueView view={view} club={club} /> : null}
+      {v.sections.length > 0 && shown.length === 0 ? (
         <p className="text-muted">Todavía no hay datos de esto para {club.name} en el archivo abierto.</p>
       ) : null}
       <ClubSections club={club} show={shown} />

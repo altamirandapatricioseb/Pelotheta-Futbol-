@@ -208,6 +208,8 @@ export interface Club {
   situation: Situation | null;
   /** Mediana de |real − esperado| / esperado en toda la liga: cuánto suele errar el modelo. */
   valueError: number | null;
+  /** Valores de todos los clubes del país (para el Ojeador: oportunidades y jóvenes). */
+  leagueValues: MarketValue[];
 }
 
 const median = (xs: number[]): number | null => {
@@ -483,6 +485,7 @@ export async function getClub(uid: string): Promise<ArchiveResult<Club | null>> 
         values: allValues.filter((v) => mine(v.team_name)).toSorted((a, b) => (b.value_eur ?? 0) - (a.value_eur ?? 0)),
         situation: situations.flat().find((s) => mine(s.team_name)) ?? null,
         valueError: median(allValues.flatMap((v) => (v.gap_pct === null ? [] : [Math.abs(v.gap_pct)]))),
+        leagueValues: allValues,
       },
     };
   } catch (cause) {

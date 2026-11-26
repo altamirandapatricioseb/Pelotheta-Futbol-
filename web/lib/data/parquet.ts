@@ -29,8 +29,8 @@ const identitySchema = z.object({
   aliases: text,
 });
 
-const matchSchema = z.object({
-  match_id: num,
+// Partidos del equipo con todas sus competiciones (hoy solo Boca, desde Supabase).
+const teamMatchSchema = z.object({
   match_date: z.string(),
   round_label: text,
   competition_name: text,
@@ -38,7 +38,17 @@ const matchSchema = z.object({
   opponent: text,
   goals_for: num,
   goals_against: num,
-  status: text,
+});
+
+// Todos los partidos de liga (Promiedos): la base para cualquier equipo sin archivo propio.
+const leagueResultSchema = z.object({
+  source: z.string(),
+  stage: text,
+  match_date: z.string(),
+  home_team: z.string(),
+  away_team: z.string(),
+  home_goals: num,
+  away_goals: num,
 });
 
 const standingSchema = z.object({
@@ -54,8 +64,20 @@ const standingSchema = z.object({
   points: num,
 });
 
-export type ClubMatch = z.infer<typeof matchSchema>;
+export interface ClubMatch {
+  date: string;
+  competition: string | null;
+  home: boolean | null;
+  opponent: string | null;
+  goalsFor: number | null;
+  goalsAgainst: number | null;
+}
+export type LeagueResult = z.infer<typeof leagueResultSchema>;
 export type StandingRow = z.infer<typeof standingSchema>;
+export interface ClubLink {
+  uid: string;
+  name: string;
+}
 export interface StandingTable {
   name: string;
   rows: StandingRow[];
@@ -65,6 +87,8 @@ export interface Club {
   name: string;
   country: string | null;
   matches: ClubMatch[];
+  /** true si los partidos salen de los resultados de liga (sin copas y quizá con fechas faltantes). */
+  leagueOnly: boolean;
   standings: StandingTable[];
 }
 
@@ -91,36 +115,117 @@ export function standingsFor(rows: readonly StandingRow[], names: readonly strin
     .map(([name, t]) => ({ name, rows: t.toSorted((a, b) => (a.rank ?? 99) - (b.rank ?? 99)) }));
 }
 
+/** Mismo id que `core.slug` en la base: `Unión de Santa Fe` → `union-de-santa-fe`. */
+export const slug = (s: string) =>
+  norm(s)
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+
+/** Partidos de liga de un club desde los resultados de toda la liga, desde su punto de vista. */
+export function leagueMatchesFor(rows: readonly LeagueResult[], names: readonly string[]): ClubMatch[] {
+  const wanted = new Set(names.map(norm));
+  return rows.flatMap((r): ClubMatch[] => {
+    const home = wanted.has(norm(r.home_team));
+    if (!home && !wanted.has(norm(r.away_team))) return [];
+    return [
+      {
+        date: r.match_date,
+        competition: r.stage,
+        home,
+        opponent: home ? r.away_team : r.home_team,
+        goalsFor: home ? r.home_goals : r.away_goals,
+        goalsAgainst: home ? r.away_goals : r.home_goals,
+      },
+    ];
+  });
+}
+
+const fromTeamMatch = (m: z.infer<typeof teamMatchSchema>): ClubMatch => ({
+  date: m.match_date,
+  competition: [m.competition_name, m.round_label].filter(Boolean).join(' · ') || null,
+  home: m.boca_home,
+  opponent: m.opponent,
+  goalsFor: m.goals_for,
+  goalsAgainst: m.goals_against,
+});
+
+const failure = (cause: unknown): ArchiveResult<never> => ({
+  ok: false,
+  code: 'PEL-ARC-001',
+  detail: cause instanceof Error ? cause.message : String(cause),
+});
+
+const getManifest = async () => manifestSchema.parse(await (await fetchFile('manifest.json')).json());
+
+// shortcut: lee todas las temporadas y ligas del país juntas; con varias temporadas hay que elegir la última.
+async function countryTables(country: string) {
+  const manifest = await getManifest();
+  const files = (tabla: string) =>
+    manifest.archivos.filter((f) => f.tabla === tabla && f.ruta.startsWith(`pais=${country}/`)).map((f) => f.ruta);
+  const [results, standings] = await Promise.all([
+    Promise.all(files('league_result').map((p) => readTable(p, leagueResultSchema))),
+    Promise.all(files('league_standing').map((p) => readTable(p, standingSchema))),
+  ]);
+  return {
+    manifest,
+    // Solo filas de fuentes abiertas: el archivo público ya no trae otras, pero la ficha cita a Promiedos.
+    results: results.flat().filter((r) => r.source === 'promiedos'),
+    standings: standings.flat(),
+  };
+}
+
+/** Clubes con datos en un país (por ahora, los de sus tablas de posiciones), ordenados por nombre. */
+export async function listClubs(country = 'ARG'): Promise<ArchiveResult<ClubLink[]>> {
+  try {
+    const { results, standings } = await countryTables(country);
+    const names = new Set([
+      ...standings.map((s) => s.team_name),
+      ...results.flatMap((r) => [r.home_team, r.away_team]),
+    ]);
+    const prefix = country.toLowerCase();
+    // Dos grafías del mismo club («Unión» y «Union») dan el mismo id: queda una sola.
+    const clubs = new Map([...names].map((name) => [`${prefix}-${slug(name)}`, name]));
+    const data = [...clubs].map(([uid, name]) => ({ uid, name }));
+    return { ok: true, data: data.toSorted((a, b) => a.name.localeCompare(b.name, 'es')) };
+  } catch (cause) {
+    return failure(cause);
+  }
+}
+
 /** Ficha pública de un club por su id estable (`arg-boca-juniors`); null si no está en el archivo. */
 export async function getClub(uid: string): Promise<ArchiveResult<Club | null>> {
   try {
-    const [manifest, identities] = await Promise.all([
-      fetchFile('manifest.json').then(async (r) => manifestSchema.parse(await r.json())),
+    const country = uid.slice(0, 3).toUpperCase();
+    const [{ manifest, results, standings }, identities] = await Promise.all([
+      countryTables(country),
       readTable('referencia/team_identity.parquet', identitySchema),
     ]);
-    const club = identities.find((t) => t.uid === uid);
-    if (!club) return { ok: true, data: null };
-    const files = (tabla: string, fragment: string) =>
-      manifest.archivos.filter((f) => f.tabla === tabla && f.ruta.includes(fragment)).map((f) => f.ruta);
-    // shortcut: las posiciones se buscan en todas las ligas del país; con varias temporadas hay que elegir la última.
-    const [matches, standings] = await Promise.all([
-      Promise.all(files('boca_match', `/equipo=${uid}/`).map((p) => readTable(p, matchSchema))),
-      Promise.all(
-        files('league_standing', `pais=${club.country_code ?? ''}/`).map((p) => readTable(p, standingSchema)),
-      ),
-    ]);
-    const names = [club.name, club.short_name ?? '', ...z.array(z.string()).parse(JSON.parse(club.aliases ?? '[]'))];
+    const known = identities.find((t) => t.uid === uid);
+    const found =
+      known?.name ??
+      [...standings.map((s) => s.team_name), ...results.flatMap((r) => [r.home_team, r.away_team])].find(
+        (n) => `${country.toLowerCase()}-${slug(n)}` === uid,
+      );
+    if (found === undefined) return { ok: true, data: null };
+    const aliases = known ? z.array(z.string()).parse(JSON.parse(known.aliases ?? '[]')) : [];
+    const names = [found, known?.short_name ?? '', ...aliases].filter(Boolean);
+    // Si el club tiene archivo propio (todas sus competiciones) se usa ese; si no, sus partidos de liga.
+    const own = manifest.archivos.filter((f) => f.tabla === 'boca_match' && f.ruta.includes(`/equipo=${uid}/`));
+    const matches = own.length
+      ? (await Promise.all(own.map((f) => readTable(f.ruta, teamMatchSchema)))).flat().map(fromTeamMatch)
+      : leagueMatchesFor(results, names);
     return {
       ok: true,
       data: {
         uid,
-        name: club.name,
-        country: club.country,
-        matches: matches.flat().toSorted((a, b) => a.match_date.localeCompare(b.match_date)),
-        standings: standingsFor(standings.flat(), names.filter(Boolean)),
+        name: found,
+        country: known?.country ?? identities.find((t) => t.country_code === country)?.country ?? null,
+        matches: matches.toSorted((a, b) => a.date.localeCompare(b.date)),
+        leagueOnly: own.length === 0,
+        standings: standingsFor(standings, names),
       },
     };
   } catch (cause) {
-    return { ok: false, code: 'PEL-ARC-001', detail: cause instanceof Error ? cause.message : String(cause) };
+    return failure(cause);
   }
 }

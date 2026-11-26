@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('server-only', () => ({}));
 
-const { getClub, standingsFor } = await import('./parquet');
+const { getClub, listClubs, slug, standingsFor } = await import('./parquet');
 
 const FIXTURES = fileURLToPath(new URL('./__fixtures__/', import.meta.url));
 
@@ -32,8 +32,8 @@ describe('archivo abierto en Parquet', () => {
     if (!result.ok || !result.data) return;
     const { matches, standings } = result.data;
     expect(matches.map((m) => m.opponent)).toEqual(['Club B', 'Club C']);
-    expect(matches[0]?.goals_for).toBe(2); // INT64 → number
-    expect(matches[1]?.goals_for).toBeNull(); // el faltante no es 0
+    expect(matches[0]?.goalsFor).toBe(2); // INT64 → number
+    expect(matches[1]?.goalsFor).toBeNull(); // el faltante no es 0
     expect(standings.map((t) => t.name)).toEqual(['Grupo A']);
     expect(standings[0]?.rows.map((r) => r.team_name)).toEqual(['Club Á', 'Club B']);
   });
@@ -43,6 +43,26 @@ describe('archivo abierto en Parquet', () => {
     expect(await getClub('arg-otro')).toEqual({ ok: true, data: null });
     serveFixtures(true);
     expect(await getClub('arg-club-a')).toMatchObject({ ok: false, code: 'PEL-ARC-001' });
+  });
+
+  it('un club sin archivo propio sale de los resultados de liga, solo de fuentes abiertas', async () => {
+    serveFixtures();
+    const result = await getClub('arg-club-c');
+    if (!result.ok || !result.data) throw new Error('sin ficha');
+    expect(result.data.country).toBe('Argentina');
+    expect(result.data.matches).toEqual([
+      { date: '2026-02-02', competition: 'Fecha 1', home: false, opponent: 'Club B', goalsFor: 3, goalsAgainst: 1 },
+      { date: '2026-02-09', competition: 'Fecha 1', home: true, opponent: 'Unión', goalsFor: null, goalsAgainst: null },
+    ]);
+    const clubs = await listClubs('ARG');
+    // «Club A» y «Club Á» dan el mismo id (como core.slug): una sola entrada. Club X es de StrikerAPI: no entra.
+    expect(clubs.ok && clubs.data.map((c) => c.uid)).toEqual(['arg-club-a', 'arg-club-b', 'arg-club-c', 'arg-union']);
+  });
+
+  it('el id coincide con core.slug de la base', () => {
+    expect(slug("Newell's Old Boys")).toBe('newell-s-old-boys');
+    expect(slug('Central Córdoba SdE')).toBe('central-cordoba-sde');
+    expect(slug('  Unión de Santa Fe ')).toBe('union-de-santa-fe');
   });
 
   it('compara nombres sin tildes ni mayúsculas', () => {

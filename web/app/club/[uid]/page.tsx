@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
@@ -59,16 +60,12 @@ export default async function ClubPage({ params }: PageProps) {
             </thead>
             <tbody>
               {club.matches.map((m) => (
-                <tr key={`${m.match_date}-${m.opponent ?? ''}`}>
-                  <th scope="row">{day(m.match_date)}</th>
-                  <td className="text-left">
-                    {[m.competition_name, m.round_label].filter(Boolean).join(' · ') || NOT_AVAILABLE}
-                  </td>
+                <tr key={`${m.date}-${m.opponent ?? ''}`}>
+                  <th scope="row">{day(m.date)}</th>
+                  <td className="text-left">{m.competition ?? NOT_AVAILABLE}</td>
                   <td className="text-left">{m.opponent ?? NOT_AVAILABLE}</td>
-                  <td className="text-left">
-                    {m.boca_home === null ? NOT_AVAILABLE : m.boca_home ? 'Local' : 'Visitante'}
-                  </td>
-                  <td>{score(m.goals_for, m.goals_against)}</td>
+                  <td className="text-left">{m.home === null ? NOT_AVAILABLE : m.home ? 'Local' : 'Visitante'}</td>
+                  <td>{score(m.goalsFor, m.goalsAgainst)}</td>
                 </tr>
               ))}
             </tbody>
@@ -77,6 +74,12 @@ export default async function ClubPage({ params }: PageProps) {
       ) : (
         <p className="text-muted">Todavía no hay partidos de este club en el archivo abierto.</p>
       )}
+      {club.leagueOnly && club.matches.length ? (
+        <p className="text-sm text-muted">
+          Solo partidos de liga, los que ya están cargados: pueden faltar fechas. Las copas y el detalle de cada partido
+          se suman con la carga de toda la Primera.
+        </p>
+      ) : null}
 
       {club.standings.map((t) => (
         // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- región desplazable con nombre (axe)
@@ -118,7 +121,10 @@ export default async function ClubPage({ params }: PageProps) {
       ))}
 
       <p className="text-sm text-muted">
-        Fuente: Promiedos (promiedos.com.ar) y cálculo propio. Los archivos están en{' '}
+        <Link href="/club" className="focus-ring underline">
+          Todos los clubes
+        </Link>
+        . Fuente: Promiedos (promiedos.com.ar) y cálculo propio. Los archivos están en{' '}
         <a href={DATASET_URL} className="focus-ring underline">
           Hugging Face
         </a>{' '}

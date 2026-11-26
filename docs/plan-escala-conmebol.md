@@ -196,11 +196,27 @@ Presupuesto de una pantalla común: JS de la app + hyparquet (< 1 MB) + partici�
 | 2 | **Hecha (25-nov)**: ids estables, países FIFA, alias, linaje, cobertura y rangos 1880–2200, aplicada en Supabase sin romper a Boca (`20261125120000_escala_identidad.sql`). El desacople de Boca pasa a las etapas 4 y 5, que reescriben esas mismas partes | migración + tests | no |
 | 3 | **Hecha y publicada (25-nov)**: `pipeline/export_parquet.py`, formato en `docs/formato-parquet.md`, workflow manual `export.yml`. Publicado en [pelotheta/pelotheta-futbol](https://huggingface.co/datasets/pelotheta/pelotheta-futbol) (16 archivos, solo Promiedos y cálculo propio) y lo restringido en `pelotheta/pelotheta-futbol-privado` | módulo + test de ida y vuelta | **sí: cuenta de HF (la creás vos) y primer dataset** |
 | 4 | **Hecha (25-nov)**: `/club/<uid>` lee el Parquet público con hyparquet en el servidor (caché de 1 h), con el club como parámetro: partidos y posiciones. La página `/equipo` sigue en Supabase porque usa estadísticas restringidas que no están en el dataset público. La reescritura de las vistas atadas a Boca pasa a la etapa 5 (decisión del 25-nov: con un solo equipo no se puede probar el caso de varios) | `web/lib/data/parquet.ts` | no |
-| 5 | Toda la Primera Argentina, temporada actual: las fuentes recorren la liga en vez de `BOCA_ID` (Promiedos, Bzzoiro, ScoutingStats, Statshub, StrikerAPI, NoFluffPicks, ELNINE); `player_pool` real por liga para el Ojeador; `core.team.name` pasa a ser único por país. Además, las 27 vistas que filtran con `is_boca` (8 `api.boca_*`, 2 materializadas y las de situaciones, comparación y calidad) pasan a tener `team_uid` y la web y el exportador reciben el equipo como parámetro (Parquet `schema_version` 2) | partición `argentina/primera/2026` | sí |
+| 5 | **5a hecha (25-nov)**: `/club` y `/club/<uid>` para los 30 equipos con los resultados de liga ya publicados. **5b**: la carga de liga trae 329 de ~480 partidos; completarla y sumar copas por equipo. **Resto**: toda la Primera Argentina, temporada actual: las fuentes recorren la liga en vez de `BOCA_ID` (Promiedos, Bzzoiro, ScoutingStats, Statshub, StrikerAPI, NoFluffPicks, ELNINE); `player_pool` real por liga para el Ojeador; `core.team.name` pasa a ser único por país. Además, las 27 vistas que filtran con `is_boca` (8 `api.boca_*`, 2 materializadas y las de situaciones, comparación y calidad) pasan a tener `team_uid` y la web y el exportador reciben el equipo como parámetro (Parquet `schema_version` 2) | partición `argentina/primera/2026` | sí |
 | 6 | Resto de Conmebol, temporada actual | 10 datasets | sí |
 | 7 | Backfill 2014→hoy por etapas, con checkpoint en Supabase y caché de requests | workflow `backfill.yml` reanudable | sí |
-| 8 | Backfill histórico desde OpenFootball, Wikidata, Wikipedia (y RSSSF si da permiso) | particiones históricas con `nivel = parcial` | sí |
-| 9 | Cierre de temporada automático, monitoreo de cuotas al 80 %, respaldos anuales | `season_close.yml`, `quota.yml`, `backup.yml` ampliado | sí (Internet Archive: cuenta tuya) |
+| 8 | Cierre de temporada automático, monitoreo de cuotas al 80 %, respaldos anuales (antes era la 9: se adelanta para que el volumen de las etapas 5 a 7 ya corra vigilado) | `season_close.yml`, `quota.yml`, `backup.yml` ampliado | sí (Internet Archive: cuenta tuya) |
+| 9 | Backfill histórico desde OpenFootball, Wikidata, Wikipedia (y RSSSF si da permiso) | particiones históricas con `nivel = parcial` | sí |
+
+### Qué cambia en cada función entre las etapas 5 y 7
+
+Hoy todo se calcula para Boca contra la liga. Con muchos equipos, cada función pasa a recibir el equipo (y la liga) como parámetro y a calcularse por liga y temporada:
+
+| Función | Hoy | Etapa 5 (Primera Argentina) | Etapas 6 y 7 (Conmebol y pasado) |
+|---|---|---|---|
+| Ficha de club (`/club`) | Boca con todas sus competiciones | **5a, hecha**: los 30 equipos con sus partidos de liga desde `league_result` público | Una partición por liga y temporada; el índice lista por país |
+| Predictor (`match_predictor`) | Fuerzas de toda la liga ya calculadas, solo se muestran partidos de Boca | Mostrar cualquier partido de la liga; guardar la previa de todos para el backtest | Un modelo por liga (μ propio); copas con fuerza relativa entre ligas (Elo por país) |
+| Valor de mercado (`market_value`) | Regresión con ~900 jugadores de la liga, predice el plantel de Boca | Predecir los 30 planteles con el mismo ajuste | transfermarkt-datasets pausado: con el histórico CC0 por liga; donde no hay valores, no se muestra |
+| Ojeador y Alternativas (`similarity`, `player_pool`) | K-means con Boca + `player_pool` sin estadísticas | `player_pool` con estadísticas de toda la liga; perfiles por liga | Perfiles comparables entre ligas solo con las estadísticas que tengan todas (`coverage`) |
+| Métricas propias (`own_metrics`: Elo, xPts, rachas) | Solo los partidos de Boca | Elo y forma de los 30 con `league_result` | Elo continuo por país desde 2014 y entre países por las copas |
+| Mejoría y Potencial (`projection_data`) | Percentiles contra Boca | Percentiles por posición contra toda la liga | Por liga y temporada |
+| Situaciones (`situ_*`) | Partidos de Boca con eventos | Los 30 equipos donde haya eventos | Degradan a «sin datos» por época según `coverage` |
+| Comparar, Partido, Jugador, Equipo | Vistas `api.boca_*` y filtros `is_boca` | Las 27 vistas con `team_uid` y la web con el equipo en la dirección | Igual, con país y liga |
+| Excel y Power BI | Boca | Un libro por equipo a pedido | Igual |
 
 Cada etapa que publica o necesita cuenta espera tu aprobación. Las cuentas las creás vos; yo no toco credenciales.
 

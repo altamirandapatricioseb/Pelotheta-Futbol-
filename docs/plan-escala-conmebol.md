@@ -38,6 +38,18 @@ Descartados: Cloudflare R2 (pide tarjeta), Neon (1 GB por proyecto: una temporad
 
 Revisado y descartado: Hugging Face no tiene datasets abiertos de estas ligas (los que hay copian Sofascore, sin licencia); Sofascore, FotMob, OneFootball, ESPN, Transfermarkt, Soccerway y FBref prohíben el uso por términos; API-Football gratis solo da 2022 a 2024. Revisadas el 26-nov a pedido del dueño: Football Open Data es un actor de Apify (cuenta y créditos); AnySport solo tiene prueba gratis; «BSD Sports API» es Bzzoiro, que ya se usa; API Dados Futebol está en RapidAPI con planes pagos; FootyStats y Transfermarkt prohíben la extracción; la APF publica tablas y goleadores sin API ni datos por jugador. OpenFUTVE (Apache-2.0) todavía no publica datos, pero su auditoría de fuentes encontró la API SportsPress de `ligafutve.org` (sin clave, robots permite, partidos 2021–2025 con alineaciones; sin 2026): queda para la etapa 9.
 
+Fuentes nuevas sugeridas el 26-nov, para revisar antes de usar (ninguna integrada todavía):
+
+| Fuente | Qué tiene | Estado |
+|---|---|---|
+| `rhinoah/futbol-argentino-data` (GitHub) | 50 000 partidos argentinos desde 1985, Federal A 2014–2026 (6366) | Datos CC BY-SA 4.0 los que vienen de Wikipedia; los de RSSSF con condiciones propias. Para la etapa 9 (historial) |
+| `BrazilianFootball/Data` (GitHub, MIT) | ~11 000 partidos de Série A a D 2013–2025, de las súmulas de la CBF | Historial de Brasil B (etapa 9); no trae 2026 |
+| API-Football (api-sports.io) | 100 consultas por día gratis | Pide cuenta (la creás vos). La prueba de la etapa 1 vio que el plan gratis solo da 2022 a 2024 |
+| OpenFootAPI | 5000 consultas por mes gratis, dice cubrir PER1 y BRA2 | Pide cuenta; falta leer términos y cobertura real |
+| TheSportsDB | Clave pública «123» | Revisado en la etapa 1: la clave gratis no sirve para estas ligas (lo confirma la auditoría de OpenFUTVE) |
+| Campo Analítico, open-matchday | CSV con estadísticas | Sin licencia de reutilización: descartados |
+| `sofascore_scraper` y similares | Copia de Sofascore | Descartado: los términos de Sofascore prohíben la extracción |
+
 **Subetapas nuevas de la etapa 5** (cada una con su commit; lo que pide una cuenta o un clic del dueño queda como pendiente y no frena lo demás):
 
 - **5j-1**: el exportador particiona por liga según la fila (`pais=`, `liga=`), no por una liga fija.

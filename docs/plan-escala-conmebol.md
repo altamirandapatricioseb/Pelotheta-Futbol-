@@ -2,6 +2,51 @@
 
 Fecha de medición y verificación: **23-nov-2026**. Estado: **propuesta, sin implementar**. Nada de esto crea cuentas ni publica datos hasta que el dueño apruebe cada etapa.
 
+## 0. Requisito del dueño (26-nov-2026) y plan reestructurado
+
+**Requisito innegociable**: análisis profundo de **todos los equipos de todas las ligas y países que lista el sistema** (`web/config/teams.ts`): Argentina (Primera, Primera Nacional, Primera B, Federal A), Brasil (Série A y B) y la primera de Uruguay, Chile, Colombia, Paraguay, Ecuador, Perú, Bolivia y Venezuela: 14 competiciones, ~380 equipos. Costo USD 0 sin tarjeta; nada en disco local.
+
+**Consecuencia de arquitectura (medida, no estimada)**: el detalle por partido ocupa ~900 KB en Postgres y ~10 KB en Parquet zstd (las 76 estadísticas por jugador de los 502 partidos de la Liga Profesional ocupan 583 KB). Las 14 competiciones son ~5 500 partidos por temporada: ~5 GB en Postgres (no entra en ningún plan gratis) contra **~55 MB en Parquet**; 20 temporadas, ~1,1 GB. Por eso el análisis profundo de todos los equipos sale de **Parquet**, no de Supabase:
+
+| Capa | Servicio (gratis, sin tarjeta) | Rol |
+|---|---|---|
+| Cálculo | GitHub Actions | baja las fuentes y calcula por liga (Python; DuckDB donde el SQL de las vistas se reusa) |
+| Datos | Hugging Face Datasets | todo el detalle y los resultados calculados: público (derivados y fuentes abiertas) y privado (crudo restringido, 100 GB) |
+| Web | Vercel Hobby | lee Parquet en el servidor con caché de 1 h (`web/lib/data/parquet.ts`) |
+| Cola | Supabase Free | estado del pipeline y Boca en vivo hasta migrarlo; deja de ser almacenamiento |
+
+Descartados: Cloudflare R2 (pide tarjeta), Neon (1 GB por proyecto: una temporada de la Conmebol en Postgres no entra), Postgres para el detalle (100 veces más pesado).
+
+**Cobertura de fuentes por competición (verificada el 26-nov)**:
+
+| Competición | Partidos y eventos | Estadísticas por jugador | Nivel alcanzable hoy |
+|---|---|---|---|
+| Argentina Primera | Promiedos | Bzzoiro | profundo |
+| Argentina Primera Nacional | Promiedos | ScoutingStats (liga 645) | profundo |
+| Argentina Primera B | Promiedos | — (falta fuente) | medio: alineaciones, minutos, goles, tarjetas, cambios |
+| Argentina Federal A | Promiedos | — (falta fuente) | medio |
+| Brasil Série A | Promiedos | Bzzoiro, ScoutingStats | profundo |
+| Brasil Série B | Bzzoiro | Bzzoiro, ScoutingStats | profundo |
+| Uruguay | Promiedos | ScoutingStats (770) | profundo |
+| Chile | Promiedos | Bzzoiro, ScoutingStats (663) | profundo |
+| Colombia | Promiedos | Bzzoiro, ScoutingStats | profundo |
+| Paraguay | Promiedos | — (falta fuente) | medio |
+| Ecuador | Bzzoiro | Bzzoiro, ScoutingStats | profundo |
+| Perú | Bzzoiro | Bzzoiro, ScoutingStats (764) | profundo |
+| Bolivia | — | — | **sin fuente**: pendiente de buscar (Wikipedia da solo la tabla) |
+| Venezuela | ScoutingStats | ScoutingStats (800) | profundo |
+
+Revisado y descartado: Hugging Face no tiene datasets abiertos de estas ligas (los que hay copian Sofascore, sin licencia); Sofascore, FotMob, OneFootball, ESPN, Transfermarkt, Soccerway y FBref prohíben el uso por términos; API-Football gratis solo da 2022 a 2024.
+
+**Subetapas nuevas de la etapa 5** (cada una con su commit; lo que pide una cuenta o un clic del dueño queda como pendiente y no frena lo demás):
+
+- **5j-1**: el exportador particiona por liga según la fila (`pais=`, `liga=`), no por una liga fija.
+- **5j-2**: Bzzoiro para sus 13 competiciones de la Conmebol, con tope de consultas por corrida y continuación desde la caché (cuota de 7 500 por día).
+- **5j-3**: ScoutingStats por liga (Primera Nacional, Uruguay, Venezuela y las que coinciden): crudo privado, perfiles públicos.
+- **5j-4**: Promiedos por liga (resultados con minutos, tablas, próximos partidos) para todas las que publica.
+- **5j-5**: la web: índice de clubes por país y liga, y la ficha de cualquier club con todo lo que su liga tenga.
+- **5j-6**: buscar fuentes para Primera B, Federal A, Paraguay y Bolivia.
+
 ## 1. Resumen en cinco líneas
 
 1. **Se puede hacer gratis**, y el número que importa es mucho menor que el estimado: medido con datos reales, el Parquet con zstd pesa **~100 veces menos** que Postgres (no 5–10). Todo el archivo, con 100 años a futuro, entra en **~25 GB**, no en 70–170 GB.

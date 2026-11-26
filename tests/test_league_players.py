@@ -241,6 +241,68 @@ def test_collect_respects_the_budget_and_continues_from_cache(tmp_path: Path) ->
     assert report == {"partidos": 3, "pendientes": 0, "consultas_nuevas": 2}  # los dos primeros, de caché
 
 
+def test_scoutingstats_league_match_from_json_ld_and_row_attributes() -> None:
+    import json
+
+    from sources import scoutingstats as ss
+
+    event = json.dumps(
+        {
+            "@type": "SportsEvent",
+            "startDate": "2026-10-18T21:30:00Z",
+            "homeTeam": {"name": "Liverpool"},
+            "awayTeam": {"name": "Peñarol"},
+        }
+    )
+    row = (
+        '<tr data-side="a" data-name="Matías Arezo" data-r="7.2" data-min="90" data-g="1" data-a="0" '
+        'data-sh="6" data-kp="1" data-ps="34" data-tk="0" data-in="1" data-du="10" data-dr="0">'
+        '<th><a data-id="22169061" href="/player/x/"><span>FWD</span></a></th>'
+        "<td>7.2</td><td>90</td><td>1</td><td>0</td><td>–</td><td>6 (1)</td><td>1</td><td>34 0%</td></tr>"
+    )
+    unused = '<tr data-side="h" data-name="Suplente" data-min="0"><th></th></tr>'
+    html = f'<script type="application/ld+json">{event}</script><table>{row}{unused}</table>'
+    parsed = ss.parse_league_match(html)
+    assert parsed is not None and (parsed["home"], parsed["away"]) == ("Liverpool", "Peñarol")
+    (p,) = parsed["players"]  # el suplente sin minutos no entra
+    assert (p["player_id"], p["team_name"], p["position"], p["goals"], p["shots_on_target"]) == (
+        "ss22169061",
+        "Peñarol",
+        "F",
+        1.0,
+        1.0,
+    )
+    assert "accurate_pass" not in p and "expected_goals" not in p  # «0%» y «–» son faltantes, no ceros
+    assert ss.parse_league_match("<html></html>") is None
+
+
+def test_scoutingstats_profiles_are_public_and_raw_private(tmp_path: Path) -> None:
+    raw = [
+        {
+            **game(1, "A", "F", 1, minutes_played=90),
+            "season_year": 2026,
+            "event_id": 7,
+            "source": "scoutingstats",
+        }
+    ]
+    rows = {
+        "league_player_match": raw,
+        "league_player_profile": [
+            {
+                "player_name": "J1",
+                "season_year": 2026,
+                "competition_uid": "uru-primera",
+                "country_code": "URU",
+            }
+        ],
+    }
+    manifests = ex.export(lambda view: rows.get(view, []), tmp_path, sorted(ex.LEAGUE_PLAYER_VIEWS))
+    assert [f["ruta"] for f in manifests["publico"]["archivos"]] == [
+        "pais=URU/liga=uru-primera/temporada=2026/league_player_profile.parquet"
+    ]
+    assert [f["tabla"] for f in manifests["privado"]["archivos"]] == ["league_player_match"]
+
+
 def test_raw_goes_private_and_profiles_public(tmp_path: Path) -> None:
     raw = [{**game(1, "A", "F", 1, minutes_played=90, goals=1), "season_year": 2026, "event_id": 7}]
     rows = {"league_player_match": raw, "league_player_profile": [{"player_name": "J1", "season_year": 2026}]}

@@ -340,6 +340,39 @@ def league_player_rows(season_year: int = 2026) -> dict[str, list[dict[str, Any]
     return out
 
 
+# Tope de páginas nuevas de ScoutingStats por exportación (3 s cada una: ~30 minutos).
+SCOUTING_BUDGET = 600
+
+
+def league_scouting_rows(season_year: int = 2026) -> dict[str, list[dict[str, Any]]]:
+    """Crudo y perfiles de las ligas que solo cubre ScoutingStats (etapa 5j-3), con país y liga."""
+    from pipeline import league_players as lp
+    from pipeline import league_scouting as ls
+    from sources import scoutingstats as ss
+    from sources.http_client import FetchError, PoliteClient, RetryableFetchError
+
+    out: dict[str, list[dict[str, Any]]] = {v: [] for v in LEAGUE_PLAYER_VIEWS}
+    budget = SCOUTING_BUDGET
+    with PoliteClient(ss.SOURCE) as client:
+        for uid, (path, slug) in ss.LEAGUES.items():
+            report: dict[str, int] = {}
+            try:
+                raw = ls.collect(client, path, slug, season_year, max_new=max(budget, 0), report=report)
+            except (FetchError, RetryableFetchError) as exc:
+                print(f"Aviso: ScoutingStats no respondió en {uid} ({exc}).", file=sys.stderr)
+                continue
+            budget -= report.get("consultas_nuevas", 0)
+            if report.get("pendientes"):
+                print(
+                    f"{uid}: {report['pendientes']} partidos quedan para la próxima corrida.", file=sys.stderr
+                )
+            tag = {"country_code": uid[:3].upper(), "competition_uid": uid}
+            # La fuente va en el crudo (restringido); los perfiles son cálculo propio y se publican.
+            out["league_player_match"] += [{**r, **tag, "source": ss.SOURCE} for r in raw]
+            out["league_player_profile"] += [{**p, **tag} for p in lp.profiles(raw, season_year)]
+    return out
+
+
 def league_value_rows(club_names: list[str], today: date | None = None) -> list[dict[str, Any]]:
     """Valor real (transfermarkt-datasets, CC0) y esperado por el modelo propio de cada jugador de la
     liga, con el club en el nombre de la tabla de Promiedos (el de las fichas). Vacío si falla la fuente."""
@@ -415,8 +448,9 @@ def main(argv: list[str] | None = None) -> int:
         print("Faltan SUPABASE_URL o la clave secreta.", file=sys.stderr)
         return 2
     out = Path(args.out)
+    bzzoiro, scouting = league_player_rows(), league_scouting_rows()
     league_rows = {
-        **league_player_rows(),
+        **{v: bzzoiro[v] + scouting[v] for v in LEAGUE_PLAYER_VIEWS},
         "league_fixture": league_fixture_rows(),
         "league_situation": league_situation_rows(),
     }

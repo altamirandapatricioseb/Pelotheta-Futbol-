@@ -16,7 +16,7 @@ concurrency:
 jobs:
   export:
     runs-on: ubuntu-latest
-    timeout-minutes: 45  # la primera vez baja ~500 partidos de Bzzoiro a 1 por segundo
+    timeout-minutes: 240  # Bzzoiro (3000 consultas a 1 por segundo) + ScoutingStats (600 páginas a 3 s) + Promiedos
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
@@ -37,3 +37,10 @@ jobs:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           HF_DATASET_REPO: ${{ secrets.HF_DATASET_REPO }}
           HF_PRIVATE_DATASET_REPO: ${{ secrets.HF_PRIVATE_DATASET_REPO }}
+      # Guarda lo bajado (Bzzoiro, ScoutingStats, Promiedos) para que la próxima corrida siga desde acá:
+      # los topes por corrida completan la temporada en pocas exportaciones.
+      - uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        if: always()
+        with:
+          path: data/raw/cache
+          key: raw-cache-${{ github.run_id }}

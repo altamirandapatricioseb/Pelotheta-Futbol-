@@ -166,6 +166,7 @@ export type StandingRow = z.infer<typeof standingSchema>;
 export interface ClubLink {
   uid: string;
   name: string;
+  league: string | null;
 }
 export interface StandingTable {
   name: string;
@@ -308,35 +309,95 @@ const failure = (cause: unknown): ArchiveResult<never> => ({
 const getManifest = async () => manifestSchema.parse(await (await fetchFile('manifest.json')).json());
 
 // shortcut: lee todas las temporadas y ligas del país juntas; con varias temporadas hay que elegir la última.
+// Países y competiciones que lista el sistema (web/config/teams.ts), con su nombre para la web.
+export const COUNTRIES: Record<string, string> = {
+  ARG: 'Argentina',
+  BRA: 'Brasil',
+  URU: 'Uruguay',
+  CHI: 'Chile',
+  COL: 'Colombia',
+  PAR: 'Paraguay',
+  ECU: 'Ecuador',
+  PER: 'Perú',
+  BOL: 'Bolivia',
+  VEN: 'Venezuela',
+};
+export const LEAGUE_NAMES: Record<string, string> = {
+  'arg-liga-profesional-argentina': 'Primera División',
+  'arg-primera-nacional': 'Primera Nacional',
+  'arg-primera-b': 'Primera B',
+  'arg-federal-a': 'Torneo Federal A',
+  'bra-serie-a': 'Série A',
+  'bra-serie-b': 'Série B',
+  'uru-primera': 'Primera División',
+  'chi-primera': 'Primera División',
+  'col-primera-a': 'Primera A',
+  'par-primera': 'Primera División',
+  'ecu-serie-a': 'Serie A',
+  'per-liga-1': 'Liga 1',
+  'bol-primera': 'Primera División',
+  'ven-primera': 'Liga FUTVE',
+};
+const leagueOf = (path: string) => /liga=([^/]+)/.exec(path)?.[1] ?? null;
+const clubSchema = z.object({ team_name: z.string() });
+
+// shortcut: lee todas las temporadas y ligas del país juntas; con varias temporadas hay que elegir la última.
 async function countryTables(country: string) {
   const manifest = await getManifest();
   const files = (tabla: string) =>
     manifest.archivos.filter((f) => f.tabla === tabla && f.ruta.startsWith(`pais=${country}/`)).map((f) => f.ruta);
-  const [results, standings] = await Promise.all([
-    Promise.all(files('league_result').map((p) => readTable(p, leagueResultSchema))),
-    Promise.all(files('league_standing').map((p) => readTable(p, standingSchema))),
+  const tagged = <T>(tabla: string, schema: z.ZodType<T>) =>
+    Promise.all(
+      files(tabla).map(async (p) => (await readTable(p, schema)).map((r) => ({ row: r, league: leagueOf(p) }))),
+    );
+  const [results, standings, profiled] = await Promise.all([
+    tagged('league_result', leagueResultSchema),
+    tagged('league_standing', standingSchema),
+    tagged('league_player_profile', clubSchema),
   ]);
+  // Un club por liga: de su tabla, de sus partidos o de sus jugadores (países sin Promiedos).
+  const clubs = new Map<string, { name: string; league: string | null }>();
+  const add = (name: string, league: string | null) => {
+    const key = `${league ?? ''}|${slug(name)}`;
+    if (!clubs.has(key)) clubs.set(key, { name, league });
+  };
+  for (const { row, league } of standings.flat()) add(row.team_name, league);
+  for (const { row, league } of results.flat()) {
+    if (row.source !== 'promiedos') continue; // solo fuentes abiertas
+    add(row.home_team, league);
+    add(row.away_team, league);
+  }
+  for (const { row, league } of profiled.flat()) add(row.team_name, league);
   return {
     manifest,
     // Solo filas de fuentes abiertas: el archivo público ya no trae otras, pero la ficha cita a Promiedos.
-    results: results.flat().filter((r) => r.source === 'promiedos'),
-    standings: standings.flat(),
+    results: results
+      .flat()
+      .map((x) => x.row)
+      .filter((r) => r.source === 'promiedos'),
+    standings: standings.flat().map((x) => x.row),
+    clubs: [...clubs.values()],
   };
 }
 
-/** Clubes con datos en un país (por ahora, los de sus tablas de posiciones), ordenados por nombre. */
+/** Clubes con datos en un país, con su liga, ordenados por liga y nombre. */
 export async function listClubs(country = 'ARG'): Promise<ArchiveResult<ClubLink[]>> {
   try {
-    const { results, standings } = await countryTables(country);
-    const names = new Set([
-      ...standings.map((s) => s.team_name),
-      ...results.flatMap((r) => [r.home_team, r.away_team]),
-    ]);
+    const { clubs } = await countryTables(country);
     const prefix = country.toLowerCase();
     // Dos grafías del mismo club («Unión» y «Union») dan el mismo id: queda una sola.
-    const clubs = new Map([...names].map((name) => [`${prefix}-${slug(name)}`, name]));
-    const data = [...clubs].map(([uid, name]) => ({ uid, name }));
-    return { ok: true, data: data.toSorted((a, b) => a.name.localeCompare(b.name, 'es')) };
+    const unique = new Map(clubs.map((c) => [`${prefix}-${slug(c.name)}`, c]));
+    const data = [...unique].map(([uid, c]) => ({
+      uid,
+      name: c.name,
+      league: c.league ? (LEAGUE_NAMES[c.league] ?? c.league) : null,
+    }));
+    return {
+      ok: true,
+      data: data.toSorted(
+        (a, b) => (a.league ?? '').localeCompare(b.league ?? '', 'es') || a.name.localeCompare(b.name, 'es'),
+      ),
+    };
   } catch (cause) {
     return failure(cause);
   }
@@ -346,16 +407,12 @@ export async function listClubs(country = 'ARG'): Promise<ArchiveResult<ClubLink
 export async function getClub(uid: string): Promise<ArchiveResult<Club | null>> {
   try {
     const country = uid.slice(0, 3).toUpperCase();
-    const [{ manifest, results, standings }, identities] = await Promise.all([
+    const [{ manifest, results, standings, clubs }, identities] = await Promise.all([
       countryTables(country),
       readTable('referencia/team_identity.parquet', identitySchema),
     ]);
     const known = identities.find((t) => t.uid === uid);
-    const found =
-      known?.name ??
-      [...standings.map((s) => s.team_name), ...results.flatMap((r) => [r.home_team, r.away_team])].find(
-        (n) => `${country.toLowerCase()}-${slug(n)}` === uid,
-      );
+    const found = known?.name ?? clubs.map((c) => c.name).find((n) => `${country.toLowerCase()}-${slug(n)}` === uid);
     if (found === undefined) return { ok: true, data: null };
     const aliases = known ? z.array(z.string()).parse(JSON.parse(known.aliases ?? '[]')) : [];
     const names = [found, known?.short_name ?? '', ...aliases].filter(Boolean);
@@ -384,7 +441,7 @@ export async function getClub(uid: string): Promise<ArchiveResult<Club | null>> 
       data: {
         uid,
         name: found,
-        country: known?.country ?? identities.find((t) => t.country_code === country)?.country ?? null,
+        country: known?.country ?? COUNTRIES[country] ?? null,
         matches: matches.toSorted((a, b) => a.date.localeCompare(b.date)),
         leagueOnly: own.length === 0,
         standings: standingsFor(standings, names),

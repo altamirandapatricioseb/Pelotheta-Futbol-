@@ -22,7 +22,9 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import sys
+import unicodedata
 from collections import defaultdict
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass
@@ -428,6 +430,58 @@ def league_wikipedia_rows(season_year: int = 2026) -> dict[str, list[dict[str, A
     return out
 
 
+# Palabras que no distinguen clubes («Club», «Deportes», «FC»…): se comparan las demás.
+GENERIC_NAME_WORDS = {
+    "club", "ca", "cd", "fc", "sc", "ec", "ac", "cf", "sa", "clube", "de", "da", "do", "del", "la",
+    "el", "los", "futbol", "football", "esporte", "sport", "sporting", "deportes", "deportivo",
+    "atletico", "athletico", "associacao", "asociacion", "corporacion", "sad",
+}  # fmt: skip
+
+
+def _name_words(name: str) -> set[str]:
+    plain = unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode().lower()
+    words = re.findall(r"[a-z0-9]+", plain)
+    return set(w for w in words if w not in GENERIC_NAME_WORDS) or set(words)
+
+
+def match_club_names(names: Iterable[str], targets: Iterable[str]) -> dict[str, str]:
+    """Cada nombre con el club de `targets` que más palabras comparte, de a uno por club
+    («Red Bull Bragantino» → «Bragantino», «Colo-Colo» → «Colo Colo»). Sin palabra en común, nada."""
+    pairs = []
+    for name in set(names):
+        for target in set(targets):
+            a, b = _name_words(name), _name_words(target)
+            if a & b:
+                pairs.append((len(a & b) / len(a | b), name, target))
+    out: dict[str, str] = {}
+    for _, name, target in sorted(pairs, reverse=True):
+        if name not in out and target not in out.values():
+            out[name] = target
+    return out
+
+
+def unify_club_names(rows: list[dict[str, Any]], standings: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """El club de cada fila de jugador con el nombre de la tabla de su misma liga (Promiedos o
+    Wikipedia), para que la ficha encuentre su plantel. Ligas sin tabla quedan como vienen."""
+    targets: dict[Any, set[str]] = defaultdict(set)
+    for r in standings:
+        targets[r.get("competition_uid")].add(r["team_name"])
+    names: dict[Any, set[str]] = defaultdict(set)
+    for r in rows:
+        if r.get("team_name"):
+            names[r.get("competition_uid")].add(r["team_name"])
+    alias = {
+        (uid, name): target
+        for uid, own in names.items()
+        if uid in targets
+        for name, target in match_club_names(own, targets[uid]).items()
+    }
+    return [
+        {**r, "team_name": alias.get((r.get("competition_uid"), r.get("team_name")), r.get("team_name"))}
+        for r in rows
+    ]
+
+
 def league_value_rows(club_names: list[str], today: date | None = None) -> list[dict[str, Any]]:
     """Valor real (transfermarkt-datasets, CC0) y esperado por el modelo propio de cada jugador de la
     liga, con el club en el nombre de la tabla de Promiedos (el de las fichas). Vacío si falla la fuente."""
@@ -514,6 +568,8 @@ def main(argv: list[str] | None = None) -> int:
     other_leagues = league_promiedos_rows()
     for view, rows in league_wikipedia_rows().items():
         other_leagues.setdefault(view, []).extend(rows)
+    for view in LEAGUE_PLAYER_VIEWS:
+        league_rows[view] = unify_club_names(league_rows[view], other_leagues.get("league_standing", []))
 
     def fetch(view: str) -> list[dict[str, Any]]:
         base = league_rows[view] if view in league_rows else fetch_view(url, key, client, view)

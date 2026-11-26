@@ -104,3 +104,23 @@ def test_descriptive_source_column_does_not_split_rows(tmp_path: Path) -> None:
     assert [f["tabla"] for f in manifests["privado"]["archivos"]] == []
     entry = next(f for f in manifests["publico"]["archivos"] if f["tabla"] == "boca_match")
     assert entry["atribucion"] == [ex.OPEN_SOURCES["promiedos"]]
+
+
+def test_unify_club_names_per_league() -> None:
+    from pipeline.export_parquet import unify_club_names
+
+    standings = [
+        {"competition_uid": "uru-primera", "team_name": n} for n in ("Cerro", "Cerro Largo", "Nacional")
+    ] + [{"competition_uid": "bra-serie-a", "team_name": "Bragantino"}]
+    rows = [
+        {"competition_uid": "uru-primera", "team_name": "Cerro Largo"},
+        {"competition_uid": "uru-primera", "team_name": "Cerro"},
+        {"competition_uid": "bra-serie-a", "team_name": "Red Bull Bragantino"},
+        {"competition_uid": "col-primera-a", "team_name": "Atlético Nacional"},  # su liga no tiene tabla
+    ]
+    assert [r["team_name"] for r in unify_club_names(rows, standings)] == [
+        "Cerro Largo",
+        "Cerro",
+        "Bragantino",
+        "Atlético Nacional",
+    ]
